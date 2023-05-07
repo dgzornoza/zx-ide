@@ -1,16 +1,25 @@
 {
-  "name": "cli",
+  "name": "zx",
   "version": "1.0.0",
-  "description": "",
+  "description": "cli for zx spectrum development with zx-ide vscode extension",
   "keywords": [
     "zx spectrum",
-    "IDE"
+    "cli",
+    "zx-ide"
   ],
-  "author": "David González Zornoza",
-  "main": "index.js",
+  "author": "David González Zornoza <dgzornoza@dgzornoza.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgzornoza/zx-ide.git"
+  },
+  "bugs": {
+    "url": "https://github.com/dgzornoza/zx-ide/issues"
+  },
+  "main": "./dist/zx-cli.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack && node --inspect=9229 dist/app.js",
+    "prepublish": "npm run build",
+    "start": "webpack && node --inspect=9229 dist/zx-cli.js",
     "build": "webpack --mode production",
     "lint": "eslint src --ext ts"
   },
@@ -23,6 +32,7 @@
     "@typescript-eslint/eslint-plugin": "^5.59.1",
     "@typescript-eslint/parser": "^5.59.1",
     "eslint": "^8.39.0",
+    "prettier": "2.8.8",
     "ts-loader": "^9.4.2",
     "webpack": "^5.82.0",
     "webpack-cli": "^5.0.2"

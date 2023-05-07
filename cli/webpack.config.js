@@ -19,7 +19,7 @@ module.exports = {
     extensions: [".tsx", ".ts", ".js"],
   },
   output: {
-    filename: "app.js",
+    filename: "zx-cli.js",
     path: path.resolve(__dirname, "dist"),
   },
   optimization: {
