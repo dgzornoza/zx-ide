@@ -30,6 +30,9 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
+  "dependencies": {
+    "inversify": "^6.0.1"
+  },
   "devDependencies": {
     "@types/vscode": "^1.77.0",
     "@types/glob": "^8.1.0",

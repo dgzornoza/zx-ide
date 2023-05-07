@@ -1,0 +1,30 @@
+{
+  "name": "cli",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "zx spectrum",
+    "IDE"
+  ],
+  "author": "David González Zornoza",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack && node --inspect=9229 dist/app.js",
+    "build": "webpack --mode production",
+    "lint": "eslint src --ext ts"
+  },
+  "dependencies": {
+    "inquirer": "^9.2.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.3",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "eslint": "^8.39.0",
+    "ts-loader": "^9.4.2",
+    "webpack": "^5.82.0",
+    "webpack-cli": "^5.0.2"
+  }
+}
