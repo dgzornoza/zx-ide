@@ -1,10 +1,12 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "ES2020",
+        "moduleResolution": "node",
+        "target": "ES2022",
+        "module": "ES2022",
         "lib": [
-            "ES2020"
+            "ES2022",
         ],
+        "baseUrl": "./",
         "sourceMap": true,
         "rootDir": "src",
         "strict": true,
