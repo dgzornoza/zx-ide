@@ -17,6 +17,7 @@ class Main {
 
         figlet.parseFont("Standard", standard);
         console.log(figlet.textSync("Dir Manager"));
+
         this.program = this.setupCommander();
 
         this.init();
