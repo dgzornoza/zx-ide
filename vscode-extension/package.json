@@ -4,7 +4,7 @@
   "description": "Integrated Development environment for Zx Spectrum ",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.77.0"
+    "vscode": "^1.95.0"
   },
   "categories": [
     "Other"
@@ -30,23 +30,43 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --relative"
+    }
+  },
+  "lint-staged": {
+    "*.{html, js, ts}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
   "dependencies": {
-    "inversify": "^6.0.1"
+    "inversify": "^6.0.3",
+    "loglevel": "^1.9.2",
+    "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
-    "@types/vscode": "^1.77.0",
+    "@eslint/js": "^9.14.0",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
-    "@typescript-eslint/eslint-plugin": "^5.59.1",
-    "@typescript-eslint/parser": "^5.59.1",
-    "eslint": "^8.39.0",
+    "@types/vscode": "^1.95.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-typescript": "^18.0.0",
     "glob": "^8.1.0",
+    "globals": "^15.12.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
     "mocha": "^10.2.0",
-    "typescript": "^5.0.4",
-    "ts-loader": "^9.4.2",
-    "webpack": "^5.81.0",
-    "webpack-cli": "^5.0.2",
-    "@vscode/test-electron": "^2.3.0"
+    "prettier": "^3.3.3",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^7.0.0",
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4"
   }
 }
