@@ -1,6 +1,8 @@
-import { IStatusBar, StatusBar, StatusBarChangeViewItem } from '@components/statusBar.component';
+import { CreateProjectCmd } from '@commands/create-project.cmd';
+import { IStatusBar, StatusBar } from '@components/status-bar.component';
 import { IDisposable } from '@core/abstractions/disposable';
 import { Types } from '@core/types';
+import { ProjectsService } from '@services/projects.service';
 import * as inversify from 'inversify';
 import * as vsc from 'vscode';
 
@@ -30,22 +32,30 @@ export class InversifyConfig {
       .inSingletonScope();
 
     // UI
-    InversifyConfig._container.bind<IStatusBar>('IStatusBar').to(StatusBar).inSingletonScope().onActivation(InversifyConfig._subscribe);
+    InversifyConfig._container.bind<IStatusBar>(Types.IStatusBar).to(StatusBar).inSingletonScope().onActivation(InversifyConfig._subscribe);
 
-    InversifyConfig._container
-      .bind<StatusBarChangeViewItem>('StatusBarChangeViewItem')
-      .to(StatusBarChangeViewItem)
-      .inSingletonScope()
-      .onActivation(InversifyConfig._subscribe);
+    // InversifyConfig._container
+    //   .bind<StatusBarChangeViewItem>('StatusBarChangeViewItem')
+    //   .to(StatusBarChangeViewItem)
+    //   .inSingletonScope()
+    //   .onActivation(InversifyConfig._subscribe);
 
     // Commands
-    // ...
+    InversifyConfig._container
+      .bind<CreateProjectCmd>(Types.CreateProjectCmd)
+      .to(CreateProjectCmd)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
 
     // Providers
     // ...
 
     // Services
-    // ...
+    InversifyConfig._container
+      .bind<ProjectsService>(Types.ProjectsService)
+      .to(ProjectsService)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
   }
 
   private static _subscribe<T extends IDisposable>(_: inversify.interfaces.Context, injectable: T): T {

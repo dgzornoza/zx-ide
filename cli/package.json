@@ -23,21 +23,39 @@
     "build": "webpack --mode production --config webpack.prod.js",
     "lint": "eslint src --ext ts"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --relative"
+    }
+  },
+  "lint-staged": {
+    "*.{html, js, ts}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
+  },
   "dependencies": {
+    "@inquirer/prompts": "^7.0.1",
     "commander": "^10.0.1",
     "figlet": "^1.6.0",
-    "inquirer": "^9.2.1"
+    "os-locale": "^6.0.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.14.0",
     "@types/figlet": "^1.5.6",
     "@types/inquirer": "^9.0.3",
-    "@types/node": "16.x",
-    "@typescript-eslint/eslint-plugin": "^5.59.1",
-    "@typescript-eslint/parser": "^5.59.1",
-    "eslint": "^8.39.0",
-    "prettier": "2.8.8",
-    "ts-loader": "^9.4.2",
-    "webpack": "^5.82.0",
-    "webpack-cli": "^5.0.2"
+    "@types/node": "18.x",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.57.1",
+    "eslint-config-airbnb-typescript": "^18.0.0",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
+    "prettier": "^3.3.3",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^7.0.0",
+    "webpack": "^5.96.1",
+    "webpack-cli": "^5.1.4"
   }
 }

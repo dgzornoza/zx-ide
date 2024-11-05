@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import * as figlet from 'figlet';
-import inquirer from 'inquirer';
+import { osLocale } from 'os-locale';
+import { InteractiveWizard } from './interactive-wizard';
 var pjson = require('../package.json');
 
 // @ts-ignore
@@ -8,73 +9,49 @@ import { default as standard } from 'figlet/importable-fonts/Standard';
 
 const devilmalUrl = 'devimalplanet.com';
 
-
 class Main {
+  private _program!: Command;
 
-    private program;
+  constructor() {
+    this.setCurrentLanguage().then(async () => {
+      this._program = this.setupCommander();
 
-    constructor() {
+      await this.init();
+    });
+  }
 
-        figlet.parseFont("Standard", standard);
-        console.log(figlet.textSync("Dir Manager"));
+  async init() {
+    this.showTitle();
 
-        this.program = this.setupCommander();
-
-        this.init();
+    var options = this._program.opts();
+    const ranWithArgs = options.skipPrompts || options.url;
+    if (!ranWithArgs) {
+      const result = await new InteractiveWizard().execute();
+      console.log(JSON.stringify(result));
     }
+  }
 
+  async setCurrentLanguage(): Promise<void> {
+    const language = await osLocale();
+    console.log(`Current language is: ${language}`);
+  }
 
-    async init() {
-        var options = this.program.opts();
-        const ranWithArgs = options.skipPrompts || options.url;
-        if (!ranWithArgs) { return this.interactiveRun(); }
+  showTitle(): void {
+    figlet.parseFont('Standard', standard);
+    console.log(figlet.textSync('Zx-Ide'));
+  }
 
-        const url = typeof ranWithArgs === 'string' ? ranWithArgs : devilmalUrl;
-    }
+  setupCommander(): Command {
+    const program = new Command();
 
-    async interactiveRun() {
-        console.log('Hi! 👋  Welcome devimal-cli!');
+    program
+      .version(pjson.version)
+      .option('-y, --skip-prompts', 'skips questions, directly opens devimalplanet.com')
+      .option('-u, --url <URL>', 'skips questions, directly opens provided URL')
+      .parse(process.argv);
 
-        const { openDevimal } = await inquirer.prompt({
-            type: 'confirm',
-            name: 'openDevimal',
-            message: 'Would you like to visit devimalplanet.com?',
-            default: true
-        });
-
-        const urlToVisit = openDevimal
-            ? devilmalUrl
-            : (
-                await inquirer.prompt({
-                    type: 'input',
-                    name: 'someFunUrl',
-                    message: '😢  No? Which URL would you like to visit?',
-                    validate: function (input) {
-                        return (
-                            /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/.test(
-                                input
-                            ) || 'Please enter a valid URL.'
-                        );
-                    }
-                })
-            ).someFunUrl;
-    }
-
-    setupCommander() {
-
-        const program = new Command();
-
-        program
-            .version(pjson.version)
-            .option(
-                '-y, --skip-prompts',
-                'skips questions, directly opens devimalplanet.com'
-            )
-            .option('-u, --url <URL>', 'skips questions, directly opens provided URL')
-            .parse(process.argv);
-
-        return program;
-    }
+    return program;
+  }
 }
 
 new Main();

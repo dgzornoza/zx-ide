@@ -1,19 +1,24 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { IStatusBar } from '@components/statusBar.component';
+import { CreateProjectCmd } from '@commands/create-project.cmd';
+import { Types } from '@core/types';
 import * as vscode from 'vscode';
 import { InversifyConfig } from './inversify.config';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+  InversifyConfig.initialize(context);
+
+  // Comando para crear proyecto siempre activo
+  InversifyConfig.container.get<CreateProjectCmd>(Types.CreateProjectCmd);
+
   // TODO: añadir validacion para activacion
   // activate extension with IOC container
   const activated = true;
-  let log: string = 'zx-ide extension is ' + (activated ? 'activated' : 'deactivated (not exists project)');
+  const log: string = 'zx-ide extension is ' + (activated ? 'activated' : 'deactivated (not exists project)');
   if (activated) {
-    InversifyConfig.initialize(context);
-    InversifyConfig.container.get<IStatusBar>('IStatusBar');
+    // InversifyConfig.container.get<CreateProjectCmd>('IStatusBar');
   }
 
   // // Use the console to output diagnostic information (console.log) and errors (console.error)

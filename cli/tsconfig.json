@@ -1,17 +1,16 @@
 {
-    "compilerOptions": {
-        "moduleResolution": "node",
-        "target": "ES2022",
-        "module": "ES2022",
-        "lib": [
-            "ES2022",
-        ],
-        "baseUrl": "./",
-        "sourceMap": true,
-        "rootDir": "src",
-        "strict": true,
-        "noImplicitReturns": true,
-        "noFallthroughCasesInSwitch": true,
-        "noUnusedParameters": true,
-    }
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": [
+      "ES2022",
+    ],
+    "baseUrl": "./",
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedParameters": true,
+  }
 }
