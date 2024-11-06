@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": "./",
+    "rootDir": "./src",
     "moduleResolution": "node",
     "module": "ES2022",
     "target": "ES2022",

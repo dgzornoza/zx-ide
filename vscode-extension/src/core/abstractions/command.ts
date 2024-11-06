@@ -3,10 +3,10 @@ import { injectable } from 'inversify';
 import 'reflect-metadata';
 
 /**
- * interface for implement commands
+ * base class for declare commands
  */
 @injectable()
-export abstract class ICommand<TParams> extends Disposable {
+export abstract class Command<TParams> extends Disposable {
   protected _isEnabled: boolean;
 
   constructor() {

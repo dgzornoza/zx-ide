@@ -1,8 +1,8 @@
 import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { IStatusBar, StatusBar } from '@components/status-bar.component';
 import { IDisposable } from '@core/abstractions/disposable';
+import { TerminalWrapper } from '@core/terminal-wrapper';
 import { Types } from '@core/types';
-import { ProjectsService } from '@services/projects.service';
 import * as inversify from 'inversify';
 import * as vsc from 'vscode';
 
@@ -26,7 +26,8 @@ export class InversifyConfig {
     // Extension
     InversifyConfig._container
       .bind<vsc.ExtensionContext>(Types.ExtensionContext)
-      .toDynamicValue((_: inversify.interfaces.Context) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      .toDynamicValue((_context: inversify.interfaces.Context) => {
         return InversifyConfig._extensionContext;
       })
       .inSingletonScope();
@@ -52,8 +53,8 @@ export class InversifyConfig {
 
     // Services
     InversifyConfig._container
-      .bind<ProjectsService>(Types.ProjectsService)
-      .to(ProjectsService)
+      .bind<TerminalWrapper>(Types.TerminalWrapper)
+      .to(TerminalWrapper)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
   }

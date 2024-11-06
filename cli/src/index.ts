@@ -57,7 +57,7 @@ class Main {
 
     program
       .version(pjson.version)
-      .option('-p, --project-type <PROYECT>', 'Set project type ("1ZxSpectrumsjasmplus", "ZxSpectrumZ88dk")')
+      .option('-p, --project-type <PROYECT>', 'Set project type ("ZxSpectrumSjasmplus", "ZxSpectrumZ88dk")')
       .option('-o, --output <PATH>', 'Set target directory')
       .option('-n, --name <NAME>', 'Set project name')
       .option('-s, --use-sample', 'Use sample project')

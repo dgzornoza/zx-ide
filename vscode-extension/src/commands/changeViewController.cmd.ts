@@ -3,13 +3,13 @@ import * as path from 'path';
 import 'reflect-metadata';
 import * as vsc from 'vscode';
 
-import { ICommand } from '@core/abstractions/command';
+import { Command } from '@core/abstractions/command';
 import { ViewsControllersService } from '@services/viewController.service';
 
 const COMMAND_NAME: string = 'atse.changeViewController';
 
 @injectable()
-export class ChangeViewControllerCmd extends ICommand<unknown> {
+export class ChangeViewControllerCmd extends Command<unknown> {
   private _viewsControllersService: ViewsControllersService;
 
   constructor(@inject('ViewsControllersService') viewsControllersService: ViewsControllersService) {

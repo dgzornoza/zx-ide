@@ -1,27 +1,20 @@
-import { ICommand } from '@core/abstractions/command';
-import { Logger } from '@core/logger';
+import { Command } from '@core/abstractions/command';
+import { TerminalWrapper } from '@core/terminal-wrapper';
 import { Types } from '@core/types';
-import * as prompts from '@inquirer/prompts';
-import { ProjectsService } from '@services/projects.service';
-import * as figlet from 'figlet';
+import { exec } from 'child_process';
 import { inject, injectable } from 'inversify';
-import 'reflect-metadata';
-import { Stream } from 'stream';
+import * as path from 'path';
 import * as vscode from 'vscode';
-
-// @ts-expect-error Este archivo es una fuente y forma parte de figlet y debe exisitir segun la documentacion.
-import { default as standard } from 'figlet/importable-fonts/Standard';
 
 const COMMAND_NAME: string = 'zx-ide.create-project';
 
 @injectable()
-export class CreateProjectCmd extends ICommand<unknown> {
-  private _projectsService: ProjectsService;
-
-  constructor(@inject(Types.ProjectsService) projectsService: ProjectsService) {
+export class CreateProjectCmd extends Command<unknown> {
+  constructor(
+    @inject(Types.ExtensionContext) private extensionContext: vscode.ExtensionContext,
+    @inject(Types.TerminalWrapper) private terminalWrapper: TerminalWrapper
+  ) {
     super();
-
-    this._projectsService = projectsService;
 
     this._subscriptions.push(
       vscode.commands.registerCommand(COMMAND_NAME, () => {
@@ -32,33 +25,29 @@ export class CreateProjectCmd extends ICommand<unknown> {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async execute(..._params: unknown[]): Promise<void> {
-    // Crear un terminal en VSCode
-    const terminal = vscode.window.createTerminal('Inquirer Terminal');
-    terminal.show();
-    terminal.sendText('echo prueba de texto');
+    const projectType = await this.chooseProjectType();
+    if (projectType === undefined) return;
 
-    figlet.parseFont('Standard', standard);
+    const projectName = await this.chooseProjectName();
+    if (projectName === undefined) return;
 
-    figlet('Hello World!!', function (err, data) {
-      if (err) {
-        console.log('Something went wrong...');
-        console.dir(err);
-        return;
-      }
-      console.log(data);
-      terminal.sendText(`echo ${data}`);
-    });
+    const useSample = await this.chooseUseSample();
+    if (useSample === undefined) return;
 
-    // const title = figlet.textSync('Dir Manager');
-    // // Escapar el texto para evitar problemas con los saltos de línea
-    // const escapedData = title.replace(/`/g, '\\`').replace(/\$/g, '\\$').replace(/"/g, '\\"').replace(/\n/g, '\r\n');
-    // // Enviar el texto generado al terminal
-    // terminal.sendText(`echo ${escapedData}`);
+    const projectPath = await this.choosePath();
+    if (projectPath === undefined) return;
 
-    const result = await this.interactiveCreateNewProject(terminal);
-    Logger.log(result);
+    try {
+      await this.executeCliCommand(projectType, projectName, useSample, projectPath);
+      vscode.window.showInformationMessage('Project created successfully, wait to open!');
 
-    this._projectsService.createNewProject();
+      // reopen vscode
+      const projectFolder = path.join(projectPath, projectName);
+      await vscode.commands.executeCommand('vscode.openFolder', projectFolder, true);
+      await vscode.commands.executeCommand('workbench.action.closeWindow');
+    } catch (error) {
+      vscode.window.showErrorMessage(`Error: ${error}`);
+    }
   }
 
   public canExecute(): boolean {
@@ -69,55 +58,51 @@ export class CreateProjectCmd extends ICommand<unknown> {
     return COMMAND_NAME;
   }
 
-  public dispose(): void {
-    // not used
+  private async chooseProjectType(): Promise<string | undefined> {
+    const options = ['Zx Spectrum sjasmplus', 'Zx Spectrum z88dk'];
+    const result = await vscode.window.showQuickPick(options, { placeHolder: 'Select project type' });
+
+    switch (result) {
+      case 'Zx Spectrum sjasmplus':
+        return 'ZxSpectrumSjasmplus';
+      case 'Zx Spectrum z88dk':
+        return 'ZxSpectrumZ88dk';
+      default:
+        return undefined;
+    }
   }
 
-  private async interactiveCreateNewProject(terminal: vscode.Terminal): Promise<string> {
-    const nameAnswer = await prompts.input(
-      { message: '¿Cuál es tu nombre?' },
-      {
-        output: new Stream.Writable({
-          write(chunk, _encoding, next) {
-            terminal.sendText(chunk.toString());
-            next();
-          },
-        }),
-        clearPromptOnDone: true,
-      }
-    );
+  private async chooseProjectName(): Promise<string | undefined> {
+    return await vscode.window.showInputBox({ prompt: 'Insert project name (should be unique in docker containers)' });
+  }
 
-    const packageAnswer = await prompts.select({
-      message: 'Select a package manager',
-      choices: [
-        {
-          name: 'npm',
-          value: 'npm',
-          description: 'npm is the most popular package manager',
-        },
-        {
-          name: 'yarn',
-          value: 'yarn',
-          description: 'yarn is an awesome package manager',
-        },
-        new prompts.Separator(),
-        {
-          name: 'jspm',
-          value: 'jspm',
-          disabled: true,
-        },
-        {
-          name: 'pnpm',
-          value: 'pnpm',
-          disabled: '(pnpm is not available)',
-        },
-      ],
+  private async chooseUseSample(): Promise<string | undefined> {
+    const options = ['Yes', 'No'];
+    return await vscode.window.showQuickPick(options, { placeHolder: 'Use sample project?' });
+  }
+
+  private async choosePath(): Promise<string | undefined> {
+    const result = await vscode.window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Choose path' });
+    return result ? result[0].fsPath : undefined;
+  }
+
+  private executeCliCommand(projectType: string, projectName: string, useSample: string, path: string): Promise<void> {
+    const useSampleOption = useSample === 'Yes' ? '-s' : '';
+
+    return new Promise<void>((resolve, reject) => {
+      const cliPath = this.extensionContext.asAbsolutePath('dist/zx-ide-cli.js');
+      const command = `node ${cliPath} -p ${projectType} -n ${projectName} ${useSampleOption} -o ${path}`;
+
+      exec(command, (error, _stdout, stderr) => {
+        if (error) {
+          reject(error.message);
+        }
+        if (stderr) {
+          reject(stderr);
+        }
+
+        resolve();
+      });
     });
-
-    // Mostrar el resultado en un mensaje de VSCode
-    vscode.window.showInformationMessage(`Hola, 👋 ${nameAnswer}! your package manager ${packageAnswer}.`);
-    Logger.log('Hi! 👋  Welcome devimal-cli!');
-
-    return packageAnswer;
   }
 }
