@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: './src/index.ts',
@@ -12,6 +13,15 @@ module.exports = {
         use: 'ts-loader',
         exclude: /node_modules/,
       },
+      {
+        test: /\.(zip|gz)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: { name: '[name].[ext]', outputPath: 'templates/' },
+          },
+        ],
+      },
     ],
   },
   resolve: {
@@ -21,4 +31,14 @@ module.exports = {
     filename: 'zx-ide-cli.js',
     path: path.resolve(__dirname, 'dist'),
   },
+  plugins: [
+    new CopyWebpackPlugin({
+      // copy the templates to the dist folder
+      patterns: [
+        {
+          from: 'templates/*.zip',
+        },
+      ],
+    }),
+  ],
 };
