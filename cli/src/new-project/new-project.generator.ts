@@ -7,13 +7,14 @@ import { NewProjectModel } from './new-project.models';
 export class NewProjectGenerator {
   constructor() {}
 
-  public async execute(newProjectModel: NewProjectModel): Promise<void> {
+  public async execute(newProjectModel: NewProjectModel): Promise<string | undefined> {
     console.log('Generating new project...' + newProjectModel);
 
+    let targetFolder: string | undefined = undefined;
     try {
       const projectTemplates = NewProjectTemplateFactory.create(newProjectModel.projectType);
       // template base
-      await this.copyTemplate(projectTemplates.baseTemplate, newProjectModel.projectPath, newProjectModel.projectName);
+      targetFolder = await this.copyTemplate(projectTemplates.baseTemplate, newProjectModel.projectPath, newProjectModel.projectName);
 
       // template sample
       if (newProjectModel.useSample && projectTemplates.sampleTemplate) {
@@ -24,14 +25,14 @@ export class NewProjectGenerator {
       if (projectTemplates.configurationTemplate) {
         await this.copyTemplate(projectTemplates.configurationTemplate, newProjectModel.projectPath, newProjectModel.projectName);
       }
-
-      console.log('template copied.');
     } catch (err) {
       console.error('Error creating project:', err);
     }
+
+    return targetFolder;
   }
 
-  private async copyTemplate(templateFilePath: string, targetDir: string, targetName: string): Promise<void> {
+  private async copyTemplate(templateFilePath: string, targetDir: string, targetName: string): Promise<string> {
     const targetFolder = path.join(targetDir, targetName);
     const templateFileName = path.basename(templateFilePath);
     const targetTemplatePath = path.join(targetFolder, templateFileName);
@@ -51,5 +52,7 @@ export class NewProjectGenerator {
 
     // Delete the ZIP file
     fs.unlinkSync(targetTemplatePath);
+
+    return targetFolder;
   }
 }

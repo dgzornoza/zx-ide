@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { ProjectTemplates, ProjectType } from 'src/new-project/new-project.models';
 
 export class NewProjectTemplateFactory {
@@ -9,17 +10,28 @@ export class NewProjectTemplateFactory {
     };
   }
 
+  private static getAbsolutePath(relativePath: string): string {
+    const currentDirectory = process.cwd();
+    return path.join(currentDirectory, 'dist', relativePath);
+  }
+
   private static getBaseTemplatePath(projectType: ProjectType): string {
+    let path: string;
     switch (projectType) {
       case 'ZxSpectrumSjasmplus':
-        return './templates/z80asm_dev_environment_base.zip';
+        path = '/templates/z80asm_dev_environment_base.zip';
+        break;
       case 'ZxSpectrumZ88dk':
-        return './templates/z88dk_dev_environment_base.zip';
+        path = '/templates/z88dk_dev_environment_base.zip';
+        break;
       case 'ZxSpectrumZ88dkNext':
-        return './templates/z88dk_dev_environment_base.zip';
+        path = '/templates/z88dk_dev_environment_base.zip';
+        break;
       default:
         throw new Error('Invalid project type');
     }
+
+    return this.getAbsolutePath(path);
   }
 
   private static getConfigurationTemplatePath(projectType: ProjectType): string | undefined {
@@ -36,15 +48,21 @@ export class NewProjectTemplateFactory {
   }
 
   private static getSampleTemplatePath(projectType: ProjectType): string | undefined {
+    let path: string;
     switch (projectType) {
       case 'ZxSpectrumSjasmplus':
-        return './templates/z80asm_dev_environment_sample.zip';
+        path = './templates/z80asm_dev_environment_sample.zip';
+        break;
       case 'ZxSpectrumZ88dk':
-        return './templates/z88dk_dev_environment_sample.zip';
+        path = './templates/z88dk_dev_environment_sample.zip';
+        break;
       case 'ZxSpectrumZ88dkNext':
-        return './templates/z88dk_dev_environment_sample.zip';
+        path = './templates/z88dk_dev_environment_sample.zip';
+        break;
       default:
         throw new Error('Invalid project type');
     }
+
+    return this.getAbsolutePath(path);
   }
 }
