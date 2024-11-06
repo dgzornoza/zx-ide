@@ -7,7 +7,7 @@ import { NewProjectModel } from './new-project.models';
 export class NewProjectGenerator {
   constructor() {}
 
-  public async execute(newProjectModel: NewProjectModel): Promise<string | undefined> {
+  public async execute(newProjectModel: NewProjectModel): Promise<void> {
     console.log('Generating new project...' + newProjectModel);
 
     let targetFolder: string | undefined = undefined;
@@ -25,11 +25,10 @@ export class NewProjectGenerator {
       if (projectTemplates.configurationTemplate) {
         await this.copyTemplate(projectTemplates.configurationTemplate, newProjectModel.projectPath, newProjectModel.projectName);
       }
+      console.log('Project generated in: ' + targetFolder);
     } catch (err) {
       console.error('Error creating project:', err);
     }
-
-    return targetFolder;
   }
 
   private async copyTemplate(templateFilePath: string, targetDir: string, targetName: string): Promise<string> {

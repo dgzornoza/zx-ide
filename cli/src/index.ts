@@ -38,9 +38,7 @@ class Main {
       };
     }
 
-    const result = await new NewProjectGenerator().execute(projectType);
-    console.log('Project generated in:');
-    console.log(result);
+    await new NewProjectGenerator().execute(projectType);
   }
 
   async setCurrentLanguage(): Promise<void> {
