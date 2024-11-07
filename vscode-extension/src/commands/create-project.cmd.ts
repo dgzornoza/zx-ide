@@ -1,5 +1,4 @@
 import { Command } from '@core/abstractions/command';
-import { TerminalWrapper } from '@core/terminal-wrapper';
 import { Types } from '@core/types';
 import { exec } from 'child_process';
 import { inject, injectable } from 'inversify';
@@ -10,10 +9,7 @@ const COMMAND_NAME: string = 'zx-ide.create-project';
 
 @injectable()
 export class CreateProjectCmd extends Command<unknown> {
-  constructor(
-    @inject(Types.ExtensionContext) private extensionContext: vscode.ExtensionContext,
-    @inject(Types.TerminalWrapper) private terminalWrapper: TerminalWrapper
-  ) {
+  constructor(@inject(Types.ExtensionContext) private extensionContext: vscode.ExtensionContext) {
     super();
 
     this._subscriptions.push(
@@ -42,9 +38,8 @@ export class CreateProjectCmd extends Command<unknown> {
       vscode.window.showInformationMessage('Project created successfully, wait to open!');
 
       // reopen vscode
-      const projectFolder = path.join(projectPath, projectName);
-      await vscode.commands.executeCommand('vscode.openFolder', projectFolder, true);
-      await vscode.commands.executeCommand('workbench.action.closeWindow');
+      const projectPathUri = vscode.Uri.file(path.join(projectPath, projectName));
+      await vscode.commands.executeCommand('vscode.openFolder', projectPathUri, { forceReuseWindow: true });
     } catch (error) {
       vscode.window.showErrorMessage(`Error: ${error}`);
     }
@@ -86,12 +81,13 @@ export class CreateProjectCmd extends Command<unknown> {
     return result ? result[0].fsPath : undefined;
   }
 
-  private executeCliCommand(projectType: string, projectName: string, useSample: string, path: string): Promise<void> {
+  private executeCliCommand(projectType: string, projectName: string, useSample: string, projectPath: string): Promise<void> {
     const useSampleOption = useSample === 'Yes' ? '-s' : '';
 
     return new Promise<void>((resolve, reject) => {
-      const cliPath = this.extensionContext.asAbsolutePath('dist/zx-ide-cli.js');
-      const command = `node ${cliPath} -p ${projectType} -n ${projectName} ${useSampleOption} -o ${path}`;
+      // const cliPath = this.extensionContext.asAbsolutePath('dist/zx-ide-cli.js');
+      const cliPath = path.join(__dirname, 'zx-ide-cli.js');
+      const command = `node ${cliPath} -p ${projectType} -n ${projectName} ${useSampleOption} -o ${projectPath}`;
 
       exec(command, (error, _stdout, stderr) => {
         if (error) {

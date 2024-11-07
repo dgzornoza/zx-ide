@@ -1,8 +1,8 @@
 import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { IStatusBar, StatusBar } from '@components/status-bar.component';
 import { IDisposable } from '@core/abstractions/disposable';
-import { TerminalWrapper } from '@core/terminal-wrapper';
 import { Types } from '@core/types';
+import { BreakpointService } from '@services/breakpoints.services';
 import * as inversify from 'inversify';
 import * as vsc from 'vscode';
 
@@ -53,8 +53,8 @@ export class InversifyConfig {
 
     // Services
     InversifyConfig._container
-      .bind<TerminalWrapper>(Types.TerminalWrapper)
-      .to(TerminalWrapper)
+      .bind<BreakpointService>(Types.BreakpointService)
+      .to(BreakpointService)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
   }

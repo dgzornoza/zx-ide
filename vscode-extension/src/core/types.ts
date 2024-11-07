@@ -4,7 +4,7 @@ const Types = {
   CreateProjectCmd: Symbol.for('CreateProjectCmd'),
   ExtensionContext: Symbol.for('ExtensionContext'),
   IStatusBar: Symbol.for('IStatusBar'),
-  TerminalWrapper: Symbol.for('TerminalWrapper'),
+  BreakpointService: Symbol.for('BreakpointService'),
 };
 
 export { Types };
