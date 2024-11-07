@@ -11,8 +11,7 @@ export class NewProjectTemplateFactory {
   }
 
   private static getAbsolutePath(relativePath: string): string {
-    const currentDirectory = process.cwd();
-    return path.join(currentDirectory, 'dist', relativePath);
+    return path.join(__dirname, relativePath);
   }
 
   private static getBaseTemplatePath(projectType: ProjectType): string {
