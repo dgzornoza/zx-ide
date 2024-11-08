@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { Types } from '@core/types';
+import { FeaturesService } from '@services/features.service';
 import * as vscode from 'vscode';
 import { InversifyConfig } from './inversify.config';
 
@@ -10,16 +11,16 @@ import { InversifyConfig } from './inversify.config';
 export function activate(context: vscode.ExtensionContext) {
   InversifyConfig.initialize(context);
 
-  // Comando para crear proyecto siempre activo
+  // Comando para crear proyecto nuevo
   InversifyConfig.container.get<CreateProjectCmd>(Types.CreateProjectCmd);
 
-  // TODO: añadir validacion para activacion
-  // activate extension with IOC container
-  const activated = true;
-  const log: string = 'zx-ide extension is ' + (activated ? 'activated' : 'deactivated (not exists project)');
-  if (activated) {
-    // InversifyConfig.container.get<CreateProjectCmd>('IStatusBar');
-  }
+  FeaturesService.canUseBreakpointService().then((canUse) => {
+    if (canUse) {
+      InversifyConfig.container.get<CreateProjectCmd>(Types.BreakpointService);
+    }
+  });
+
+  //  InversifyConfig.container.get<CreateProjectCmd>('IStatusBar');
 
   // // Use the console to output diagnostic information (console.log) and errors (console.error)
   // // This line of code will only be executed once when your extension is activated
