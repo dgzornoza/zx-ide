@@ -1,5 +1,6 @@
 import { Disposable } from '@core/abstractions/disposable';
 import { BindThis } from '@core/decorators/bind-this.decorator';
+import { MappedBreakpointsModel } from '@models/mapped-breakpoints.model';
 import * as vscode from 'vscode';
 
 const SOURCE_FILE_EXTENSIONS = ['c', 'asm'];
@@ -10,8 +11,11 @@ const SOURCE_FILE_EXTENSIONS = ['c', 'asm'];
  */
 export class Z88dkBreakpointService extends Disposable {
   private lisFilePath?: string;
-  private isDebugging = false;
   private workspacePath: string;
+  private isUpdatingBreakpoints = false;
+
+  // dictionary with mapped breakpoints, key is source breakpoint and value is .lis file breakpoint
+  private mappedBreakpoints = new MappedBreakpointsModel();
 
   constructor() {
     super();
@@ -24,43 +28,62 @@ export class Z88dkBreakpointService extends Disposable {
   }
 
   @BindThis
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private async onDidStartDebugSession(_session: vscode.DebugSession): Promise<void> {
     await this.clearBreakpointsInLisFile();
 
     const sourceBreakpoints = vscode.debug.breakpoints.filter((item) => item instanceof vscode.SourceBreakpoint);
-    this.updateBreakpoints(sourceBreakpoints);
-
-    this.isDebugging = true;
+    await this.mapSourceBreakpointsToLisFileBreakpoints(sourceBreakpoints);
+    await this.updateMappedBreakpointsInFiles();
   }
 
   @BindThis
-  private onBreakpointsChange(event: vscode.BreakpointsChangeEvent) {
+  private async onBreakpointsChange(event: vscode.BreakpointsChangeEvent): Promise<void> {
+    if (this.isUpdatingBreakpoints) return;
+
     const { added, removed, changed } = event;
     if (added.length > 0) {
       const breakpoints = added.filter((bp) => bp instanceof vscode.SourceBreakpoint);
-      this.updateBreakpoints(breakpoints);
+      await this.mapSourceBreakpointsToLisFileBreakpoints(breakpoints);
     }
     if (removed.length > 0) {
-      // TODO: falta cambiar la funcion 'addBreakpointsInLisFile' para que obtenga el breakpoint mapeado en lugar de añadirlo directamente
-      //const breakpoints = removed.filter((bp) => bp instanceof vscode.SourceBreakpoint);
+      const breakpoints = removed.filter((bp) => bp instanceof vscode.SourceBreakpoint);
+      this.mappedBreakpoints.removeSourceBreakpoints(breakpoints);
     }
     if (changed.length > 0) {
-      // TODO: falta implementar ¿el que se cambia es el antiguo o el nuevo?
-      //const breakpoints = changed.filter((bp) => bp instanceof vscode.SourceBreakpoint);
+      // Currently it is not necessary, if the code is modified it has to be recompiled and the debug restarted.
     }
+
+    this.updateMappedBreakpointsInFiles();
   }
 
   /**
-   * Update valid breakpoints in .lis file and remove invalid breakpoints from source files.
+   * update mapped breakpoints in files:
+   * - if has source and lis mapped breakpoint, add source breakpoint to lis file. (valid breakpoint)
+   * - if not has lis mapped breakpoint, remove from source file and remove from mapped breakpoints (invalid breakpoint location in source file)
+   * - if not has source mapped breakpoint, remove from lis file and remove from mapped breakpoints (removed breakpoint from source file)
    * @param breakpoints list of source code breakpoints
    */
-  private async updateBreakpoints(breakpoints: vscode.SourceBreakpoint[]): Promise<void> {
-    const invalidBreakpoints = await this.addBreakpointsInLisFile(breakpoints);
+  private async updateMappedBreakpointsInFiles(): Promise<void> {
+    this.isUpdatingBreakpoints = true;
 
-    if (invalidBreakpoints.length > 0) {
-      vscode.debug.removeBreakpoints(invalidBreakpoints);
+    for (const [sourceBreakpoint, lisBreakpoint] of this.mappedBreakpoints.mappedBreakpoints) {
+      // valid breakpoint
+      if (sourceBreakpoint && lisBreakpoint) {
+        vscode.debug.addBreakpoints([lisBreakpoint]);
+
+        // invalid breakpoint location in source file
+      } else if (sourceBreakpoint && !lisBreakpoint) {
+        vscode.debug.removeBreakpoints([sourceBreakpoint]);
+        this.mappedBreakpoints.removeMappedBreakpoint(sourceBreakpoint, lisBreakpoint);
+
+        // removed breakpoint from source file
+      } else if (!sourceBreakpoint && lisBreakpoint) {
+        vscode.debug.removeBreakpoints([lisBreakpoint]);
+        this.mappedBreakpoints.removeMappedBreakpoint(sourceBreakpoint, lisBreakpoint);
+      }
     }
+
+    this.isUpdatingBreakpoints = false;
   }
 
   private async clearBreakpointsInLisFile(): Promise<void> {
@@ -82,6 +105,10 @@ export class Z88dkBreakpointService extends Disposable {
     return this.lisFilePath;
   }
 
+  private isBreakpointInSourceFile(breakpoint: vscode.SourceBreakpoint): boolean {
+    return SOURCE_FILE_EXTENSIONS.includes(breakpoint.location.uri.fsPath.split('.').pop() || '');
+  }
+
   /**
    * Generate label similar to the one in the .lis file for c comments.
    * @param breakpoint breakpoint to generate label
@@ -98,53 +125,46 @@ export class Z88dkBreakpointService extends Disposable {
     return `;${filePath}:${breakpoint.location.range.start.line + 1}:`;
   }
 
+  private async openLisFile(): Promise<vscode.TextDocument | undefined> {
+    const lisFilePath = await this.getLisFilePath();
+    if (lisFilePath) {
+      return await vscode.workspace.openTextDocument(lisFilePath);
+    }
+
+    vscode.window.showErrorMessage(`Lis file not found`);
+    return undefined;
+  }
+
   /**
-   * Add breakpoints in .lis file for debug in assembler.
-   * @param breakpoints source code breakpoint to add in .lis file
-   * @returns invalid breakpoints (not added in .lis file)
+   * Function to map source breakpoints to .lis file breakpoints, if breakpoint is invalid, mapped to undefined.
+   * @param breakpoints List of source breakpoints
    */
-  private async addBreakpointsInLisFile(breakpoints: vscode.SourceBreakpoint[]): Promise<vscode.SourceBreakpoint[]> {
-    const invalidBreakpoints: vscode.SourceBreakpoint[] = [];
+  private async mapSourceBreakpointsToLisFileBreakpoints(breakpoints: vscode.SourceBreakpoint[]): Promise<void> {
+    const lisFile: vscode.TextDocument | undefined = await this.openLisFile();
+    if (!lisFile) return;
 
-    try {
-      const lisFilePath = await this.getLisFilePath();
-      if (!lisFilePath) return invalidBreakpoints;
+    const lisFileContent = lisFile.getText();
 
-      const lisFile = await vscode.workspace.openTextDocument(lisFilePath);
-      const lisFileContent = lisFile.getText();
+    for (const breakpoint of breakpoints) {
+      if (!this.isBreakpointInSourceFile(breakpoint)) continue;
 
-      const lisFileBreakpoints: vscode.SourceBreakpoint[] = [];
-      for (const breakpoint of breakpoints) {
-        const isSourceFile = SOURCE_FILE_EXTENSIONS.includes(breakpoint.location.uri.fsPath.split('.').pop() || '');
-        if (!isSourceFile) continue;
+      let lisFileBreakpoint: vscode.SourceBreakpoint | undefined;
 
-        let isValidBreakpoint = false;
+      // find c label in lis file
+      const cLabel = this.generateLisFileCLabel(breakpoint);
+      const index = lisFileContent.indexOf(cLabel);
+      if (index !== -1) {
+        const cLabelLine = lisFile.positionAt(index).line;
 
-        // find c label in lis file
-        const cLabel = this.generateLisFileCLabel(breakpoint);
-        const index = lisFileContent.indexOf(cLabel);
-        if (index !== -1) {
-          const cLabelLine = lisFile.positionAt(index).line;
-
-          // in lis file only valid c comments are followed by assembler code
-          const breakpointLine = lisFile.lineAt(cLabelLine + 1);
-          if (this.isValidLineForBreakpoint(breakpointLine.text)) {
-            lisFileBreakpoints.push(new vscode.SourceBreakpoint(new vscode.Location(lisFile.uri, breakpointLine.range.start)));
-            isValidBreakpoint = true;
-          }
-        }
-
-        if (!isValidBreakpoint) {
-          invalidBreakpoints.push(breakpoint);
+        // in lis file only valid c comments are followed by assembler code
+        const breakpointLine = lisFile.lineAt(cLabelLine + 1);
+        if (this.isValidLineForBreakpoint(breakpointLine.text)) {
+          lisFileBreakpoint = new vscode.SourceBreakpoint(new vscode.Location(lisFile.uri, breakpointLine.range.start));
         }
       }
 
-      vscode.debug.addBreakpoints(lisFileBreakpoints);
-    } catch (error) {
-      vscode.window.showErrorMessage(`Error on read .lis file: ${error}`);
+      this.mappedBreakpoints.addMappedBreakpoint(breakpoint, lisFileBreakpoint);
     }
-
-    return invalidBreakpoints;
   }
 
   private isValidLineForBreakpoint(lineText: string): boolean {

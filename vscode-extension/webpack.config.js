@@ -32,6 +32,7 @@ const extensionConfig = {
       '@components': path.resolve(__dirname, 'src/components'),
       '@commands': path.resolve(__dirname, 'src/commands'),
       '@services': path.resolve(__dirname, 'src/services'),
+      '@models': path.resolve(__dirname, 'src/models'),
     },
   },
   module: {
