@@ -2,6 +2,7 @@ import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { IStatusBar, StatusBar } from '@components/status-bar.component';
 import { IDisposable } from '@core/abstractions/disposable';
 import { Types } from '@core/types';
+import { ProjectService } from '@services/project.service';
 import { Z88dkBreakpointService } from '@services/z88dk-breakpoints.services';
 import * as inversify from 'inversify';
 import * as vsc from 'vscode';
@@ -55,6 +56,12 @@ export class InversifyConfig {
     InversifyConfig._container
       .bind<Z88dkBreakpointService>(Types.BreakpointService)
       .to(Z88dkBreakpointService)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
+
+    InversifyConfig._container
+      .bind<ProjectService>(Types.ProjectService)
+      .to(ProjectService)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
   }

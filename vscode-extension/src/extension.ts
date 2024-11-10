@@ -3,6 +3,7 @@
 import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { Types } from '@core/types';
 import { FeaturesService } from '@services/features.service';
+import { ProjectService } from '@services/project.service';
 import * as vscode from 'vscode';
 import { InversifyConfig } from './inversify.config';
 
@@ -17,6 +18,12 @@ export function activate(context: vscode.ExtensionContext) {
   FeaturesService.canUseBreakpointService().then((canUse) => {
     if (canUse) {
       InversifyConfig.container.get<CreateProjectCmd>(Types.BreakpointService);
+    }
+  });
+
+  FeaturesService.isValidZxideProject().then((isValid) => {
+    if (isValid) {
+      InversifyConfig.container.get<ProjectService>(Types.ProjectService);
     }
   });
 

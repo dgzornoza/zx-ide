@@ -16,8 +16,12 @@ interface IZxideFile {
 export class FeaturesService {
   static zxideFile?: IZxideFile;
 
-  static async initialize(): Promise<void> {
-    FeaturesService.zxideFile = await this.readZxideFile();
+  static async isValidZxideProject(): Promise<boolean> {
+    if (!FeaturesService.zxideFile) {
+      await FeaturesService.initialize();
+    }
+
+    return !!FeaturesService.zxideFile?.project.type;
   }
 
   static async canUseBreakpointService(): Promise<boolean> {
@@ -26,6 +30,10 @@ export class FeaturesService {
     }
 
     return FeaturesService.zxideFile?.project.compiler === 'z88dk';
+  }
+
+  private static async initialize(): Promise<void> {
+    FeaturesService.zxideFile = await this.readZxideFile();
   }
 
   private static async readZxideFile(): Promise<IZxideFile | undefined> {

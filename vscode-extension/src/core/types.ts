@@ -5,6 +5,7 @@ const Types = {
   ExtensionContext: Symbol.for('ExtensionContext'),
   IStatusBar: Symbol.for('IStatusBar'),
   BreakpointService: Symbol.for('BreakpointService'),
+  ProjectService: Symbol.for('ProjectService'),
 };
 
 export { Types };
