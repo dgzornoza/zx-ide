@@ -31,6 +31,10 @@ This extension contributes the following settings:
 
 Calling out known issues can help limit users opening duplicate issues against your extension.
 
+## Translate command
+
+npx @vscode/l10n-dev export -o ./l10n ./src
+
 ## Release Notes
 
 Users appreciate release notes as you update your extension.

@@ -1,11 +1,15 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 const Types = {
-  CreateProjectCmd: Symbol.for('CreateProjectCmd'),
   ExtensionContext: Symbol.for('ExtensionContext'),
   IStatusBar: Symbol.for('IStatusBar'),
-  BreakpointService: Symbol.for('BreakpointService'),
-  ProjectService: Symbol.for('ProjectService'),
+
+  CreateProjectCmd: Symbol.for('CreateProjectCmd'),
+  ConfigureZ88dkProjectCmd: Symbol.for('ConfigureZ88dkProjectCmd'),
+
+  Z88dkBreakpointService: Symbol.for('Z88dkBreakpointService'),
+  Z88dkProjectService: Symbol.for('Z88dkProjectService'),
+  SjasmPlusProjectService: Symbol.for('SjasmPlusProjectService'),
 };
 
 export { Types };

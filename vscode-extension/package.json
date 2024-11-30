@@ -17,13 +17,17 @@
     "commands": [
       {
         "command": "zx-ide.create-project",
-        "title": "ZxIde: Crear nuevo proyecto"
+        "title": "%extension.cmd-title.create-project%"
+      },
+      {
+        "command": "zx-ide.configure-z88dk-project",
+        "title": "%extension.cmd-title.configure-z88dk-project%"
       }
     ]
   },
   "scripts": {
     "build-cli": "npm --prefix ../cli run build",
-    "vscode:prepublish": "npm run package",
+    "vscode:prepublish": "vscode-nls-dev -v && npm run package",
     "watch": "npm run build-cli && webpack --watch",
     "package": "npm run build-cli && webpack --mode production --devtool hidden-source-map",
     "compile": "webpack",
@@ -47,7 +51,7 @@
   "dependencies": {
     "inversify": "^6.0.3",
     "loglevel": "^1.9.2",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",

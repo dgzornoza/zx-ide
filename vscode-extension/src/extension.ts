@@ -1,9 +1,12 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import { ConfigureZ88dkProjectCmd } from '@commands/configure-z88dk-project.cmd';
 import { CreateProjectCmd } from '@commands/create-project.cmd';
+import { FeaturesService } from '@core/services/features.service';
 import { Types } from '@core/types';
-import { FeaturesService } from '@services/features.service';
-import { ProjectService } from '@services/project.service';
+import { SjasmPlusProjectService } from '@sjasmplus/services/sjasmplus-project.service';
+import { Z88dkBreakpointService } from '@z88dk/services/z88dk-breakpoints.services';
+import { Z88dkProjectService } from '@z88dk/services/z88dk-project.service';
 import * as vscode from 'vscode';
 import { InversifyConfig } from './inversify.config';
 
@@ -12,18 +15,24 @@ import { InversifyConfig } from './inversify.config';
 export function activate(context: vscode.ExtensionContext) {
   InversifyConfig.initialize(context);
 
+  const message = vscode.l10n.t('Hello');
+  vscode.window.showInformationMessage(message);
+  console.log(context.extensionUri);
+
   // Comando para crear proyecto nuevo
   InversifyConfig.container.get<CreateProjectCmd>(Types.CreateProjectCmd);
 
-  FeaturesService.canUseBreakpointService().then((canUse) => {
+  FeaturesService.isZ88dkProject().then((canUse) => {
     if (canUse) {
-      InversifyConfig.container.get<CreateProjectCmd>(Types.BreakpointService);
+      InversifyConfig.container.get<ConfigureZ88dkProjectCmd>(Types.CreateProjectCmd);
+      InversifyConfig.container.get<Z88dkProjectService>(Types.Z88dkProjectService);
+      InversifyConfig.container.get<Z88dkBreakpointService>(Types.Z88dkBreakpointService);
     }
   });
 
-  FeaturesService.isValidZxideProject().then((isValid) => {
+  FeaturesService.isSjasmplusProject().then((isValid) => {
     if (isValid) {
-      InversifyConfig.container.get<ProjectService>(Types.ProjectService);
+      InversifyConfig.container.get<SjasmPlusProjectService>(Types.SjasmPlusProjectService);
     }
   });
 

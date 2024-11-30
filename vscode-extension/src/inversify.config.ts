@@ -2,8 +2,9 @@ import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { IStatusBar, StatusBar } from '@components/status-bar.component';
 import { IDisposable } from '@core/abstractions/disposable';
 import { Types } from '@core/types';
-import { ProjectService } from '@services/project.service';
-import { Z88dkBreakpointService } from '@services/z88dk-breakpoints.services';
+import { SjasmPlusProjectService } from '@sjasmplus/services/sjasmplus-project.service';
+import { Z88dkBreakpointService } from '@z88dk/services/z88dk-breakpoints.services';
+import { Z88dkProjectService } from '@z88dk/services/z88dk-project.service';
 import * as inversify from 'inversify';
 import * as vsc from 'vscode';
 
@@ -54,14 +55,20 @@ export class InversifyConfig {
 
     // Services
     InversifyConfig._container
-      .bind<Z88dkBreakpointService>(Types.BreakpointService)
+      .bind<Z88dkBreakpointService>(Types.Z88dkBreakpointService)
       .to(Z88dkBreakpointService)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
 
     InversifyConfig._container
-      .bind<ProjectService>(Types.ProjectService)
-      .to(ProjectService)
+      .bind<Z88dkProjectService>(Types.Z88dkProjectService)
+      .to(Z88dkProjectService)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
+
+    InversifyConfig._container
+      .bind<SjasmPlusProjectService>(Types.SjasmPlusProjectService)
+      .to(SjasmPlusProjectService)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
   }

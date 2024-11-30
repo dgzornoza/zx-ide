@@ -1,28 +1,13 @@
-import { Disposable } from '@core/abstractions/disposable';
+import { ProjectService } from '@core/abstractions/project.service';
 import { injectable } from 'inversify';
 import * as vscode from 'vscode';
 
 @injectable()
-export class ProjectService extends Disposable {
+export class Z88dkProjectService extends ProjectService {
   constructor() {
     super();
 
     this._subscriptions.push(vscode.tasks.onDidEndTaskProcess(this.onDidEndTaskProcess));
-
-    void this.tryOpenReadmeFile();
-  }
-
-  async tryOpenReadmeFile(): Promise<void> {
-    if (vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length > 0) {
-      const filePath = vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, 'readme.md');
-
-      try {
-        // Open in editor preview mode
-        await vscode.commands.executeCommand('markdown.showPreview', filePath);
-      } catch (error) {
-        console.error('can not open readme.md file', error);
-      }
-    }
   }
 
   private onDidEndTaskProcess(event: vscode.TaskProcessEndEvent): void {

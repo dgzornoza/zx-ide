@@ -13,18 +13,20 @@ export class NewProjectGenerator {
     let targetFolder: string | undefined = undefined;
     try {
       const projectTemplates = NewProjectTemplateFactory.create(newProjectModel.projectType);
-      // template base
+
+      // 1.- template base
       targetFolder = await this.copyTemplate(projectTemplates.baseTemplate, newProjectModel.projectPath, newProjectModel.projectName);
 
-      // template sample
+      // 2.- template sample
       if (newProjectModel.useSample && projectTemplates.sampleTemplate) {
         await this.copyTemplate(projectTemplates.sampleTemplate, newProjectModel.projectPath, newProjectModel.projectName);
       }
 
-      // template configuration
+      // 3.- template configuration
       if (projectTemplates.configurationTemplate) {
         await this.copyTemplate(projectTemplates.configurationTemplate, newProjectModel.projectPath, newProjectModel.projectName);
       }
+
       console.log('Project generated in: ' + targetFolder);
     } catch (err) {
       console.error('Error creating project:', err);

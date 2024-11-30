@@ -1,4 +1,5 @@
 import { Command } from '@core/abstractions/command';
+import { ProjectType } from '@core/infrastructure';
 import { Types } from '@core/types';
 import { exec } from 'child_process';
 import { inject, injectable } from 'inversify';
@@ -9,14 +10,12 @@ const COMMAND_NAME: string = 'zx-ide.create-project';
 
 @injectable()
 export class CreateProjectCmd extends Command<unknown> {
+  public getCommandName(): string {
+    return COMMAND_NAME;
+  }
+
   constructor(@inject(Types.ExtensionContext) private extensionContext: vscode.ExtensionContext) {
     super();
-
-    this._subscriptions.push(
-      vscode.commands.registerCommand(COMMAND_NAME, () => {
-        this.execute();
-      })
-    );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -49,11 +48,7 @@ export class CreateProjectCmd extends Command<unknown> {
     return true;
   }
 
-  public getCommandName(): string {
-    return COMMAND_NAME;
-  }
-
-  private async chooseProjectType(): Promise<string | undefined> {
+  private async chooseProjectType(): Promise<ProjectType | undefined> {
     const options = ['Zx Spectrum sjasmplus', 'Zx Spectrum z88dk'];
     const result = await vscode.window.showQuickPick(options, { placeHolder: 'Select project type' });
 

@@ -1,6 +1,6 @@
 import { Disposable } from '@core/abstractions/disposable';
 import { BindThis } from '@core/decorators/bind-this.decorator';
-import { MappedBreakpointsModel } from '@models/mapped-breakpoints.model';
+import { MappedBreakpointsModel } from '@z88dk/models/mapped-breakpoints.model';
 import * as vscode from 'vscode';
 
 const SOURCE_FILE_EXTENSIONS = ['c', 'asm'];

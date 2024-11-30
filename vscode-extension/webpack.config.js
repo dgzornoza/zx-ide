@@ -29,10 +29,10 @@ const extensionConfig = {
     extensions: ['.ts', '.js'],
     alias: {
       '@core': path.resolve(__dirname, 'src/core'),
-      '@components': path.resolve(__dirname, 'src/components'),
       '@commands': path.resolve(__dirname, 'src/commands'),
-      '@services': path.resolve(__dirname, 'src/services'),
-      '@models': path.resolve(__dirname, 'src/models'),
+      '@components': path.resolve(__dirname, 'src/components'),
+      '@z88dk': path.resolve(__dirname, 'src/z88dk'),
+      '@sjasmplus': path.resolve(__dirname, 'src/sjasmplus'),
     },
   },
   module: {

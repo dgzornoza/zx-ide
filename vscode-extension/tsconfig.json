@@ -25,14 +25,14 @@
       "@commands/*": [
         "src/commands/*"
       ],
-      "@services/*": [
-        "src/services/*"
-      ],
       "@components/*": [
         "src/components/*"
       ],
-      "@models/*": [
-        "src/models/*"
+      "@z88dk/*": [
+        "src/z88dk/*"
+      ],
+      "@sjasmplus/*": [
+        "src/sjasmplus/*"
       ],
     }
   }
