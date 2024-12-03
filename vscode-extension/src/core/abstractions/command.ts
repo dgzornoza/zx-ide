@@ -25,12 +25,6 @@ export abstract class Command<TParams> extends Disposable {
 
   public abstract execute(...params: TParams[]): void | Promise<void>;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  public canExecute(..._params: TParams[]): boolean {
-    // default value
-    return true;
-  }
-
   public isEnabled(): boolean {
     return this._isEnabled;
   }

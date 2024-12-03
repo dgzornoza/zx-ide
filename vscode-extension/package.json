@@ -23,7 +23,15 @@
         "command": "zx-ide.configure-z88dk-project",
         "title": "%extension.cmd-title.configure-z88dk-project%"
       }
-    ]
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "zx-ide.configure-z88dk-project",
+          "when": "ZxIdeProjectType == 'ZxSpectrumZ88dk'"
+        }
+      ]
+    }
   },
   "scripts": {
     "build-cli": "npm --prefix ../cli run build",
@@ -35,7 +43,7 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "test": "node ./out/test/runTest.js",
-    "lint": "eslint src --ext ts"
+    "lint": "eslint ."
   },
   "husky": {
     "hooks": {
@@ -51,7 +59,7 @@
   "dependencies": {
     "inversify": "^6.0.3",
     "loglevel": "^1.9.2",
-    "reflect-metadata": "^0.2.2",
+    "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.14.0",

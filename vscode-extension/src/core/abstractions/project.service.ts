@@ -10,7 +10,7 @@ export abstract class ProjectService extends Disposable {
   }
 
   async tryOpenReadmeFile(): Promise<void> {
-    const fileUri = FileHelpers.getFileUri('readme.md');
+    const fileUri = FileHelpers.getRelativePathsUri('Readme.md');
     if (fileUri) {
       try {
         // Open in editor preview mode

@@ -15,7 +15,7 @@ export class NewProjectTemplateFactory {
   }
 
   private static getBaseTemplatePath(projectType: ProjectType): string {
-    const path = `./templates/${projectType}}_base.zip`;
+    const path = `./templates/${projectType}_base.zip`;
     return this.getAbsolutePath(path);
   }
 
@@ -24,7 +24,7 @@ export class NewProjectTemplateFactory {
       case 'ZxSpectrumZ88dkNext':
         return undefined;
       default:
-        return this.getAbsolutePath(`./templates/${projectType}}_sample.zip`);
+        return this.getAbsolutePath(`./templates/${projectType}_sample.zip`);
     }
   }
 
@@ -35,7 +35,7 @@ export class NewProjectTemplateFactory {
       case 'ZxSpectrumZ88dkNext':
         return undefined;
       default:
-        return this.getAbsolutePath(`./templates/${projectType}}_configuration.zip`);
+        return this.getAbsolutePath(`./templates/${projectType}_configuration.zip`);
     }
   }
 }

@@ -1,11 +1,7 @@
 export type ProjectType = 'ZxSpectrumSjasmplus' | 'ZxSpectrumZ88dk' | 'ZxSpectrumZ88dkNext';
 
 export interface ISettingsJsonFile {
-  C_Cpp: {
-    default: {
-      includePath: string[];
-    };
-  };
+  'C_Cpp.default.includePath': string[];
 }
 
 export interface ITasksJsonFile {

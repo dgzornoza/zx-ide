@@ -1,5 +1,6 @@
 import { FileHelpers } from '@core/helpers/file-helpers';
 import { ProjectType } from '@core/infrastructure';
+import * as vscode from 'vscode';
 
 interface IZxideFile {
   'template-version': string;
@@ -16,7 +17,7 @@ export class FeaturesService {
       await FeaturesService.initialize();
     }
 
-    return FeaturesService.zxideFile?.project.type === 'ZxSpectrumZ88dk';
+    return FeaturesService.zxideFile?.project?.type === 'ZxSpectrumZ88dk';
   }
 
   static async isSjasmplusProject(): Promise<boolean> {
@@ -24,10 +25,11 @@ export class FeaturesService {
       await FeaturesService.initialize();
     }
 
-    return FeaturesService.zxideFile?.project.type === 'ZxSpectrumSjasmplus';
+    return FeaturesService.zxideFile?.project?.type === 'ZxSpectrumSjasmplus';
   }
 
   private static async initialize(): Promise<void> {
-    FeaturesService.zxideFile = await FileHelpers.readJsonFile('.zxide');
+    FeaturesService.zxideFile = await FileHelpers.readJsonFile('.zxide');    
+    vscode.commands.executeCommand('setContext', 'ZxIdeProjectType', FeaturesService.zxideFile?.project?.type);
   }
 }

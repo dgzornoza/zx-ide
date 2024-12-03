@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as StreamZip from 'node-stream-zip';
 import * as path from 'path';
 import { NewProjectTemplateFactory } from './new-project-template.factory';
-import { NewProjectModel } from './new-project.models';
+import { NewProjectModel, ProjectType } from './new-project.models';
 
 export class NewProjectGenerator {
   constructor() {}
@@ -13,19 +13,23 @@ export class NewProjectGenerator {
     let targetFolder: string | undefined = undefined;
     try {
       const projectTemplates = NewProjectTemplateFactory.create(newProjectModel.projectType);
+      const targetFolder = path.join(newProjectModel.projectPath, newProjectModel.projectName);
 
       // 1.- template base
-      targetFolder = await this.copyTemplate(projectTemplates.baseTemplate, newProjectModel.projectPath, newProjectModel.projectName);
+      await this.copyTemplate(projectTemplates.baseTemplate, targetFolder);
 
       // 2.- template sample
       if (newProjectModel.useSample && projectTemplates.sampleTemplate) {
-        await this.copyTemplate(projectTemplates.sampleTemplate, newProjectModel.projectPath, newProjectModel.projectName);
+        await this.copyTemplate(projectTemplates.sampleTemplate, targetFolder);
       }
 
       // 3.- template configuration
       if (projectTemplates.configurationTemplate) {
-        await this.copyTemplate(projectTemplates.configurationTemplate, newProjectModel.projectPath, newProjectModel.projectName);
+        await this.copyTemplate(projectTemplates.configurationTemplate, targetFolder);
       }
+
+      // 4.- set output project name (in makefile)
+      this.setProjectName(newProjectModel.projectType, targetFolder, newProjectModel.projectName);
 
       console.log('Project generated in: ' + targetFolder);
     } catch (err) {
@@ -33,8 +37,7 @@ export class NewProjectGenerator {
     }
   }
 
-  private async copyTemplate(templateFilePath: string, targetDir: string, targetName: string): Promise<string> {
-    const targetFolder = path.join(targetDir, targetName);
+  private async copyTemplate(templateFilePath: string, targetFolder: string): Promise<void> {
     const templateFileName = path.basename(templateFilePath);
     const targetTemplatePath = path.join(targetFolder, templateFileName);
 
@@ -53,7 +56,20 @@ export class NewProjectGenerator {
 
     // Delete the ZIP file
     fs.unlinkSync(targetTemplatePath);
+  }
 
-    return targetFolder;
+  private setProjectName(projectType: ProjectType, targetFolder: string, projectName: string): void {
+    switch (projectType) {
+      case 'ZxSpectrumZ88dk':
+        // z88dk set project name in makefile
+        this.replaceValueInFile(path.join(targetFolder, 'Makefile'), '{ZX-IDE_PROJECT_NAME}', projectName);
+        break;
+    }
+  }
+
+  private replaceValueInFile(filePath: string, oldValue: string, newValue: string): void {
+    const fileContent = fs.readFileSync(filePath, 'utf8');
+    const newContent = fileContent.replace(oldValue, newValue);
+    fs.writeFileSync(filePath, newContent, 'utf8');
   }
 }

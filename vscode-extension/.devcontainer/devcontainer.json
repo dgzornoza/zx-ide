@@ -1,0 +1,6 @@
+{
+  "name": "zx-ide extension",
+  "build": {
+    "dockerfile": "Dockerfile"
+  }
+}

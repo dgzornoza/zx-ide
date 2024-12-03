@@ -7,8 +7,10 @@ const Types = {
   CreateProjectCmd: Symbol.for('CreateProjectCmd'),
   ConfigureZ88dkProjectCmd: Symbol.for('ConfigureZ88dkProjectCmd'),
 
+  OutputChannelService: Symbol.for('OutputChannelService'),
   Z88dkBreakpointService: Symbol.for('Z88dkBreakpointService'),
   Z88dkProjectService: Symbol.for('Z88dkProjectService'),
+  Z88dkReportService: Symbol.for('Z88dkReportService'),
   SjasmPlusProjectService: Symbol.for('SjasmPlusProjectService'),
 };
 

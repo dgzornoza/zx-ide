@@ -44,13 +44,9 @@ export class CreateProjectCmd extends Command<unknown> {
     }
   }
 
-  public canExecute(): boolean {
-    return true;
-  }
-
   private async chooseProjectType(): Promise<ProjectType | undefined> {
     const options = ['Zx Spectrum sjasmplus', 'Zx Spectrum z88dk'];
-    const result = await vscode.window.showQuickPick(options, { placeHolder: 'Select project type' });
+    const result = await vscode.window.showQuickPick(options, { placeHolder: vscode.l10n.t('Select project type') });
 
     switch (result) {
       case 'Zx Spectrum sjasmplus':
@@ -63,21 +59,25 @@ export class CreateProjectCmd extends Command<unknown> {
   }
 
   private async chooseProjectName(): Promise<string | undefined> {
-    return await vscode.window.showInputBox({ prompt: 'Insert project name (should be unique in docker containers)' });
+    return await vscode.window.showInputBox({ prompt: vscode.l10n.t('Insert project name (should be unique in docker containers)') });
   }
 
   private async chooseUseSample(): Promise<string | undefined> {
-    const options = ['Yes', 'No'];
-    return await vscode.window.showQuickPick(options, { placeHolder: 'Use sample project?' });
+    const options = [vscode.l10n.t('Yes'), vscode.l10n.t('No')];
+    return await vscode.window.showQuickPick(options, { placeHolder: vscode.l10n.t('Use sample project?') });
   }
 
   private async choosePath(): Promise<string | undefined> {
-    const result = await vscode.window.showOpenDialog({ canSelectFolders: true, canSelectFiles: false, openLabel: 'Choose path' });
+    const result = await vscode.window.showOpenDialog({
+      canSelectFolders: true,
+      canSelectFiles: false,
+      openLabel: vscode.l10n.t('Choose path'),
+    });
     return result ? result[0].fsPath : undefined;
   }
 
   private executeCliCommand(projectType: string, projectName: string, useSample: string, projectPath: string): Promise<void> {
-    const useSampleOption = useSample === 'Yes' ? '-s' : '';
+    const useSampleOption = useSample === vscode.l10n.t('Yes') ? '-s' : '';
 
     return new Promise<void>((resolve, reject) => {
       // const cliPath = this.extensionContext.asAbsolutePath('dist/zx-ide-cli.js');

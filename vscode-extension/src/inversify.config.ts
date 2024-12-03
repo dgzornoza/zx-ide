@@ -1,10 +1,13 @@
+import { ConfigureZ88dkProjectCmd } from '@commands/configure-z88dk-project.cmd';
 import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { IStatusBar, StatusBar } from '@components/status-bar.component';
 import { IDisposable } from '@core/abstractions/disposable';
+import { OutputChannelService } from '@core/services/output-channel.service';
 import { Types } from '@core/types';
 import { SjasmPlusProjectService } from '@sjasmplus/services/sjasmplus-project.service';
 import { Z88dkBreakpointService } from '@z88dk/services/z88dk-breakpoints.services';
 import { Z88dkProjectService } from '@z88dk/services/z88dk-project.service';
+import { Z88dkReportService } from '@z88dk/services/z88dk-report.service';
 import * as inversify from 'inversify';
 import * as vsc from 'vscode';
 
@@ -50,22 +53,42 @@ export class InversifyConfig {
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
 
+    InversifyConfig._container
+      .bind<ConfigureZ88dkProjectCmd>(Types.ConfigureZ88dkProjectCmd)
+      .to(ConfigureZ88dkProjectCmd)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
+
     // Providers
     // ...
 
     // Services
     InversifyConfig._container
-      .bind<Z88dkBreakpointService>(Types.Z88dkBreakpointService)
-      .to(Z88dkBreakpointService)
+      .bind<OutputChannelService>(Types.OutputChannelService)
+      .to(OutputChannelService)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
 
+    // Z88dk
     InversifyConfig._container
       .bind<Z88dkProjectService>(Types.Z88dkProjectService)
       .to(Z88dkProjectService)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
 
+    InversifyConfig._container
+      .bind<Z88dkReportService>(Types.Z88dkReportService)
+      .to(Z88dkReportService)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
+
+    InversifyConfig._container
+      .bind<Z88dkBreakpointService>(Types.Z88dkBreakpointService)
+      .to(Z88dkBreakpointService)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
+
+    // SjasmPlus
     InversifyConfig._container
       .bind<SjasmPlusProjectService>(Types.SjasmPlusProjectService)
       .to(SjasmPlusProjectService)
