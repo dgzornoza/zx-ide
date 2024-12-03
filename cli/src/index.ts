@@ -1,9 +1,9 @@
 import { Command } from 'commander';
 import * as figlet from 'figlet';
 import { osLocale } from 'os-locale';
-import { NewProjectGenerator } from './new-project/new-project.generator';
+import { NewProjectGenerator } from './new-project/new-project-generator';
+import { NewProjectWizard } from './new-project/new-project-wizard';
 import { NewProjectModel } from './new-project/new-project.models';
-import { NewProjectWizard } from './new-project/new-project.wizard';
 var pjson = require('../package.json');
 
 // @ts-ignore
@@ -26,11 +26,11 @@ class Main {
     var options = this._program.opts();
     const ranWithArgs = options.projectType && options.output && options.name;
 
-    let projectType: NewProjectModel;
+    let newProjectModel: NewProjectModel;
     if (!ranWithArgs) {
-      projectType = await new NewProjectWizard().execute();
+      newProjectModel = await new NewProjectWizard().execute();
     } else {
-      projectType = {
+      newProjectModel = {
         projectType: options.projectType,
         projectPath: options.output,
         projectName: options.name,
@@ -38,7 +38,7 @@ class Main {
       };
     }
 
-    await new NewProjectGenerator().execute(projectType);
+    await new NewProjectGenerator().execute(newProjectModel);
   }
 
   async setCurrentLanguage(): Promise<void> {

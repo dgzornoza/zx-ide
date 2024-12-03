@@ -1,0 +1,51 @@
+import * as prompts from '@inquirer/prompts';
+import { MachineType, ProjectConfigurationType } from 'src/new-project/new-project.models';
+import { IWizardStrategy } from 'src/new-project/wizard-strategies/wizard-strategy-factory';
+
+export class Z88dkWizardStrategy implements IWizardStrategy {
+  async selectMachine(): Promise<MachineType | undefined> {
+    return await prompts.select({
+      message: 'Select machine type',
+      choices: [
+        {
+          name: 'Universal',
+          value: 'universal',
+          description: 'without machine specific settings',
+        },
+        {
+          name: 'Zx Spectrum',
+          value: 'zxspectrum',
+          description: 'Zx Spectrum machine',
+        },
+      ],
+    });
+  }
+
+  async selectProjectConfiguration(): Promise<ProjectConfigurationType | undefined> {
+    return await prompts.select({
+      message: 'Select configuration type',
+      choices: [
+        {
+          name: 'sdcc classic lib',
+          value: 'z88dk_sdcc_classic_lib',
+          description: 'sdcc compiler using classic library',
+        },
+        {
+          name: 'sdcc new lib (iy registers)',
+          value: 'z88dk_sdcc_new_lib',
+          description: 'sdcc compiler using new library',
+        },
+        {
+          name: 'sccz80 classic lib',
+          value: 'z88dk_sccz80_classic_lib',
+          description: 'sccz80 compiler using classic library',
+        },
+        {
+          name: 'sccz80 new lib (iy registers)',
+          value: 'z88dk_sccz80_new_lib',
+          description: 'sccz80 compiler using new library',
+        },
+      ],
+    });
+  }
+}

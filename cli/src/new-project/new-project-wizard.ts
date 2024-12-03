@@ -1,16 +1,24 @@
 import * as prompts from '@inquirer/prompts';
-import { NewProjectModel, ProjectType } from 'src/new-project/new-project.models';
+import { NewProjectModel, ProjectType } from './new-project.models';
+import { WizardStrategyFactory } from './wizard-strategies/wizard-strategy-factory';
 
 export class NewProjectWizard {
   constructor() {}
 
   public async execute(): Promise<NewProjectModel> {
-    return {
+    const result = {
       projectType: await this.selectProjectType(),
       projectPath: await this.selectProjectPath(),
       projectName: await this.selectProjectName(),
       useSample: await this.selectUseSample(),
-    };
+    } as NewProjectModel;
+
+    // configure specific project type configurations
+    const strategy = WizardStrategyFactory.createStragegy(result.projectType);
+    result.machineType = await strategy.selectMachine();
+    result.projectConfigurationType = await strategy.selectProjectConfiguration();
+
+    return result;
   }
 
   private async selectProjectType(): Promise<ProjectType> {
@@ -18,20 +26,14 @@ export class NewProjectWizard {
       message: 'Select project type',
       choices: [
         {
-          name: 'Zx Spectrum sjasmplus',
-          value: 'ZxSpectrumSjasmplus',
-          description: 'Zx Spectrum sjasmplus assembly project',
+          name: 'sjasmplus (asm language)',
+          value: 'sjasmplus',
+          description: 'sjasmplus assembly language project',
         },
         {
-          name: 'Zx Spectrum z88dk',
-          value: 'ZxSpectrumZ88dk',
-          description: 'Zx Spectrum z88dk C project',
-        },
-        new prompts.Separator(),
-        {
-          name: 'Zx Spectrum next z88dk',
-          value: 'ZxSpectrumZ88dkNext',
-          disabled: true,
+          name: 'z88dk (c language)',
+          value: 'z88dk',
+          description: 'z88dk C language project',
         },
       ],
     });
