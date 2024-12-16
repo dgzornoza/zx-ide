@@ -1,4 +1,4 @@
-import { MachineType, ProjectConfigurationType, ProjectType } from '../new-project.models';
+import { MachineType, ProjectConfigurationType, ProjectType } from '../../infrastructure';
 import { SjasmplusWizardStrategy } from './sjasmplus-wizard-strategy';
 import { Z88dkWizardStrategy } from './z88dk-wizard-strategy';
 

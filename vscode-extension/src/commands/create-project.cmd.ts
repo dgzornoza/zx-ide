@@ -1,7 +1,8 @@
 import { Command } from '@core/abstractions/command';
-import { ProjectType } from '@core/infrastructure';
+import { FileHelpers } from '@core/helpers/file-helpers';
+import { NewProjectModel } from '@core/infrastructure';
+import { TerminalService } from '@core/services/terminal.service';
 import { Types } from '@core/types';
-import { exec } from 'child_process';
 import { inject, injectable } from 'inversify';
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -14,86 +15,29 @@ export class CreateProjectCmd extends Command<unknown> {
     return COMMAND_NAME;
   }
 
-  constructor(@inject(Types.ExtensionContext) private extensionContext: vscode.ExtensionContext) {
+  constructor(
+    @inject(Types.ExtensionContext) private extensionContext: vscode.ExtensionContext,
+    @inject(Types.TerminalService) private terminalService: TerminalService
+  ) {
     super();
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async execute(..._params: unknown[]): Promise<void> {
-    const projectType = await this.chooseProjectType();
-    if (projectType === undefined) return;
+    const outputFile = path.join(await FileHelpers.getTempFolder(), 'output.txt');
 
-    const projectName = await this.chooseProjectName();
-    if (projectName === undefined) return;
-
-    const useSample = await this.chooseUseSample();
-    if (useSample === undefined) return;
-
-    const projectPath = await this.choosePath();
-    if (projectPath === undefined) return;
+    const cliPath = path.join(__dirname, 'zx-ide-cli.js');
 
     try {
-      await this.executeCliCommand(projectType, projectName, useSample, projectPath);
-      vscode.window.showInformationMessage('Project created successfully, wait to open!');
+      const result = await this.terminalService.executeCommand(`node ${cliPath} -o ${outputFile}`, outputFile);
+      const jsonResult: NewProjectModel = JSON.parse(result);
 
+      vscode.window.showInformationMessage(vscode.l10n.t('Project created successfully, wait to open!'));
       // reopen vscode
-      const projectPathUri = vscode.Uri.file(path.join(projectPath, projectName));
+      const projectPathUri = vscode.Uri.file(jsonResult.targetFolder);
       await vscode.commands.executeCommand('vscode.openFolder', projectPathUri, { forceReuseWindow: true });
     } catch (error) {
       vscode.window.showErrorMessage(`Error: ${error}`);
     }
-  }
-
-  private async chooseProjectType(): Promise<ProjectType | undefined> {
-    const options = ['Zx Spectrum sjasmplus', 'Zx Spectrum z88dk'];
-    const result = await vscode.window.showQuickPick(options, { placeHolder: vscode.l10n.t('Select project type') });
-
-    switch (result) {
-      case 'Zx Spectrum sjasmplus':
-        return 'ZxSpectrumSjasmplus';
-      case 'Zx Spectrum z88dk':
-        return 'ZxSpectrumZ88dk';
-      default:
-        return undefined;
-    }
-  }
-
-  private async chooseProjectName(): Promise<string | undefined> {
-    return await vscode.window.showInputBox({ prompt: vscode.l10n.t('Insert project name (should be unique in docker containers)') });
-  }
-
-  private async chooseUseSample(): Promise<string | undefined> {
-    const options = [vscode.l10n.t('Yes'), vscode.l10n.t('No')];
-    return await vscode.window.showQuickPick(options, { placeHolder: vscode.l10n.t('Use sample project?') });
-  }
-
-  private async choosePath(): Promise<string | undefined> {
-    const result = await vscode.window.showOpenDialog({
-      canSelectFolders: true,
-      canSelectFiles: false,
-      openLabel: vscode.l10n.t('Choose path'),
-    });
-    return result ? result[0].fsPath : undefined;
-  }
-
-  private executeCliCommand(projectType: string, projectName: string, useSample: string, projectPath: string): Promise<void> {
-    const useSampleOption = useSample === vscode.l10n.t('Yes') ? '-s' : '';
-
-    return new Promise<void>((resolve, reject) => {
-      // const cliPath = this.extensionContext.asAbsolutePath('dist/zx-ide-cli.js');
-      const cliPath = path.join(__dirname, 'zx-ide-cli.js');
-      const command = `node ${cliPath} -p ${projectType} -n ${projectName} ${useSampleOption} -o ${projectPath}`;
-
-      exec(command, (error, _stdout, stderr) => {
-        if (error) {
-          reject(error.message);
-        }
-        if (stderr) {
-          reject(stderr);
-        }
-
-        resolve();
-      });
-    });
   }
 }

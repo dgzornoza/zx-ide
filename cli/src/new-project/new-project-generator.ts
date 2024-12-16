@@ -7,7 +7,7 @@ export class NewProjectGenerator {
   constructor() {}
 
   public async execute(newProjectModel: NewProjectModel): Promise<void> {
-    console.log('Generating new project...' + newProjectModel);
+    console.log('Generating new project...' + newProjectModel.projectName);
 
     let builder: GeneratorBuilder;
     switch (newProjectModel.projectType) {
@@ -22,11 +22,15 @@ export class NewProjectGenerator {
     }
 
     try {
-      await builder.CopyTemplateBase();
-      await builder.CopyTemplateSample();
-      await builder.ConfigureProject();
+      await builder.copyTemplateBase();
 
-      console.log('Project generated in: ' + builder.targetFolder);
+      if (newProjectModel.useSample) {
+        await builder.copyTemplateSample();
+      }
+
+      await builder.configureProject();
+
+      console.log('Project generated in: ' + newProjectModel.targetFolder);
     } catch (err) {
       console.error('Error creating project:', err);
     }

@@ -2,7 +2,7 @@ import { Disposable } from '@core/abstractions/disposable';
 import { injectable } from 'inversify';
 import * as vscode from 'vscode';
 
-export const OUTPUT_CHANNEL_NAME = 'Zx-Ide';
+export const DEFAULT_OUTPUT_CHANNEL_NAME = 'Zx-Ide';
 
 @injectable()
 export class OutputChannelService extends Disposable {
@@ -13,7 +13,7 @@ export class OutputChannelService extends Disposable {
   }
 
   public getDefaultOutputChannel(): vscode.OutputChannel {
-    return this.getOutputChannel(OUTPUT_CHANNEL_NAME);
+    return this.getOutputChannel(DEFAULT_OUTPUT_CHANNEL_NAME);
   }
 
   private getOutputChannel(name: string): vscode.OutputChannel {

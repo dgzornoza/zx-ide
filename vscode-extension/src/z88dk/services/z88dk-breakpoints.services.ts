@@ -131,7 +131,7 @@ export class Z88dkBreakpointService extends Disposable {
       return await vscode.workspace.openTextDocument(lisFilePath);
     }
 
-    vscode.window.showErrorMessage(`Lis file not found`);
+    vscode.window.showErrorMessage(vscode.l10n.t(`Lis file not found`));
     return undefined;
   }
 

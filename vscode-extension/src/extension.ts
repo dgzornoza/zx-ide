@@ -1,10 +1,10 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { ConfigureZ88dkProjectCmd } from '@commands/configure-z88dk-project.cmd';
 import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { FeaturesService } from '@core/services/features.service';
 import { Types } from '@core/types';
 import { SjasmPlusProjectService } from '@sjasmplus/services/sjasmplus-project.service';
+import { Z88dkBreakpointService } from '@z88dk/services/z88dk-breakpoints.services';
 import * as vscode from 'vscode';
 import { InversifyConfig } from './inversify.config';
 
@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   FeaturesService.isZ88dkProject().then((result) => {
     if (result) {
-      InversifyConfig.container.get<ConfigureZ88dkProjectCmd>(Types.ConfigureZ88dkProjectCmd);
+      InversifyConfig.container.get<Z88dkBreakpointService>(Types.Z88dkBreakpointService);
     }
   });
 

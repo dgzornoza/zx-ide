@@ -1,24 +1,23 @@
 import * as prompts from '@inquirer/prompts';
-import { NewProjectModel, ProjectType } from './new-project.models';
+import { ProjectType } from 'src/infrastructure';
+import { NewProjectModel } from './new-project.models';
 import { WizardStrategyFactory } from './wizard-strategies/wizard-strategy-factory';
 
 export class NewProjectWizard {
   constructor() {}
 
   public async execute(): Promise<NewProjectModel> {
-    const result = {
-      projectType: await this.selectProjectType(),
-      projectPath: await this.selectProjectPath(),
-      projectName: await this.selectProjectName(),
-      useSample: await this.selectUseSample(),
-    } as NewProjectModel;
+    const projectType = await this.selectProjectType();
+    const projectPath = await this.selectProjectPath();
+    const projectName = await this.selectProjectName();
 
     // configure specific project type configurations
-    const strategy = WizardStrategyFactory.createStragegy(result.projectType);
-    result.machineType = await strategy.selectMachine();
-    result.projectConfigurationType = await strategy.selectProjectConfiguration();
+    const strategy = WizardStrategyFactory.createStragegy(projectType);
+    const machineType = await strategy.selectMachine();
+    const projectConfigurationType = await strategy.selectProjectConfiguration();
+    const useSample = await this.selectUseSample();
 
-    return result;
+    return new NewProjectModel(projectType, projectPath, projectName, machineType, projectConfigurationType, useSample);
   }
 
   private async selectProjectType(): Promise<ProjectType> {

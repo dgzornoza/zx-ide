@@ -4,7 +4,6 @@ import { FileHelpers } from '@core/helpers/file-helpers';
 import { OutputChannelService } from '@core/services/output-channel.service';
 import { Types } from '@core/types';
 import { Z88dkBreakpointService } from '@z88dk/services/z88dk-breakpoints.services';
-import { ProjectConfigurationStrategyFactory } from '@z88dk/services/z88dk-project-configuration.strategies';
 import { Z88dkReportService } from '@z88dk/services/z88dk-report.service';
 import { inject, injectable } from 'inversify';
 import * as vscode from 'vscode';
@@ -23,17 +22,6 @@ export class Z88dkProjectService extends ProjectService {
     super();
 
     this._subscriptions.push(vscode.tasks.onDidEndTaskProcess(this.onDidEndTaskProcess));
-  }
-
-  /**
-   * Function to configure the project (compiler, includes, etc. ) with the selected configuration
-   * @param _projectConfiguration project configuration to apply
-   */
-  public async configureProject(_projectConfiguration: ProjectConfigurationOptions): Promise<void> {
-    const strategy = ProjectConfigurationStrategyFactory.create(_projectConfiguration);
-
-    await strategy.configureIncludePaths();
-    await strategy.configureCompilerArguments();
   }
 
   @BindThis
@@ -65,7 +53,7 @@ export class Z88dkProjectService extends ProjectService {
     }
 
     try {
-      await FileHelpers.writeFile(concatenatedContent, ...MAIN_LIS_FILE_PATH_SEGMENTS);
+      await FileHelpers.writeWorkspaceFile(concatenatedContent, ...MAIN_LIS_FILE_PATH_SEGMENTS);
     } catch (error) {
       await vscode.window.showErrorMessage(`${vscode.l10n.t('Failed to concatenate .lis files for debug asm')} - ${error}`);
     }

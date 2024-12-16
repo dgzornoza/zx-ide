@@ -16,7 +16,7 @@ export class Z88dkReportService extends Disposable {
 
   public async showMapFileReport(): Promise<void> {
     const outputFilename = await this.getOutputFilename();
-    const mapfileContent = await FileHelpers.readFile('build', `${outputFilename}.map`);
+    const mapfileContent = await FileHelpers.readWorkspaceFile('build', `${outputFilename}.map`);
     const outputChannel = this.outputChannelService.getDefaultOutputChannel();
     outputChannel.show(true);
 
@@ -55,7 +55,7 @@ export class Z88dkReportService extends Disposable {
 
     // summary
     let regSp: number | undefined = this.extractHexValue(mapfileContent, /^__register_sp\s+=\s+\$(\w+)/m);
-    regSp = regSp > 0xFFFFFFFF ? undefined : regSp; // regSp in some compilers is bad calculated
+    regSp = regSp > 0xffffffff ? undefined : regSp; // regSp in some compilers is bad calculated
     const bssEnd = this.extractHexValue(mapfileContent, /^__BSS_END_tail\s+=\s+\$(\w+)/m);
     const stackSize = this.extractHexValue(mapfileContent, /^TAR__crt_stack_size\s+=\s+\$(\w+)/m);
 
@@ -80,7 +80,7 @@ export class Z88dkReportService extends Disposable {
   }
 
   private async getOutputFilename(): Promise<string | undefined> {
-    const content = await FileHelpers.readFile('Makefile');
+    const content = await FileHelpers.readWorkspaceFile('Makefile');
     const match = content?.match(/^EXEC_OUTPUT\s*=\s*(\w+)/m);
     return match ? match[1] : undefined;
   }

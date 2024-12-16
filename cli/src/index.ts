@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import * as figlet from 'figlet';
 import { osLocale } from 'os-locale';
+import { FileHelpers } from './helpers/file.helpers';
 import { NewProjectGenerator } from './new-project/new-project-generator';
 import { NewProjectWizard } from './new-project/new-project-wizard';
 import { NewProjectModel } from './new-project/new-project.models';
@@ -24,21 +25,27 @@ class Main {
     this.showTitle();
 
     var options = this._program.opts();
-    const ranWithArgs = options.projectType && options.output && options.name;
+    const ranWithArgs = options.projectType && options.projectPath && options.projectName;
 
     let newProjectModel: NewProjectModel;
     if (!ranWithArgs) {
       newProjectModel = await new NewProjectWizard().execute();
     } else {
-      newProjectModel = {
-        projectType: options.projectType,
-        projectPath: options.output,
-        projectName: options.name,
-        useSample: options.useSample,
-      };
+      newProjectModel = new NewProjectModel(
+        options.projectType,
+        options.projectPath,
+        options.projectName,
+        options.machineType,
+        options.projectConfiguration,
+        options.useSample
+      );
     }
 
     await new NewProjectGenerator().execute(newProjectModel);
+
+    if (options.output) {
+      FileHelpers.writeJsonFile(newProjectModel, options.output);
+    }
   }
 
   async setCurrentLanguage(): Promise<void> {
@@ -57,10 +64,16 @@ class Main {
 
     program
       .version(pjson.version)
-      .option('-p, --project-type <PROYECT>', 'Set project type ("ZxSpectrumSjasmplus", "ZxSpectrumZ88dk")')
-      .option('-o, --output <PATH>', 'Set target directory')
-      .option('-n, --name <NAME>', 'Set project name')
-      .option('-s, --use-sample', 'Use sample project')
+      .option('-o, --output <path>', 'Set script output result path')
+      .option('-t, --project-type <PROYECT>', 'Set project type (sjasmplus, z88dk)')
+      .option('-p, --project-path <PATH>', 'Set target directory')
+      .option('-n, --project-name <NAME>', 'Set project name')
+      .option('-m, --machine-type <MACHINE>', 'Set machine type (universal, zxspectrum)')
+      .option(
+        '-c, --project-configuration <CONFIG>',
+        'Set project configuration, currently only z88dk (z88dk_sdcc_classic_lib, z88dk_sdcc_new_lib, z88dk_sccz80_classic_lib, z88dk_sccz80_new_lib)'
+      )
+      .option('-s, --use-sample', 'Use sample project (only specific machines has samples)')
       .parse(process.argv);
 
     return program;
