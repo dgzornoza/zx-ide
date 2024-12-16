@@ -1,16 +1,9 @@
 import { FileHelpers } from '@core/helpers/file-helpers';
-import { ProjectType } from '@core/infrastructure';
+import { ZxideFile } from '@core/infrastructure';
 import * as vscode from 'vscode';
 
-interface IZxideFile {
-  'template-version': string;
-  project: {
-    type: ProjectType;
-  };
-}
-
 export class FeaturesService {
-  static zxideFile?: IZxideFile;
+  static zxideFile?: ZxideFile;
 
   static async isZ88dkProject(): Promise<boolean> {
     if (!FeaturesService.zxideFile) {
@@ -29,7 +22,11 @@ export class FeaturesService {
   }
 
   private static async initialize(): Promise<void> {
-    FeaturesService.zxideFile = await FileHelpers.readWorkspaceJsonFile('.zxide');
-    vscode.commands.executeCommand('setContext', 'ZxIdeProjectType', FeaturesService.zxideFile?.project?.type);
+    const fileUri = FileHelpers.getRelativePathsUri('.zxide.json');
+
+    if (await FileHelpers.fileExists(fileUri)) {
+      FeaturesService.zxideFile = await FileHelpers.readWorkspaceJsonFile('.zxide.json');
+      vscode.commands.executeCommand('setContext', 'ZxIdeProjectType', FeaturesService.zxideFile?.project?.type);
+    }
   }
 }

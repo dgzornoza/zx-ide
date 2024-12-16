@@ -6,6 +6,13 @@ export type ProjectConfigurationType =
   | 'z88dk_sccz80_new_lib';
 export type MachineType = 'zxspectrum';
 
+export interface ZxideFile {
+  'template-version': string;
+  project: {
+    type: ProjectType;
+  };
+}
+
 export interface NewProjectModel {
   readonly targetFolder: string;
   readonly projectType: ProjectType;

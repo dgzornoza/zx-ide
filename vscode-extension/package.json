@@ -10,7 +10,7 @@
     "Other"
   ],
   "activationEvents": [
-    "workspaceContains:.zxide"
+    "workspaceContains:.zxide.json"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -18,20 +18,8 @@
       {
         "command": "zx-ide.create-project",
         "title": "%extension.cmd-title.create-project%"
-      },
-      {
-        "command": "zx-ide.configure-z88dk-project",
-        "title": "%extension.cmd-title.configure-z88dk-project%"
       }
-    ],
-    "menus": {
-      "commandPalette": [
-        {
-          "command": "zx-ide.configure-z88dk-project",
-          "when": "ZxIdeProjectType == 'ZxSpectrumZ88dk'"
-        }
-      ]
-    }
+    ]
   },
   "scripts": {
     "build-cli": "npm --prefix ../cli run build",

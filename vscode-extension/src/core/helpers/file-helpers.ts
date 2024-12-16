@@ -29,6 +29,16 @@ export class FileHelpers {
     return vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, ...relativePathSegments);
   }
 
+  public static async fileExists(absolutePath: string | vscode.Uri): Promise<boolean> {
+    const fileUri = absolutePath instanceof vscode.Uri ? absolutePath : vscode.Uri.file(absolutePath);
+    try {
+      await vscode.workspace.fs.stat(fileUri);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
   public static async readFile(absolutePath: string | vscode.Uri): Promise<string> {
     const fileUri = absolutePath instanceof vscode.Uri ? absolutePath : vscode.Uri.file(absolutePath);
     try {
