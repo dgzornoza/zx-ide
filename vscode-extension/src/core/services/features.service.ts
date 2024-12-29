@@ -1,4 +1,5 @@
 import { FileHelpers } from '@core/helpers/file-helpers';
+import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
 import { ZxideFile } from '@core/infrastructure';
 import * as vscode from 'vscode';
 
@@ -22,10 +23,10 @@ export class FeaturesService {
   }
 
   private static async initialize(): Promise<void> {
-    const fileUri = FileHelpers.getRelativePathsUri('.zxide.json');
+    const fileUri = WorkspaceHelpers.getWorkspaceUri('.zxide.json');
 
     if (await FileHelpers.fileExists(fileUri)) {
-      FeaturesService.zxideFile = await FileHelpers.readWorkspaceJsonFile('.zxide.json');
+      FeaturesService.zxideFile = await WorkspaceHelpers.readWorkspaceJsonFile('.zxide.json');
       vscode.commands.executeCommand('setContext', 'ZxIdeProjectType', FeaturesService.zxideFile?.project?.type);
     }
   }

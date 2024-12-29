@@ -1,5 +1,5 @@
 import { Disposable } from '@core/abstractions/disposable';
-import { FileHelpers } from '@core/helpers/file-helpers';
+import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
 import * as vscode from 'vscode';
 
 export abstract class ProjectService extends Disposable {
@@ -10,7 +10,7 @@ export abstract class ProjectService extends Disposable {
   }
 
   async tryOpenReadmeFile(): Promise<void> {
-    const fileUri = FileHelpers.getRelativePathsUri('Readme.md');
+    const fileUri = WorkspaceHelpers.getWorkspaceUri('Readme.md');
     if (fileUri) {
       try {
         // Open in editor preview mode

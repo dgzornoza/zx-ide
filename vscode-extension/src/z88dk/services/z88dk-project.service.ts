@@ -1,23 +1,21 @@
 import { ProjectService } from '@core/abstractions/project.service';
 import { BindThis } from '@core/decorators/bind-this.decorator';
-import { FileHelpers } from '@core/helpers/file-helpers';
+import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
 import { OutputChannelService } from '@core/services/output-channel.service';
 import { Types } from '@core/types';
-import { Z88dkBreakpointService } from '@z88dk/services/z88dk-breakpoints.services';
+import { BUILD_DIRECTORY, BUILD_FILES_GLOB_PATTERN, BUILD_TASK_NAME } from '@z88dk/infrastructure';
+import { Z88dkBreakpointService } from '@z88dk/services/z88dk-breakpoints.service';
 import { Z88dkReportService } from '@z88dk/services/z88dk-report.service';
 import { inject, injectable } from 'inversify';
+import * as path from 'path';
 import * as vscode from 'vscode';
-
-export type ProjectConfigurationOptions = 'sdccClassicLib' | 'sdccNewLib' | 'sccz80ClassicLib' | 'sccz80NewLib';
-const MAIN_LIS_FILE_PATH_SEGMENTS = ['build', 'main.c.lis'];
-const BUILD_FILES_GLOB_PATTERN = ['src/**/*.lis', 'src/**/*.sym', 'src/**/*.o'];
 
 @injectable()
 export class Z88dkProjectService extends ProjectService {
   constructor(
-    @inject(Types.Z88dkBreakpointService) private z88dkBreakpointService: Z88dkBreakpointService,
     @inject(Types.OutputChannelService) private outputChannelService: OutputChannelService,
-    @inject(Types.Z88dkReportService) private z88dkReportService: Z88dkReportService
+    @inject(Types.Z88dkReportService) private z88dkReportService: Z88dkReportService,
+    @inject(Types.Z88dkBreakpointService) private z88dkBreakpointService: Z88dkBreakpointService
   ) {
     super();
 
@@ -25,45 +23,28 @@ export class Z88dkProjectService extends ProjectService {
   }
 
   @BindThis
-  private onDidEndTaskProcess(event: vscode.TaskProcessEndEvent): void {
-    if (event.execution.task.name === 'Compile') {
-      // concat all .lis files for debug asm
-      void this.concatAllLisFiles().then(async () => {
-        // remove temporal build files
-        const removeFilePromises = BUILD_FILES_GLOB_PATTERN.map((pattern) => this.removeFiles(pattern));
-        await Promise.all(removeFilePromises);
+  private async onDidEndTaskProcess(event: vscode.TaskProcessEndEvent): Promise<void> {
+    if (event.execution.task.name === BUILD_TASK_NAME) {
+      await this.moveGeneratedFiles();
 
-        const outputChannel = this.outputChannelService.getDefaultOutputChannel();
-        outputChannel.appendLine(vscode.l10n.t('Compilation finished'));
-        outputChannel.show(true);
+      const outputChannel = this.outputChannelService.getDefaultOutputChannel();
+      outputChannel.appendLine(vscode.l10n.t('Compilation finished'));
+      outputChannel.show(true);
 
-        await this.z88dkReportService.showMapFileReport();
-      });
+      await this.z88dkReportService.showMapFileReport();
     }
   }
 
-  private async concatAllLisFiles(): Promise<void> {
-    // Obtener todos los archivos .lis en la carpeta del espacio de trabajo
-    const files = await vscode.workspace.findFiles('src/**/*.lis');
-
-    let concatenatedContent = '';
-    for (const file of files) {
-      const fileContent = await vscode.workspace.fs.readFile(file);
-      concatenatedContent += fileContent.toString() + '\n';
-    }
-
-    try {
-      await FileHelpers.writeWorkspaceFile(concatenatedContent, ...MAIN_LIS_FILE_PATH_SEGMENTS);
-    } catch (error) {
-      await vscode.window.showErrorMessage(`${vscode.l10n.t('Failed to concatenate .lis files for debug asm')} - ${error}`);
-    }
-  }
-
-  private async removeFiles(globPattern: string): Promise<void> {
-    const files = await vscode.workspace.findFiles(globPattern);
+  /**
+   * move generated build files to build directory
+   */
+  private async moveGeneratedFiles(): Promise<void> {
+    const findFiles = BUILD_FILES_GLOB_PATTERN.map((pattern) => vscode.workspace.findFiles(pattern));
+    const files = (await Promise.all(findFiles)).flat();
 
     for (const file of files) {
-      await vscode.workspace.fs.delete(file);
+      const newFilePath = path.join(WorkspaceHelpers.workspacePath, BUILD_DIRECTORY, path.basename(file.path));
+      await vscode.workspace.fs.rename(file, vscode.Uri.file(newFilePath));
     }
   }
 }

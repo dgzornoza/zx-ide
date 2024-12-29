@@ -8,9 +8,9 @@ const Types = {
 
   OutputChannelService: Symbol.for('OutputChannelService'),
   TerminalService: Symbol.for('TerminalService'),
-  Z88dkBreakpointService: Symbol.for('Z88dkBreakpointService'),
   Z88dkProjectService: Symbol.for('Z88dkProjectService'),
   Z88dkReportService: Symbol.for('Z88dkReportService'),
+  Z88dkBreakpointService: Symbol.for('Z88dkBreakpointService'),
   SjasmPlusProjectService: Symbol.for('SjasmPlusProjectService'),
 };
 

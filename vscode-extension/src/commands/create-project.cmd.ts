@@ -24,7 +24,7 @@ export class CreateProjectCmd extends Command<unknown> {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async execute(..._params: unknown[]): Promise<void> {
-    const outputFile = path.join(await FileHelpers.getTempFolder(), 'output.txt');
+    const outputFile = path.join(FileHelpers.getTempFolder(), 'output.txt');
 
     const cliPath = path.join(__dirname, 'zx-ide-cli.js');
 

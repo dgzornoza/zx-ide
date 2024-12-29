@@ -1,5 +1,5 @@
 import { Disposable } from '@core/abstractions/disposable';
-import { FileHelpers } from '@core/helpers/file-helpers';
+import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
 import { OutputChannelService } from '@core/services/output-channel.service';
 import { Types } from '@core/types';
 import { inject, injectable } from 'inversify';
@@ -16,7 +16,7 @@ export class Z88dkReportService extends Disposable {
 
   public async showMapFileReport(): Promise<void> {
     const outputFilename = await this.getOutputFilename();
-    const mapfileContent = await FileHelpers.readWorkspaceFile('build', `${outputFilename}.map`);
+    const mapfileContent = await WorkspaceHelpers.readWorkspaceFile('build', `${outputFilename}.map`);
     const outputChannel = this.outputChannelService.getDefaultOutputChannel();
     outputChannel.show(true);
 
@@ -80,7 +80,7 @@ export class Z88dkReportService extends Disposable {
   }
 
   private async getOutputFilename(): Promise<string | undefined> {
-    const content = await FileHelpers.readWorkspaceFile('Makefile');
+    const content = await WorkspaceHelpers.readWorkspaceFile('Makefile');
     const match = content?.match(/^EXEC_OUTPUT\s*=\s*(\w+)/m);
     return match ? match[1] : undefined;
   }

@@ -5,7 +5,7 @@ import { OutputChannelService } from '@core/services/output-channel.service';
 import { TerminalService } from '@core/services/terminal.service';
 import { Types } from '@core/types';
 import { SjasmPlusProjectService } from '@sjasmplus/services/sjasmplus-project.service';
-import { Z88dkBreakpointService } from '@z88dk/services/z88dk-breakpoints.services';
+import { Z88dkBreakpointService } from '@z88dk/services/z88dk-breakpoints.service';
 import { Z88dkProjectService } from '@z88dk/services/z88dk-project.service';
 import { Z88dkReportService } from '@z88dk/services/z88dk-report.service';
 import * as inversify from 'inversify';

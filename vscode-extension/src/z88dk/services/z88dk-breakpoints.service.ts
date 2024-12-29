@@ -1,35 +1,40 @@
 import { Disposable } from '@core/abstractions/disposable';
 import { BindThis } from '@core/decorators/bind-this.decorator';
+import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
+import { BUILD_DIRECTORY, SOURCE_FILE_EXTENSIONS } from '@z88dk/infrastructure';
 import { MappedBreakpointsModel } from '@z88dk/models/mapped-breakpoints.model';
+import { BreakpointsLanguageFactory } from '@z88dk/services/z88dk-breakpoints-language.strategy';
+import { injectable } from 'inversify';
+import * as path from 'path';
 import * as vscode from 'vscode';
-
-const SOURCE_FILE_EXTENSIONS = ['c', 'asm'];
 
 /**
  * Z88dk currently not generate debugger info, but is posible generate .lis file with assembler info and attach to DeZog debugger.
  * So, this service observes c nd asm files breackpoint and put it in the .lis file for debug in asssembler with c and asm source code comments.
  */
+@injectable()
 export class Z88dkBreakpointService extends Disposable {
   private lisFilePath?: string;
-  private workspacePath: string;
   private isUpdatingBreakpoints = false;
 
   // dictionary with mapped breakpoints, key is source breakpoint and value is .lis file breakpoint
   private mappedBreakpoints = new MappedBreakpointsModel();
+  private isDebugging = false;
 
   constructor() {
     super();
 
-    this._subscriptions.push(vscode.debug.onDidChangeBreakpoints(this.onBreakpointsChange));
     this._subscriptions.push(vscode.debug.onDidStartDebugSession(this.onDidStartDebugSession));
-
-    // workspace with slash at the end for optimice generate c label in lis file
-    this.workspacePath = vscode.workspace.workspaceFolders![0].uri.path.replace(/\/?$/, '/');
+    this._subscriptions.push(vscode.debug.onDidTerminateDebugSession(this.onDidTerminateDebugSession));
+    this._subscriptions.push(vscode.debug.onDidChangeBreakpoints(this.onBreakpointsChange));
   }
 
   @BindThis
-  private async onDidStartDebugSession(_session: vscode.DebugSession): Promise<void> {
-    await this.clearBreakpointsInLisFile();
+  private async onDidStartDebugSession(_event: vscode.DebugSession): Promise<void> {
+    this.isDebugging = true;
+
+    // only clear mapped breakpoints, lis file is recreated on build and not required to clear
+    this.mappedBreakpoints.clear();
 
     const sourceBreakpoints = vscode.debug.breakpoints.filter((item) => item instanceof vscode.SourceBreakpoint);
     await this.mapSourceBreakpointsToLisFileBreakpoints(sourceBreakpoints);
@@ -37,8 +42,13 @@ export class Z88dkBreakpointService extends Disposable {
   }
 
   @BindThis
+  private async onDidTerminateDebugSession(_event: vscode.DebugSession): Promise<void> {
+    this.isDebugging = false;
+  }
+
+  @BindThis
   private async onBreakpointsChange(event: vscode.BreakpointsChangeEvent): Promise<void> {
-    if (this.isUpdatingBreakpoints) return;
+    if (!this.isDebugging || this.isUpdatingBreakpoints) return;
 
     const { added, removed, changed } = event;
     if (added.length > 0) {
@@ -47,6 +57,7 @@ export class Z88dkBreakpointService extends Disposable {
     }
     if (removed.length > 0) {
       const breakpoints = removed.filter((bp) => bp instanceof vscode.SourceBreakpoint);
+      // only remove source breakpoints (lis breakpoints will be removed on updateMappedBreakpointsInFiles)
       this.mappedBreakpoints.removeSourceBreakpoints(breakpoints);
     }
     if (changed.length > 0) {
@@ -86,53 +97,21 @@ export class Z88dkBreakpointService extends Disposable {
     this.isUpdatingBreakpoints = false;
   }
 
-  private async clearBreakpointsInLisFile(): Promise<void> {
-    const lisFilePath = await this.getLisFilePath();
-
-    for (const breakpoint of vscode.debug.breakpoints) {
-      if (breakpoint instanceof vscode.SourceBreakpoint && breakpoint.location.uri.fsPath === lisFilePath) {
-        vscode.debug.removeBreakpoints([breakpoint]);
-      }
-    }
-  }
-
-  private async getLisFilePath(): Promise<string | undefined> {
+  private getLisFilePath(): string {
     if (!this.lisFilePath) {
-      const files = await vscode.workspace.findFiles('src/*.lis');
-      this.lisFilePath = files[0].fsPath;
+      const projectName = path.basename(WorkspaceHelpers.workspacePath);
+      this.lisFilePath = WorkspaceHelpers.getWorkspaceUri(BUILD_DIRECTORY, `${projectName}.source.lis`).fsPath;
     }
 
     return this.lisFilePath;
   }
 
   private isBreakpointInSourceFile(breakpoint: vscode.SourceBreakpoint): boolean {
-    return SOURCE_FILE_EXTENSIONS.includes(breakpoint.location.uri.fsPath.split('.').pop() || '');
+    return SOURCE_FILE_EXTENSIONS.includes(this.getBreakpointFileExtension(breakpoint));
   }
 
-  /**
-   * Generate label similar to the one in the .lis file for c comments.
-   * @param breakpoint breakpoint to generate label
-   * @returns label generated (ie: ;src/main.c:10:)
-   */
-  private generateLisFileCLabel(breakpoint: vscode.SourceBreakpoint): string {
-    let filePath: string = '';
-
-    if (breakpoint.location.uri.path.indexOf(this.workspacePath) === 0) {
-      filePath = breakpoint.location.uri.path.substring(this.workspacePath.length);
-    }
-
-    // line is in base 0, so add 1
-    return `;${filePath}:${breakpoint.location.range.start.line + 1}:`;
-  }
-
-  private async openLisFile(): Promise<vscode.TextDocument | undefined> {
-    const lisFilePath = await this.getLisFilePath();
-    if (lisFilePath) {
-      return await vscode.workspace.openTextDocument(lisFilePath);
-    }
-
-    vscode.window.showErrorMessage(vscode.l10n.t(`Lis file not found`));
-    return undefined;
+  private getBreakpointFileExtension(breakpoint: vscode.SourceBreakpoint): string {
+    return breakpoint.location.uri.fsPath.split('.').pop() || '';
   }
 
   /**
@@ -140,37 +119,25 @@ export class Z88dkBreakpointService extends Disposable {
    * @param breakpoints List of source breakpoints
    */
   private async mapSourceBreakpointsToLisFileBreakpoints(breakpoints: vscode.SourceBreakpoint[]): Promise<void> {
-    const lisFile: vscode.TextDocument | undefined = await this.openLisFile();
-    if (!lisFile) return;
+    const lisFilePath = this.getLisFilePath();
 
-    const lisFileContent = lisFile.getText();
+    const groupedBreakpoints = breakpoints
+      .filter((item) => this.isBreakpointInSourceFile(item))
+      .groupBy((item) => item.location.uri.fsPath);
 
-    for (const breakpoint of breakpoints) {
-      if (!this.isBreakpointInSourceFile(breakpoint)) continue;
+    for (const breakpointsPath in groupedBreakpoints) {
+      if (!groupedBreakpoints.hasOwnProperty(breakpointsPath)) continue;
 
-      let lisFileBreakpoint: vscode.SourceBreakpoint | undefined;
+      const languageStrategy = BreakpointsLanguageFactory.getInstance(breakpointsPath);
+      if (languageStrategy) {
+        const breakpoints = await languageStrategy.getMappedBreakpointsInLisFile(
+          groupedBreakpoints[breakpointsPath],
+          breakpointsPath,
+          lisFilePath
+        );
 
-      // find c label in lis file
-      const cLabel = this.generateLisFileCLabel(breakpoint);
-      const index = lisFileContent.indexOf(cLabel);
-      if (index !== -1) {
-        const cLabelLine = lisFile.positionAt(index).line;
-
-        // in lis file only valid c comments are followed by assembler code
-        const breakpointLine = lisFile.lineAt(cLabelLine + 1);
-        if (this.isValidLineForBreakpoint(breakpointLine.text)) {
-          lisFileBreakpoint = new vscode.SourceBreakpoint(new vscode.Location(lisFile.uri, breakpointLine.range.start));
-        }
+        this.mappedBreakpoints.addMappedBreakpoints(breakpoints);
       }
-
-      this.mappedBreakpoints.addMappedBreakpoint(breakpoint, lisFileBreakpoint);
     }
-  }
-
-  private isValidLineForBreakpoint(lineText: string): boolean {
-    // valid assembler line contains at least line number, opcode and operands
-    const regex = /\b[0-9a-fA-F]+\b/g;
-    const numberGroups = lineText.match(regex);
-    return (numberGroups && numberGroups.length >= 2) ?? false;
   }
 }
