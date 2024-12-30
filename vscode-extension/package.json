@@ -1,8 +1,8 @@
 {
   "name": "zxide",
   "displayName": "zxide",
-  "description": "Integrated Development environment for Zx Spectrum ",
-  "version": "1.0.0",
+  "description": "Extension for development on retro computers with vscode.",
+  "version": "1.0.1",
   "publisher": "dgzornoza",
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
     "vscode": "^1.95.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages"
   ],
   "activationEvents": [
     "workspaceContains:.zxide.json"

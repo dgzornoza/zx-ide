@@ -10,15 +10,16 @@
 
 # Zx-Ide
 
-Extension for developing on retro computers with vscode.
+Extension for development on retro computers with vscode.
 
 ## Features
 
 Currently the following types of projects are allowed:
 
-- Zx Spectrum
-  - sjasmplus, pasmo (asm)
-  - z88dk (c/asm)
+### Zx Spectrum
+
+- sjasmplus, pasmo (asm)
+- z88dk (c/asm)
 
 ## Requirements
 
@@ -33,15 +34,15 @@ Currently the following types of projects are allowed:
 
 ## Install
 
-To install this project, follow these steps:
+You can install in one of these ways:
 
-1. Clone the repository: `git clone https://github.com/dgzornoza/zx-ide.git`
-2. Navigate to the project directory: `cd project`
-3. Install the dependencies: `npm install`
+- **vscode**: Go to the vscode extensions and search for `zx-ide`.
+- **marketplace**: Download it from the [marketplace](https://marketplace.visualstudio.com/items?itemName=dgzornoza.zxide).
+- **github**: download latest .vsix from [GitHub Releases](https://github.com/dgzornoza/zx-ide/releases) file and install it.
 
 ## Usage
 
-Refers to Wiki for more information.
+Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
 
 ## License
 
