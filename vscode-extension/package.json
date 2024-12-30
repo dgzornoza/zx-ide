@@ -2,7 +2,12 @@
   "name": "zxide",
   "displayName": "zxide",
   "description": "Integrated Development environment for Zx Spectrum ",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "publisher": "dgzornoza",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dgzornoza/zx-ide.git"
+  },
   "engines": {
     "vscode": "^1.95.0"
   },
@@ -23,7 +28,7 @@
   },
   "scripts": {
     "build-cli": "npm --prefix ../cli run build",
-    "vscode:prepublish": "vscode-nls-dev -v && npm run package",
+    "vscode:prepublish": "npm run vscode-nls-dev -v && npm run package",
     "watch": "npm run build-cli && webpack --watch",
     "package": "npm run build-cli && webpack --mode production --devtool hidden-source-map",
     "compile": "webpack",
@@ -70,6 +75,7 @@
     "ts-loader": "^9.5.1",
     "typescript": "^5.6.3",
     "typescript-eslint": "^7.0.0",
+    "vscode-nls-dev": "^4.0.4",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4"
   }

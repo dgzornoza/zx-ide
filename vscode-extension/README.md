@@ -1,75 +1,52 @@
-# zxide README
 
-This is the README for your extension "zxide". After writing up a brief description, we recommend including the following sections.
+```
+███████╗██╗  ██╗     ██╗██████╗ ███████╗
+╚══███╔╝╚██╗██╔╝     ██║██╔══██╗██╔════╝
+  ███╔╝  ╚███╔╝█████╗██║██║  ██║█████╗  
+ ███╔╝   ██╔██╗╚════╝██║██║  ██║██╔══╝  
+███████╗██╔╝ ██╗     ██║██████╔╝███████╗
+╚══════╝╚═╝  ╚═╝     ╚═╝╚═════╝ ╚══════╝
+```
+
+# Zx-Ide
+
+Extension for developing on retro computers with vscode.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+Currently the following types of projects are allowed:
 
-For example if there is an image subfolder under your extension project workspace:
-
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+- Zx Spectrum
+  - sjasmplus, pasmo (asm)
+  - z88dk (c/asm)
 
 ## Requirements
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+- vscode [https://code.visualstudio.com/](https://code.visualstudio.com/)
+- installed visual studio code dev-container extension:
+  [https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers](vscode-remote.remote-containers)
 
-## Extension Settings
+- Docker environment
+  - Windows: [https://docs.docker.com/docker-for-windows/install/](https://docs.docker.com/docker-for-windows/install/)
+  - Mac: [https://docs.docker.com/docker-for-mac/install/](https://docs.docker.com/docker-for-mac/install/)
+  - Linux: [https://docs.docker.com/engine/install/](https://docs.docker.com/engine/install/)
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## Install
 
-For example:
+To install this project, follow these steps:
 
-This extension contributes the following settings:
+1. Clone the repository: `git clone https://github.com/dgzornoza/zx-ide.git`
+2. Navigate to the project directory: `cd project`
+3. Install the dependencies: `npm install`
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## Usage
 
-## Known Issues
+Refers to Wiki for more information.
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## License
 
-## Translate command
+This project is licensed under the **MIT license**. This means you can use, copy, modify, and distribute this code, always including the copyright notice and the permission notice. For more details, see the [LICENSE](./LICENSE) file or visit the [MIT License](https://opensource.org/licenses/MIT) page.
 
-npx @vscode/l10n-dev export -o ./l10n ./src
+## Contact
 
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+Any questions or suggestions, please contact me at [dgzornoza@dgzornoza.com](mailto:dgzornoza@dgzornoza.com).
