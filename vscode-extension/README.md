@@ -38,8 +38,8 @@ Currently the following types of projects are allowed:
 - Wait for install container and recomended extensions
 - Press (F5) to Start Debugging or (Ctrl + Shift + B) to execute build task.
 - All ready to develop your project
-
-https://github.com/user-attachments/assets/6b8305e2-82f2-4246-82a9-78e804d7670d
+  
+![create_project](https://github.com/user-attachments/assets/bdb55874-e5a3-4355-b035-bbf6336e807a)
 
 Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
 
