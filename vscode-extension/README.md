@@ -39,6 +39,8 @@ Currently the following types of projects are allowed:
 - Press (F5) to Start Debugging or (Ctrl + Shift + B) to execute build task.
 - All ready to develop your project
 
+https://github.com/user-attachments/assets/6b8305e2-82f2-4246-82a9-78e804d7670d
+
 Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
 
 ## License
