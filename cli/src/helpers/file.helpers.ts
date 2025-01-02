@@ -1,9 +1,19 @@
 import * as fs from 'fs';
 import * as StreamZip from 'node-stream-zip';
+import * as os from 'os';
 import * as path from 'path';
 import { ProjectReplacementConstants } from 'src/infrastructure';
 
 export class FileHelpers {
+  public static getRealSystemPath(absolutePath: string): string {
+    if (os.platform() === 'win32') {
+      return fs.realpathSync.native(absolutePath);
+    } else {
+      fs.accessSync(absolutePath);
+      return absolutePath;
+    }
+  }
+
   public static getAbsolutePath(relativePath: string): string {
     return path.join(__dirname, relativePath);
   }

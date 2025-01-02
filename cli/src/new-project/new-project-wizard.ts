@@ -1,5 +1,6 @@
 import * as prompts from '@inquirer/prompts';
 import { ProjectType } from 'src/infrastructure';
+import { FileHelpers } from '../helpers/file.helpers';
 import { NewProjectModel } from './new-project.models';
 import { WizardStrategyFactory } from './wizard-strategies/wizard-strategy-factory';
 
@@ -8,7 +9,8 @@ export class NewProjectWizard {
 
   public async execute(): Promise<NewProjectModel> {
     const projectType = await this.selectProjectType();
-    const projectPath = await this.selectProjectPath();
+    let projectPath = await this.selectProjectPath();
+    projectPath = FileHelpers.getRealSystemPath(projectPath);
     const projectName = await this.selectProjectName();
 
     // configure specific project type configurations

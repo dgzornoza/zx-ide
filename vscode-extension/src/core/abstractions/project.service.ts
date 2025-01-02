@@ -6,7 +6,11 @@ export abstract class ProjectService extends Disposable {
   constructor() {
     super();
 
-    void this.tryOpenReadmeFile();
+    if (!this.isDevContainer()) {
+      vscode.commands.executeCommand('remote-containers.reopenInContainer');
+    } else {
+      void this.tryOpenReadmeFile();
+    }
   }
 
   async tryOpenReadmeFile(): Promise<void> {
@@ -19,5 +23,9 @@ export abstract class ProjectService extends Disposable {
         console.error('can not open readme.md file', error);
       }
     }
+  }
+  private isDevContainer() {
+    const devContainerEnv = process.env['REMOTE_CONTAINERS'];
+    return devContainerEnv !== undefined;
   }
 }

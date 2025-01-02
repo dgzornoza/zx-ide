@@ -63,6 +63,11 @@ export class SjasmplusGeneratorBuilder extends GeneratorBuilder {
       '{ZX-IDE_PROJECT_NAME}',
       this.newProjectModel.projectName
     );
+    FileHelpers.replaceValueInFile(
+      path.join(this.newProjectModel.targetFolder, '.devcontainer', 'devcontainer.json'),
+      '{ZX-IDE_PROJECT_NAME}',
+      this.newProjectModel.projectName
+    );
   }
 }
 

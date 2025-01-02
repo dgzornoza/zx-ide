@@ -16,9 +16,7 @@
         "${workspaceFolder}/**/*.js"
       ],
       "stopOnEntry": false,
-      "args": [
-        "-p ZxSpectrumSjasmplus -n asmtest -s -o c:/temp/samples"
-      ],
+      "args": [],
       "cwd": "${workspaceFolder}",
       "runtimeExecutable": "npm",
       "runtimeArgs": [

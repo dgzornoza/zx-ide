@@ -45,6 +45,7 @@ export class TerminalService extends Disposable {
     return new Promise<string>((resolve, reject) => {
       const outputFolder = path.dirname(outputFilePath);
       const outputFilename = path.basename(outputFilePath);
+      fs.rmSync(outputFilePath, { force: true });
 
       const watcher = fs.watch(outputFolder, (eventType, filename) => {
         if (eventType === 'rename' && filename === outputFilename) {
