@@ -1,3 +1,10 @@
+export const WikiUri = 'https://github.com/dgzornoza/zx-ide/wiki';
+
+export enum CommandName {
+  CreateProject = 'zx-ide.create-project',
+  OpenHelp = 'zx-ide.open-help',
+}
+
 export type ProjectType = 'sjasmplus' | 'z88dk';
 export type ProjectConfigurationType =
   | 'z88dk_sdcc_classic_lib'

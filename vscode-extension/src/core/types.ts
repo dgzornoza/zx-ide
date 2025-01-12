@@ -5,6 +5,7 @@ const Types = {
   IStatusBar: Symbol.for('IStatusBar'),
 
   CreateProjectCmd: Symbol.for('CreateProjectCmd'),
+  OpenHelpCmd: Symbol.for('OpenHelpCmd'),
 
   OutputChannelService: Symbol.for('OutputChannelService'),
   TerminalService: Symbol.for('TerminalService'),

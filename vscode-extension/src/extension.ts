@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import { CreateProjectCmd } from '@commands/create-project.cmd';
+import { OpenHelpCmd } from '@commands/open-help.cmd';
 import '@core/helpers/array-helpers';
 import { FeaturesService } from '@core/services/features.service';
 import { Types } from '@core/types';
@@ -14,8 +15,9 @@ import { InversifyConfig } from './inversify.config';
 export function activate(context: vscode.ExtensionContext) {
   InversifyConfig.initialize(context);
 
-  // Comando para crear proyecto nuevo
+  // Register commands
   InversifyConfig.container.get<CreateProjectCmd>(Types.CreateProjectCmd);
+  InversifyConfig.container.get<OpenHelpCmd>(Types.OpenHelpCmd);
 
   FeaturesService.isZ88dkProject().then((result) => {
     if (result) {

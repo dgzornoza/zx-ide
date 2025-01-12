@@ -1,18 +1,16 @@
 import { Command } from '@core/abstractions/command';
 import { FileHelpers } from '@core/helpers/file-helpers';
-import { NewProjectModel } from '@core/infrastructure';
+import { CommandName, NewProjectModel } from '@core/infrastructure';
 import { TerminalService } from '@core/services/terminal.service';
 import { Types } from '@core/types';
 import { inject, injectable } from 'inversify';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
-const COMMAND_NAME: string = 'zx-ide.create-project';
-
 @injectable()
 export class CreateProjectCmd extends Command<unknown> {
-  public getCommandName(): string {
-    return COMMAND_NAME;
+  public getCommandName(): CommandName {
+    return CommandName.CreateProject;
   }
 
   constructor(

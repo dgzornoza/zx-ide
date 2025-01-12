@@ -13,11 +13,12 @@ import * as vscode from 'vscode';
 @injectable()
 export class Z88dkProjectService extends ProjectService {
   constructor(
+    @inject(Types.ExtensionContext) context: vscode.ExtensionContext,
     @inject(Types.OutputChannelService) private outputChannelService: OutputChannelService,
     @inject(Types.Z88dkReportService) private z88dkReportService: Z88dkReportService,
     @inject(Types.Z88dkBreakpointService) private z88dkBreakpointService: Z88dkBreakpointService
   ) {
-    super();
+    super(context);
 
     this._subscriptions.push(vscode.tasks.onDidEndTaskProcess(this.onDidEndTaskProcess));
   }

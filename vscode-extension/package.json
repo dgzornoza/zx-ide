@@ -21,6 +21,10 @@
   "contributes": {
     "commands": [
       {
+        "command": "zx-ide.open-help",
+        "title": "%extension.cmd-title.open-help%"
+      },
+      {
         "command": "zx-ide.create-project",
         "title": "%extension.cmd-title.create-project%"
       }

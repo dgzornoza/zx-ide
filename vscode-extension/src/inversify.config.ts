@@ -1,4 +1,5 @@
 import { CreateProjectCmd } from '@commands/create-project.cmd';
+import { OpenHelpCmd } from '@commands/open-help.cmd';
 import { IStatusBar, StatusBar } from '@components/status-bar.component';
 import { IDisposable } from '@core/abstractions/disposable';
 import { OutputChannelService } from '@core/services/output-channel.service';
@@ -50,6 +51,12 @@ export class InversifyConfig {
     InversifyConfig._container
       .bind<CreateProjectCmd>(Types.CreateProjectCmd)
       .to(CreateProjectCmd)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
+
+    InversifyConfig._container
+      .bind<OpenHelpCmd>(Types.OpenHelpCmd)
+      .to(OpenHelpCmd)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
 

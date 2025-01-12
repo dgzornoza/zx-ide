@@ -45,10 +45,23 @@ Currently the following types of projects are allowed:
 
 Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
 
+## Clean containers
+
+To remove containers that have not been used in a while and free up memory, you can run the following command:
+
+```bash
+# (168h = 7 days)
+docker container prune --filter "until=168h"
+```
+
+## Documentation
+
+For more information, visit the [Wiki](https://github.com/dgzornoza/zx-ide/wiki)
+
 ## License
 
 This project is licensed under the **MIT license**. This means you can use, copy, modify, and distribute this code, always including the copyright notice and the permission notice. For more details, see the [LICENSE](./LICENSE) file or visit the [MIT License](https://opensource.org/licenses/MIT) page.
 
 ## Contact
 
-Any questions or suggestions, please contact me at [dgzornoza@dgzornoza.com](mailto:dgzornoza@dgzornoza.com).
+Any questions or suggestions, please contact me.

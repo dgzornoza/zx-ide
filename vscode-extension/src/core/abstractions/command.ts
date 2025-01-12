@@ -1,4 +1,5 @@
 import { Disposable } from '@core/abstractions/disposable';
+import { CommandName } from '@core/infrastructure';
 import { injectable } from 'inversify';
 import 'reflect-metadata';
 import * as vscode from 'vscode';
@@ -10,7 +11,7 @@ import * as vscode from 'vscode';
 export abstract class Command<TParams> extends Disposable {
   protected _isEnabled: boolean;
 
-  protected abstract getCommandName(): string;
+  protected abstract getCommandName(): CommandName;
 
   constructor() {
     super();
