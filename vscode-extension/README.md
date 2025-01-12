@@ -41,6 +41,8 @@ Currently the following types of projects are allowed:
   
 ![create_project](https://github.com/user-attachments/assets/bdb55874-e5a3-4355-b035-bbf6336e807a)
 
+![debug-z88dk](https://github.com/user-attachments/assets/55659ef7-6b04-40c5-8334-81d7760922b1)
+
 > **Remarks:** *If the path project folder is changed after the container is created, the container must be deleted so that it can be recreated with the new path, otherwise it will give an error indicating that the container already exists.*
 
 Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
