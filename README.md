@@ -22,8 +22,8 @@ Currently the following types of projects are allowed:
 
 ## Requirements
 
-- vscode [https://code.visualstudio.com/](https://code.visualstudio.com/)
-- installed visual studio code dev-container extension:
+- VsCode [https://code.visualstudio.com/](https://code.visualstudio.com/)
+- Installed visual studio code dev-container extension:
   [https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers](vscode-remote.remote-containers)
 
 - Docker environment
@@ -40,14 +40,6 @@ You can install in one of these ways:
 - **github**: download latest .vsix from [GitHub Releases](https://github.com/dgzornoza/zx-ide/releases) file and install it.
 
 ## Usage
-
-- Press F1, then execute `ZxIde: Create new project`
-- Follow the steps of the Assistant in the terminal
-- Wait for open new project.
-- Press F1, then execute `Dev Containers: Reopen in container`
-- Wait for install container and recomended extensions (First time it may take a few minutes)
-- Press (F5) to Start Debugging or (Ctrl + Shift + B) to execute build task.
-- All ready to develop your project
 
 Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
 

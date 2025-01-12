@@ -21,7 +21,7 @@ Currently the following types of projects are allowed:
 
 ## Requirements
 
-- installed visual studio code dev-container extension:
+- Installed visual studio code dev-container extension:
   [https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers](vscode-remote.remote-containers)
 
 - Docker environment
