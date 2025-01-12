@@ -45,7 +45,7 @@ You can install in one of these ways:
 - Follow the steps of the Assistant in the terminal
 - Wait for open new project.
 - Press F1, then execute `Dev Containers: Reopen in container`
-- Wait for install container and recomended extensions
+- Wait for install container and recomended extensions (First time it may take a few minutes)
 - Press (F5) to Start Debugging or (Ctrl + Shift + B) to execute build task.
 - All ready to develop your project
 

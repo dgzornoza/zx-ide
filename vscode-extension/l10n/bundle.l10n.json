@@ -13,8 +13,6 @@
   "Heap starts at:": "Heap starts at:",
   "Free memory:": "Free memory:",
   "Compilation finished": "Compilation finished",
-  "Failed to concatenate .lis files for debug asm": "Failed to concatenate .lis files for debug asm",
-  "Lis file not found": "Lis file not found",
   "Could not select terminal": "Could not select terminal",
   "No workspace folders found": "No workspace folders found",
   "Project created successfully, wait to open!": "Project created successfully, wait to open!"
