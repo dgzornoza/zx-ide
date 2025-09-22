@@ -4,6 +4,17 @@ All notable changes to the "zxide" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.2.0] - 2025-05-17
+
+### Added
+
+-
+
+### Updated
+
+- Updated docker images to latest version.
+- Updated documentation.
+
 ## [1.1.0] - 2025-01-12
 
 ### Added
