@@ -73,5 +73,4 @@ RUN apt-get install -y \
 	
 
 WORKDIR /workspaces/
-COPY . /workspace
 

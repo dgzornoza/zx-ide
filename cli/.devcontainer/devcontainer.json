@@ -1,6 +1,0 @@
-{
-  "name": "zx-ide-cli extension",
-  "build": {
-    "dockerfile": "Dockerfile"
-  }
-}

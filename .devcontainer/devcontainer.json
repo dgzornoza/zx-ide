@@ -1,0 +1,9 @@
+{
+  "name": "zx-ide extension",
+  "build": {
+    "dockerfile": "Dockerfile"
+  }
+  // "mounts": [
+  //   "source=D:\\Temp\\zxide-shared,target=/workspaces/samples,type=bind"
+  // ]
+}

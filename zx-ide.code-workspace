@@ -1,0 +1,50 @@
+{
+    "folders": [
+        {
+            "name": "cli",
+            "path": "projects/cli"
+        },
+        {
+            "name": "vscode-extension",
+            "path": "projects/vscode-extension"
+        },
+        {
+            "name": "doc",
+            "path": "doc"
+        }
+    ],
+    "extensions": {
+        "recommendations": [
+            "dbaeumer.vscode-eslint",
+            "esbenp.prettier-vscode",
+            "editorconfig.editorconfig",
+            "christian-kohler.path-intellisense"
+        ]
+    },
+    "settings": {
+        "eslint.workingDirectories": [
+            {
+                "directory": "cli"
+            },
+            {
+                "directory": "vscode-extension"
+            }
+        ],
+        "files.exclude": {
+            "**/dist/**": true,
+            "**/out/**": true,
+            "**/node_modules/**": true
+        },
+        "files.watcherExclude": {
+            "**/dist/**": true,
+            "**/out/**": true,
+            "**/node_modules/**": true
+        },
+        "search.exclude": {
+            "**/dist/**": true,
+            "**/out/**": true,
+            "**/node_modules/**": true
+        },
+        "typescript.tsdk": "${workspaceFolder:vscode-extension}/node_modules/typescript/lib"
+    }
+}
