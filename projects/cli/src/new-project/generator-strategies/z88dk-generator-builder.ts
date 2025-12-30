@@ -50,6 +50,11 @@ export class Z88dkGeneratorBuilder extends GeneratorBuilder {
       '{ZX-IDE_PROJECT_NAME}',
       this.newProjectModel.projectName
     );
+    FileHelpers.replaceValueInFile(
+      path.join(this.newProjectModel.projectPath, '.devcontainer', 'devcontainer.json'),
+      '{ZX-IDE_PROJECT_NAME}',
+      this.newProjectModel.projectName
+    );
   }
 
   private configureVscodeFiles(): void {

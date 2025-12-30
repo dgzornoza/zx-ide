@@ -2,8 +2,8 @@ import * as path from 'path';
 import { MachineType, ProjectConfigurationType, ProjectType } from 'src/infrastructure';
 
 export class NewProjectModel {
-  // main workspaces path (main folder where projects will be created)
-  readonly workspacesPath: string;
+  // target path (absolute folder path where project will be created)
+  readonly targetPath: string;
   // target project path
   readonly projectPath: string;
   // target project type
@@ -19,16 +19,16 @@ export class NewProjectModel {
 
   constructor(
     projectType: ProjectType,
-    workspacesPath: string,
+    targetPath: string,
     projectName: string,
     machineType?: MachineType,
     projectConfigurationType?: ProjectConfigurationType,
     useSample?: boolean
   ) {
     this.projectType = projectType;
-    this.workspacesPath = workspacesPath;
+    this.targetPath = targetPath;
     this.projectName = projectName;
-    this.projectPath = path.join(workspacesPath, projectName);
+    this.projectPath = path.join(targetPath, projectName);
     this.machineType = machineType;
     this.projectConfigurationType = projectConfigurationType;
     this.useSample = useSample;

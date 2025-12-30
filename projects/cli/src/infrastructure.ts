@@ -16,6 +16,9 @@ export type MachineType = 'zxspectrum';
 /** Modelo para definir la estructura del archivo zxide */
 export interface ZxideFile {
   'zx-ide-cli-version': string;
+  project: {
+    type: ProjectType;
+  };
 }
 
 /** modelo para definir la estructura del archivo settings.json de vscode */

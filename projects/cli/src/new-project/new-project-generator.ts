@@ -22,7 +22,7 @@ export class NewProjectGenerator {
     }
 
     try {
-      await builder.configureWorkspace();
+      await builder.createZxIdeProjectFile();
 
       await builder.copyTemplateBase();
 

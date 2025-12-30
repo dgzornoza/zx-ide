@@ -42,7 +42,7 @@ export class NewProjectWizard {
 
   private async selectWorkspacesPath(): Promise<string> {
     return await prompts.input({
-      message: 'Workspaces path? (absolute path to main workspaces folder)',
+      message: 'Target path? (absolute path where project folder will be created)',
     });
   }
 
