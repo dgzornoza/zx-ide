@@ -18,6 +18,10 @@ export class FileHelpers {
     return path.join(__dirname, relativePath);
   }
 
+  public static exists(absolutePath: string): boolean {
+    return fs.existsSync(absolutePath);
+  }
+
   public static readFile(absolutePath: string): string {
     const result = fs.readFileSync(absolutePath, 'utf8');
     if (!result) {
@@ -31,13 +35,15 @@ export class FileHelpers {
     return JSON.parse(fileText);
   }
 
-  public static async writeFile(content: string, absolutePath: string): Promise<void> {
+  public static writeFile(content: string, absolutePath: string): void {
+    // create path if not exists
+    fs.mkdirSync(path.dirname(absolutePath), { recursive: true });
     fs.writeFileSync(absolutePath, content, 'utf8');
   }
 
-  public static async writeJsonFile(instance: unknown, absolutePath: string): Promise<void> {
+  public static writeJsonFile(instance: unknown, absolutePath: string): void {
     const content = JSON.stringify(instance, null, 4);
-    await FileHelpers.writeFile(content, absolutePath);
+    FileHelpers.writeFile(content, absolutePath);
   }
 
   public static replaceValueInFile(absoluteFilePath: string, oldValue: ProjectReplacementConstants, newValue: string): void {

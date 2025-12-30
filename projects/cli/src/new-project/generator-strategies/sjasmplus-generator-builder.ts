@@ -14,7 +14,7 @@ export class SjasmplusGeneratorBuilder extends GeneratorBuilder {
 
   async copyTemplateBase(): Promise<void> {
     const path = FileHelpers.getAbsolutePath(`./templates/${this.newProjectModel.projectType}_base.zip`);
-    await FileHelpers.copyTemplate(path, this.newProjectModel.targetFolder);
+    await FileHelpers.copyTemplate(path, this.newProjectModel.projectPath);
   }
 
   async copyTemplateSample(): Promise<void> {
@@ -22,49 +22,44 @@ export class SjasmplusGeneratorBuilder extends GeneratorBuilder {
       `./templates/${this.newProjectModel.projectType}_${this.newProjectModel.machineType}_sample.zip`
     );
 
-    await FileHelpers.copyTemplate(path, this.newProjectModel.targetFolder);
+    await FileHelpers.copyTemplate(path, this.newProjectModel.projectPath);
   }
 
   configureProject(): Promise<void> {
-    this.updateConfigurationFile();
-    this.setProjectName();
+    this.configureProjectName();
+    this.configureSourceFiles();
 
     return Promise.resolve();
   }
 
-  private updateConfigurationFile(): void {
+  private configureSourceFiles(): void {
     FileHelpers.replaceValueInFile(
-      path.join(this.newProjectModel.targetFolder, 'src', '_sjasmplus.asm'),
+      path.join(this.newProjectModel.projectPath, 'src', '_sjasmplus.asm'),
       '{ZX-IDE_PROJECT_MACHINE}',
       this.projectConfigurationStrategy.machines.join('\n')
     );
 
     FileHelpers.replaceValueInFile(
-      path.join(this.newProjectModel.targetFolder, 'src', '_sjasmplus.asm'),
+      path.join(this.newProjectModel.projectPath, 'src', '_sjasmplus.asm'),
       '{ZX-IDE_PROJECT_OUTPUT_FILE}',
-      this.projectConfigurationStrategy.ouputFile.join('\n')
+      this.projectConfigurationStrategy.ouputFile(this.newProjectModel.projectName).join('\n')
     );
   }
 
-  private setProjectName(): void {
+  private configureProjectName(): void {
     // set project name as output name in files, project name in templates should be {ZX-IDE_PROJECT_NAME}.
     FileHelpers.replaceValueInFile(
-      path.join(this.newProjectModel.targetFolder, 'src', '_sjasmplus.asm'),
+      path.join(this.newProjectModel.projectPath, 'src', '_sjasmplus.asm'),
       '{ZX-IDE_PROJECT_NAME}',
       this.newProjectModel.projectName
     );
     FileHelpers.replaceValueInFile(
-      path.join(this.newProjectModel.targetFolder, '.vscode', 'launch.json'),
+      path.join(this.newProjectModel.projectPath, '.vscode', 'launch.json'),
       '{ZX-IDE_PROJECT_NAME}',
       this.newProjectModel.projectName
     );
     FileHelpers.replaceValueInFile(
-      path.join(this.newProjectModel.targetFolder, '.vscode', 'tasks.json'),
-      '{ZX-IDE_PROJECT_NAME}',
-      this.newProjectModel.projectName
-    );
-    FileHelpers.replaceValueInFile(
-      path.join(this.newProjectModel.targetFolder, '.devcontainer', 'devcontainer.json'),
+      path.join(this.newProjectModel.projectPath, '.vscode', 'tasks.json'),
       '{ZX-IDE_PROJECT_NAME}',
       this.newProjectModel.projectName
     );
@@ -84,10 +79,12 @@ class ProjectConfigurationStrategyFactory {
 
 interface IProjectConfigurationStrategy {
   machines: string[];
-  ouputFile: string[];
+  ouputFile(projectName: string): string[];
 }
 
 class ZxSpectrumConfigurationStrategy implements IProjectConfigurationStrategy {
   machines = ['DEVICE ZXSPECTRUM48', '\t;DEVICE ZXSPECTRUM128'];
-  ouputFile = ['; SET Program name', '\tSAVESNA "build/{ZX-IDE_PROJECT_NAME}.sna", Main'];
+  ouputFile(projectName: string): string[] {
+    return ['; SET Program name', `\tSAVESNA "build/${projectName}.sna", Main`];
+  }
 }

@@ -2,26 +2,33 @@ import * as path from 'path';
 import { MachineType, ProjectConfigurationType, ProjectType } from 'src/infrastructure';
 
 export class NewProjectModel {
-  readonly targetFolder: string;
-  readonly projectType: ProjectType;
+  // main workspaces path (main folder where projects will be created)
+  readonly workspacesPath: string;
+  // target project path
   readonly projectPath: string;
+  // target project type
+  readonly projectType: ProjectType;
+  // target project name
   readonly projectName: string;
+  // (optional) flag to use sample project
   readonly useSample?: boolean;
+  // (optional) project configuration type
   readonly projectConfigurationType?: ProjectConfigurationType;
+  // (optional) machine type
   readonly machineType?: MachineType;
 
   constructor(
     projectType: ProjectType,
-    projectPath: string,
+    workspacesPath: string,
     projectName: string,
     machineType?: MachineType,
     projectConfigurationType?: ProjectConfigurationType,
     useSample?: boolean
   ) {
     this.projectType = projectType;
-    this.projectPath = projectPath;
+    this.workspacesPath = workspacesPath;
     this.projectName = projectName;
-    this.targetFolder = path.join(projectPath, projectName);
+    this.projectPath = path.join(workspacesPath, projectName);
     this.machineType = machineType;
     this.projectConfigurationType = projectConfigurationType;
     this.useSample = useSample;

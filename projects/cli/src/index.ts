@@ -25,7 +25,7 @@ class Main {
     this.showTitle();
 
     var options = this._program.opts();
-    const ranWithArgs = options.projectType && options.projectPath && options.projectName;
+    const ranWithArgs = options.projectType && options.workspacesPath && options.projectName;
 
     let newProjectModel: NewProjectModel;
     if (!ranWithArgs) {
@@ -33,7 +33,7 @@ class Main {
     } else {
       newProjectModel = new NewProjectModel(
         options.projectType,
-        options.projectPath,
+        options.workspacesPath,
         options.projectName,
         options.machineType,
         options.projectConfiguration,

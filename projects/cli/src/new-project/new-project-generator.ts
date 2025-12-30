@@ -22,6 +22,8 @@ export class NewProjectGenerator {
     }
 
     try {
+      await builder.configureWorkspace();
+
       await builder.copyTemplateBase();
 
       if (newProjectModel.useSample) {
@@ -30,9 +32,7 @@ export class NewProjectGenerator {
 
       await builder.configureProject();
 
-      await builder.createProjectFile();
-
-      console.log('Project generated in: ' + newProjectModel.targetFolder);
+      console.log('Project generated in: ' + newProjectModel.projectPath);
     } catch (err) {
       console.error('Error creating project:', err);
     }

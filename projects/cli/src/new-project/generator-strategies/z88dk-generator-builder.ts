@@ -19,7 +19,7 @@ export class Z88dkGeneratorBuilder extends GeneratorBuilder {
 
   async copyTemplateBase(): Promise<void> {
     const path = FileHelpers.getAbsolutePath(`./templates/${this.newProjectModel.projectType}_base.zip`);
-    await FileHelpers.copyTemplate(path, this.newProjectModel.targetFolder);
+    await FileHelpers.copyTemplate(path, this.newProjectModel.projectPath);
   }
 
   async copyTemplateSample(): Promise<void> {
@@ -27,62 +27,54 @@ export class Z88dkGeneratorBuilder extends GeneratorBuilder {
       `./templates/${this.newProjectModel.projectType}_${this.newProjectModel.machineType}_sample.zip`
     );
 
-    await FileHelpers.copyTemplate(path, this.newProjectModel.targetFolder);
+    await FileHelpers.copyTemplate(path, this.newProjectModel.projectPath);
   }
 
   configureProject(): Promise<void> {
-    this.setProjectName();
-    this.configureIncludePaths();
-    this.configureCompilerArguments();
-    this.configureIncludes();
+    this.configureProjectName();
+    this.configureVscodeFiles();
+    this.configureSourceHeaderFiles();
 
     return Promise.resolve();
   }
 
-  private setProjectName(): void {
+  private configureProjectName(): void {
     // set project name as output name in files, project name in templates should be {ZX-IDE_PROJECT_NAME}.
     FileHelpers.replaceValueInFile(
-      path.join(this.newProjectModel.targetFolder, 'Makefile'),
+      path.join(this.newProjectModel.projectPath, 'Makefile'),
       '{ZX-IDE_PROJECT_NAME}',
       this.newProjectModel.projectName
     );
     FileHelpers.replaceValueInFile(
-      path.join(this.newProjectModel.targetFolder, '.vscode', 'launch.json'),
-      '{ZX-IDE_PROJECT_NAME}',
-      this.newProjectModel.projectName
-    );
-    FileHelpers.replaceValueInFile(
-      path.join(this.newProjectModel.targetFolder, '.devcontainer', 'devcontainer.json'),
+      path.join(this.newProjectModel.projectPath, '.vscode', 'launch.json'),
       '{ZX-IDE_PROJECT_NAME}',
       this.newProjectModel.projectName
     );
   }
 
-  private configureIncludePaths(): void {
+  private configureVscodeFiles(): void {
     // Include files in vscode are in settings.json, (z88dk compiler currently not require set include paths)
-    const absolutePath = path.join(this.newProjectModel.targetFolder, '.vscode', 'settings.json');
-    const json = FileHelpers.readJsonFile<ISettingsJsonFile>(absolutePath);
-    json['C_Cpp.default.includePath'].push(...this.projectConfigurationStrategy.includePaths);
-    FileHelpers.writeJsonFile(json, absolutePath);
-  }
+    let absolutePath = path.join(this.newProjectModel.projectPath, '.vscode', 'settings.json');
+    const settingsJson = FileHelpers.readJsonFile<ISettingsJsonFile>(absolutePath);
+    settingsJson['C_Cpp.default.includePath'].push(...this.projectConfigurationStrategy.includePaths);
+    FileHelpers.writeJsonFile(settingsJson, absolutePath);
 
-  private configureCompilerArguments(): void {
     // compiler arguments are in .vscode/tasks.json (with label 'Build' and command 'make')
-    const absolutePath = path.join(this.newProjectModel.targetFolder, '.vscode', 'tasks.json');
-    const json = FileHelpers.readJsonFile<ITasksJsonFile>(absolutePath);
-    const task = json.tasks.find((task) => task.label === 'Build' && task.command === 'make');
+    absolutePath = path.join(this.newProjectModel.projectPath, '.vscode', 'tasks.json');
+    const taskJson = FileHelpers.readJsonFile<ITasksJsonFile>(absolutePath);
+    const task = taskJson.tasks.find((task) => task.label === 'Build' && task.command === 'make');
     if (!task) {
       throw new Error('tasks.json is not valid zx-ide file.');
     }
 
     task.args = this.projectConfigurationStrategy.compilerArguments;
-    FileHelpers.writeJsonFile(json, absolutePath);
+    FileHelpers.writeJsonFile(taskJson, absolutePath);
   }
 
-  private configureIncludes(): void {
+  private configureSourceHeaderFiles(): void {
     // set includes in main headers file
     FileHelpers.replaceValueInFile(
-      path.join(this.newProjectModel.targetFolder, 'src', 'z88dk_headers.h'),
+      path.join(this.newProjectModel.projectPath, 'src', 'z88dk_headers.h'),
       '{ZX-IDE_PROJECT_INCLUDES}',
       this.projectConfigurationStrategy.includes.join('\n')
     );
