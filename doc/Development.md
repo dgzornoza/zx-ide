@@ -1,5 +1,14 @@
 # Development Notes
 
+benchmark z88dk:
+<https://www.cpcmania.com/Docs/Programming/SDCC_vs_z88dk_Comparando_tama%C3%B1o_y_velocidad.htm?utm_source=copilot.com>
+
+debug gdb:
+<https://deepwiki.com/z88dk/z88dk/7.2-gdb-debugging-interface?utm_source=copilot.com>
+
+deepwiki:
+<https://deepwiki.com/z88dk>
+
 ## Debugging GDB configuration
 
 ```json

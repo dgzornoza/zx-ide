@@ -9,8 +9,8 @@ export class NewProjectWizard {
 
   public async execute(): Promise<NewProjectModel> {
     const projectType = await this.selectProjectType();
-    let workspacesPath = await this.selectWorkspacesPath();
-    workspacesPath = FileHelpers.getRealSystemPath(workspacesPath);
+    let targetPath = await this.selectTargetPath();
+    targetPath = FileHelpers.getRealSystemPath(targetPath);
     const projectName = await this.selectProjectName();
 
     // configure specific project type configurations
@@ -19,7 +19,7 @@ export class NewProjectWizard {
     const projectConfigurationType = await strategy.selectProjectConfiguration();
     const useSample = await this.selectUseSample();
 
-    return new NewProjectModel(projectType, workspacesPath, projectName, machineType, projectConfigurationType, useSample);
+    return new NewProjectModel(projectType, targetPath, projectName, machineType, projectConfigurationType, useSample);
   }
 
   private async selectProjectType(): Promise<ProjectType> {
@@ -40,7 +40,7 @@ export class NewProjectWizard {
     });
   }
 
-  private async selectWorkspacesPath(): Promise<string> {
+  private async selectTargetPath(): Promise<string> {
     return await prompts.input({
       message: 'Target path? (absolute path where project folder will be created)',
     });
