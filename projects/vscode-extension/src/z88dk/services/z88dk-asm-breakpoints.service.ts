@@ -3,17 +3,20 @@ import { BindThis } from '@core/decorators/bind-this.decorator';
 import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
 import { BUILD_DIRECTORY, SOURCE_FILE_EXTENSIONS } from '@z88dk/infrastructure';
 import { MappedBreakpointsModel } from '@z88dk/models/mapped-breakpoints.model';
-import { BreakpointsLanguageFactory } from '@z88dk/services/z88dk-breakpoints-language.strategy';
+import { BreakpointsLanguageFactory } from '@z88dk/services/z88dk-asm-breakpoints-language.strategy';
 import { injectable } from 'inversify';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
 /**
- * Z88dk currently not generate debugger info, but is posible generate .lis file with assembler info and attach to DeZog debugger.
+ * This service provides the ability to debug C code at the assembly level using .lis files, which contain comments with the original C code.
+ * The service will only be active if the useAsmDebug configuration property is enabled.
+ *
+ * NOTE: When this service is enabled, standard C‑level debugging will be disabled, and only assembly‑level debugging (with the embedded C‑code comments) will be available.
  * So, this service observes c nd asm files breackpoint and put it in the .lis file for debug in asssembler with c and asm source code comments.
  */
 @injectable()
-export class Z88dkBreakpointService extends Disposable {
+export class Z88dkAsmBreakpointService extends Disposable {
   private lisFilePath?: string;
   private isUpdatingBreakpoints = false;
 
@@ -23,10 +26,19 @@ export class Z88dkBreakpointService extends Disposable {
 
   constructor() {
     super();
+  }
 
+  enable(): void {
     this._subscriptions.push(vscode.debug.onDidStartDebugSession(this.onDidStartDebugSession));
     this._subscriptions.push(vscode.debug.onDidTerminateDebugSession(this.onDidTerminateDebugSession));
     this._subscriptions.push(vscode.debug.onDidChangeBreakpoints(this.onBreakpointsChange));
+  }
+
+  disable(): void {
+    this.mappedBreakpoints.clear();
+
+    this._subscriptions.forEach((subscription) => subscription.dispose());
+    this._subscriptions = [];
   }
 
   @BindThis

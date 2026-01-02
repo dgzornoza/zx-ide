@@ -1,5 +1,6 @@
 import { FileHelpers } from '@core/helpers/file-helpers';
 import { Logger } from '@core/logger';
+import { Edit, modify, parse } from 'jsonc-parser';
 import * as vscode from 'vscode';
 
 export class WorkspaceHelpers {
@@ -25,7 +26,7 @@ export class WorkspaceHelpers {
   public static async readWorkspaceJsonFile<T>(...relativePathSegments: string[]): Promise<T> {
     const fileText = await WorkspaceHelpers.readWorkspaceFile(...relativePathSegments);
     try {
-      return JSON.parse(fileText);
+      return parse(fileText);
     } catch (error) {
       Logger.error(`Error parse json data in file '${relativePathSegments.at(-1)}': ${error}`);
       throw error;
@@ -37,9 +38,41 @@ export class WorkspaceHelpers {
     await FileHelpers.writeFile(content, fileUri);
   }
 
-  public static async writeWorkspaceJsonFile(instance: unknown, ...relativePathSegments: string[]): Promise<void> {
-    const content = JSON.stringify(instance, null, 4);
-    await WorkspaceHelpers.writeWorkspaceFile(content, ...relativePathSegments);
+  /**
+   * Modifies a JSONC file in the workspace, modifing only the specified path if provided.
+   * @param instance The value to set at the given path (or the whole document if path is not provided)
+   * @param relativePathSegments Path segments to the file
+   * @param path Optional path (array of string|number) to the property to modify. If omitted, replaces the whole document.
+   */
+  public static async writeWorkspaceJsonFile(instance: unknown, relativePathSegments: string[], path?: (string | number)[]): Promise<void> {
+    // Local helper to apply edits to text
+    function applyEdits(text: string, edits: Edit[]): string {
+      let offset = 0;
+      for (const edit of edits) {
+        text = text.slice(0, edit.offset + offset) + edit.content + text.slice(edit.offset + edit.length + offset);
+        offset += edit.content.length - edit.length;
+      }
+      return text;
+    }
+
+    const fileUri = WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
+
+    if (await FileHelpers.fileExists(fileUri)) {
+      const originalText = await FileHelpers.readFile(fileUri);
+      // Use the provided path or [] (whole document)
+      const edits = modify(originalText, path ?? [], instance, { formattingOptions: { insertSpaces: true, tabSize: 4, eol: '\n' } });
+      const newText = applyEdits(originalText, edits);
+      await FileHelpers.writeFile(newText, fileUri);
+    } else {
+      // file not exists, create new file with content
+      const content = JSON.stringify(instance, null, 4);
+      await FileHelpers.writeFile(content, fileUri);
+    }
+  }
+
+  // Overload for backward compatibility (old signature)
+  public static async writeWorkspaceJsonFile_Compat(instance: unknown, ...relativePathSegments: string[]): Promise<void> {
+    return WorkspaceHelpers.writeWorkspaceJsonFile(instance, relativePathSegments);
   }
 
   public static async openWorkspaceFile(findLineRegex?: RegExp, ...relativePathSegments: string[]): Promise<void> {

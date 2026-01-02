@@ -1,4 +1,5 @@
 {
   "extension.cmd-title.create-project": "ZxIde: Crear nuevo proyecto",
-  "extension.cmd-title.open-help": "ZxIde: Mostrar página de ayuda de ZxIde"
+  "extension.cmd-title.open-help": "ZxIde: Mostrar página de ayuda de ZxIde",
+  "extension.configuration.z88dk.useAsmDebug": "Depurar en asm, usando archivos .lis con comentarios del código 'c' para la depuración"
 }

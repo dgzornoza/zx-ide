@@ -2,11 +2,12 @@ import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { OpenHelpCmd } from '@commands/open-help.cmd';
 import { IStatusBar, StatusBar } from '@components/status-bar.component';
 import { IDisposable } from '@core/abstractions/disposable';
+import { ConfigurationService } from '@core/services/configuration.service';
 import { OutputChannelService } from '@core/services/output-channel.service';
 import { TerminalService } from '@core/services/terminal.service';
 import { Types } from '@core/types';
 import { SjasmPlusProjectService } from '@sjasmplus/services/sjasmplus-project.service';
-import { Z88dkBreakpointService } from '@z88dk/services/z88dk-breakpoints.service';
+import { Z88dkAsmBreakpointService } from '@z88dk/services/z88dk-asm-breakpoints.service';
 import { Z88dkProjectService } from '@z88dk/services/z88dk-project.service';
 import { Z88dkReportService } from '@z88dk/services/z88dk-report.service';
 import * as inversify from 'inversify';
@@ -65,6 +66,12 @@ export class InversifyConfig {
 
     // Services
     InversifyConfig._container
+      .bind<ConfigurationService>(Types.ConfigurationService)
+      .to(ConfigurationService)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
+
+    InversifyConfig._container
       .bind<OutputChannelService>(Types.OutputChannelService)
       .to(OutputChannelService)
       .inSingletonScope()
@@ -90,8 +97,8 @@ export class InversifyConfig {
       .onActivation(InversifyConfig._subscribe);
 
     InversifyConfig._container
-      .bind<Z88dkBreakpointService>(Types.Z88dkBreakpointService)
-      .to(Z88dkBreakpointService)
+      .bind<Z88dkAsmBreakpointService>(Types.Z88dkBreakpointService)
+      .to(Z88dkAsmBreakpointService)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
 

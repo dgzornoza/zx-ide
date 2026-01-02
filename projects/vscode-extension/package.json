@@ -28,7 +28,17 @@
         "command": "zx-ide.create-project",
         "title": "%extension.cmd-title.create-project%"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Z88DK",
+      "properties": {
+        "zxide.z88dk.useAsmDebug": {
+          "type": "boolean",
+          "default": false,
+          "description": "%extension.configuration.z88dk.useAsmDebug%"
+        }
+      }
+    }
   },
   "scripts": {
     "build-cli": "npm --prefix ../cli run build",
@@ -55,6 +65,7 @@
   },
   "dependencies": {
     "inversify": "^6.0.3",
+    "jsonc-parser": "^3.3.1",
     "loglevel": "^1.9.2",
     "reflect-metadata": "^0.2.2"
   },
