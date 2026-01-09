@@ -6,7 +6,7 @@ import { DezogConfigurationModel, LaunchConfigFileModel, z88dkv2ConfigurationMod
 import { ConfigurationService } from '@core/services/configuration.service';
 import { OutputChannelService } from '@core/services/output-channel.service';
 import { Types } from '@core/types';
-import { BUILD_DIRECTORY, BUILD_FILES_GLOB_PATTERN, BUILD_TASK_NAME } from '@z88dk/infrastructure';
+import { BUILD_DIRECTORY, BUILD_FILES_GLOB_PATTERN } from '@z88dk/infrastructure';
 import { Z88dkAsmBreakpointService } from '@z88dk/services/z88dk-asm-breakpoints.service';
 import { Z88dkReportService } from '@z88dk/services/z88dk-report.service';
 import { inject, injectable } from 'inversify';
@@ -32,7 +32,7 @@ export class Z88dkProjectService extends ProjectService {
 
   @BindThis
   private async onDidEndTaskProcess(event: vscode.TaskProcessEndEvent): Promise<void> {
-    if (event.execution.task.name === BUILD_TASK_NAME) {
+    if (event.execution.task.definition.id.includes('make') && event.execution.task.definition.id.includes('COMPILER=-compiler=')) {
       await this.moveGeneratedFiles();
 
       const outputChannel = this.outputChannelService.getDefaultOutputChannel();

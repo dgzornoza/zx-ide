@@ -81,7 +81,7 @@ export class Z88dkReportService extends Disposable {
 
   private async getOutputFilename(): Promise<string | undefined> {
     const content = await WorkspaceHelpers.readWorkspaceFile('Makefile');
-    const match = content?.match(/^EXEC_OUTPUT\s*=\s*(\w+)/m);
+    const match = content?.match(/^EXEC_OUTPUT\s*=\s*([\w-]+)/m);
     return match ? match[1] : undefined;
   }
 }

@@ -4,6 +4,16 @@ All notable changes to the "zxide" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.3.0] - 2026-01-09
+
+### Added
+
+- Updated docker images to latest version.
+- unified docker images for all emulators and toolchains.
+- optimized docker images for reduce container size.
+- Added c debugger support for z88dk projects using (sdcc/dezog).
+- Corrected bugs.
+
 ## [1.2.0] - 2025-05-17
 
 ### Added

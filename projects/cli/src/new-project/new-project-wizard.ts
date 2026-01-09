@@ -49,6 +49,13 @@ export class NewProjectWizard {
   private async selectProjectName(): Promise<string> {
     return await prompts.input({
       message: 'Project name (should be unique in docker containers) ?',
+      validate: (value: string) => {
+        const regex = /^([\w-]+)$/m;
+        if (!regex.test(value)) {
+          return 'Project name must match pattern: \\w+ (letters, numbers, underscores only)';
+        }
+        return true;
+      },
     });
   }
 
