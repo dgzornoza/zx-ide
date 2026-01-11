@@ -81,3 +81,22 @@ This project is licensed under the **MIT license**. This means you can use, copy
 ## Contact
 
 Any questions or suggestions, please contact me.
+
+## Releases
+
+### 1.3.2
+
+- Updated to z88dk v2.4.0 (2024-06-30)
+- Updated sjasmplus to 1.21.0
+- z88dk: Now can debug C files
+- Fixed some issues
+
+### 1.2.0
+
+- Improved debugging system, allowing you to debug asm files by unifying the lis files
+- Updated to z88dk v2.3.0 (2024-10-31)
+
+### 1.0.0
+
+- Initial release aligned with z88dk v2.2
+- Initial release PASMO 0.5.5, SJASMPLUS 1.20.3

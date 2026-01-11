@@ -23,13 +23,11 @@ Environment using DeZog for debugging ASM/sjasmplus with source code tags.
 ## How to use
 
 - Press F1, then execute `Dev Containers: Reopen in container`
-- Wait for install container and recomended extensions
+- Wait for install container and recomended extensions (First time it may take a few minutes)
 - Press (F5) to Start Debugging or (Ctrl + Shift + B) to execute build task.
 - All ready to develop your project
 
-## Remarks
-
-The first time it download docker hub image with the sjasmplus sources from 2023-009-05 and PASMO 0.5.5
+Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
 
 ### Sample TAP generator sjasmplus
 
@@ -87,11 +85,5 @@ end_screen
 - ASM telegram group: <https://t.me/EnsambladorZXSpectrum>
 
 - My Github account: <https://github.com/dgzornoza>
-
-## Releases
-
-### 1.0.0
-
-Initial release PASMO 0.5.5, SJASMPLUS 1.20.3
 
 **Enjoy!**

@@ -30,7 +30,7 @@ export interface ZxideFile {
 }
 
 export interface NewProjectModel {
-  readonly targetFolder: string;
+  readonly targetPath: string;
   readonly projectType: ProjectType;
   readonly projectPath: string;
   readonly projectName: string;

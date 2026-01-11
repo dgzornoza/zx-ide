@@ -24,7 +24,7 @@ Pasmo can not debug with DeZog, but you can use for build, on this sample is usi
 ## How to use
 
 - Press F1, then execute `Dev Containers: Reopen in container`
-- Wait for install container and recomended extensions
+- Wait for install container and recomended extensions (First time it may take a few minutes)
 - Press (F5) to Start Debugging or (Ctrl + Shift + B) to execute build task.
 - All ready to develop your project
 
@@ -33,9 +33,9 @@ Pasmo can not debug with DeZog, but you can use for build, on this sample is usi
 - Press F1 and select 'Run Task' -> 'Build with PASMO'
 - use build/main-output.tap in any emulator
 
-## Remarks
+Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
 
-The first time it download docker hub image with the sjasmplus sources from 2023-009-05 and PASMO 0.5.5
+## Remarks
 
 Source code sample is from Juan Antonio Rubio García book 'Ensamblador para ZX Spectrum: ¿Hacemos un juego?'
 
@@ -98,10 +98,5 @@ end_screen
 
 - My Github account: <https://github.com/dgzornoza>
 
-## Releases
-
-### 1.0.0
-
-Initial release PASMO 0.5.5, SJASMPLUS 1.20.3
 
 **Enjoy!**

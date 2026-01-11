@@ -32,7 +32,7 @@ export class CreateProjectCmd extends Command<unknown> {
 
       vscode.window.showInformationMessage(vscode.l10n.t('Project created successfully, wait to open!'));
       // reopen vscode
-      const projectPathUri = vscode.Uri.file(jsonResult.targetFolder);
+      const projectPathUri = vscode.Uri.file(jsonResult.projectPath);
       await vscode.commands.executeCommand('vscode.openFolder', projectPathUri, { forceReuseWindow: true });
     } catch (error) {
       vscode.window.showErrorMessage(`Error: ${error}`);

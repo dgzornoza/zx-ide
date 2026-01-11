@@ -23,18 +23,12 @@ Environment using DeZog for debugging ASM with C source code tags.
 
 - Ensure you have docker enabled in your system
 - Press F1, then execute `Dev Containers: Reopen in container`
-- Wait for install container and recomended extensions.
+- Wait for install container and recomended extensions (First time it may take a few minutes)
 - Press (F5) to Start Debugging or (Ctrl + Shift + B) to execute build task.
 - Set break point in c or asm source files, the extensions map breakpoints to c.lis file to debug
 - All ready to develop your project
 
-## Options
-
---
-
-## Remarks
-
-The first time it download docker hub image with the Z88DK sources from 2024-10-31.
+Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
 
 ## Links of interest
 
@@ -44,16 +38,5 @@ The first time it download docker hub image with the Z88DK sources from 2024-10-
 - CRTs reference <https://github.com/z88dk/z88dk/blob/master/doc/ZXSpectrumZSDCCnewlib_02_HelloWorld.md>
 - ASM tutorial <https://wiki.speccy.org/cursos/ensamblador/indice>
 - ASM tutorials and sample coe <https://espamatica.com/>
-
-## Releases
-
-### 2.3.0 2024/10/31
-
-- Improved debugging system, allowing you to debug asm files by unifying the lis files
-- Updated to z88dk v2.3.0 (2024-10-31)
-
-### 2.2.0
-
-- Initial release aligned with z88dk v2.2
 
 **Enjoy!**

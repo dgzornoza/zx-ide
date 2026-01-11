@@ -11,7 +11,7 @@
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "program": "${workspaceFolder}\\src\\index.ts",
+      "program": "${workspaceFolder}/src/index.ts",
       "outFiles": [
         "${workspaceFolder}/**/*.js"
       ],
@@ -26,7 +26,7 @@
       "env": {
         "NODE_ENV": "development"
       },
-      "console": "integratedTerminal",
+      "console": "integratedTerminal"
     }
   ]
 }

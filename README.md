@@ -67,10 +67,7 @@ This repository contains two projects: a CLI (`cli`) and a VS Code extension (`v
 - Run Extension: use the "Run Extension" launch configuration; it starts an Extension Host using the built `vscode-extension` output.
 - Debug CLI: use the "Debug CLI" launch configuration; it builds `cli` and runs `dist/zx-ide-cli.js` with source maps.
 
-### Notes
-
-- The workspace sets `typescript.tsdk` to use the TypeScript version from `vscode-extension`.
-- Common build and search excludes are configured for `dist`, `out`, and `node_modules`.
+Note: if you want to debug the extension code with a app code, you need open this project in devcontainer, and set `devcontainer.json` mounts property to a directory with your app code. Where you can open the app code folder in the extension host window.
 
 ## License
 

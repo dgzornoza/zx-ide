@@ -27,11 +27,8 @@ Environment using DeZog for debugging ASM with C source code tags.
 - Set break point in c or asm source files, the extensions map breakpoints to c.lis file to debug
 - All ready to develop your project
 
-<https://github.com/dgzornoza/z88dk-dev-environment/assets/7240189/b688a008-af47-4b45-b31c-d45f6e889f59>
+Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
 
-## Options
-
---
 
 ## Remarks
 
@@ -47,16 +44,5 @@ Source sample is from: <https://www.z88dk.org/wiki/doku.php?id=temp:front#mixing
 - CRTs reference <https://github.com/z88dk/z88dk/blob/master/doc/ZXSpectrumZSDCCnewlib_02_HelloWorld.md>
 - ASM tutorial <https://wiki.speccy.org/cursos/ensamblador/indice>
 - ASM tutorials and sample coe <https://espamatica.com/>
-
-## Releases
-
-### 2.3.0 2024/10/31
-
-- Improved debugging system, allowing you to debug asm files by unifying the lis files
-- Updated to z88dk v2.3.0 (2024-10-31)
-
-### 2.2.0
-
-- Initial release aligned with z88dk v2.2
 
 **Enjoy!**
