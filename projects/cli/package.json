@@ -8,7 +8,7 @@
     "zxide"
   ],
   "author": "David González Zornoza <dgzornoza@dgzornoza.com>",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dgzornoza/zx-ide.git"

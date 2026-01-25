@@ -2,7 +2,7 @@
   "name": "zx-ide extension",
   "image": "dgzornoza/zxide-dev:latest",
   "runArgs": [
-	"--name=${localWorkspaceFolderBasename}"
+    "--name=${localWorkspaceFolderBasename}"
   ],
   "mounts": [
     "source=D:\\Temp\\zxide-shared,target=/workspaces/samples,type=bind"
