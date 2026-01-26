@@ -58,7 +58,9 @@ For more information, visit the [Wiki](https://github.com/dgzornoza/zx-ide/wiki)
 
 ## License
 
-This project is licensed under the **MIT license**. This means you can use, copy, modify, and distribute this code, always including the copyright notice and the permission notice. For more details, see the [LICENSE](./LICENSE) file or visit the [MIT License](https://opensource.org/licenses/MIT) page.
+This project is licensed under the **GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)**. This means you can use, copy, modify, and distribute this code under the terms of the AGPL-3.0. For more details, see the [LICENSE](./LICENSE) file or visit the [GNU AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html) page.
+
+For information about third-party toolchains included in the development container, see the [NOTICE.md](./NOTICE.md) file.
 
 ## Contact
 
