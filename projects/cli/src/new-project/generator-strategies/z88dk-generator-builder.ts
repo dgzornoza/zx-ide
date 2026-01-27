@@ -95,6 +95,8 @@ class ProjectConfigurationStrategyFactory {
         return new SdccNewLibConfigurationStrategy();
       case 'z88dk_sccz80_classic_lib':
         return new Sccz80ClassicLibConfigurationStrategy();
+      case 'z88dk_sccz80_new_lib':
+        return new Sccz80NewLibConfigurationStrategy();
     }
   }
 }
@@ -126,5 +128,11 @@ class SdccNewLibConfigurationStrategy implements IProjectConfigurationStrategy {
     'C_OPT_FLAGS=-SO3 --opt-code-size',
     'CREATE_SNA=-Cz"--sna"',
   ];
+  includes = ['#include <arch/zx.h>'];
+}
+
+class Sccz80NewLibConfigurationStrategy implements IProjectConfigurationStrategy {
+  includePaths = ['/opt/z88dk/include/_DEVELOPMENT/common'];
+  compilerArguments = ['COMPILER=-compiler=sccz80', 'CLIB=-clib=new', 'CRT=-startup=31', 'C_OPT_FLAGS=-O3', 'CREATE_SNA=-Cz"--sna"'];
   includes = ['#include <arch/zx.h>'];
 }

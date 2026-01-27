@@ -6,7 +6,11 @@ export type ProjectReplacementConstants =
   | '{ZX-IDE_PROJECT_MACHINE}'
   | '{ZX-IDE_PROJECT_OUTPUT_FILE}';
 export type ProjectType = 'sjasmplus' | 'z88dk';
-export type ProjectConfigurationType = 'z88dk_sdcc_classic_lib' | 'z88dk_sdcc_new_lib' | 'z88dk_sccz80_classic_lib';
+export type ProjectConfigurationType =
+  | 'z88dk_sdcc_classic_lib'
+  | 'z88dk_sdcc_new_lib'
+  | 'z88dk_sccz80_classic_lib'
+  | 'z88dk_sccz80_new_lib';
 export type MachineType = 'zxspectrum';
 
 /** Modelo para definir la estructura del archivo zxide */
