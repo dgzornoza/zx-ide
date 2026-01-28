@@ -32,7 +32,11 @@ export class Z88dkProjectService extends ProjectService {
 
   @BindThis
   private async onDidEndTaskProcess(event: vscode.TaskProcessEndEvent): Promise<void> {
-    if (event.execution.task.definition.id.includes('make') && event.execution.task.definition.id.includes('COMPILER=-compiler=')) {
+    // validate if the finished task is a z88dk make task
+    if (
+      event.execution.task.definition.id.includes('make') &&
+      (event.execution.task.definition.id.includes('COMPILER=sdcc') || event.execution.task.definition.id.includes('COMPILER=sccz80'))
+    ) {
       await this.moveGeneratedFiles();
 
       const outputChannel = this.outputChannelService.getDefaultOutputChannel();
@@ -82,7 +86,7 @@ export class Z88dkProjectService extends ProjectService {
     }
   }
 
-  /** Debug configuration for assembler code */
+  /** Debug configuration for assembler code (only can debug in .source.lis asm code with C comments) */
   private getZ88dkAsmDebugConfiguration(): z88dkv2ConfigurationModel[] {
     const projectName = path.basename(WorkspaceHelpers.workspacePath);
 
@@ -95,7 +99,7 @@ export class Z88dkProjectService extends ProjectService {
     ];
   }
 
-  /** Debug configuration for C code */
+  /** Debug configuration for C code (only can debug C code) */
   private getZ88dkCDebugConfiguration(): z88dkv2ConfigurationModel[] {
     const projectName = path.basename(WorkspaceHelpers.workspacePath);
 

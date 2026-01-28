@@ -26,7 +26,7 @@ export class Z88dkWizardStrategy implements IWizardStrategy {
           description: 'sdcc compiler using new library',
         },
         {
-          name: 'sccz80 new lib',
+          name: 'sccz80 new lib (unable debug)',
           value: 'z88dk_sccz80_new_lib',
           description: 'sccz80 compiler using new library',
         },

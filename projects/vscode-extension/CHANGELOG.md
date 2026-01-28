@@ -4,6 +4,13 @@ All notable changes to the "zxide" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.4.0] - 2026-01-28
+
+### Updated
+
+- Updated makefiles for z88dk projects, now support .obj files for faster compilation.
+- Simplified vscode task arguments.
+
 ## [1.3.0] - 2026-01-09
 
 ### Added
@@ -15,10 +22,6 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 - Corrected bugs.
 
 ## [1.2.0] - 2025-05-17
-
-### Added
-
--
 
 ### Updated
 

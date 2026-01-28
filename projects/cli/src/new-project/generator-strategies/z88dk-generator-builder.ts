@@ -109,30 +109,24 @@ interface IProjectConfigurationStrategy {
 
 class SdccClassicLibConfigurationStrategy implements IProjectConfigurationStrategy {
   includePaths = ['/opt/z88dk/include'];
-  compilerArguments = ['COMPILER=-compiler=sdcc', 'C_OPT_FLAGS=-SO3 --opt-code-size', 'CREATE_SNA=-Cz"--sna"'];
+  compilerArguments = ['COMPILER=sdcc', 'C_OPT_FLAGS=-SO3 --opt-code-size', 'CREATE_SNA=true', 'CREATE_TAP=true'];
   includes = ['#include <arch/zx.h>'];
 }
 
 class Sccz80ClassicLibConfigurationStrategy implements IProjectConfigurationStrategy {
   includePaths = ['/opt/z88dk/include'];
-  compilerArguments = ['COMPILER=-compiler=sccz80', 'C_OPT_FLAGS=-O3', 'CREATE_SNA=-Cz"--sna"'];
+  compilerArguments = ['COMPILER=sccz80', 'C_OPT_FLAGS=-O3', 'CREATE_SNA=true', 'CREATE_TAP=true'];
   includes = ['#include <arch/zx.h>'];
 }
 
 class SdccNewLibConfigurationStrategy implements IProjectConfigurationStrategy {
   includePaths = ['/opt/z88dk/include/_DEVELOPMENT/common'];
-  compilerArguments = [
-    'COMPILER=-compiler=sdcc',
-    'CLIB=-clib=sdcc_iy',
-    'CRT=-startup=31',
-    'C_OPT_FLAGS=-SO3 --opt-code-size',
-    'CREATE_SNA=-Cz"--sna"',
-  ];
+  compilerArguments = ['COMPILER=sdcc', 'CLIB=sdcc_iy', 'CRT=31', 'C_OPT_FLAGS=-SO3 --opt-code-size', 'CREATE_SNA=true', 'CREATE_TAP=true'];
   includes = ['#include <arch/zx.h>'];
 }
 
 class Sccz80NewLibConfigurationStrategy implements IProjectConfigurationStrategy {
   includePaths = ['/opt/z88dk/include/_DEVELOPMENT/common'];
-  compilerArguments = ['COMPILER=-compiler=sccz80', 'CLIB=-clib=new', 'CRT=-startup=31', 'C_OPT_FLAGS=-O3', 'CREATE_SNA=-Cz"--sna"'];
+  compilerArguments = ['COMPILER=sccz80', 'CLIB=new', 'CRT=31', 'C_OPT_FLAGS=-O3', 'CREATE_SNA=true', 'CREATE_TAP=true'];
   includes = ['#include <arch/zx.h>'];
 }
