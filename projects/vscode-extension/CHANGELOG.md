@@ -4,6 +4,17 @@ All notable changes to the "zxide" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.4.0] - 2026-02-01
+
+### Updated
+
+- Improvements in z88dk templates
+- Changed output files to 'bin' directory
+
+### Fixed
+
+- fix z88dk report
+
 ## [1.4.0] - 2026-01-29
 
 ### Updated
