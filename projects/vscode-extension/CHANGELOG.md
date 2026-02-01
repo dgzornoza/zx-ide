@@ -4,7 +4,7 @@ All notable changes to the "zxide" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [1.4.2] - 2026-02-01
+## [1.4.3] - 2026-02-01
 
 ### Updated
 
