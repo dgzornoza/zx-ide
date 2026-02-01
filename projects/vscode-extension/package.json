@@ -2,7 +2,7 @@
   "name": "zxide",
   "displayName": "zxide",
   "description": "Extension for development on retro computers with vscode.",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "publisher": "dgzornoza",
   "license": "AGPL-3.0-or-later",
   "repository": {

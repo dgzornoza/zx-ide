@@ -2,6 +2,7 @@ import { Disposable } from '@core/abstractions/disposable';
 import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
 import { OutputChannelService } from '@core/services/output-channel.service';
 import { Types } from '@core/types';
+import { BUILD_DIRECTORY } from '@z88dk/infrastructure';
 import { inject, injectable } from 'inversify';
 import * as vscode from 'vscode';
 
@@ -88,7 +89,7 @@ export class Z88dkReportService extends Disposable {
 
   private async readReportData(): Promise<ReportData | undefined> {
     const outputFilename = await this.getOutputFilename();
-    const mapFileContent = await WorkspaceHelpers.readWorkspaceFile('build', `${outputFilename}.map`);
+    const mapFileContent = await WorkspaceHelpers.readWorkspaceFile(`${BUILD_DIRECTORY}`, `${outputFilename}.map`);
 
     var result: ReportData | undefined;
     if (mapFileContent) {

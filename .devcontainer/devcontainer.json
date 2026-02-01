@@ -5,7 +5,6 @@
     "--name=${localWorkspaceFolderBasename}"
   ],
   "mounts": [
-    //"source=D:\\Temp\\zxide-shared,target=/workspaces/samples,type=bind"
-    "source=I:\\temp,target=/workspaces/samples,type=bind"
+    "source=D:\\Temp\\zxide-shared,target=/workspaces/samples,type=bind"    
   ]
 }

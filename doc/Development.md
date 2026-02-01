@@ -11,7 +11,7 @@ benchmark z88dk:
             "type": "gdb",
             "request": "attach",
             "name": "Attach to gdbserver",
-            "executable": "${workspaceRoot}/build/z88dkDbg.map",
+            "executable": "${workspaceRoot}/bin/z88dkDbg.map",
             "target": "192.168.123.118:1339",
             "remote": true,
             "cwd": "${workspaceRoot}",
@@ -21,7 +21,7 @@ benchmark z88dk:
             "printCalls": true
             // "debugger_args": [
             //     "-x",
-            //     "${workspaceRoot}/build/z88dkDbg.map"
+            //     "${workspaceRoot}/bin/z88dkDbg.map"
             // ],
             //"showDevDebugOutput": true
             // "valuesFormatting": "parseText"

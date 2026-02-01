@@ -1,6 +1,6 @@
 {
   "name": "zx-ide-cli",
-  "version": "1.0.0",
+  "version": "1.4.0",
   "description": "cli for zx spectrum development with zxide vscode extension",
   "keywords": [
     "zx spectrum",

@@ -31,7 +31,7 @@ Pasmo can not debug with DeZog, but you can use for build, on this sample is usi
 (optional for build tap file with loader + screen + code)
 
 - Press F1 and select 'Run Task' -> 'Build with PASMO'
-- use build/main-output.tap in any emulator
+- use bin/main-output.tap in any emulator
 
 Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
 
@@ -97,6 +97,5 @@ end_screen
 - ASM telegram group: <https://t.me/EnsambladorZXSpectrum>
 
 - My Github account: <https://github.com/dgzornoza>
-
 
 **Enjoy!**

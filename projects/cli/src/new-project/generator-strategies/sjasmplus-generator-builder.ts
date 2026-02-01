@@ -90,6 +90,6 @@ interface IProjectConfigurationStrategy {
 class ZxSpectrumConfigurationStrategy implements IProjectConfigurationStrategy {
   machines = ['DEVICE ZXSPECTRUM48', '\t;DEVICE ZXSPECTRUM128'];
   ouputFile(projectName: string): string[] {
-    return ['; SET Program name', `\tSAVESNA "build/${projectName}.sna", Main`];
+    return ['; SET Program name', `\tSAVESNA "bin/${projectName}.sna", Main`];
   }
 }

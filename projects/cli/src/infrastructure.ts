@@ -1,4 +1,4 @@
-export const ZX_ZXIDE_CLI_VERSION = '1.2.0';
+export const ZX_ZXIDE_CLI_VERSION = '1.4.0';
 
 export type ProjectReplacementConstants =
   | '{ZX-IDE_PROJECT_NAME}'

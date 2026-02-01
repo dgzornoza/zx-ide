@@ -48,7 +48,7 @@ export class Z88dkProjectService extends ProjectService {
   }
 
   /**
-   * move generated build files to build directory
+   * move generated build files to output directory
    */
   private async moveGeneratedFiles(): Promise<void> {
     const findFiles = BUILD_FILES_GLOB_PATTERN.map((pattern) => vscode.workspace.findFiles(pattern));
@@ -92,8 +92,8 @@ export class Z88dkProjectService extends ProjectService {
 
     return [
       {
-        path: `./build/${projectName}.source.lis`,
-        mapFile: `./build/${projectName}.map`,
+        path: `./${BUILD_DIRECTORY}/${projectName}.source.lis`,
+        mapFile: `./${BUILD_DIRECTORY}/${projectName}.map`,
         srcDirs: [],
       },
     ];
@@ -105,8 +105,8 @@ export class Z88dkProjectService extends ProjectService {
 
     return [
       {
-        path: './build/**/*.lis',
-        mapFile: `./build/${projectName}.map`,
+        path: `./${BUILD_DIRECTORY}/**/*.lis`,
+        mapFile: `./${BUILD_DIRECTORY}/${projectName}.map`,
         srcDirs: [''],
       },
     ];
