@@ -56,7 +56,7 @@ export class Z88dkProjectService extends ProjectService {
 
     for (const file of files) {
       const newFilePath = path.join(WorkspaceHelpers.workspacePath, BUILD_DIRECTORY, path.basename(file.path));
-      await vscode.workspace.fs.rename(file, vscode.Uri.file(newFilePath));
+      await vscode.workspace.fs.rename(file, vscode.Uri.file(newFilePath), { overwrite: true });
     }
   }
 
