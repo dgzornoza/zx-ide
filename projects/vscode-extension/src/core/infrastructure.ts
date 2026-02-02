@@ -3,6 +3,7 @@ export const WikiUri = 'https://github.com/dgzornoza/zx-ide/wiki';
 export enum CommandName {
   CreateProject = 'zx-ide.create-project',
   OpenHelp = 'zx-ide.open-help',
+  AttachProjectGraphics = 'zx-ide.attach-project-graphics',
 }
 
 /**

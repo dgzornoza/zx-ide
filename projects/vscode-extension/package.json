@@ -31,6 +31,10 @@
         "command": "zx-ide.create-project",
         "title": "%extension.cmd-title.create-project%"
       }
+      {
+        "command": "zx-ide.attach-project-graphics",
+        "title": "%extension.cmd-title.attach-project-graphics%"
+      }
     ],
     "configuration": {
       "title": "Z88DK",
