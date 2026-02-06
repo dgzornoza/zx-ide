@@ -27,6 +27,10 @@ export interface ZxideFile {
   'template-version': string;
   project: {
     type: ProjectType;
+    /** Array of Paths to asset graphics files */
+    assetsGraphicsPaths?: string[];
+    /** Folder where graphics data source code files is stored */
+    graphicsDataFolderPath?: string;
   };
 }
 

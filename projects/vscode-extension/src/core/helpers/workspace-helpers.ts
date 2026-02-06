@@ -18,6 +18,11 @@ export class WorkspaceHelpers {
     return vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, ...relativePathSegments);
   }
 
+  public static async workspaceFileExists(...relativePathSegments: string[]): Promise<boolean> {
+    const fileUri = WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
+    return await FileHelpers.fileExists(fileUri);
+  }
+
   public static async readWorkspaceFile(...relativePathSegments: string[]): Promise<string> {
     const fileUri = WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
     return await FileHelpers.readFile(fileUri);

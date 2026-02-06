@@ -30,3 +30,11 @@
 
 - Output and terminal interactions are centralized in `OutputChannelService` and `TerminalService` ([src/core/services/output-channel.service.ts](src/core/services/output-channel.service.ts#L1), [src/core/services/terminal.service.ts](src/core/services/terminal.service.ts#L1)). Reuse these for new user-facing output/terminal flows.
 - Localization strings come from `package.nls.json` and `package.nls.es.json` (command titles, config descriptions). Follow that pattern for any new user-visible text.
+
+## ZxideFile structure
+
+- `ZxideFile` interface in [src/core/infrastructure.ts](src/core/infrastructure.ts#L26) defines the schema for `.zxide.json` with properties:
+  - `template-version`: version of the template
+  - `project.type`: project type (`'sjasmplus'` or `'z88dk'`)
+  - `project.assetsGraphics`: optional array of workspace-relative paths to graphics files (`.zxp` format) managed by `AttachProjectGraphicsCmd` ([src/commands/attach-project-graphics.cmd.ts](src/commands/attach-project-graphics.cmd.ts#L1))
+- Always use camelCase for interface properties (e.g., `assetsGraphics`, not `AssetsGraphics`)

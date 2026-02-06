@@ -20,5 +20,12 @@
   "Compilation finished": "Compilation finished",
   "Could not select terminal": "Could not select terminal",
   "No workspace folders found": "No workspace folders found",
-  "Project created successfully, wait to open!": "Project created successfully, wait to open!"
+  "Project created successfully, wait to open!": "Project created successfully, wait to open!",
+  "Asset-Graphics file and destination folder configured successfully": "Asset-Graphics file and destination folder configured successfully",
+  "Error attaching Asset-Graphics file: {0}": "Error attaching Asset-Graphics file: {0}",
+  "Select Asset-Graphics File": "Select Asset-Graphics File",
+  "Select graphics-data Destination Folder": "Select graphics-data Destination Folder",
+  "Asset-Graphics File does not exist at the selected path": "Asset-Graphics File does not exist at the selected path",
+  "Destination graphics-data folder must be inside the src/ directory": "Destination graphics-data folder must be inside the src/ directory",
+  "Asset-Graphics file is already attached": "Asset-Graphics file is already attached"
 }
