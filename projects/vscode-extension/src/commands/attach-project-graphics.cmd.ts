@@ -1,17 +1,24 @@
 import { Command } from '@core/abstractions/command';
-import { nameof } from '@core/helpers/type-helpers';
+import { FileHelpers } from '@core/helpers/file-helpers';
+import { WebviewHelpers } from '@core/helpers/webview-helpers';
 import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
-import { CommandName, ZxideFile } from '@core/infrastructure';
-import { FeaturesService } from '@core/services/features.service';
+import { CommandName } from '@core/infrastructure';
 import { Types } from '@core/types';
 import { inject, injectable } from 'inversify';
+import * as path from 'path';
 import * as vscode from 'vscode';
+import type {
+  CreateGraphicsMapMessage,
+  GraphicsMapPayload,
+  SpriteDefinition,
+  TileDefinition,
+} from '../../../shared/attach-project-graphics/graphics-map';
 
-interface IQueryCommandData {
-  /** Uri to graphics file (created from external app ie: zx paintbrush) */
-  assetGraphicsPath: string;
-  /** Uri to graphics data source code folder (where source code graphics files are stored in the project) */
-  graphicsDataFolderPath: string;
+interface GraphicsMapData {
+  source: string;
+  graphicsData: string;
+  tiles?: TileDefinition;
+  sprites?: SpriteDefinition[];
 }
 
 @injectable()
@@ -26,105 +33,175 @@ export class AttachProjectGraphicsCmd extends Command<unknown> {
 
   public async execute(..._params: unknown[]): Promise<void> {
     try {
-      const commandData = await this.queryCommandData();
-      if (!commandData) {
-        return;
-      }
+      const panel = vscode.window.createWebviewPanel(
+        'zxide.attachProjectGraphics',
+        vscode.l10n.t('Attach project graphics'),
+        vscode.ViewColumn.Active,
+        {
+          enableScripts: true,
+          retainContextWhenHidden: true,
+          localResourceRoots: [vscode.Uri.joinPath(this.extensionContext.extensionUri, 'media')],
+        }
+      );
 
-      await this.validateQueryData(commandData);
+      panel.webview.html = await this.getWebviewHtml(panel.webview);
 
-      await this.updateZxideFile(commandData);
+      panel.webview.onDidReceiveMessage(async (message: CreateGraphicsMapMessage | undefined) => {
+        if (!message || message.messageType !== 'create') {
+          return;
+        }
 
-      // Show success message
-      vscode.window.showInformationMessage(vscode.l10n.t('Asset-Graphics file and destination folder configured successfully'));
+        try {
+          const mapData = await this.validateAndBuildMapData(message.data as GraphicsMapPayload);
+          const mapRelativePath = this.buildMapRelativePath(mapData.source);
+
+          await this.writeMapFile(mapRelativePath, mapData);
+          console.log(JSON.stringify(mapData, null, 2));
+
+          panel.webview.postMessage({
+            type: 'status',
+            ok: true,
+            text: vscode.l10n.t('Graphics map saved at {0}', mapRelativePath),
+          });
+        } catch (error) {
+          panel.webview.postMessage({
+            type: 'status',
+            ok: false,
+            text: String(error),
+          });
+        }
+      });
     } catch (error) {
       vscode.window.showErrorMessage(vscode.l10n.t('Error attaching Asset-Graphics file: {0}', String(error)));
     }
   }
 
-  private async queryCommandData(): Promise<IQueryCommandData | undefined> {
-    // 1. Prompt user to select graphics file
-    const fileUri = await vscode.window.showOpenDialog({
-      canSelectFiles: true,
-      canSelectFolders: false,
-      canSelectMany: false,
-      openLabel: vscode.l10n.t('Select Asset-Graphics File'),
-      defaultUri: WorkspaceHelpers.getWorkspaceUri('assets', 'graphics'),
-      filters: { 'ZXP Files': ['zxp'] },
+  private async getWebviewHtml(webview: vscode.Webview): Promise<string> {
+    const locale = vscode.env.language;
+    return WebviewHelpers.buildWebviewHtml({
+      webview,
+      extensionUri: this.extensionContext.extensionUri,
+      htmlPageName: 'attach-project-graphics.html',
+      locale,
     });
+  }
 
-    if (!fileUri || !fileUri[0]) {
-      return;
+  private async validateAndBuildMapData(payload: GraphicsMapPayload): Promise<GraphicsMapData> {
+    const source = this.normalizeRelativePath(payload.source);
+    const graphicsData = this.normalizeRelativePath(payload.graphicsData);
+
+    if (!source) {
+      throw new Error(vscode.l10n.t('Asset Graphics File is required'));
     }
 
-    // 2. Prompt user to select destination folder for generated graphics-data (must be inside src/)
-    const destFolderUri = await vscode.window.showOpenDialog({
-      canSelectFiles: false,
-      canSelectFolders: true,
-      canSelectMany: false,
-      openLabel: vscode.l10n.t('Select graphics-data Destination Folder'),
-      defaultUri: WorkspaceHelpers.getWorkspaceUri('src', 'data'),
-    });
+    if (!source.toLowerCase().endsWith('.png')) {
+      throw new Error(vscode.l10n.t('Asset Graphics File must be a .png image'));
+    }
 
-    if (!destFolderUri || !destFolderUri[0]) {
-      return;
+    if (this.isAbsolutePath(source)) {
+      throw new Error(vscode.l10n.t('Asset Graphics File must be a workspace-relative path'));
+    }
+
+    const sourceExists = await WorkspaceHelpers.workspaceFileExists(source);
+    if (!sourceExists) {
+      throw new Error(vscode.l10n.t('Asset Graphics File does not exist at the selected path'));
+    }
+
+    if (!graphicsData) {
+      throw new Error(vscode.l10n.t('Graphics Data folder is required'));
+    }
+
+    if (!graphicsData.startsWith('src/') && graphicsData !== 'src') {
+      throw new Error(vscode.l10n.t('Graphics Data folder must be inside the src/ directory'));
+    }
+
+    if (this.isAbsolutePath(graphicsData)) {
+      throw new Error(vscode.l10n.t('Graphics Data folder must be a workspace-relative path'));
+    }
+
+    const graphicsDataUri = WorkspaceHelpers.getWorkspaceUri(graphicsData);
+    await vscode.workspace.fs.createDirectory(graphicsDataUri);
+
+    // Validate tiles
+    if (payload.tileDefinitions) {
+      this.validateTileDefinition(payload.tileDefinitions);
+    }
+
+    // Validate sprites
+    if (payload.spriteDefinitions && payload.spriteDefinitions.length > 0) {
+      for (const sprite of payload.spriteDefinitions) {
+        this.validateSpriteDefinition(sprite);
+      }
     }
 
     return {
-      assetGraphicsPath: vscode.workspace.asRelativePath(fileUri[0]),
-      graphicsDataFolderPath: vscode.workspace.asRelativePath(destFolderUri[0]),
+      source,
+      graphicsData,
+      tiles: payload.tileDefinitions,
+      sprites: payload.spriteDefinitions,
     };
   }
 
-  private async validateQueryData(commandData: IQueryCommandData): Promise<void> {
-    // Validate graphics file exists
-    const fileExists = await WorkspaceHelpers.workspaceFileExists(commandData.assetGraphicsPath);
-    if (!fileExists) {
-      vscode.window.showErrorMessage(vscode.l10n.t('Asset-Graphics File does not exist at the selected path'));
-      return;
+  private validateTileDefinition(tiles: TileDefinition): void {
+    if (typeof tiles.count !== 'number' || tiles.count < 0) {
+      throw new Error(vscode.l10n.t('Tile count must be a non-negative number'));
     }
 
-    // Validate destination is inside src/ folder
-    if (!commandData.graphicsDataFolderPath.startsWith('src/') && commandData.graphicsDataFolderPath !== 'src') {
-      vscode.window.showErrorMessage(vscode.l10n.t('Destination graphics-data folder must be inside the src/ directory'));
-      return;
+    if (!Array.isArray(tiles.names) || tiles.names.length !== tiles.count) {
+      throw new Error(vscode.l10n.t('Tile names count must match the tile count'));
     }
 
-    // create destination folder if it doesn't exist
-    const absoluteDestUri = WorkspaceHelpers.getWorkspaceUri(commandData.graphicsDataFolderPath);
-    await vscode.workspace.fs.createDirectory(absoluteDestUri);
+    for (const name of tiles.names) {
+      if (!name || typeof name !== 'string') {
+        throw new Error(vscode.l10n.t('All tile names must be non-empty strings'));
+      }
+    }
   }
 
-  private async updateZxideFile(commandData: IQueryCommandData): Promise<void> {
-    const projectZxideFilePath = '.zxide.json';
-
-    // Get current zxide project file from FeaturesService
-    if (!FeaturesService.zxideFile?.project) {
-      vscode.window.showErrorMessage(vscode.l10n.t('Failed to read .zxide.json file'));
-      return;
+  private validateSpriteDefinition(sprite: SpriteDefinition): void {
+    if (!sprite.name || typeof sprite.name !== 'string') {
+      throw new Error(vscode.l10n.t('Sprite name is required'));
     }
 
-    let assetsGraphics = FeaturesService.zxideFile.project.assetsGraphicsPaths ?? [];
-
-    // Check if path already exists in 'assetsGraphics' array
-    if (assetsGraphics.includes(commandData.assetGraphicsPath)) {
-      vscode.window.showInformationMessage(vscode.l10n.t('Asset-Graphics file is already attached'));
-      return;
+    if (typeof sprite.width !== 'number' || sprite.width <= 0) {
+      throw new Error(vscode.l10n.t('Sprite width must be greater than zero'));
     }
 
-    // Add to array and write back
-    assetsGraphics.push(commandData.assetGraphicsPath);
+    if (typeof sprite.height !== 'number' || sprite.height <= 0) {
+      throw new Error(vscode.l10n.t('Sprite height must be greater than zero'));
+    }
 
-    // Write both assetsGraphics array and assetsGraphicsSource path
-    await WorkspaceHelpers.writeWorkspaceJsonFile(
-      assetsGraphics,
-      [projectZxideFilePath],
-      [nameof<ZxideFile>('project'), nameof<ZxideFile['project']>('assetsGraphicsPaths')]
-    );
-    await WorkspaceHelpers.writeWorkspaceJsonFile(
-      commandData.graphicsDataFolderPath,
-      [projectZxideFilePath],
-      [nameof<ZxideFile>('project'), nameof<ZxideFile['project']>('graphicsDataFolderPath')]
-    );
+    if (!Array.isArray(sprite.frames)) {
+      throw new Error(vscode.l10n.t('Sprite frames must be an array'));
+    }
+
+    for (const frame of sprite.frames) {
+      if (typeof frame.column !== 'number' || frame.column < 0) {
+        throw new Error(vscode.l10n.t('Frame column must be a non-negative number'));
+      }
+
+      if (typeof frame.row !== 'number' || frame.row < 0) {
+        throw new Error(vscode.l10n.t('Frame row must be a non-negative number'));
+      }
+    }
+  }
+
+  private buildMapRelativePath(sourcePath: string): string {
+    const normalized = this.normalizeRelativePath(sourcePath);
+    const parsed = path.posix.parse(normalized);
+    return path.posix.join(parsed.dir, `${parsed.name}.map.json`);
+  }
+
+  private async writeMapFile(relativePath: string, data: GraphicsMapData): Promise<void> {
+    const targetUri = WorkspaceHelpers.getWorkspaceUri(relativePath);
+    await FileHelpers.writeFile(JSON.stringify(data, null, 2), targetUri);
+  }
+
+  private normalizeRelativePath(value: string): string {
+    return value.trim().replace(/\\/g, '/');
+  }
+
+  private isAbsolutePath(value: string): boolean {
+    return path.isAbsolute(value) || /^[a-zA-Z]:\//.test(value);
   }
 }

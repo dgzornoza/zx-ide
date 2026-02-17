@@ -48,10 +48,12 @@
     }
   },
   "scripts": {
-    "build-cli": "npm --prefix ../cli run build",
     "vscode:prepublish": "npm run vscode-nls-dev -v && npm run package",
-    "watch": "npm run build-cli && webpack --watch",
-    "package": "npm run build-cli && webpack --mode production --devtool hidden-source-map",
+    "build-cli": "npm --prefix ../cli run build",
+    "build-webview": "npm --prefix ../web-client run build && node ./scripts/sync-web-client.cjs",
+    "watch-webview": "npm --prefix ../web-client run build:watch && node ./scripts/sync-web-client.cjs --watch",
+    "watch": "npm run build-webview && npm run build-cli && webpack --watch",
+    "package": "npm run build-webview && npm run build-cli && webpack --mode production --devtool hidden-source-map",
     "compile": "webpack",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
@@ -77,6 +79,7 @@
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
+    "@vitejs/plugin-vue": "^5.1.4",
     "@eslint/js": "^9.14.0",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
@@ -85,6 +88,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "@vscode/test-electron": "^2.4.1",
+    "autoprefixer": "^10.4.20",
     "copy-webpack-plugin": "^12.0.2",
     "eslint": "^8.57.1",
     "eslint-config-airbnb-typescript": "^18.0.0",
@@ -93,10 +97,14 @@
     "husky": "^9.1.6",
     "lint-staged": "^15.2.10",
     "mocha": "^10.2.0",
+    "postcss": "^8.4.49",
     "prettier": "^3.3.3",
+    "tailwindcss": "^3.4.14",
     "ts-loader": "^9.5.1",
     "typescript": "^5.6.3",
     "typescript-eslint": "^7.0.0",
+    "vite": "^5.4.10",
+    "vue": "^3.5.12",
     "vscode-nls-dev": "^4.0.4",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4"

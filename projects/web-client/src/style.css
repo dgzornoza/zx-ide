@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: var(--vscode-foreground, #d4d4d4);
+  --ink-soft: var(--vscode-descriptionForeground, #a6a6a6);
+  --paper: var(--vscode-editor-background, #1e1e1e);
+  --card: var(--vscode-editorWidget-background, #252526);
+  --surface: var(--vscode-input-background, #2d2d2d);
+  --border: var(--vscode-editorWidget-border, #3c3c3c);
+  --input-bg: var(--vscode-input-background, #2d2d2d);
+  --input-ink: var(--vscode-input-foreground, #d4d4d4);
+  --input-border: var(--vscode-input-border, #3c3c3c);
+  --button-bg: var(--vscode-button-background, #0e639c);
+  --button-ink: var(--vscode-button-foreground, #ffffff);
+  --button-hover: var(--vscode-button-hoverBackground, #1177bb);
+  --button-secondary-bg: var(--vscode-button-secondaryBackground, #3a3d41);
+  --button-secondary-ink: var(--vscode-button-secondaryForeground, #ffffff);
+  --button-secondary-hover: var(
+    --vscode-button-secondaryHoverBackground,
+    #45494e
+  );
+  --danger-bg: var(--vscode-inputValidation-errorBackground, #5a1d0f);
+  --danger-ink: var(--vscode-inputValidation-errorForeground, #ffffff);
+  --success-ink: var(--vscode-testing-iconPassed, #73c991);
+  --error-ink: var(--vscode-testing-iconFailed, #f14c4c);
+  --radius: 0px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--vscode-font-family, "Segoe UI", sans-serif);
+  color: var(--ink);
+  background: var(--paper);
+}
