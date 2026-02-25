@@ -32,8 +32,8 @@
         "title": "%extension.cmd-title.create-project%"
       },
       {
-        "command": "zx-ide.attach-project-graphics",
-        "title": "%extension.cmd-title.attach-project-graphics%"
+        "command": "zx-ide.extract-graphics",
+        "title": "%extension.cmd-title.extract-graphics%"
       }
     ],
     "configuration": {

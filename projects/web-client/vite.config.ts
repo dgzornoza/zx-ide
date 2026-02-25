@@ -16,16 +16,18 @@ export default defineConfig({
     assetsDir: "assets",
     rollupOptions: {
       input: {
-        "attach-project-graphics": path.resolve(
-          root,
-          "attach-project-graphics.html",
-        ),
+        "extract-graphics": path.resolve(root, "extract-graphics.html"),
       },
       output: {
         entryFileNames: "assets/[name].js",
         chunkFileNames: "assets/[name].js",
         assetFileNames: "assets/[name][extname]",
       },
+    },
+  },
+  resolve: {
+    alias: {
+      src: path.resolve(__dirname, "src"),
     },
   },
 });

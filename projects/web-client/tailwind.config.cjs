@@ -1,9 +1,5 @@
 module.exports = {
-  content: [
-    "./index.html",
-    "./attach-project-graphics.html",
-    "./src/**/*.{ts,vue}",
-  ],
+  content: ["./index.html", "./extract-graphics.html", "./src/**/*.{ts,vue}"],
   theme: {
     extend: {
       fontFamily: {

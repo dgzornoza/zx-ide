@@ -22,6 +22,6 @@
     "include": [
         "src/**/*",
         "index.html",
-        "attach-project-graphics.html"
+        "extract-graphics.html"
     ]
 }

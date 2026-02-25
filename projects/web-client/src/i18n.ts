@@ -2,19 +2,23 @@ import { createI18n } from "vue-i18n";
 
 const messages = {
   en: {
-    "attach-project-graphics": {
+    "extract-graphics": {
       title: "Attach project graphics",
       subtitle:
         "Generate tile and sprite definitions from a spritesheet and save them into your project.",
       sectionSource: "Source data",
       sourceLabel: "Source image",
-      sourceHint: "Workspace relative path to the PNG source file.",
+      sourceHint: "Select the PNG source file from your workspace.",
+      browseButton: "Browse…",
+      noFileSelected: "No file selected",
       graphicsLabel: "Output data",
       graphicsHint: "Target folder for the generated graphics data.",
-      sectionTiles: "Tiles 8x8",
+      sectionTiles: "Tiles",
       tilesHint:
-        "Define tiles by name and coordinates. (tiles will be ordered left to right by tile rows)",
-      tilesCountLabel: "Tiles Number",
+        "Configure tile size and name each extracted tile. (tiles are ordered left to right, top to bottom)",
+      tileWidthLabel: "Tile width (px)",
+      tileHeightLabel: "Tile height (px)",
+      tilesCountLabel: "Tiles found",
       tileNameLabel: "Tile {index}",
       sectionSprites: "Sprites",
       spritesHint:
@@ -31,23 +35,47 @@ const messages = {
       remove: "Remove",
       create: "Create",
       statusSent: "Message sent in standalone mode.",
-      statusInvalid: "VS Code webview messaging is not available.",
+      errorSourceRequired: "Asset Graphics File is required",
+      errorSourceNotPng: "Asset Graphics File must be a .png image",
+      errorSourceAbsolutePath:
+        "Asset Graphics File must be a workspace-relative path",
+      errorGraphicsDataRequired: "Graphics Data folder is required",
+      errorGraphicsDataNotInSrc:
+        "Graphics Data folder must be inside the src/ directory",
+      errorGraphicsDataAbsolutePath:
+        "Graphics Data folder must be a workspace-relative path",
+      errorTileCountInvalid: "Tile count must be a non-negative number",
+      errorTileWidthInvalid: "Tile width must be greater than zero",
+      errorTileHeightInvalid: "Tile height must be greater than zero",
+      errorTileNamesMismatch: "Tile names count must match the tile count",
+      errorTileNameEmpty: "All tile names must be non-empty strings",
+      errorTileExtractionFailed: "Failed to extract tiles from the PNG file",
+      errorSpriteNameRequired: "Sprite name is required",
+      errorSpriteWidthInvalid: "Sprite width must be greater than zero",
+      errorSpriteHeightInvalid: "Sprite height must be greater than zero",
+      errorSpriteFramesInvalid: "Sprite frames must be an array",
+      errorFrameColumnInvalid: "Frame column must be a non-negative number",
+      errorFrameRowInvalid: "Frame row must be a non-negative number",
     },
   },
   es: {
-    "attach-project-graphics": {
+    "extract-graphics": {
       title: "Adjuntar graficos al proyecto",
       subtitle:
-        "Genera definiciones de tiles y sprites desde una spritesheet y guardalas en tu proyecto.",
+        "Genera codigo fuente con la definicion de tiles/sprites desde un archivo .png para usarlas en tu proyecto.",
       sectionSource: "Datos de origen",
       sourceLabel: "Imagen fuente",
-      sourceHint: "Ruta relativa al workspace del PNG de origen.",
+      sourceHint: "Selecciona el archivo PNG de origen desde tu workspace.",
+      browseButton: "Examinar…",
+      noFileSelected: "Ningún archivo seleccionado",
       graphicsLabel: "Salida de datos",
       graphicsHint: "Carpeta destino para los datos generados.",
-      sectionTiles: "Tiles 8x8",
+      sectionTiles: "Tiles",
       tilesHint:
-        "Define tiles por nombre y coordenadas. (el orden será de izquierda a derecha por líneas de tiles)",
-      tilesCountLabel: "Numero Tiles",
+        "Configura el tamaño del tile y nombra cada tile extraído. (el orden será de izquierda a derecha, de arriba abajo)",
+      tileWidthLabel: "Ancho tile (px)",
+      tileHeightLabel: "Alto tile (px)",
+      tilesCountLabel: "Tiles encontrados",
       tileNameLabel: "Tile {index}",
       sectionSprites: "Sprites",
       spritesHint:
@@ -64,7 +92,32 @@ const messages = {
       remove: "Quitar",
       create: "Crear",
       statusSent: "Mensaje enviado en modo standalone.",
-      statusInvalid: "No hay API de VS Code disponible.",
+      errorSourceRequired: "El archivo de gráficos es requerido",
+      errorSourceNotPng: "El archivo de gráficos debe ser una imagen .png",
+      errorSourceAbsolutePath:
+        "El archivo de gráficos debe ser una ruta relativa al workspace",
+      errorGraphicsDataRequired: "La carpeta de datos gráficos es requerida",
+      errorGraphicsDataNotInSrc:
+        "La carpeta de datos gráficos debe estar dentro del directorio src/",
+      errorGraphicsDataAbsolutePath:
+        "La carpeta de datos gráficos debe ser una ruta relativa al workspace",
+      errorTileCountInvalid:
+        "El número de tiles debe ser un entero no negativo",
+      errorTileWidthInvalid: "El ancho del tile debe ser mayor que cero",
+      errorTileHeightInvalid: "El alto del tile debe ser mayor que cero",
+      errorTileNamesMismatch:
+        "El número de nombres de tiles debe coincidir con el conteo de tiles",
+      errorTileNameEmpty:
+        "Todos los nombres de tiles deben ser cadenas no vacías",
+      errorTileExtractionFailed:
+        "No se pudieron extraer los tiles del archivo PNG",
+      errorSpriteNameRequired: "El nombre del sprite es requerido",
+      errorSpriteWidthInvalid: "El ancho del sprite debe ser mayor que cero",
+      errorSpriteHeightInvalid: "La altura del sprite debe ser mayor que cero",
+      errorSpriteFramesInvalid: "Los frames del sprite deben ser un array",
+      errorFrameColumnInvalid:
+        "La columna del frame debe ser un entero no negativo",
+      errorFrameRowInvalid: "La fila del frame debe ser un entero no negativo",
     },
   },
 } as const;
