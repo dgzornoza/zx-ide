@@ -30,7 +30,7 @@ const emit = defineEmits<{
     <div class="mt-4 w-1/2 space-y-3">
       <SpriteItem
         v-for="(sprite, index) in sprites"
-        :key="`sprite-${index}`"
+        :key="sprite._id ?? `sprite-${index}`"
         :sprite="sprite"
         :sprite-index="index"
         @remove="emit('remove-sprite', index)"

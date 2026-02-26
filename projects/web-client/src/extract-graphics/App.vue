@@ -11,11 +11,12 @@ const {
   selectedType,
   tp,
   setSourceFile,
+  setMapFile,
   addSprite,
   removeSprite,
   addSpriteFrame,
   removeSpriteFrame,
-  createMap,
+  extractResources,
 } = useExtractGraphics();
 </script>
 
@@ -33,12 +34,19 @@ const {
     <main class="mt-6 flex w-full flex-col gap-4">
       <SourceSection
         v-model:source="state.source"
+        v-model:map-source="state.mapSource"
         @file-selected="setSourceFile"
+        @map-file-selected="setMapFile"
       />
 
       <TypeSelector v-if="state.source" v-model="selectedType" />
 
-      <TilesSection v-if="selectedType === 'tiles'" :tiles="state.tiles" />
+      <TilesSection
+        v-if="selectedType === 'tiles'"
+        :tiles="state.tiles"
+        v-model:tile-width="state.tiles.tileWidth"
+        v-model:tile-height="state.tiles.tileHeight"
+      />
 
       <SpritesSection
         v-if="selectedType === 'sprites'"
@@ -58,7 +66,7 @@ const {
           class="inline-flex items-center gap-2 bg-[color:var(--button-bg)] px-5 py-3 text-sm font-semibold text-[color:var(--button-ink)] hover:bg-[color:var(--button-hover)] disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
           :disabled="!selectedType"
-          @click="createMap"
+          @click="extractResources"
         >
           {{ tp("create") }}
         </button>

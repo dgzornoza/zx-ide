@@ -3,10 +3,13 @@ import {
   StatusMessageType,
 } from "src/extract-graphics/models/graphicsMapData";
 import { SpriteDefinition } from "src/extract-graphics/models/spriteDefinition";
-import { TileDefinition } from "src/extract-graphics/models/tilesDefinition";
+import {
+  TilesDefinitionModel,
+  TilesModel,
+} from "src/extract-graphics/models/tilesDefinition";
 import { createTranslationPrefixFn } from "src/utils/vue-helpers";
 import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
-import { WriteFilesMessage } from "../../../../shared/extract-graphics/extract-graphics-dtos";
+import { SaveMapMessage } from "../../../../shared/extract-graphics/extract-graphics-dtos";
 import { createVsCodeBridge } from "../../bridge/vscode";
 import { extractTilesFromFile } from "../../utils/image-utils";
 
@@ -22,6 +25,7 @@ export function useExtractGraphics() {
 
   const state = reactive({
     source: "",
+    mapSource: "",
     graphicsData: "",
     tiles: {
       count: 0,
@@ -29,7 +33,7 @@ export function useExtractGraphics() {
       tileHeight: 8,
       names: [] as string[],
       previews: [] as string[],
-    } as TileDefinition,
+    } as TilesModel,
     sprites: [] as SpriteDefinition[],
   });
 
@@ -116,6 +120,7 @@ export function useExtractGraphics() {
 
   /** Returns a new sprite definition initialised with default values and one empty frame. */
   const createSprite = (): SpriteDefinition => ({
+    _id: crypto.randomUUID(),
     name: "",
     width: 1,
     height: 1,
@@ -152,12 +157,73 @@ export function useExtractGraphics() {
   // ─── Create map ────────────────────────────────────────────────────────────
 
   /**
-   * Validates the form data, serialises the graphics map, and posts a
-   * {@link WriteFilesMessage} to the VS Code extension with all files to write.
-   * Validation errors are shown in the status banner without leaving the form.
-   * Falls back to a simulated success status when the extension API is unavailable.
+   * Builds a {@link TilesDefinitionModel} from the current tiles state and either:
+   * - sends it to the VS Code extension via {@link SaveMapMessage}, or
+   * - triggers a browser download when the extension API is unavailable.
    */
-  const createMap = () => {};
+  const extractResources = () => {
+    if (!pendingFile.value) {
+      setStatus("error", tp("errorNoSourceFile"));
+      return;
+    }
+
+    const mapFile: TilesDefinitionModel = {
+      tileWidth: state.tiles.tileWidth,
+      tileHeight: state.tiles.tileHeight,
+      names: [...state.tiles.names],
+    };
+
+    const json = JSON.stringify(mapFile, null, 2);
+    const baseName = pendingFile.value.name.replace(/\.[^.]+$/, "");
+    const fileName = `${baseName}.map`;
+
+    if (vscode.isAvailable) {
+      const message: SaveMapMessage = {
+        messageType: "saveMap",
+        fileName,
+        content: json,
+      };
+      vscode.postMessage(message);
+    } else {
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = fileName;
+      anchor.click();
+      URL.revokeObjectURL(url);
+      setStatus("success", tp("statusMapDownloaded"));
+    }
+  };
+
+  // ─── Load map ──────────────────────────────────────────────────────────────
+
+  /**
+   * Parses a .map file and restores tile configuration from it.
+   * Also re-extracts tile previews if a source image is already loaded.
+   */
+  const setMapFile = async (file: File): Promise<void> => {
+    try {
+      const text = await file.text();
+      const mapData = JSON.parse(text) as TilesDefinitionModel;
+
+      state.tiles.tileWidth = mapData.tileWidth ?? state.tiles.tileWidth;
+      state.tiles.tileHeight = mapData.tileHeight ?? state.tiles.tileHeight;
+      state.tiles.names = Array.isArray(mapData.names)
+        ? [...mapData.names]
+        : [];
+
+      if (!selectedType.value) {
+        selectedType.value = "tiles";
+      }
+
+      if (pendingFile.value) {
+        await extractTiles(pendingFile.value);
+      }
+    } catch {
+      setStatus("error", tp("errorMapLoadFailed"));
+    }
+  };
   // const createMap = () => {
   //   status.value = null;
   //   if (!selectedType.value) return;
@@ -229,10 +295,11 @@ export function useExtractGraphics() {
     selectedType,
     tp,
     setSourceFile,
+    setMapFile,
     addSprite,
     removeSprite,
     addSpriteFrame,
     removeSpriteFrame,
-    createMap,
+    extractResources: extractResources,
   };
 }

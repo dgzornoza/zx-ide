@@ -7,7 +7,7 @@ import { CommandName } from '@core/infrastructure';
 import { Types } from '@core/types';
 import { inject, injectable } from 'inversify';
 import * as vscode from 'vscode';
-import { WriteFilesMessage } from '../../../shared/extract-graphics/extract-graphics-models';
+import { SaveMapMessage, WriteFilesMessage } from '../../../shared/extract-graphics/extract-graphics-dtos';
 
 @injectable()
 export class AttachProjectGraphicsCmd extends Command<unknown> {
@@ -55,8 +55,17 @@ export class AttachProjectGraphicsCmd extends Command<unknown> {
   }
 
   @BindThis
-  private async onDidReceiveMessage(message: WriteFilesMessage | undefined): Promise<void> {
-    if (!this._panel || !message || message.messageType !== 'writeFiles') {
+  private async onDidReceiveMessage(message: WriteFilesMessage | SaveMapMessage | undefined): Promise<void> {
+    if (!this._panel || !message) {
+      return;
+    }
+
+    if (message.messageType === 'saveMap') {
+      await this.onSaveMap(message);
+      return;
+    }
+
+    if (message.messageType !== 'writeFiles') {
       return;
     }
 
@@ -68,12 +77,10 @@ export class AttachProjectGraphicsCmd extends Command<unknown> {
         await FileHelpers.writeFile(file.content, targetUri);
       }
 
-      // TODO: revisar el postmessage, igual se puede hacer aqui y no tiene sentido enviarlo.
-      const mapFile = message.mapFile;
       this._panel.webview.postMessage({
         type: 'status',
         ok: true,
-        text: vscode.l10n.t('Graphics map saved at {0}', mapFile?.path ?? ''),
+        text: vscode.l10n.t('Files written successfully'),
       });
     } catch (error) {
       this._panel.webview.postMessage({
@@ -82,5 +89,10 @@ export class AttachProjectGraphicsCmd extends Command<unknown> {
         text: String(error),
       });
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private async onSaveMap(_message: SaveMapMessage): Promise<void> {
+    // TODO: implement save map logic
   }
 }

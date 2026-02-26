@@ -50,6 +50,12 @@ const messages = {
       errorTileNamesMismatch: "Tile names count must match the tile count",
       errorTileNameEmpty: "All tile names must be non-empty strings",
       errorTileExtractionFailed: "Failed to extract tiles from the PNG file",
+      errorNoSourceFile: "Please select a source image before creating a map",
+      errorMapLoadFailed: "Failed to load .map file: invalid or corrupted data",
+      statusMapDownloaded: "Map file downloaded successfully",
+      mapSourceLabel: "Map file (optional)",
+      mapSourceHint:
+        "Load a previously saved .map file to restore tile configuration.",
       errorSpriteNameRequired: "Sprite name is required",
       errorSpriteWidthInvalid: "Sprite width must be greater than zero",
       errorSpriteHeightInvalid: "Sprite height must be greater than zero",
@@ -111,6 +117,14 @@ const messages = {
         "Todos los nombres de tiles deben ser cadenas no vacías",
       errorTileExtractionFailed:
         "No se pudieron extraer los tiles del archivo PNG",
+      errorNoSourceFile:
+        "Selecciona una imagen de origen antes de crear el mapa",
+      errorMapLoadFailed:
+        "No se pudo cargar el archivo .map: datos inválidos o corruptos",
+      statusMapDownloaded: "Archivo .map descargado correctamente",
+      mapSourceLabel: "Archivo .map (opcional)",
+      mapSourceHint:
+        "Carga un archivo .map guardado previamente para restaurar la configuración de tiles.",
       errorSpriteNameRequired: "El nombre del sprite es requerido",
       errorSpriteWidthInvalid: "El ancho del sprite debe ser mayor que cero",
       errorSpriteHeightInvalid: "La altura del sprite debe ser mayor que cero",

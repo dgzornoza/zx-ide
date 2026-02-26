@@ -10,13 +10,23 @@ export interface FileEntry {
 
 /**
  * Message sent from the webview to the extension with all files ready to write.
- * The first entry is always the .map.json; further entries are generated source
- * files (tiles/sprites) that will be appended in future iterations.
+ * Further entries are generated source files (tiles/sprites) that will be
+ * appended in future iterations.
  */
 export interface WriteFilesMessage {
   messageType: "writeFiles";
-  /* The .map.json file to write, derived from the source PNG path. */
-  mapFile: FileEntry;
-  /* all generated source files to write. */
+  /** All generated source files to write. */
   codeFiles: FileEntry[];
+}
+
+/**
+ * Message sent from the webview to the extension when a .map file is ready
+ * to be saved to the workspace. The extension decides the final destination.
+ */
+export interface SaveMapMessage {
+  messageType: "saveMap";
+  /** Suggested filename, e.g. "player.map" (no path). */
+  fileName: string;
+  /** JSON serialised TileMapFile content. */
+  content: string;
 }

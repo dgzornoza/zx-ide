@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { TileDefinition as TilesDefinition } from "src/extract-graphics/models/tilesDefinition";
+import { TilesModel } from "src/extract-graphics/models/tilesDefinition";
 import { createTranslationPrefixFn } from "src/utils/vue-helpers";
-import { useI18n } from "vue-i18n";
 
-const { t } = useI18n();
-const tp = createTranslationPrefixFn("extract-graphics", t);
+const tp = createTranslationPrefixFn("extract-graphics");
 
 defineProps<{
-  tiles: TilesDefinition;
+  tiles: TilesModel;
 }>();
+
+const tileWidth = defineModel<number>("tileWidth", { required: true });
+const tileHeight = defineModel<number>("tileHeight", { required: true });
 </script>
 
 <template>
@@ -27,7 +28,7 @@ defineProps<{
       <div class="flex flex-col gap-1">
         <label class="text-xs font-semibold">{{ tp("tileWidthLabel") }}</label>
         <input
-          v-model.number="tiles.tileWidth"
+          v-model.number="tileWidth"
           class="w-24 border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-sm text-[color:var(--input-ink)]"
           min="1"
           type="number"
@@ -36,7 +37,7 @@ defineProps<{
       <div class="flex flex-col gap-1">
         <label class="text-xs font-semibold">{{ tp("tileHeightLabel") }}</label>
         <input
-          v-model.number="tiles.tileHeight"
+          v-model.number="tileHeight"
           class="w-24 border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-sm text-[color:var(--input-ink)]"
           min="1"
           type="number"
