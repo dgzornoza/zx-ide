@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createTranslationPrefixFn } from "src/utils/vue-helpers";
+import { createTranslationPrefixFn } from "src/utils/vue-utils";
 
 const tp = createTranslationPrefixFn("extract-graphics");
 

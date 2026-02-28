@@ -62,14 +62,6 @@ const {
       <div
         class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"
       >
-        <button
-          class="inline-flex items-center gap-2 bg-[color:var(--button-bg)] px-5 py-3 text-sm font-semibold text-[color:var(--button-ink)] hover:bg-[color:var(--button-hover)] disabled:cursor-not-allowed disabled:opacity-60"
-          type="button"
-          :disabled="!selectedType"
-          @click="extractResources"
-        >
-          {{ tp("create") }}
-        </button>
         <div
           v-if="status"
           class="text-xs font-semibold"
@@ -81,6 +73,14 @@ const {
         >
           {{ status.text }}
         </div>
+        <button
+          class="ml-auto inline-flex items-center gap-2 bg-[color:var(--button-bg)] px-5 py-3 text-sm font-semibold text-[color:var(--button-ink)] hover:bg-[color:var(--button-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+          type="button"
+          :disabled="!selectedType"
+          @click="extractResources"
+        >
+          {{ tp("create") }}
+        </button>
       </div>
     </footer>
   </div>

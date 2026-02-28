@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { SpriteDefinition } from "src/extract-graphics/models/spriteDefinition";
-import { createTranslationPrefixFn } from "src/utils/vue-helpers";
+import { createTranslationPrefixFn } from "src/utils/vue-utils";
 
 const tp = createTranslationPrefixFn("extract-graphics");
 

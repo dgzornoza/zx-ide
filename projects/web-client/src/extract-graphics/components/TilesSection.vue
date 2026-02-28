@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { TilesModel } from "src/extract-graphics/models/tilesDefinition";
-import { createTranslationPrefixFn } from "src/utils/vue-helpers";
+import { createTranslationPrefixFn } from "src/utils/vue-utils";
 
 const tp = createTranslationPrefixFn("extract-graphics");
 

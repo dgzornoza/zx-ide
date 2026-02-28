@@ -1,3 +1,4 @@
+import JSZip from "jszip";
 import {
   StatusMessage,
   StatusMessageType,
@@ -7,11 +8,16 @@ import {
   TilesDefinitionModel,
   TilesModel,
 } from "src/extract-graphics/models/tilesDefinition";
-import { createTranslationPrefixFn } from "src/utils/vue-helpers";
+import { createTranslationPrefixFn } from "src/utils/vue-utils";
 import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
-import { SaveMapMessage } from "../../../../shared/extract-graphics/extract-graphics-dtos";
+import {
+  FileEntry,
+  WriteFilesMessage,
+} from "../../../../shared/extract-graphics/extract-graphics-dtos";
 import { createVsCodeBridge } from "../../bridge/vscode";
+import { downloadBlob } from "../../utils/html-utils";
 import { extractTilesFromFile } from "../../utils/image-utils";
+import { generateAsmFile, generateHeaderFile } from "./codeGenerators";
 
 /**
  * Composable that manages the full state and business logic for the
@@ -33,6 +39,7 @@ export function useExtractGraphics() {
       tileHeight: 8,
       names: [] as string[],
       previews: [] as string[],
+      bitmasks: [] as boolean[][],
     } as TilesModel,
     sprites: [] as SpriteDefinition[],
   });
@@ -74,7 +81,7 @@ export function useExtractGraphics() {
    */
   const extractTiles = async (file: File): Promise<void> => {
     try {
-      const { count, previews } = await extractTilesFromFile({
+      const { count, previews, bitmasks } = await extractTilesFromFile({
         file,
         tileWidth: state.tiles.tileWidth,
         tileHeight: state.tiles.tileHeight,
@@ -82,8 +89,10 @@ export function useExtractGraphics() {
 
       state.tiles.count = count;
       state.tiles.previews = previews;
+      state.tiles.bitmasks = bitmasks;
       syncTileNames(count);
     } catch (error) {
+      console.error("Tile extraction failed:", error);
       setStatus("error", tp("errorTileExtractionFailed"));
     }
   };
@@ -161,7 +170,7 @@ export function useExtractGraphics() {
    * - sends it to the VS Code extension via {@link SaveMapMessage}, or
    * - triggers a browser download when the extension API is unavailable.
    */
-  const extractResources = () => {
+  const extractResources = async () => {
     if (!pendingFile.value) {
       setStatus("error", tp("errorNoSourceFile"));
       return;
@@ -173,25 +182,40 @@ export function useExtractGraphics() {
       names: [...state.tiles.names],
     };
 
-    const json = JSON.stringify(mapFile, null, 2);
     const baseName = pendingFile.value.name.replace(/\.[^.]+$/, "");
-    const fileName = `${baseName}.map`;
+    const tileNames = state.tiles.names.slice(0, state.tiles.count);
+
+    const mapContent = JSON.stringify(mapFile, null, 2);
+    const headerContent = generateHeaderFile(baseName, tileNames);
+    const asmContent = generateAsmFile(
+      baseName,
+      tileNames,
+      state.tiles.tileWidth,
+      state.tiles.tileHeight,
+      state.tiles.bitmasks,
+    );
 
     if (vscode.isAvailable) {
-      const message: SaveMapMessage = {
-        messageType: "saveMap",
-        fileName,
-        content: json,
+      const codeFiles: FileEntry[] = [
+        { path: `${baseName}.map`, content: mapContent },
+        { path: `${baseName}.h`, content: headerContent },
+        { path: `${baseName}.asm`, content: asmContent },
+      ];
+      const message: WriteFilesMessage = {
+        messageType: "writeFiles",
+        codeFiles,
       };
       vscode.postMessage(message);
     } else {
-      const blob = new Blob([json], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = fileName;
-      anchor.click();
-      URL.revokeObjectURL(url);
+      // Browser fallback: download all files bundled in a single ZIP
+      const zip = new JSZip();
+      zip.file(`${baseName}.map`, mapContent);
+      zip.file(`${baseName}.h`, headerContent);
+      zip.file(`${baseName}.asm`, asmContent);
+
+      const blob = await zip.generateAsync({ type: "blob" });
+      downloadBlob(blob, `${baseName}.zip`);
+
       setStatus("success", tp("statusMapDownloaded"));
     }
   };
@@ -199,7 +223,7 @@ export function useExtractGraphics() {
   // ─── Load map ──────────────────────────────────────────────────────────────
 
   /**
-   * Parses a .map file and restores tile configuration from it.
+   * Parses a .map file and restores tile/sprites configuration from it.
    * Also re-extracts tile previews if a source image is already loaded.
    */
   const setMapFile = async (file: File): Promise<void> => {
@@ -224,69 +248,15 @@ export function useExtractGraphics() {
       setStatus("error", tp("errorMapLoadFailed"));
     }
   };
-  // const createMap = () => {
-  //   status.value = null;
-  //   if (!selectedType.value) return;
-
-  //   try {
-  //     const source = normalizeRelativePath(state.source);
-  //     const graphicsData = normalizeRelativePath(state.graphicsData);
-
-  //     const mapData: GraphicsMapData = buildGraphicsMapData(
-  //       source,
-  //       graphicsData,
-  //       selectedType.value,
-  //       state.tiles,
-  //       state.sprites,
-  //       tp,
-  //     );
-
-  //     const mapRelativePath = buildMapRelativePath(source);
-
-  //     const payload: WriteFilesMessage = {
-  //       messageType: "writeFiles",
-  //       codeFiles: [
-  //         {
-  //           path: mapRelativePath,
-  //           content: JSON.stringify(mapData, null, 2),
-  //         },
-  //         // Future: generated source files for tiles/sprites will be appended here.
-  //       ],
-  //     };
-
-  //     vscode.postMessage(payload);
-
-  //     if (!vscode.isAvailable) {
-  //       setStatus(true, tp("statusSent"));
-  //     }
-  //   } catch (error) {
-  //     setStatus(false, error instanceof Error ? error.message : String(error));
-  //   }
-  // };
-
-  // ─── Message bus ──────────────────────────────────────────────────────────
-
-  /**
-   * Handles messages received from the VS Code extension host.
-   * Only processes messages of type "status" to update the status banner.
-   */
-  // const handleMessage = (event: MessageEvent) => {
-  //   const message = event.data as
-  //     | { type?: string; ok?: boolean; text?: string }
-  //     | undefined;
-  //   if (!message || message.type !== "status") return;
-  //   setStatus(Boolean(message.ok), String(message.text ?? ""));
-  // };
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   onMounted(() => {
-    //window.addEventListener("message", handleMessage);
     if (!state.sprites.length) addSprite();
   });
 
   onBeforeUnmount(() => {
-    //window.removeEventListener("message", handleMessage);
+    // nothing to clean up
   });
 
   return {

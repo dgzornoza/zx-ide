@@ -7,6 +7,12 @@ export interface ExtractTilesFromFileModel {
 export interface ExtractTilesFromFileResult {
   count: number;
   previews: string[];
+  /**
+   * Per-tile pixel bitmask, row-major order.
+   * `bitmasks[tileIndex]` is a boolean[] of length `tileWidth * tileHeight`.
+   * `true` = ink pixel (dark), `false` = paper pixel (light).
+   */
+  bitmasks: boolean[][];
 }
 
 /**
@@ -33,6 +39,7 @@ export function extractTilesFromFile(
       const ctx = canvas.getContext("2d")!;
 
       const previews: string[] = [];
+      const bitmasks: boolean[][] = [];
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
           ctx.clearRect(0, 0, tileWidth, tileHeight);
@@ -48,11 +55,25 @@ export function extractTilesFromFile(
             tileHeight,
           );
           previews.push(canvas.toDataURL("image/png"));
+
+          // Extract per-pixel ink/paper bitmask (true = dark/ink pixel)
+          const imageData = ctx.getImageData(0, 0, tileWidth, tileHeight);
+          const tileMask: boolean[] = [];
+          for (let p = 0; p < tileWidth * tileHeight; p++) {
+            const r = imageData.data[p * 4];
+            const g = imageData.data[p * 4 + 1];
+            const b = imageData.data[p * 4 + 2];
+            const a = imageData.data[p * 4 + 3];
+            // Treat transparent or very light pixels as paper (false)
+            const brightness = a < 128 ? 255 : (r + g + b) / 3;
+            tileMask.push(brightness < 128);
+          }
+          bitmasks.push(tileMask);
         }
       }
 
       URL.revokeObjectURL(url);
-      resolve({ count, previews });
+      resolve({ count, previews, bitmasks });
     };
 
     img.onerror = () => {
