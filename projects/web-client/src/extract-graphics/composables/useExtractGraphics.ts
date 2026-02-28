@@ -19,7 +19,7 @@ import {
 import { createVsCodeBridge } from "../../bridge/vscode";
 import { downloadBlob } from "../../utils/html-utils";
 import { extractTilesFromFile } from "../../utils/image-utils";
-import { generateAsmFile, generateHeaderFile } from "./codeGenerators";
+import { createCodeGenerator } from "./codeGenerators";
 
 /**
  * Composable that manages the full state and business logic for the
@@ -190,21 +190,25 @@ export function useExtractGraphics() {
     const tileNames = state.tiles.names.slice(0, state.tiles.count);
 
     const mapContent = JSON.stringify(mapFile, null, 2);
-    const headerContent = generateHeaderFile(baseName, tileNames);
-    const asmContent = generateAsmFile(
+
+    const generator = createCodeGenerator(codeGenerationType.value);
+    const generatedFiles = generator.generate({
       baseName,
       tileNames,
-      state.tiles.tileWidth,
-      state.tiles.tileHeight,
-      state.tiles.bitmasks,
-    );
+      tileWidth: state.tiles.tileWidth,
+      tileHeight: state.tiles.tileHeight,
+      bitmasks: state.tiles.bitmasks,
+    });
+
+    const codeFiles: FileEntry[] = [
+      { path: `${baseName}.map`, content: mapContent },
+      ...generatedFiles.map((file) => ({
+        path: `${baseName}${file.extension}`,
+        content: file.content,
+      })),
+    ];
 
     if (vscode.isAvailable) {
-      const codeFiles: FileEntry[] = [
-        { path: `${baseName}.map`, content: mapContent },
-        { path: `${baseName}.h`, content: headerContent },
-        { path: `${baseName}.asm`, content: asmContent },
-      ];
       const message: WriteFilesMessage = {
         messageType: "writeFiles",
         codeFiles,
@@ -213,9 +217,9 @@ export function useExtractGraphics() {
     } else {
       // Browser fallback: download all files bundled in a single ZIP
       const zip = new JSZip();
-      zip.file(`${baseName}.map`, mapContent);
-      zip.file(`${baseName}.h`, headerContent);
-      zip.file(`${baseName}.asm`, asmContent);
+      for (const file of codeFiles) {
+        zip.file(file.path, file.content);
+      }
 
       const blob = await zip.generateAsync({ type: "blob" });
       downloadBlob(blob, `${baseName}.zip`);

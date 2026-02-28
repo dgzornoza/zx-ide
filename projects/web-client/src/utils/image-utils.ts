@@ -84,3 +84,84 @@ export function extractTilesFromFile(
     img.src = url;
   });
 }
+
+// ─── Bitmask-to-bytes helpers ─────────────────────────────────────────────────
+
+/**
+ * Packs one row of boolean ink values into an array of bytes
+ * (one byte per 8 pixels, MSB = leftmost pixel).
+ *
+ * @example
+ * // A 8-pixel row: ██░░██░░ (true = ink, false = paper)
+ * const bitmask = [true, true, false, false, true, true, false, false];
+ * rowToBytes(bitmask, 0, 8);
+ * // → [0b11001100]  →  [204]
+ *
+ * @param bitmask   - Flat row-major boolean array for the entire tile.
+ * @param rowOffset - Index into `bitmask` where this row begins.
+ * @param tileWidth - Width of the tile in pixels (determines how many
+ *                    booleans to read and how many bytes to produce).
+ * @returns Array of bytes, length = `ceil(tileWidth / 8)`.
+ */
+export function rowToBytes(
+  bitmask: boolean[],
+  rowOffset: number,
+  tileWidth: number,
+): number[] {
+  const bytesPerRow = Math.ceil(tileWidth / 8);
+  const bytes: number[] = [];
+  for (let b = 0; b < bytesPerRow; b++) {
+    let value = 0;
+    for (let bit = 0; bit < 8; bit++) {
+      const col = b * 8 + bit;
+      // MSB = leftmost pixel
+      if (col < tileWidth && bitmask[rowOffset + col]) {
+        value |= 1 << (7 - bit);
+      }
+    }
+    bytes.push(value);
+  }
+  return bytes;
+}
+
+/**
+ * Converts a full tile bitmask into assembly `defb` directives, one per byte.
+ *
+ * Each row of the tile produces `ceil(tileWidth / 8)` directives using binary
+ * notation (`@XXXXXXXX`), suitable for sjasmplus / Z88DK assemblers.
+ *
+ * @example
+ * // 2×2 tile where top-left and bottom-right pixels are ink:
+ * // ██░░░░░░
+ * // ░░░░░░██
+ * const bitmask = [
+ *   true, false, false, false, false, false, false, false,
+ *   false, false, false, false, false, false, false, true,
+ * ];
+ * generateTileDefbLines(bitmask, 8, 2);
+ * // → [
+ * //   '    defb @10000000',
+ * //   '    defb @00000001',
+ * // ]
+ *
+ * @param bitmask    - Row-major boolean[] of length `tileWidth * tileHeight`.
+ * @param tileWidth  - Tile width in pixels.
+ * @param tileHeight - Tile height in pixels.
+ * @returns Array of indented `defb` lines ready to join into an ASM file.
+ */
+export function generateTileDefbLines(
+  bitmask: boolean[],
+  tileWidth: number,
+  tileHeight: number,
+): string[] {
+  const lines: string[] = [];
+  for (let row = 0; row < tileHeight; row++) {
+    const rowOffset = row * tileWidth;
+    const bytes = rowToBytes(bitmask, rowOffset, tileWidth);
+    for (const byte of bytes) {
+      const bits = byte.toString(2).padStart(8, "0");
+      lines.push(`    defb @${bits}`);
+    }
+  }
+  return lines;
+}

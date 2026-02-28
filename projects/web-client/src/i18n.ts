@@ -57,7 +57,7 @@ const messages = {
       mapSourceHint:
         "Load a previously saved .map file to restore tile configuration.",
       codeGenerationTypeLabel: "Code generation",
-      codeGenerationTypeAsm: "Assembler (ASM)",
+      codeGenerationTypeAsm: "ASM",
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
         "Determined by the VS Code project type and cannot be changed here.",
@@ -131,7 +131,7 @@ const messages = {
       mapSourceHint:
         "Carga un archivo .map guardado previamente para restaurar la configuración de tiles.",
       codeGenerationTypeLabel: "Generación de código",
-      codeGenerationTypeAsm: "Ensamblador (ASM)",
+      codeGenerationTypeAsm: "ASM",
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
         "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",

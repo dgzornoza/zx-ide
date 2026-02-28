@@ -1,133 +1,160 @@
 /**
  * Code generators for tile-based graphics exports.
  *
- * generateHeaderFile  → C header (.h) with extern declarations
- * generateAsmFile     → Z88DK assembly (.asm) with tile binary data
+ * Provides a strategy interface ({@link CodeGeneratorStrategy}) with two
+ * concrete implementations selected via {@link createCodeGenerator}:
+ *
+ * - `"c"`   → {@link CCodeGeneratorStrategy}  (C header + Z88DK assembly)
+ * - `"asm"` → {@link AsmCodeGeneratorStrategy} (sjasmplus assembly)
  */
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+import type { CodeGenerationType } from "../../../../shared/extract-graphics/extract-graphics-dtos";
+import { generateTileDefbLines } from "../../utils/image-utils";
+import { toIdentifier, toMacroGuard } from "../../utils/string-utils";
 
-/**
- * Converts a base filename (no extension) into a valid C/ASM identifier.
- * Replaces any non-alphanumeric characters with underscores and lowercases.
- */
-function toIdentifier(baseName: string): string {
-  return baseName.toLowerCase().replaceAll(/[^a-z0-9]/g, "_");
+// ─── Public types ─────────────────────────────────────────────────────────────
+
+/** A single generated output file. */
+export interface GeneratedFile {
+  /** File extension including the dot (e.g. `".h"`, `".asm"`). */
+  extension: string;
+  /** UTF-8 content of the file. */
+  content: string;
 }
 
-/**
- * Converts a base filename to an UPPER_CASE macro guard name.
- */
-function toMacroGuard(baseName: string): string {
-  return baseName.toUpperCase().replaceAll(/[^A-Z0-9]/g, "_");
+/** Parameters shared by all code-generation strategies. */
+export interface CodeGeneratorParams {
+  /** Filename without extension (e.g. `"player"`). */
+  baseName: string;
+  /** Ordered list of tile names (e.g. `["tile1", "tile2"]`). */
+  tileNames: string[];
+  /** Tile width in pixels. */
+  tileWidth: number;
+  /** Tile height in pixels. */
+  tileHeight: number;
+  /**
+   * Per-tile pixel bitmask.
+   * `bitmasks[i]` is a row-major `boolean[]` of length `tileWidth * tileHeight`.
+   * `true` = ink pixel.
+   */
+  bitmasks: boolean[][];
 }
 
+// ─── Factory ──────────────────────────────────────────────────────────────────
+
 /**
- * Packs `tileWidth` boolean ink values from `bitmask` at the given `rowOffset`
- * into an array of bytes (one byte per 8 pixels, MSB = leftmost pixel).
+ * Returns the appropriate {@link CodeGeneratorStrategy} for the given
+ * code-generation type.
  */
-function rowToBytes(
-  bitmask: boolean[],
-  rowOffset: number,
-  tileWidth: number,
-): number[] {
-  const bytesPerRow = Math.ceil(tileWidth / 8);
-  const bytes: number[] = [];
-  for (let b = 0; b < bytesPerRow; b++) {
-    let value = 0;
-    for (let bit = 0; bit < 8; bit++) {
-      const col = b * 8 + bit;
-      // MSB = leftmost pixel
-      if (col < tileWidth && bitmask[rowOffset + col]) {
-        value |= 1 << (7 - bit);
-      }
-    }
-    bytes.push(value);
+export function createCodeGenerator(
+  type: CodeGenerationType,
+): CodeGeneratorStrategy {
+  switch (type) {
+    case "c":
+      return new CCodeGeneratorStrategy();
+    case "asm":
+      return new AsmCodeGeneratorStrategy();
   }
-  return bytes;
 }
 
-// ─── Header generator ─────────────────────────────────────────────────────────
-
-/**
- * Generates a C header file with `extern` declarations for every tile.
- *
- * @param baseName  - Filename without extension (e.g. "player")
- * @param tileNames - Ordered list of tile names (e.g. ["tile1", "tile2"])
- * @returns UTF-8 content of the generated `.h` file
- */
-export function generateHeaderFile(
-  baseName: string,
-  tileNames: string[],
-): string {
-  const id = toIdentifier(baseName);
-  const guard = toMacroGuard(baseName);
-
-  const lines: string[] = [
-    `#ifndef __${guard}_H__`,
-    `#define __${guard}_H__`,
-    "",
-    "#include <stdint.h>",
-    "",
-    `extern const uint8_t ${id}_tiles[];`,
-    ...tileNames.map((name) => `extern const uint8_t ${id}_${name}[];`),
-    "",
-    `#endif // __${guard}_H__`,
-    "",
-  ];
-
-  return lines.join("\n");
+/** Strategy that produces one or more source files from tile data. */
+export interface CodeGeneratorStrategy {
+  generate(params: CodeGeneratorParams): GeneratedFile[];
 }
 
-// ─── ASM generator ────────────────────────────────────────────────────────────
+// ─── C strategy (Z88DK) ──────────────────────────────────────────────────────
 
 /**
- * Generates a Z88DK assembly file with binary tile data in `rodata_user` section.
- *
- * Each tile row is emitted as one or more `defb @XXXXXXXX` directives
- * (one per 8 pixels, MSB = leftmost pixel).
- *
- * @param baseName  - Filename without extension (e.g. "player")
- * @param tileNames - Ordered list of tile names
- * @param tileWidth - Tile width in pixels
- * @param tileHeight - Tile height in pixels
- * @param bitmasks  - Per-tile pixel array; `bitmasks[i]` is row-major boolean[] of
- *                    length `tileWidth * tileHeight` (true = ink pixel)
- * @returns UTF-8 content of the generated `.asm` file
+ * Generates a C header (`.h`) with `extern` declarations and a Z88DK assembly
+ * file (`.asm`) with tile binary data in the `rodata_user` section.
  */
-export function generateAsmFile(
-  baseName: string,
-  tileNames: string[],
-  tileWidth: number,
-  tileHeight: number,
-  bitmasks: boolean[][],
-): string {
-  const id = toIdentifier(baseName);
+class CCodeGeneratorStrategy implements CodeGeneratorStrategy {
+  generate(params: CodeGeneratorParams): GeneratedFile[] {
+    const headerContent = this.generateHeaderFile(
+      params.baseName,
+      params.tileNames,
+    );
+    const asmContent = this.generateAsmFile(params);
 
-  const lines: string[] = [
-    "// Read-Only Data Section for User Module",
-    "SECTION rodata_user",
-    "",
-    `PUBLIC _${id}_tiles`,
-    `_${id}_tiles:`,
-  ];
+    return [
+      { extension: ".h", content: headerContent },
+      { extension: ".asm", content: asmContent },
+    ];
+  }
 
-  tileNames.forEach((name, tileIndex) => {
-    const tileName = `_${id}_${name}`;
-    const bitmask = bitmasks[tileIndex] ?? [];
+  private generateHeaderFile(baseName: string, tileNames: string[]): string {
+    const id = toIdentifier(baseName);
+    const guard = toMacroGuard(baseName);
 
-    lines.push("", `PUBLIC ${tileName}`, `${tileName}:`);
+    const lines: string[] = [
+      `#ifndef __${guard}_H__`,
+      `#define __${guard}_H__`,
+      "",
+      "#include <stdint.h>",
+      "",
+      `extern const uint8_t ${id}_tiles[];`,
+      ...tileNames.map((name) => `extern const uint8_t ${id}_${name}[];`),
+      "",
+      `#endif // __${guard}_H__`,
+      "",
+    ];
 
-    for (let row = 0; row < tileHeight; row++) {
-      const rowOffset = row * tileWidth;
-      const bytes = rowToBytes(bitmask, rowOffset, tileWidth);
-      for (const byte of bytes) {
-        const bits = byte.toString(2).padStart(8, "0");
-        lines.push(`    defb @${bits}`);
-      }
-    }
-  });
+    return lines.join("\n");
+  }
 
-  lines.push("");
-  return lines.join("\n");
+  private generateAsmFile(params: CodeGeneratorParams): string {
+    const { baseName, tileNames, tileWidth, tileHeight, bitmasks } = params;
+    const id = toIdentifier(baseName);
+
+    const lines: string[] = [
+      "// Read-Only Data Section for User Module",
+      "SECTION rodata_user",
+      "",
+      `PUBLIC _${id}_tiles`,
+      `_${id}_tiles:`,
+    ];
+
+    tileNames.forEach((name, tileIndex) => {
+      const tileName = `_${id}_${name}`;
+      const bitmask = bitmasks[tileIndex] ?? [];
+
+      lines.push(
+        "",
+        `PUBLIC ${tileName}`,
+        `${tileName}:`,
+        ...generateTileDefbLines(bitmask, tileWidth, tileHeight),
+      );
+    });
+
+    lines.push("");
+    return lines.join("\n");
+  }
+}
+
+// ─── ASM strategy (sjasmplus) ─────────────────────────────────────────────────
+
+/**
+ * Generates a single sjasmplus assembly file (`.asm`) with plain labels and
+ * `defb @XXXXXXXX` binary tile data.
+ */
+class AsmCodeGeneratorStrategy implements CodeGeneratorStrategy {
+  generate(params: CodeGeneratorParams): GeneratedFile[] {
+    const { baseName, tileNames, tileWidth, tileHeight, bitmasks } = params;
+    const id = toIdentifier(baseName);
+
+    const lines: string[] = [`${id}_tiles:`];
+
+    tileNames.forEach((name, tileIndex) => {
+      const bitmask = bitmasks[tileIndex] ?? [];
+
+      lines.push(
+        "",
+        `${id}_${name}:`,
+        ...generateTileDefbLines(bitmask, tileWidth, tileHeight),
+      );
+    });
+
+    lines.push("");
+    return [{ extension: ".asm", content: lines.join("\n") }];
+  }
 }
