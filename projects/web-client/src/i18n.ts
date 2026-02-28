@@ -56,6 +56,11 @@ const messages = {
       mapSourceLabel: "Map file (optional)",
       mapSourceHint:
         "Load a previously saved .map file to restore tile configuration.",
+      codeGenerationTypeLabel: "Code generation",
+      codeGenerationTypeAsm: "Assembler (ASM)",
+      codeGenerationTypeC: "C",
+      codeGenerationTypeReadOnlyHint:
+        "Determined by the VS Code project type and cannot be changed here.",
       errorSpriteNameRequired: "Sprite name is required",
       errorSpriteWidthInvalid: "Sprite width must be greater than zero",
       errorSpriteHeightInvalid: "Sprite height must be greater than zero",
@@ -125,6 +130,11 @@ const messages = {
       mapSourceLabel: "Archivo .map (opcional)",
       mapSourceHint:
         "Carga un archivo .map guardado previamente para restaurar la configuración de tiles.",
+      codeGenerationTypeLabel: "Generación de código",
+      codeGenerationTypeAsm: "Ensamblador (ASM)",
+      codeGenerationTypeC: "C",
+      codeGenerationTypeReadOnlyHint:
+        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
       errorSpriteNameRequired: "El nombre del sprite es requerido",
       errorSpriteWidthInvalid: "El ancho del sprite debe ser mayor que cero",
       errorSpriteHeightInvalid: "La altura del sprite debe ser mayor que cero",

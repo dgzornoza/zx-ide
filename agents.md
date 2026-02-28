@@ -1,57 +1,60 @@
-# IA Agents Instructions for zx-ide Projects
+# Copilot instructions for zx-ide workspace
 
 ## Overview
 
-This document provides guidance for AI coding agents working with the zx-ide codebase, focusing on the CLI and VSCode extension components. Understanding the architecture, workflows, and conventions is crucial for effective contributions.
+zx-ide is a retro-development toolkit for the ZX Spectrum. The codebase is a multi-root VS Code workspace (see [zx-ide.code-workspace](zx-ide.code-workspace)) with these workspace folders:
 
-## Architecture
+| Folder | Purpose |
+|--------|---------|
+| `doc` | Development notes and documentation ([Development.md](doc/Development.md)) |
+| `shared` | TypeScript types/DTOs shared across projects (e.g. [extract-graphics-dtos.ts](projects/shared/extract-graphics/extract-graphics-dtos.ts)) |
+| `vscode-extension` | VS Code extension — see [projects/vscode-extension/Agents.md](projects/vscode-extension/Agents.md) |
+| `cli` | Node CLI for project scaffolding — see [projects/cli/Agents.md](projects/cli/Agents.md) |
+| `web-client` | Vue 3 webview apps embedded in the extension — see [projects/web-client/Agents.md](projects/web-client/Agents.md) |
 
-The zx-ide project consists of two main components:
+## Cross-project relationships
 
-1. **CLI**: A command-line interface for managing retro computer projects, primarily targeting ZX Spectrum and Z88DK.
-2. **VSCode Extension**: Enhances the development experience for retro computer projects within Visual Studio Code.
-
-### Key Components
-
-- **CLI**:
-  - **src/infrastructure.ts**: Defines project types and configurations, including `ProjectType` and `MachineType`.
-  - **src/new-project/new-project-wizard.ts**: Implements the project creation wizard, guiding users through project setup.
-  - **src/helpers/file.helpers.ts**: Contains utility functions for file path management.
-
-- **VSCode Extension**:
-  - **src/extension.ts**: Main entry point for the extension, registering commands and initializing services.
-  - **@commands/**: Contains command implementations like `CreateProjectCmd` and `OpenHelpCmd`.
-  - **@core/services/**: Services that encapsulate business logic and feature management.
-
-## Developer Workflows
-
-### Building the CLI
-
-To build the CLI after modifications:
-
-```bash
-npm run build
+```
+┌──────────────┐     bundles CLI      ┌───────────────┐
+│  cli          │◄────────────────────│ vscode-ext     │
+└──────────────┘                      │                │
+                                      │  hosts webview │
+┌──────────────┐    Vite build ──►    │  (media/)      │
+│  web-client   │─────────────────────┤                │
+└──────────────┘                      └───────────────┘
+       │                                     │
+       └────── shared DTOs ──────────────────┘
+              (projects/shared/)
 ```
 
-### Testing
+- The **CLI** is bundled into the extension by webpack (copied from `../cli/dist`).
+- The **web-client** is built with Vite and its output is synced into the extension's `media/` folder via [scripts/sync-web-client.cjs](projects/vscode-extension/scripts/sync-web-client.cjs).
+- **Shared** DTOs (e.g. `WriteFilesMessage`, `InitMessage`) in `projects/shared/` are imported by both the extension and the web-client using relative paths.
 
-Ensure to run tests after making changes to verify functionality. Specific test commands can be found in the `package.json` files of both components.
+## Conventions
 
-### Debugging
+- **Language**: TypeScript everywhere. Use camelCase for variables/properties, PascalCase for classes/interfaces.
+- **No abbreviations** in variable names (e.g. `codeGenerationType`, not `codeGenType`).
+- **i18n**: all user-facing strings are translated (EN + ES). Extension uses `package.nls.json`; web-client uses `vue-i18n` in [src/i18n.ts](projects/web-client/src/i18n.ts).
+- **Disposables**: long-lived objects extend `Disposable` and push into `_subscriptions`.
 
-Utilize VSCode's built-in debugging tools. Set breakpoints in the TypeScript files to inspect the execution flow.
+## Building the full stack
 
-## Project-Specific Conventions
+```bash
+# CLI
+cd projects/cli && npm run build
 
-- **File Structure**: Follow the established directory structure for organizing code. Use `src/` for source files and `tests/` for test files.
-- **Naming Conventions**: Use camelCase for variables and functions, and PascalCase for classes and interfaces.
-- **Lint Rules**: Conform to the CLI lint setup in [projects/cli/.eslintrc.json](projects/cli/.eslintrc.json) (Airbnb/TypeScript base; warnings for naming, semicolons handled by `@typescript-eslint/semi`, `curly`, `eqeqeq`; `semi` is disabled in base rules). Align new code with those expectations to avoid churn.
+# Web-client
+cd projects/web-client && npm run build
 
-## Integration Points
+# Extension (also rebuilds CLI)
+cd projects/vscode-extension && npm run watch
+```
 
-- The CLI interacts with the VSCode extension through command registrations and shared services.
-- External dependencies include `@inquirer/prompts` for user prompts and `node-stream-zip` for file handling.
+## Per-project Agents
 
-## Conclusion
+Each project folder contains its own `Agents.md` with detailed architecture, conventions and dev workflow information. **Always** consult the relevant project-level agents file before making changes:
 
-This document serves as a foundational guide for AI agents to navigate the zx-ide codebase effectively. For further details, refer to the specific files mentioned above and the README files in each component.
+- [projects/vscode-extension/Agents.md](projects/vscode-extension/Agents.md) — Extension architecture, Inversify DI, commands, services
+- [projects/cli/Agents.md](projects/cli/Agents.md) — CLI scaffolding, templates, wizard/generator strategies
+- [projects/web-client/Agents.md](projects/web-client/Agents.md) — Vue 3 webview apps, composables, VS Code bridge

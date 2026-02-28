@@ -11,7 +11,9 @@ import {
 import { createTranslationPrefixFn } from "src/utils/vue-utils";
 import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import {
+  CodeGenerationType,
   FileEntry,
+  InitMessage,
   WriteFilesMessage,
 } from "../../../../shared/extract-graphics/extract-graphics-dtos";
 import { createVsCodeBridge } from "../../bridge/vscode";
@@ -49,6 +51,8 @@ export function useExtractGraphics() {
 
   const status = ref<StatusMessage | null>(null);
   const selectedType = ref<"tiles" | "sprites" | "">("");
+  const codeGenerationType = ref<CodeGenerationType>("asm");
+  const isCodeGenerationTypeReadOnly = ref(false);
 
   /**
    * Keeps the tile names array in sync with tile count.
@@ -251,18 +255,34 @@ export function useExtractGraphics() {
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
+  const onWindowMessage = (event: MessageEvent) => {
+    const message = event.data as InitMessage;
+    if (message?.messageType !== "init") return;
+
+    if (message.projectType === "sjasmplus") {
+      codeGenerationType.value = "asm";
+      isCodeGenerationTypeReadOnly.value = true;
+    } else if (message.projectType === "z88dk") {
+      codeGenerationType.value = "c";
+      isCodeGenerationTypeReadOnly.value = true;
+    }
+  };
+
   onMounted(() => {
     if (!state.sprites.length) addSprite();
+    window.addEventListener("message", onWindowMessage);
   });
 
   onBeforeUnmount(() => {
-    // nothing to clean up
+    window.removeEventListener("message", onWindowMessage);
   });
 
   return {
     state,
     status,
     selectedType,
+    codeGenerationType,
+    isCodeGenerationTypeReadOnly,
     tp,
     setSourceFile,
     setMapFile,

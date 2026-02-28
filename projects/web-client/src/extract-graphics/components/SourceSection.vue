@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import { createTranslationPrefixFn } from "src/utils/vue-utils";
+import type { CodeGenerationType } from "../../../../shared/extract-graphics/extract-graphics-dtos";
 
 const tp = createTranslationPrefixFn("extract-graphics");
 
 const source = defineModel<string>("source", { required: true });
 const mapSource = defineModel<string>("mapSource", { default: "" });
+const codeGenerationType = defineModel<CodeGenerationType>(
+  "codeGenerationType",
+  { default: "asm" },
+);
+
+defineProps<{
+  readOnly?: boolean;
+}>();
 
 const emit = defineEmits<{
   fileSelected: [file: File];
@@ -40,7 +49,9 @@ function onMapFileChange(event: Event) {
     <div class="mt-4 space-y-4">
       <!-- PNG image input -->
       <div>
-        <label class="text-xs font-semibold">{{ tp("sourceLabel") }}</label>
+        <label for="source-input" class="text-xs font-semibold">{{
+          tp("sourceLabel")
+        }}</label>
         <label
           class="mt-2 flex w-full cursor-pointer items-center gap-3 border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 text-sm"
         >
@@ -53,6 +64,7 @@ function onMapFileChange(event: Event) {
             {{ source || tp("noFileSelected") }}
           </span>
           <input
+            id="source-input"
             accept=".png"
             class="sr-only"
             type="file"
@@ -66,7 +78,9 @@ function onMapFileChange(event: Event) {
 
       <!-- .map file input -->
       <div>
-        <label class="text-xs font-semibold">{{ tp("mapSourceLabel") }}</label>
+        <label for="map-source-input" class="text-xs font-semibold">{{
+          tp("mapSourceLabel")
+        }}</label>
         <label
           class="mt-2 flex w-full cursor-pointer items-center gap-3 border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 text-sm"
         >
@@ -79,6 +93,7 @@ function onMapFileChange(event: Event) {
             {{ mapSource || tp("noFileSelected") }}
           </span>
           <input
+            id="map-source-input"
             accept=".map"
             class="sr-only"
             type="file"
@@ -87,6 +102,46 @@ function onMapFileChange(event: Event) {
         </label>
         <p class="mt-1 text-xs text-[color:var(--ink-soft)]">
           {{ tp("mapSourceHint") }}
+        </p>
+      </div>
+
+      <!-- Code generation type -->
+      <div>
+        <span class="text-xs font-semibold">{{
+          tp("codeGenerationTypeLabel")
+        }}</span>
+        <div class="mt-2 flex items-center gap-6">
+          <label
+            class="flex cursor-pointer items-center gap-2 text-sm"
+            :class="{ 'cursor-default opacity-75': readOnly }"
+          >
+            <input
+              type="radio"
+              name="codeGenerationType"
+              value="asm"
+              v-model="codeGenerationType"
+              :disabled="readOnly"
+              class="accent-[color:var(--button-bg)]"
+            />
+            {{ tp("codeGenerationTypeAsm") }}
+          </label>
+          <label
+            class="flex cursor-pointer items-center gap-2 text-sm"
+            :class="{ 'cursor-default opacity-75': readOnly }"
+          >
+            <input
+              type="radio"
+              name="codeGenerationType"
+              value="c"
+              v-model="codeGenerationType"
+              :disabled="readOnly"
+              class="accent-[color:var(--button-bg)]"
+            />
+            {{ tp("codeGenerationTypeC") }}
+          </label>
+        </div>
+        <p v-if="readOnly" class="mt-1 text-xs text-[color:var(--ink-soft)]">
+          {{ tp("codeGenerationTypeReadOnlyHint") }}
         </p>
       </div>
     </div>

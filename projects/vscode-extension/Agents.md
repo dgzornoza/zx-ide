@@ -38,3 +38,10 @@
   - `project.type`: project type (`'sjasmplus'` or `'z88dk'`)
   - `project.assetsGraphics`: optional array of workspace-relative paths to graphics files (`.zxp` format) managed by `AttachProjectGraphicsCmd` ([src/commands/attach-project-graphics.cmd.ts](src/commands/attach-project-graphics.cmd.ts#L1))
 - Always use camelCase for interface properties (e.g., `assetsGraphics`, not `AssetsGraphics`)
+
+## Related project agents
+
+- **CLI** (bundled into extension): [../cli/Agents.md](../cli/Agents.md)
+- **Web-client** (webview pages): [../web-client/Agents.md](../web-client/Agents.md)
+  - Skill: **vue-best-practices** — [../web-client/.agents/skills/vue-best-practices/SKILL.md](../web-client/.agents/skills/vue-best-practices/SKILL.md)
+- **Shared DTOs**: [../../shared/extract-graphics/extract-graphics-dtos.ts](../../shared/extract-graphics/extract-graphics-dtos.ts)

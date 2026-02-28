@@ -30,3 +30,9 @@
 - Keep CLI options in `setupCommander()` in [src/index.ts](src/index.ts) synchronized with `NewProjectModel` fields.
 - Use `FileHelpers.getAbsolutePath()` for template paths (it is based on `__dirname`) and `FileHelpers.getRealSystemPath()` for user-supplied target paths.
 - Update version constants in [src/infrastructure.ts](src/infrastructure.ts) when bumping CLI version.
+
+## Related project agents
+
+- **VS Code extension** (consumes this CLI): [../vscode-extension/Agents.md](../vscode-extension/Agents.md)
+- **Web-client** (webview pages): [../web-client/Agents.md](../web-client/Agents.md)
+- **Shared DTOs**: [../../shared/extract-graphics/extract-graphics-dtos.ts](../../shared/extract-graphics/extract-graphics-dtos.ts)

@@ -9,6 +9,8 @@ const {
   state,
   status,
   selectedType,
+  codeGenerationType,
+  isCodeGenerationTypeReadOnly,
   tp,
   setSourceFile,
   setMapFile,
@@ -35,6 +37,8 @@ const {
       <SourceSection
         v-model:source="state.source"
         v-model:map-source="state.mapSource"
+        v-model:code-generation-type="codeGenerationType"
+        :read-only="isCodeGenerationTypeReadOnly"
         @file-selected="setSourceFile"
         @map-file-selected="setMapFile"
       />

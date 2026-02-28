@@ -30,3 +30,21 @@ export interface SaveMapMessage {
   /** JSON serialised TileMapFile content. */
   content: string;
 }
+
+/** Code generation target language. */
+export type CodeGenerationType = "asm" | "c";
+
+/**
+ * Message sent from the extension to the webview during initialisation.
+ * Carries the VS Code project type so the webview can pre-select and
+ * lock the code-generation language selector.
+ */
+export interface InitMessage {
+  messageType: "init";
+  /**
+   * VS Code project type from .zxide.json.
+   * If absent the webview is running outside VS Code and the user can
+   * choose the target language freely.
+   */
+  projectType?: "sjasmplus" | "z88dk";
+}
