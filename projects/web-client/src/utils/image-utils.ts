@@ -15,76 +15,128 @@ export interface ExtractTilesFromFileResult {
   bitmasks: boolean[][];
 }
 
+// ─── Shared low-level helpers ─────────────────────────────────────────────────
+
+/**
+ * Creates an object URL for `file`, loads it into an HTMLImageElement, and
+ * returns the resolved image together with a `cleanup()` function that revokes
+ * the object URL.  Call `cleanup()` once the image is no longer needed to
+ * avoid memory leaks.
+ */
+function loadImage(
+  file: File,
+): Promise<{ img: HTMLImageElement; cleanup: () => void }> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    const cleanup = () => URL.revokeObjectURL(url);
+    img.onload = () => resolve({ img, cleanup });
+    img.onerror = () => {
+      cleanup();
+      reject(new Error("Failed to load image file"));
+    };
+    img.src = url;
+  });
+}
+
+/**
+ * Draws the rectangular region `(sx, sy, sw, sh)` from `img` onto a new
+ * offscreen canvas sized `sw × sh` and returns that canvas.
+ * The caller can then call `canvas.toDataURL()` or `ctx.getImageData()`.
+ */
+function drawRegionToCanvas(
+  img: HTMLImageElement,
+  sx: number,
+  sy: number,
+  sw: number,
+  sh: number,
+): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
+  const canvas = document.createElement("canvas");
+  canvas.width = sw;
+  canvas.height = sh;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+  return { canvas, ctx };
+}
+
+// ─── Public API ───────────────────────────────────────────────────────────────
+
 /**
  * Loads a PNG File, slices it into tiles of (tileWidth × tileHeight) pixels,
  * generates a base64 data-URL preview for each tile, and returns the results.
  */
-export function extractTilesFromFile(
+export async function extractTilesFromFile(
   params: ExtractTilesFromFileModel,
 ): Promise<ExtractTilesFromFileResult> {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(params.file);
-    const img = new Image();
+  const { img, cleanup } = await loadImage(params.file);
 
-    img.onload = () => {
-      const tileWidth = Math.max(1, Math.floor(params.tileWidth));
-      const tileHeight = Math.max(1, Math.floor(params.tileHeight));
-      const cols = Math.floor(img.width / tileWidth);
-      const rows = Math.floor(img.height / tileHeight);
-      const count = cols * rows;
+  const tileWidth = Math.max(1, Math.floor(params.tileWidth));
+  const tileHeight = Math.max(1, Math.floor(params.tileHeight));
+  const cols = Math.floor(img.width / tileWidth);
+  const rows = Math.floor(img.height / tileHeight);
+  const count = cols * rows;
 
-      const canvas = document.createElement("canvas");
-      canvas.width = tileWidth;
-      canvas.height = tileHeight;
-      const ctx = canvas.getContext("2d")!;
+  const previews: string[] = [];
+  const bitmasks: boolean[][] = [];
 
-      const previews: string[] = [];
-      const bitmasks: boolean[][] = [];
+  // create tiles in row-major order (left-to-right, top-to-bottom)
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const { canvas, ctx } = drawRegionToCanvas(
+        img,
+        col * tileWidth,
+        row * tileHeight,
+        tileWidth,
+        tileHeight,
+      );
+      previews.push(canvas.toDataURL("image/png"));
 
-      // create tiles in row-major order (left-to-right, top-to-bottom)
-      for (let row = 0; row < rows; row++) {
-        for (let col = 0; col < cols; col++) {
-          ctx.clearRect(0, 0, tileWidth, tileHeight);
-          ctx.drawImage(
-            img,
-            col * tileWidth,
-            row * tileHeight,
-            tileWidth,
-            tileHeight,
-            0,
-            0,
-            tileWidth,
-            tileHeight,
-          );
-          previews.push(canvas.toDataURL("image/png"));
-
-          // Extract per-pixel ink/paper bitmask (true = dark/ink pixel)
-          const imageData = ctx.getImageData(0, 0, tileWidth, tileHeight);
-          const tileMask: boolean[] = [];
-          for (let p = 0; p < tileWidth * tileHeight; p++) {
-            const r = imageData.data[p * 4];
-            const g = imageData.data[p * 4 + 1];
-            const b = imageData.data[p * 4 + 2];
-            const a = imageData.data[p * 4 + 3];
-            // Treat transparent or very light pixels as ink (true)
-            const brightness = a < 128 ? 255 : (r + g + b) / 3;
-            tileMask.push(brightness > 127);
-          }
-          bitmasks.push(tileMask);
-        }
+      // Extract per-pixel ink/paper bitmask (true = dark/ink pixel)
+      const imageData = ctx.getImageData(0, 0, tileWidth, tileHeight);
+      const tileMask: boolean[] = [];
+      for (let p = 0; p < tileWidth * tileHeight; p++) {
+        const r = imageData.data[p * 4];
+        const g = imageData.data[p * 4 + 1];
+        const b = imageData.data[p * 4 + 2];
+        const a = imageData.data[p * 4 + 3];
+        // Treat transparent or very light pixels as ink (true)
+        const brightness = a < 128 ? 255 : (r + g + b) / 3;
+        tileMask.push(brightness > 127);
       }
+      bitmasks.push(tileMask);
+    }
+  }
 
-      URL.revokeObjectURL(url);
-      resolve({ count, previews, bitmasks });
-    };
+  cleanup();
+  return { count, previews, bitmasks };
+}
 
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Failed to load Image file"));
-    };
+/**
+ * Extracts a single rectangular region from a PNG File and returns it as a
+ * base64 PNG data-URL, suitable for use as a sprite-frame thumbnail.
+ *
+ * Returns `""` when the source file is `null` or the dimensions are invalid
+ * (zero or negative), so callers can render a placeholder instead.
+ *
+ * @param file   - The source PNG File (same image used for tile extraction).
+ * @param x      - Left pixel offset of the region in the source image (0-based).
+ * @param y      - Top pixel offset of the region in the source image (0-based).
+ * @param width  - Region width in pixels.
+ * @param height - Region height in pixels.
+ */
+export async function extractSpriteFramePreview(
+  file: File | null,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+): Promise<string> {
+  if (!file || width <= 0 || height <= 0) return "";
 
-    img.src = url;
-  });
+  const { img, cleanup } = await loadImage(file);
+  const { canvas } = drawRegionToCanvas(img, x, y, width, height);
+  cleanup();
+  return canvas.toDataURL("image/png");
 }
 
 // ─── Bitmask-to-bytes helpers ─────────────────────────────────────────────────

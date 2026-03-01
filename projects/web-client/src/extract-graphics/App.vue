@@ -11,6 +11,7 @@ const {
   selectedType,
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
+  currentImageFile,
   tp,
   setSourceFile,
   setMapFile,
@@ -55,6 +56,7 @@ const {
       <SpritesSection
         v-if="selectedType === 'sprites'"
         :sprites="state.sprites"
+        :source-image="currentImageFile"
         @add-sprite="addSprite"
         @remove-sprite="removeSprite"
         @add-frame="addSpriteFrame"

@@ -163,9 +163,9 @@ export function useExtractGraphics() {
   const createSprite = (): SpriteDefinition => ({
     _id: crypto.randomUUID(),
     name: "",
-    width: 1,
-    height: 1,
-    frames: [{ column: 0, row: 0 }],
+    width: 8,
+    height: 8,
+    frames: [{ x: 0, y: 0 }],
   });
 
   /** Appends a new default sprite to the sprites list. */
@@ -178,7 +178,7 @@ export function useExtractGraphics() {
   const addSpriteFrame = (spriteIndex: number) => {
     const sprite = state.sprites[spriteIndex];
     if (!sprite) return;
-    sprite.frames.push({ column: 0, row: 0 });
+    sprite.frames.push({ x: 0, y: 0 });
   };
 
   /** Removes the frame at frameIndex from the sprite at spriteIndex. */
@@ -286,6 +286,7 @@ export function useExtractGraphics() {
     selectedType,
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
+    currentImageFile,
     tp,
     setSourceFile,
     setMapFile,

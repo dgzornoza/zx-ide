@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { SpriteDefinition } from "src/extract-graphics/models/spriteDefinition";
 import { createTranslationPrefixFn } from "src/utils/vue-utils";
-import SpriteItem from "./SpriteItem.vue";
+import SpriteItemDefinition from "./SpriteItemDefinition.vue";
 
 const tp = createTranslationPrefixFn("extract-graphics");
 
 defineProps<{
   sprites: SpriteDefinition[];
+  sourceImage: File | null;
 }>();
 
 const emit = defineEmits<{
@@ -27,12 +28,13 @@ const emit = defineEmits<{
     <p class="mt-2 text-xs text-[color:var(--ink-soft)]">
       {{ tp("spritesHint") }}
     </p>
-    <div class="mt-4 w-1/2 space-y-3">
-      <SpriteItem
+    <div class="mt-4 space-y-3">
+      <SpriteItemDefinition
         v-for="(sprite, index) in sprites"
         :key="sprite._id ?? `sprite-${index}`"
         :sprite="sprite"
         :sprite-index="index"
+        :source-image="sourceImage"
         @remove="emit('remove-sprite', index)"
         @add-frame="emit('add-frame', index)"
         @remove-frame="(frameIndex) => emit('remove-frame', index, frameIndex)"
