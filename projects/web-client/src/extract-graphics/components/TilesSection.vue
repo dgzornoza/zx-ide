@@ -26,8 +26,9 @@ const tileHeight = defineModel<number>("tileHeight", { required: true });
     <!-- tile size inputs + count indicator -->
     <div class="mt-4 flex flex-wrap items-end gap-4">
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold">{{ tp("tileWidthLabel") }}</label>
+        <label class="text-xs font-semibold" for="tileWidth">{{ tp("tileWidthLabel") }}</label>
         <input
+          id="tileWidth"
           v-model.number="tileWidth"
           class="w-24 border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-sm text-[color:var(--input-ink)]"
           min="1"
@@ -35,8 +36,9 @@ const tileHeight = defineModel<number>("tileHeight", { required: true });
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold">{{ tp("tileHeightLabel") }}</label>
+        <label class="text-xs font-semibold" for="tileHeight">{{ tp("tileHeightLabel") }}</label>
         <input
+          id="tileHeight"
           v-model.number="tileHeight"
           class="w-24 border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-sm text-[color:var(--input-ink)]"
           min="1"
@@ -44,8 +46,9 @@ const tileHeight = defineModel<number>("tileHeight", { required: true });
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold">{{ tp("tilesCountLabel") }}</label>
+        <label class="text-xs font-semibold" for="tilesCount">{{ tp("tilesCountLabel") }}</label>
         <span
+          id="tilesCount"
           class="inline-flex items-center border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-sm text-[color:var(--input-ink)]"
         >
           {{ tiles.count }}
@@ -65,6 +68,7 @@ const tileHeight = defineModel<number>("tileHeight", { required: true });
         <img
           v-if="tiles.previews[index]"
           :src="tiles.previews[index]"
+          :alt="`Tile ${index} preview`"
           class="border border-[color:var(--input-border)]"
           style="width: 40px; height: 40px; image-rendering: pixelated"
         />

@@ -1,3 +1,5 @@
+import { ProjectType } from '../../../shared/infrastructure';
+
 export const WikiUri = 'https://github.com/dgzornoza/zx-ide/wiki';
 
 export enum CommandName {
@@ -15,7 +17,6 @@ export interface ExtensionConfigurationModel {
   useAsmDebug: boolean;
 }
 
-export type ProjectType = 'sjasmplus' | 'z88dk';
 export type ProjectConfigurationType =
   | 'z88dk_sdcc_classic_lib'
   | 'z88dk_sdcc_new_lib'
@@ -73,12 +74,12 @@ export interface DezogConfigurationModel {
     hostname: string;
   };
 
-  z88dkv2: z88dkv2ConfigurationModel[];
+  z88dkv2: Z88dkv2ConfigurationModel[];
 
   commandsAfterLaunch?: string[];
 }
 
-export interface z88dkv2ConfigurationModel {
+export interface Z88dkv2ConfigurationModel {
   path: string;
   mapFile: string;
   srcDirs: string[];

@@ -23,8 +23,11 @@ const emit = defineEmits<{
     <!-- Sprite header: name / width / height / remove -->
     <div class="grid grid-cols-1 gap-2 md:grid-cols-[1.4fr_0.6fr_0.6fr_auto]">
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold">{{ tp("spriteNameLabel") }}</label>
+        <label for="sprite-name" class="text-xs font-semibold">{{
+          tp("spriteNameLabel")
+        }}</label>
         <input
+          id="sprite-name"
           v-model="sprite.name"
           class="border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-xs text-[color:var(--input-ink)]"
           placeholder="name"
@@ -32,10 +35,11 @@ const emit = defineEmits<{
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold">{{
+        <label for="sprite-width" class="text-xs font-semibold">{{
           tp("spriteWidthLabel")
         }}</label>
         <input
+          id="sprite-width"
           v-model.number="sprite.width"
           class="border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-xs text-[color:var(--input-ink)]"
           placeholder="width"
@@ -44,10 +48,11 @@ const emit = defineEmits<{
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold">{{
+        <label for="sprite-height" class="text-xs font-semibold">{{
           tp("spriteHeightLabel")
         }}</label>
         <input
+          id="sprite-height"
           v-model.number="sprite.height"
           class="border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-xs text-[color:var(--input-ink)]"
           placeholder="height"
@@ -76,8 +81,11 @@ const emit = defineEmits<{
         </legend>
         <div class="grid grid-cols-1 gap-2 md:grid-cols-[1.4fr_1.4fr_auto]">
           <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold">{{ tp("columnLabel") }}</label>
+            <label for="frame-column" class="text-xs font-semibold">{{
+              tp("columnLabel")
+            }}</label>
             <input
+              id="frame-column"
               v-model.number="frame.column"
               class="border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-xs text-[color:var(--input-ink)]"
               placeholder="column"
@@ -86,8 +94,11 @@ const emit = defineEmits<{
             />
           </div>
           <div class="flex flex-col gap-1">
-            <label class="text-xs font-semibold">{{ tp("rowLabel") }}</label>
+            <label for="frame-row" class="text-xs font-semibold">{{
+              tp("rowLabel")
+            }}</label>
             <input
+              id="frame-row"
               v-model.number="frame.row"
               class="border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-xs text-[color:var(--input-ink)]"
               placeholder="row"

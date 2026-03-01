@@ -47,7 +47,7 @@ export function useExtractGraphics() {
   });
 
   /** The last PNG File chosen by the user, kept to allow re-extraction on dimension change. */
-  const pendingFile = ref<File | null>(null);
+  const currentImageFile = ref<File | null>(null);
 
   const status = ref<StatusMessage | null>(null);
   const selectedType = ref<"tiles" | "sprites" | "">("");
@@ -62,8 +62,10 @@ export function useExtractGraphics() {
     // avoid negative and non-integer counts, which would break the logic
     const normalized = Math.max(0, Math.floor(count));
 
-    if (normalized === state.tiles.names.length) return;
-    if (normalized > state.tiles.names.length) {
+    // less (remove slots), greater (add slots), equals (do nothing)
+    if (normalized < state.tiles.names.length) {
+      state.tiles.names.splice(normalized);
+    } else if (normalized > state.tiles.names.length) {
       const startIndex = state.tiles.names.length;
       state.tiles.names.push(
         ...Array.from(
@@ -71,10 +73,36 @@ export function useExtractGraphics() {
           (_, i) => `tile${startIndex + i + 1}`,
         ),
       );
-      return;
     }
+  };
 
-    state.tiles.names.splice(normalized);
+  // ─── Load map ──────────────────────────────────────────────────────────────
+
+  /**
+   * Parses a .map file and restores tile/sprites configuration from it.
+   * Also re-extracts tile previews if a source image is already loaded.
+   */
+  const setMapFile = async (file: File): Promise<void> => {
+    try {
+      const text = await file.text();
+      const mapData = JSON.parse(text) as TilesDefinitionModel;
+
+      state.tiles.tileWidth = mapData.tileWidth ?? state.tiles.tileWidth;
+      state.tiles.tileHeight = mapData.tileHeight ?? state.tiles.tileHeight;
+      state.tiles.names = Array.isArray(mapData.names)
+        ? [...mapData.names]
+        : [];
+
+      if (!selectedType.value) {
+        selectedType.value = "tiles";
+      }
+
+      if (currentImageFile.value) {
+        await extractTiles(currentImageFile.value);
+      }
+    } catch {
+      setStatus("error", tp("errorMapLoadFailed"));
+    }
   };
 
   // ─── Tile extraction ───────────────────────────────────────────────────────
@@ -106,7 +134,7 @@ export function useExtractGraphics() {
    * selectedType is "tiles". Otherwise it waits until the user picks that type.
    */
   const setSourceFile = async (file: File) => {
-    pendingFile.value = file;
+    currentImageFile.value = file;
     if (selectedType.value === "tiles") {
       await extractTiles(file);
     }
@@ -116,16 +144,16 @@ export function useExtractGraphics() {
   watch(
     [() => state.tiles.tileWidth, () => state.tiles.tileHeight],
     async () => {
-      if (pendingFile.value && selectedType.value === "tiles") {
-        await extractTiles(pendingFile.value);
+      if (currentImageFile.value && selectedType.value === "tiles") {
+        await extractTiles(currentImageFile.value);
       }
     },
   );
 
   // Re-extract when switching to tiles type
   watch(selectedType, async (val) => {
-    if (val === "tiles" && pendingFile.value) {
-      await extractTiles(pendingFile.value);
+    if (val === "tiles" && currentImageFile.value) {
+      await extractTiles(currentImageFile.value);
     }
   });
 
@@ -175,7 +203,7 @@ export function useExtractGraphics() {
    * - triggers a browser download when the extension API is unavailable.
    */
   const extractResources = async () => {
-    if (!pendingFile.value) {
+    if (!currentImageFile.value) {
       setStatus("error", tp("errorNoSourceFile"));
       return;
     }
@@ -186,7 +214,7 @@ export function useExtractGraphics() {
       names: [...state.tiles.names],
     };
 
-    const baseName = pendingFile.value.name.replace(/\.[^.]+$/, "");
+    const baseName = currentImageFile.value.name.replace(/\.[^.]+$/, "");
     const tileNames = state.tiles.names.slice(0, state.tiles.count);
 
     const mapContent = JSON.stringify(mapFile, null, 2);
@@ -225,35 +253,6 @@ export function useExtractGraphics() {
       downloadBlob(blob, `${baseName}.zip`);
 
       setStatus("success", tp("statusMapDownloaded"));
-    }
-  };
-
-  // ─── Load map ──────────────────────────────────────────────────────────────
-
-  /**
-   * Parses a .map file and restores tile/sprites configuration from it.
-   * Also re-extracts tile previews if a source image is already loaded.
-   */
-  const setMapFile = async (file: File): Promise<void> => {
-    try {
-      const text = await file.text();
-      const mapData = JSON.parse(text) as TilesDefinitionModel;
-
-      state.tiles.tileWidth = mapData.tileWidth ?? state.tiles.tileWidth;
-      state.tiles.tileHeight = mapData.tileHeight ?? state.tiles.tileHeight;
-      state.tiles.names = Array.isArray(mapData.names)
-        ? [...mapData.names]
-        : [];
-
-      if (!selectedType.value) {
-        selectedType.value = "tiles";
-      }
-
-      if (pendingFile.value) {
-        await extractTiles(pendingFile.value);
-      }
-    } catch {
-      setStatus("error", tp("errorMapLoadFailed"));
     }
   };
 

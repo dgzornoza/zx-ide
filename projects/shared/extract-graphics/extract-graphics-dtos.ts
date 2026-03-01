@@ -1,3 +1,5 @@
+import { ProjectType, VsCodeBridgeMessage } from "../infrastructure";
+
 /**
  * A single file to be written to the workspace.
  */
@@ -13,8 +15,9 @@ export interface FileEntry {
  * Further entries are generated source files (tiles/sprites) that will be
  * appended in future iterations.
  */
-export interface WriteFilesMessage {
+export interface WriteFilesMessage extends VsCodeBridgeMessage {
   messageType: "writeFiles";
+
   /** All generated source files to write. */
   codeFiles: FileEntry[];
 }
@@ -23,7 +26,7 @@ export interface WriteFilesMessage {
  * Message sent from the webview to the extension when a .map file is ready
  * to be saved to the workspace. The extension decides the final destination.
  */
-export interface SaveMapMessage {
+export interface SaveMapMessage extends VsCodeBridgeMessage {
   messageType: "saveMap";
   /** Suggested filename, e.g. "player.map" (no path). */
   fileName: string;
@@ -39,12 +42,13 @@ export type CodeGenerationType = "asm" | "c";
  * Carries the VS Code project type so the webview can pre-select and
  * lock the code-generation language selector.
  */
-export interface InitMessage {
+export interface InitMessage extends VsCodeBridgeMessage {
   messageType: "init";
+
   /**
    * VS Code project type from .zxide.json.
    * If absent the webview is running outside VS Code and the user can
    * choose the target language freely.
    */
-  projectType?: "sjasmplus" | "z88dk";
+  projectType?: ProjectType;
 }

@@ -5,10 +5,10 @@ export type VscodeBridge = {
 
 export const createVsCodeBridge = (): VscodeBridge => {
   if (
-    typeof window !== "undefined" &&
-    typeof window.acquireVsCodeApi === "function"
+    globalThis.window !== undefined &&
+    typeof globalThis.window.acquireVsCodeApi === "function"
   ) {
-    const api = window.acquireVsCodeApi();
+    const api = globalThis.window.acquireVsCodeApi();
     return {
       isAvailable: true,
       postMessage: api.postMessage.bind(api),

@@ -2,7 +2,7 @@ import { ProjectService } from '@core/abstractions/project.service';
 import { BindThis } from '@core/decorators/bind-this.decorator';
 import { nameof } from '@core/helpers/type-helpers';
 import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
-import { DezogConfigurationModel, LaunchConfigFileModel, z88dkv2ConfigurationModel } from '@core/infrastructure';
+import { DezogConfigurationModel, LaunchConfigFileModel, Z88dkv2ConfigurationModel } from '@core/infrastructure';
 import { ConfigurationService } from '@core/services/configuration.service';
 import { OutputChannelService } from '@core/services/output-channel.service';
 import { Types } from '@core/types';
@@ -68,7 +68,7 @@ export class Z88dkProjectService extends ProjectService {
     // write debugger info only for all 'dezog' configurations (maintain outer json structure and comments)
     const useAsmDebug = this.configurationService.getZ88dkConfiguration().useAsmDebug;
     for (const [index, config] of launchJson.configurations.entries()) {
-      let z88dkConfig: z88dkv2ConfigurationModel[];
+      let z88dkConfig: Z88dkv2ConfigurationModel[];
       if (config.type === 'dezog') {
         // using Asm debug configuration
         if (useAsmDebug) {
@@ -87,7 +87,7 @@ export class Z88dkProjectService extends ProjectService {
   }
 
   /** Debug configuration for assembler code (only can debug in .source.lis asm code with C comments) */
-  private getZ88dkAsmDebugConfiguration(): z88dkv2ConfigurationModel[] {
+  private getZ88dkAsmDebugConfiguration(): Z88dkv2ConfigurationModel[] {
     const projectName = path.basename(WorkspaceHelpers.workspacePath);
 
     return [
@@ -100,7 +100,7 @@ export class Z88dkProjectService extends ProjectService {
   }
 
   /** Debug configuration for C code (only can debug C code) */
-  private getZ88dkCDebugConfiguration(): z88dkv2ConfigurationModel[] {
+  private getZ88dkCDebugConfiguration(): Z88dkv2ConfigurationModel[] {
     const projectName = path.basename(WorkspaceHelpers.workspacePath);
 
     return [

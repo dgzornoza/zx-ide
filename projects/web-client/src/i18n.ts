@@ -3,7 +3,7 @@ import { createI18n } from "vue-i18n";
 const messages = {
   en: {
     "extract-graphics": {
-      title: "Attach project graphics",
+      title: "Extract Graphics",
       subtitle:
         "Generate tile and sprite definitions from a spritesheet and save them into your project.",
       sectionSource: "Source data",
@@ -71,9 +71,9 @@ const messages = {
   },
   es: {
     "extract-graphics": {
-      title: "Adjuntar graficos al proyecto",
+      title: "Extracción de gráficos",
       subtitle:
-        "Genera codigo fuente con la definicion de tiles/sprites desde un archivo .png para usarlas en tu proyecto.",
+        "Genera código fuente con la definición de tiles/sprites desde un archivo .png para usarlas en tu proyecto.",
       sectionSource: "Datos de origen",
       sourceLabel: "Imagen fuente",
       sourceHint: "Selecciona el archivo PNG de origen desde tu workspace.",
