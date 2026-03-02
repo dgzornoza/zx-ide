@@ -1,5 +1,9 @@
 import JSZip from "jszip";
 import {
+  createSpritesCodeGenerator,
+  createTilesCodeGenerator,
+} from "src/extract-graphics/composables/generators/generatorStrategyFactory";
+import {
   StatusMessage,
   StatusMessageType,
 } from "src/extract-graphics/models/graphicsMapData";
@@ -21,10 +25,6 @@ import {
 import { createVsCodeBridge } from "../../bridge/vscode";
 import { downloadBlob } from "../../utils/html-utils";
 import { extractTilesFromFile } from "../../utils/image-utils";
-import {
-  createSpritesCodeGenerator,
-  createTilesCodeGenerator,
-} from "./codeGenerators";
 
 /**
  * Composable that manages the full state and business logic for the
@@ -105,11 +105,10 @@ export function useExtractGraphics() {
         selectedType.value = "sprites";
       } else {
         // Tiles (explicit type: "tiles" or legacy files without type field)
-        const tilesData = mapData as TilesMapModel;
-        state.tiles.tileWidth = tilesData.tileWidth ?? state.tiles.tileWidth;
-        state.tiles.tileHeight = tilesData.tileHeight ?? state.tiles.tileHeight;
-        state.tiles.names = Array.isArray(tilesData.names)
-          ? [...tilesData.names]
+        state.tiles.tileWidth = mapData.tileWidth ?? state.tiles.tileWidth;
+        state.tiles.tileHeight = mapData.tileHeight ?? state.tiles.tileHeight;
+        state.tiles.names = Array.isArray(mapData.names)
+          ? [...mapData.names]
           : [];
 
         if (!selectedType.value) {
@@ -258,7 +257,7 @@ export function useExtractGraphics() {
           content: JSON.stringify(spritesMap, null, 2),
         },
         ...generatedFiles.map((file) => ({
-          path: `${file.spriteName ?? baseName}${file.extension}`,
+          path: `${file.fileName ?? baseName}${file.extension}`,
           content: file.content,
         })),
       ];
