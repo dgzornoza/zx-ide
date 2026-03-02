@@ -276,7 +276,7 @@ onBeforeUnmount(() => {
             class="justify-left border p-1"
             :class="
               isPlaying && currentFrameIndex === frameIndex
-                ? 'border-[color:var(--focus-border,var(--button-bg))]'
+                ? 'border-[color:var(--focus-border,var(--success-ink))]'
                 : 'border-[color:var(--border)]'
             "
           >

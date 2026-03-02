@@ -4,8 +4,10 @@ import { ProjectType, VsCodeBridgeMessage } from "../infrastructure";
  * A single file to be written to the workspace.
  */
 export interface FileEntry {
+  /** File content type */
+  fileType: "map" | "c-header" | "asm";
   /** Workspace-relative path (forward-slash separated). */
-  path: string;
+  fileName: string;
   /** UTF-8 file content. */
   content: string;
 }

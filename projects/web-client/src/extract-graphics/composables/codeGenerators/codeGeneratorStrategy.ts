@@ -9,63 +9,44 @@
  * - `"asm"` → {@link AsmTilesCodeGeneratorStrategy} (sjasmplus assembly)
  *
  * Sprites:
- * - `"c"`   → {@link CSpritesCodeGeneratorStrategy}  (stub)
- * - `"asm"` → {@link AsmSpritesCodeGeneratorStrategy} (stub)
+ * - `"c"`   → {@link CSpritesCodeGeneratorStrategy}  (C header + Z88DK assembly)
+ * - `"asm"` → {@link AsmSpritesCodeGeneratorStrategy} (sjasmplus assembly)
  */
 
 import { SpriteDefinition } from "src/extract-graphics/models/spriteDefinition";
+import { TilesModel } from "src/extract-graphics/models/tilesDefinition";
+import { FileEntry } from "../../../../../shared/extract-graphics/extract-graphics-dtos";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
+
+/** Generated file entry for generators */
+export type GeneratedFile = FileEntry;
 
 /** Parameters for sprite code-generation strategies. */
 export interface SpritesCodeGeneratorParams {
   /** Filename without extension (e.g. `"player"`). */
-  baseName: string;
+  name: string;
   /** Full list of sprite definitions (including frame coordinates). */
   sprites: SpriteDefinition[];
 }
 
 /** Parameters for tile code-generation strategies. */
 export interface TilesCodeGeneratorParams {
-  /** Filename without extension (e.g. `"player"`). */
-  baseName: string;
-  /** Ordered list of tile names (e.g. `["tile1", "tile2"]`). */
-  tileNames: string[];
-  /** Tile width in pixels. */
-  tileWidth: number;
-  /** Tile height in pixels. */
-  tileHeight: number;
-  /**
-   * Per-tile pixel bitmask.
-   * `bitmasks[i]` is a row-major `boolean[]` of length `tileWidth * tileHeight`.
-   * `true` = ink pixel.
-   */
-  bitmasks: boolean[][];
-}
-
-/** A single generated output file. */
-export interface GeneratedFile {
-  /** File extension including the dot (e.g. `".h"`, `".asm"`). */
-  extension: string;
-  /** UTF-8 content of the file. */
-  content: string;
-  /**
-   * Optional filename used to build the output filename.
-   * Only set by sprite strategies (one file per sprite).
-   */
-  fileName?: string;
+  /** Filename without extension (e.g. `"mainTiles"`). */
+  name: string;
+  /** Full tiles model containing dimensions, names, bitmasks and count. */
+  tiles: TilesModel;
 }
 
 // ─── Strategy interfaces ──────────────────────────────────────────────────────
 
-/** Strategy that produces one or more source files from tile data. */
+/** Strategy that produces all output files (map + source) from tile data. */
 export interface TilesCodeGeneratorStrategy {
   generate(params: TilesCodeGeneratorParams): GeneratedFile[];
 }
 
 /**
- * Strategy that produces one source file per sprite.
- * Each returned {@link GeneratedFile} has `fileName` set.
+ * Strategy that produces all output files (map + source) from sprite data.
  */
 export interface SpritesCodeGeneratorStrategy {
   generate(params: SpritesCodeGeneratorParams): GeneratedFile[];

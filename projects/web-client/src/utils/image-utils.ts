@@ -91,7 +91,7 @@ export async function extractTilesFromFile(
       );
       previews.push(canvas.toDataURL("image/png"));
 
-      // Extract per-pixel ink/paper bitmask (true = dark/ink pixel)
+      // Extract per-pixel ink/paper bitmask (true = light/ink pixel)
       const imageData = ctx.getImageData(0, 0, tileWidth, tileHeight);
       const tileMask: boolean[] = [];
       for (let p = 0; p < tileWidth * tileHeight; p++) {

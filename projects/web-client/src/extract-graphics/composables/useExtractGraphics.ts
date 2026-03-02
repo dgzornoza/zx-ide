@@ -2,7 +2,7 @@ import JSZip from "jszip";
 import {
   createSpritesCodeGenerator,
   createTilesCodeGenerator,
-} from "src/extract-graphics/composables/generators/generatorStrategyFactory";
+} from "src/extract-graphics/composables/codeGenerators/codeGeneratorStrategyFactory";
 import {
   StatusMessage,
   StatusMessageType,
@@ -10,8 +10,6 @@ import {
 import { SpriteDefinition } from "src/extract-graphics/models/spriteDefinition";
 import {
   GraphicsMapModel,
-  SpritesMapModel,
-  TilesMapModel,
   TilesModel,
 } from "src/extract-graphics/models/tilesDefinition";
 import { createTranslationPrefixFn } from "src/utils/vue-utils";
@@ -217,14 +215,11 @@ export function useExtractGraphics() {
   // ─── Create map ────────────────────────────────────────────────────────────
 
   /**
-   * Generates and outputs all resource files for the currently selected type
+   * Generates all resource files for the currently selected type
    * (tiles or sprites).
    *
-   * Tiles path: serialises the tile map as a {@link TilesMapModel} and uses
-   * {@link createTilesCodeGenerator} to produce C/ASM source files.
-   *
-   * Sprites path: serialises all sprites as a {@link SpritesMapModel} and uses
-   * {@link createSpritesCodeGenerator} to produce one source file per sprite.
+   * Delegates entirely to the appropriate code-generation strategy which
+   * produces every output file (`.map` + source files).
    *
    * Output is either sent to the VS Code extension via {@link WriteFilesMessage}
    * or downloaded as a ZIP bundle in standalone browser mode.
@@ -235,59 +230,25 @@ export function useExtractGraphics() {
       return;
     }
 
-    const baseName = currentImageFile.value.name.replace(/\.[^.]+$/, "");
+    const fileNameWithoutExtension = currentImageFile.value.name.replace(
+      /\.[^.]+$/,
+      "",
+    );
+
     let codeFiles: FileEntry[];
 
     if (selectedType.value === "sprites") {
-      // ── Sprites path ────────────────────────────────────────────────────
-      const spritesMap: SpritesMapModel = {
-        type: "sprites",
-        sprites: state.sprites.map(({ _id: _omit, ...rest }) => rest),
-      };
-
       const generator = createSpritesCodeGenerator(codeGenerationType.value);
-      const generatedFiles = generator.generate({
-        baseName,
+      codeFiles = generator.generate({
+        name: fileNameWithoutExtension,
         sprites: state.sprites,
       });
-
-      codeFiles = [
-        {
-          path: `${baseName}.map`,
-          content: JSON.stringify(spritesMap, null, 2),
-        },
-        ...generatedFiles.map((file) => ({
-          path: `${file.fileName ?? baseName}${file.extension}`,
-          content: file.content,
-        })),
-      ];
     } else {
-      // ── Tiles path (default) ────────────────────────────────────────────
-      const tilesMap: TilesMapModel = {
-        type: "tiles",
-        tileWidth: state.tiles.tileWidth,
-        tileHeight: state.tiles.tileHeight,
-        names: [...state.tiles.names],
-      };
-
-      const tileNames = state.tiles.names.slice(0, state.tiles.count);
-
       const generator = createTilesCodeGenerator(codeGenerationType.value);
-      const generatedFiles = generator.generate({
-        baseName,
-        tileNames,
-        tileWidth: state.tiles.tileWidth,
-        tileHeight: state.tiles.tileHeight,
-        bitmasks: state.tiles.bitmasks,
+      codeFiles = generator.generate({
+        name: fileNameWithoutExtension,
+        tiles: state.tiles,
       });
-
-      codeFiles = [
-        { path: `${baseName}.map`, content: JSON.stringify(tilesMap, null, 2) },
-        ...generatedFiles.map((file) => ({
-          path: `${baseName}${file.extension}`,
-          content: file.content,
-        })),
-      ];
     }
 
     if (vscode.isAvailable) {
@@ -300,11 +261,11 @@ export function useExtractGraphics() {
       // Browser fallback: download all files bundled in a single ZIP
       const zip = new JSZip();
       for (const file of codeFiles) {
-        zip.file(file.path, file.content);
+        zip.file(file.fileName, file.content);
       }
 
       const blob = await zip.generateAsync({ type: "blob" });
-      downloadBlob(blob, `${baseName}.zip`);
+      downloadBlob(blob, `${fileNameWithoutExtension}.zip`);
 
       setStatus("success", tp("statusMapDownloaded"));
     }

@@ -14,33 +14,20 @@
  */
 
 import {
+  SpritesCodeGeneratorStrategy,
+  TilesCodeGeneratorStrategy,
+} from "src/extract-graphics/composables/codeGenerators/codeGeneratorStrategy";
+import {
   AsmSpritesCodeGeneratorStrategy,
   CSpritesCodeGeneratorStrategy,
-} from "src/extract-graphics/composables/generators/codeSpritesGenerators";
+} from "src/extract-graphics/composables/codeGenerators/spritesCodeGenerators";
 import {
   AsmTilesCodeGeneratorStrategy,
   CTilesCodeGeneratorStrategy,
-} from "src/extract-graphics/composables/generators/codeTilesGenerators";
-import {
-  SpritesCodeGeneratorStrategy,
-  TilesCodeGeneratorStrategy,
-} from "src/extract-graphics/composables/generators/generatorStrategy";
+} from "src/extract-graphics/composables/codeGenerators/tilesCodeGenerators";
 import type { CodeGenerationType } from "../../../../../shared/extract-graphics/extract-graphics-dtos";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
-
-/** A single generated output file. */
-export interface GeneratedFile {
-  /** File extension including the dot (e.g. `".h"`, `".asm"`). */
-  extension: string;
-  /** UTF-8 content of the file. */
-  content: string;
-  /**
-   * Optional filename used to build the output filename.
-   * Only set by sprite strategies (one file per sprite).
-   */
-  fileName?: string;
-}
 
 /**
  * Returns the appropriate {@link TilesCodeGeneratorStrategy} for the given
