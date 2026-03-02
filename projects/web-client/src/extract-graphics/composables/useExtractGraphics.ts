@@ -5,7 +5,9 @@ import {
 } from "src/extract-graphics/models/graphicsMapData";
 import { SpriteDefinition } from "src/extract-graphics/models/spriteDefinition";
 import {
-  TilesDefinitionModel,
+  GraphicsMapModel,
+  SpritesMapModel,
+  TilesMapModel,
   TilesModel,
 } from "src/extract-graphics/models/tilesDefinition";
 import { createTranslationPrefixFn } from "src/utils/vue-utils";
@@ -19,7 +21,10 @@ import {
 import { createVsCodeBridge } from "../../bridge/vscode";
 import { downloadBlob } from "../../utils/html-utils";
 import { extractTilesFromFile } from "../../utils/image-utils";
-import { createCodeGenerator } from "./codeGenerators";
+import {
+  createSpritesCodeGenerator,
+  createTilesCodeGenerator,
+} from "./codeGenerators";
 
 /**
  * Composable that manages the full state and business logic for the
@@ -36,6 +41,7 @@ export function useExtractGraphics() {
     mapSource: "",
     graphicsData: "",
     tiles: {
+      type: "tiles" as const,
       count: 0,
       tileWidth: 8,
       tileHeight: 8,
@@ -80,25 +86,39 @@ export function useExtractGraphics() {
 
   /**
    * Parses a .map file and restores tile/sprites configuration from it.
+   * Supports both {@link TilesMapModel} and {@link SpritesMapModel}.
+   * Files without a `type` field are treated as tiles (backward-compatibility).
    * Also re-extracts tile previews if a source image is already loaded.
    */
   const setMapFile = async (file: File): Promise<void> => {
     try {
       const text = await file.text();
-      const mapData = JSON.parse(text) as TilesDefinitionModel;
+      const mapData = JSON.parse(text) as GraphicsMapModel;
 
-      state.tiles.tileWidth = mapData.tileWidth ?? state.tiles.tileWidth;
-      state.tiles.tileHeight = mapData.tileHeight ?? state.tiles.tileHeight;
-      state.tiles.names = Array.isArray(mapData.names)
-        ? [...mapData.names]
-        : [];
+      if (mapData.type === "sprites") {
+        // Restore sprites — inject fresh runtime _id for each
+        state.sprites.splice(
+          0,
+          state.sprites.length,
+          ...mapData.sprites.map((s) => ({ ...s, _id: crypto.randomUUID() })),
+        );
+        selectedType.value = "sprites";
+      } else {
+        // Tiles (explicit type: "tiles" or legacy files without type field)
+        const tilesData = mapData as TilesMapModel;
+        state.tiles.tileWidth = tilesData.tileWidth ?? state.tiles.tileWidth;
+        state.tiles.tileHeight = tilesData.tileHeight ?? state.tiles.tileHeight;
+        state.tiles.names = Array.isArray(tilesData.names)
+          ? [...tilesData.names]
+          : [];
 
-      if (!selectedType.value) {
-        selectedType.value = "tiles";
-      }
+        if (!selectedType.value) {
+          selectedType.value = "tiles";
+        }
 
-      if (currentImageFile.value) {
-        await extractTiles(currentImageFile.value);
+        if (currentImageFile.value) {
+          await extractTiles(currentImageFile.value);
+        }
       }
     } catch {
       setStatus("error", tp("errorMapLoadFailed"));
@@ -198,9 +218,17 @@ export function useExtractGraphics() {
   // ─── Create map ────────────────────────────────────────────────────────────
 
   /**
-   * Builds a {@link TilesDefinitionModel} from the current tiles state and either:
-   * - sends it to the VS Code extension via {@link SaveMapMessage}, or
-   * - triggers a browser download when the extension API is unavailable.
+   * Generates and outputs all resource files for the currently selected type
+   * (tiles or sprites).
+   *
+   * Tiles path: serialises the tile map as a {@link TilesMapModel} and uses
+   * {@link createTilesCodeGenerator} to produce C/ASM source files.
+   *
+   * Sprites path: serialises all sprites as a {@link SpritesMapModel} and uses
+   * {@link createSpritesCodeGenerator} to produce one source file per sprite.
+   *
+   * Output is either sent to the VS Code extension via {@link WriteFilesMessage}
+   * or downloaded as a ZIP bundle in standalone browser mode.
    */
   const extractResources = async () => {
     if (!currentImageFile.value) {
@@ -208,33 +236,60 @@ export function useExtractGraphics() {
       return;
     }
 
-    const mapFile: TilesDefinitionModel = {
-      tileWidth: state.tiles.tileWidth,
-      tileHeight: state.tiles.tileHeight,
-      names: [...state.tiles.names],
-    };
-
     const baseName = currentImageFile.value.name.replace(/\.[^.]+$/, "");
-    const tileNames = state.tiles.names.slice(0, state.tiles.count);
+    let codeFiles: FileEntry[];
 
-    const mapContent = JSON.stringify(mapFile, null, 2);
+    if (selectedType.value === "sprites") {
+      // ── Sprites path ────────────────────────────────────────────────────
+      const spritesMap: SpritesMapModel = {
+        type: "sprites",
+        sprites: state.sprites.map(({ _id: _omit, ...rest }) => rest),
+      };
 
-    const generator = createCodeGenerator(codeGenerationType.value);
-    const generatedFiles = generator.generate({
-      baseName,
-      tileNames,
-      tileWidth: state.tiles.tileWidth,
-      tileHeight: state.tiles.tileHeight,
-      bitmasks: state.tiles.bitmasks,
-    });
+      const generator = createSpritesCodeGenerator(codeGenerationType.value);
+      const generatedFiles = generator.generate({
+        baseName,
+        sprites: state.sprites,
+      });
 
-    const codeFiles: FileEntry[] = [
-      { path: `${baseName}.map`, content: mapContent },
-      ...generatedFiles.map((file) => ({
-        path: `${baseName}${file.extension}`,
-        content: file.content,
-      })),
-    ];
+      codeFiles = [
+        {
+          path: `${baseName}.map`,
+          content: JSON.stringify(spritesMap, null, 2),
+        },
+        ...generatedFiles.map((file) => ({
+          path: `${file.spriteName ?? baseName}${file.extension}`,
+          content: file.content,
+        })),
+      ];
+    } else {
+      // ── Tiles path (default) ────────────────────────────────────────────
+      const tilesMap: TilesMapModel = {
+        type: "tiles",
+        tileWidth: state.tiles.tileWidth,
+        tileHeight: state.tiles.tileHeight,
+        names: [...state.tiles.names],
+      };
+
+      const tileNames = state.tiles.names.slice(0, state.tiles.count);
+
+      const generator = createTilesCodeGenerator(codeGenerationType.value);
+      const generatedFiles = generator.generate({
+        baseName,
+        tileNames,
+        tileWidth: state.tiles.tileWidth,
+        tileHeight: state.tiles.tileHeight,
+        bitmasks: state.tiles.bitmasks,
+      });
+
+      codeFiles = [
+        { path: `${baseName}.map`, content: JSON.stringify(tilesMap, null, 2) },
+        ...generatedFiles.map((file) => ({
+          path: `${baseName}${file.extension}`,
+          content: file.content,
+        })),
+      ];
+    }
 
     if (vscode.isAvailable) {
       const message: WriteFilesMessage = {

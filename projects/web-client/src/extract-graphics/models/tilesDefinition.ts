@@ -1,16 +1,33 @@
+import type { SpriteDefinition } from "./spriteDefinition";
+
 /**
- * Tiles definition model.
+ * Serialisable tiles map model (persisted to `.map` file).
+ * Backward-compatible: if `type` is absent it is treated as `"tiles"`.
  */
-export interface TilesDefinitionModel {
+export interface TilesMapModel {
+  type: "tiles";
   tileWidth: number;
   tileHeight: number;
   names: string[];
 }
 
 /**
- * Tiles model used in state.
+ * Serialisable sprites map model (persisted to `.map` file).
  */
-export interface TilesModel extends TilesDefinitionModel {
+export interface SpritesMapModel {
+  type: "sprites";
+  sprites: Omit<SpriteDefinition, "_id">[];
+}
+
+/**
+ * Union of all persisted `.map` file models.
+ */
+export type GraphicsMapModel = TilesMapModel | SpritesMapModel;
+
+/**
+ * Tiles model used in state (not persisted — includes runtime-only fields).
+ */
+export interface TilesModel extends TilesMapModel {
   count: number;
   previews: string[];
   /**

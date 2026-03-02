@@ -1,16 +1,22 @@
 /**
- * Code generators for tile-based graphics exports.
+ * Code generators for tile-based and sprite-based graphics exports.
  *
- * Provides a strategy interface ({@link CodeGeneratorStrategy}) with two
- * concrete implementations selected via {@link createCodeGenerator}:
+ * Provides strategy interfaces for tiles and sprites, each with two
+ * concrete implementations selected via the factory functions:
  *
- * - `"c"`   → {@link CCodeGeneratorStrategy}  (C header + Z88DK assembly)
- * - `"asm"` → {@link AsmCodeGeneratorStrategy} (sjasmplus assembly)
+ * Tiles:
+ * - `"c"`   → {@link CTilesCodeGeneratorStrategy}  (C header + Z88DK assembly)
+ * - `"asm"` → {@link AsmTilesCodeGeneratorStrategy} (sjasmplus assembly)
+ *
+ * Sprites:
+ * - `"c"`   → {@link CSpritesCodeGeneratorStrategy}  (stub)
+ * - `"asm"` → {@link AsmSpritesCodeGeneratorStrategy} (stub)
  */
 
 import type { CodeGenerationType } from "../../../../shared/extract-graphics/extract-graphics-dtos";
 import { generateTileDefbLines } from "../../utils/image-utils";
 import { toIdentifier, toMacroGuard } from "../../utils/string-utils";
+import type { SpriteDefinition } from "../models/spriteDefinition";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -20,10 +26,15 @@ export interface GeneratedFile {
   extension: string;
   /** UTF-8 content of the file. */
   content: string;
+  /**
+   * Optional sprite name used to build the output filename.
+   * Only set by sprite strategies (one file per sprite).
+   */
+  spriteName?: string;
 }
 
-/** Parameters shared by all code-generation strategies. */
-export interface CodeGeneratorParams {
+/** Parameters for tile code-generation strategies. */
+export interface TilesCodeGeneratorParams {
   /** Filename without extension (e.g. `"player"`). */
   baseName: string;
   /** Ordered list of tile names (e.g. `["tile1", "tile2"]`). */
@@ -40,36 +51,90 @@ export interface CodeGeneratorParams {
   bitmasks: boolean[][];
 }
 
-// ─── Factory ──────────────────────────────────────────────────────────────────
+/** Parameters for sprite code-generation strategies. */
+export interface SpritesCodeGeneratorParams {
+  /** Filename without extension (e.g. `"player"`). */
+  baseName: string;
+  /** Full list of sprite definitions (including frame coordinates). */
+  sprites: SpriteDefinition[];
+}
 
 /**
- * Returns the appropriate {@link CodeGeneratorStrategy} for the given
+ * @deprecated Use {@link TilesCodeGeneratorParams} instead.
+ */
+export type CodeGeneratorParams = TilesCodeGeneratorParams;
+
+// ─── Strategy interfaces ──────────────────────────────────────────────────────
+
+/** Strategy that produces one or more source files from tile data. */
+export interface TilesCodeGeneratorStrategy {
+  generate(params: TilesCodeGeneratorParams): GeneratedFile[];
+}
+
+/**
+ * Strategy that produces one source file per sprite.
+ * Each returned {@link GeneratedFile} has `spriteName` set.
+ */
+export interface SpritesCodeGeneratorStrategy {
+  generate(params: SpritesCodeGeneratorParams): GeneratedFile[];
+}
+
+/**
+ * @deprecated Use {@link TilesCodeGeneratorStrategy} instead.
+ */
+export type CodeGeneratorStrategy = TilesCodeGeneratorStrategy;
+
+// ─── Tile factories ────────────────────────────────────────────────────────────
+
+/**
+ * Returns the appropriate {@link TilesCodeGeneratorStrategy} for the given
  * code-generation type.
  */
-export function createCodeGenerator(
+export function createTilesCodeGenerator(
   type: CodeGenerationType,
-): CodeGeneratorStrategy {
+): TilesCodeGeneratorStrategy {
   switch (type) {
     case "c":
-      return new CCodeGeneratorStrategy();
+      return new CTilesCodeGeneratorStrategy();
     case "asm":
-      return new AsmCodeGeneratorStrategy();
+      return new AsmTilesCodeGeneratorStrategy();
   }
 }
 
-/** Strategy that produces one or more source files from tile data. */
-export interface CodeGeneratorStrategy {
-  generate(params: CodeGeneratorParams): GeneratedFile[];
+/**
+ * Returns the appropriate {@link SpritesCodeGeneratorStrategy} for the given
+ * code-generation type.
+ */
+export function createSpritesCodeGenerator(
+  type: CodeGenerationType,
+): SpritesCodeGeneratorStrategy {
+  switch (type) {
+    case "c":
+      return new CSpritesCodeGeneratorStrategy();
+    case "asm":
+      return new AsmSpritesCodeGeneratorStrategy();
+  }
+}
+
+/**
+ * @deprecated Use {@link createTilesCodeGenerator} instead.
+ */
+export function createCodeGenerator(
+  type: CodeGenerationType,
+): TilesCodeGeneratorStrategy {
+  return createTilesCodeGenerator(type);
 }
 
 // ─── C strategy (Z88DK) ──────────────────────────────────────────────────────
+
+// ─── C tiles strategy (Z88DK) ───────────────────────────────────────────────
 
 /**
  * Generates a C header (`.h`) with `extern` declarations and a Z88DK assembly
  * file (`.asm`) with tile binary data in the `rodata_user` section.
  */
-class CCodeGeneratorStrategy implements CodeGeneratorStrategy {
-  generate(params: CodeGeneratorParams): GeneratedFile[] {
+class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
+  generate(params: TilesCodeGeneratorParams): GeneratedFile[] {
     const headerContent = this.generateHeaderFile(
       params.baseName,
       params.tileNames,
@@ -102,7 +167,7 @@ class CCodeGeneratorStrategy implements CodeGeneratorStrategy {
     return lines.join("\n");
   }
 
-  private generateAsmFile(params: CodeGeneratorParams): string {
+  private generateAsmFile(params: TilesCodeGeneratorParams): string {
     const { baseName, tileNames, tileWidth, tileHeight, bitmasks } = params;
     const id = toIdentifier(baseName);
 
@@ -131,14 +196,14 @@ class CCodeGeneratorStrategy implements CodeGeneratorStrategy {
   }
 }
 
-// ─── ASM strategy (sjasmplus) ─────────────────────────────────────────────────
+// ─── ASM tiles strategy (sjasmplus) ────────────────────────────────────────
 
 /**
  * Generates a single sjasmplus assembly file (`.asm`) with plain labels and
  * `defb @XXXXXXXX` binary tile data.
  */
-class AsmCodeGeneratorStrategy implements CodeGeneratorStrategy {
-  generate(params: CodeGeneratorParams): GeneratedFile[] {
+class AsmTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
+  generate(params: TilesCodeGeneratorParams): GeneratedFile[] {
     const { baseName, tileNames, tileWidth, tileHeight, bitmasks } = params;
     const id = toIdentifier(baseName);
 
@@ -156,5 +221,31 @@ class AsmCodeGeneratorStrategy implements CodeGeneratorStrategy {
 
     lines.push("");
     return [{ extension: ".asm", content: lines.join("\n") }];
+  }
+}
+
+// ─── C sprites strategy (Z88DK) ──────────────────────────────────────────────
+
+/**
+ * Generates a C source file per sprite for Z88DK.
+ * @todo Implementation pending.
+ */
+class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrategy {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  generate(_params: SpritesCodeGeneratorParams): GeneratedFile[] {
+    return [];
+  }
+}
+
+// ─── ASM sprites strategy (sjasmplus) ────────────────────────────────────────
+
+/**
+ * Generates a sjasmplus assembly file per sprite.
+ * @todo Implementation pending.
+ */
+class AsmSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrategy {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  generate(_params: SpritesCodeGeneratorParams): GeneratedFile[] {
+    return [];
   }
 }
