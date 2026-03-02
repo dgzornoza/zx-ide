@@ -11,6 +11,7 @@ import { SpritesMapModel } from "src/extract-graphics/models/tilesDefinition";
 function buildMapFile(params: SpritesCodeGeneratorParams): GeneratedFile {
   const spritesMap: SpritesMapModel = {
     type: "sprites",
+    ...(params.spriteSp1Padding ? { spriteSp1Padding: true } : {}),
     sprites: params.sprites.map(({ _id: _omit, ...rest }) => rest),
   };
 

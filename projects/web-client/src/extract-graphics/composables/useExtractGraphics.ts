@@ -57,6 +57,7 @@ export function useExtractGraphics() {
   const selectedType = ref<"tiles" | "sprites" | "">("");
   const codeGenerationType = ref<CodeGenerationType>("asm");
   const isCodeGenerationTypeReadOnly = ref(false);
+  const spriteSp1Padding = ref(false);
 
   /**
    * Keeps the tile names array in sync with tile count.
@@ -100,6 +101,7 @@ export function useExtractGraphics() {
           state.sprites.length,
           ...mapData.sprites.map((s) => ({ ...s, _id: crypto.randomUUID() })),
         );
+        spriteSp1Padding.value = mapData.spriteSp1Padding ?? false;
         selectedType.value = "sprites";
       } else {
         // Tiles (explicit type: "tiles" or legacy files without type field)
@@ -242,6 +244,7 @@ export function useExtractGraphics() {
       codeFiles = generator.generate({
         name: fileNameWithoutExtension,
         sprites: state.sprites,
+        spriteSp1Padding: spriteSp1Padding.value,
       });
     } else {
       const generator = createTilesCodeGenerator(codeGenerationType.value);
@@ -301,6 +304,7 @@ export function useExtractGraphics() {
     selectedType,
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
+    spriteSp1Padding,
     currentImageFile,
     tp,
     setSourceFile,

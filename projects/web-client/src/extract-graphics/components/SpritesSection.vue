@@ -10,6 +10,10 @@ defineProps<{
   sourceImage: File | null;
 }>();
 
+const spriteSp1Padding = defineModel<boolean>("spriteSp1Padding", {
+  required: true,
+});
+
 const emit = defineEmits<{
   "add-sprite": [];
   "remove-sprite": [index: number];
@@ -28,6 +32,18 @@ const emit = defineEmits<{
     <p class="mt-2 text-xs text-[color:var(--ink-soft)]">
       {{ tp("spritesHint") }}
     </p>
+    <label
+      class="mt-4 inline-flex cursor-pointer items-center gap-2 text-xs"
+      :title="tp('spriteSp1PaddingTooltip')"
+    >
+      <input
+        v-model="spriteSp1Padding"
+        type="checkbox"
+        class="accent-[color:var(--button-bg)]"
+      />
+      <span class="select-none">{{ tp("spriteSp1PaddingLabel") }}</span>
+    </label>
+
     <div class="mt-4 space-y-3">
       <SpriteItemDefinition
         v-for="(sprite, index) in sprites"

@@ -69,6 +69,9 @@ const messages = {
       errorSpriteFramesInvalid: "Sprite frames must be an array",
       errorFrameXInvalid: "Frame X coordinate must be a non-negative number",
       errorFrameYInvalid: "Frame Y coordinate must be a non-negative number",
+      spriteSp1PaddingLabel: "Add SP1 padding",
+      spriteSp1PaddingTooltip:
+        "Adds 7 zero-bytes before and 8 zero-bytes after each sprite column (Used by the SP1 library).",
     },
   },
   es: {
@@ -147,6 +150,9 @@ const messages = {
         "La coordenada X del frame debe ser un entero no negativo",
       errorFrameYInvalid:
         "La coordenada Y del frame debe ser un entero no negativo",
+      spriteSp1PaddingLabel: "Añadir padding SP1",
+      spriteSp1PaddingTooltip:
+        "Añade 7 bytes a cero antes y 8 bytes a cero después de cada columna del sprite (Utilizado por la librería SP1).",
     },
   },
 } as const;

@@ -11,6 +11,7 @@ const {
   selectedType,
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
+  spriteSp1Padding,
   currentImageFile,
   tp,
   setSourceFile,
@@ -55,6 +56,7 @@ const {
 
       <SpritesSection
         v-if="selectedType === 'sprites'"
+        v-model:sprite-sp1-padding="spriteSp1Padding"
         :sprites="state.sprites"
         :source-image="currentImageFile"
         @add-sprite="addSprite"

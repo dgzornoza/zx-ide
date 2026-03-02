@@ -16,6 +16,8 @@ export interface TilesMapModel {
  */
 export interface SpritesMapModel {
   type: "sprites";
+  /** When true, 7 zero-bytes are prepended and 8 zero-bytes are appended to each sprite for SP1-style column shifting. */
+  spriteSp1Padding?: boolean;
   sprites: Omit<SpriteDefinition, "_id">[];
 }
 
