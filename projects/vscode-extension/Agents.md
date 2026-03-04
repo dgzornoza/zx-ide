@@ -37,7 +37,7 @@
   - `template-version`: version of the template
   - `project.type`: project type (`'sjasmplus'` or `'z88dk'`)
   - `project.assetsGraphics`: optional array of workspace-relative paths to graphics files (`.zxp` format) managed by `AttachProjectGraphicsCmd` ([src/commands/attach-project-graphics.cmd.ts](src/commands/attach-project-graphics.cmd.ts#L1))
-- Always use camelCase for interface properties (e.g., `assetsGraphics`, not `AssetsGraphics`)
+- Always use camelCase for interface properties (e.g., `assetsGraphics`, not `AssetsGraphics`)- No abbreviations in variable, parameter, or property names (e.g. `projectType`, not `projType`). For loop/iteration variables, `item` is acceptable as a generic loop variable name. Never use single-letter or shortened parameter names (e.g. `newValue` not `v`, `index` not `i` unless it is a generic `item` iteration).
 
 ## Related project agents
 

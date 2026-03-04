@@ -16,7 +16,12 @@ export interface TilesMapModel {
  */
 export interface SpritesMapModel {
   type: "sprites";
-  /** When true, 7 zero-bytes are prepended and 8 zero-bytes are appended to each sprite for SP1-style column shifting. */
+  /**
+   * Numeric combination of {@link SpriteFlags} bits.
+   * Omitted (or `0`) means no flags are set.
+   */
+  spriteFlags?: number;
+  /** @legacy Read-only: kept for loading old `.map` files that used `spriteSp1Padding`. Use `spriteFlags` for all new writes. */
   spriteSp1Padding?: boolean;
   sprites: Omit<SpriteDefinition, "_id">[];
 }
@@ -33,9 +38,9 @@ export interface TilesModel extends TilesMapModel {
   count: number;
   previews: string[];
   /**
-   * Per-tile pixel bitmask (not persisted to .map file).
-   * `bitmasks[i]` is a boolean[] of length `tileWidth * tileHeight`, row-major.
-   * `true` = ink pixel (dark), `false` = paper pixel (light).
+   * Per-tile pixel ink bitmap.
+   * `inkBitmaps[i]` is a boolean[] of length `tileWidth * tileHeight`, row-major.
+   * `true` = ink pixel (light), `false` = paper pixel (dark).
    */
-  bitmasks: boolean[][];
+  inkBitmaps: boolean[][];
 }

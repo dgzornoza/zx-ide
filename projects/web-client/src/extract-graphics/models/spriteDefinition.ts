@@ -1,3 +1,24 @@
+import { TypeEnumFlagValue } from "src/utils/type-utils";
+
+/**
+ * Bit-flag options that can be combined with the bitwise OR operator.
+ *
+ * ```ts
+ * const flags = SpriteFlags.Sp1Padding | SpriteFlags.UseMask;
+ * ```
+ */
+export const SpriteFlags = {
+  /** No options selected. */
+  None: 0,
+  /** Adds 7 zero-bytes before and 8 zero-bytes after each sprite column (SP1 library). */
+  Sp1Padding: 1,
+  /** Each sprite frame includes a mask plane interleaved with the pixel data. */
+  UseMask: 2,
+} as const;
+
+/** Union type of all valid {@link SpriteFlags} values. */
+export type SpriteFlagValue = TypeEnumFlagValue<typeof SpriteFlags>;
+
 export interface SpriteDefinition {
   /** Internal runtime ID used as a stable v-for key. Not included in serialized output. */
   _id?: string;

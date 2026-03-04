@@ -1,18 +1,3 @@
-/**
- * Code generators for tile-based and sprite-based graphics exports.
- *
- * Provides strategy interfaces for tiles and sprites, each with two
- * concrete implementations selected via the factory functions:
- *
- * Tiles:
- * - `"c"`   → {@link CTilesCodeGeneratorStrategy}  (C header + Z88DK assembly)
- * - `"asm"` → {@link AsmTilesCodeGeneratorStrategy} (sjasmplus assembly)
- *
- * Sprites:
- * - `"c"`   → {@link CSpritesCodeGeneratorStrategy}  (C header + Z88DK assembly)
- * - `"asm"` → {@link AsmSpritesCodeGeneratorStrategy} (sjasmplus assembly)
- */
-
 import { SpriteDefinition } from "src/extract-graphics/models/spriteDefinition";
 import { TilesModel } from "src/extract-graphics/models/tilesDefinition";
 import { FileEntry } from "../../../../../shared/extract-graphics/extract-graphics-dtos";
@@ -28,8 +13,25 @@ export interface SpritesCodeGeneratorParams {
   name: string;
   /** Full list of sprite definitions (including frame coordinates). */
   sprites: SpriteDefinition[];
-  /** When true, 7 zero-bytes are prepended and 8 zero-bytes are appended to each sprite for SP1-style column shifting. */
-  spriteSp1Padding: boolean;
+  /**
+   * Numeric combination of {@link SpriteFlags} bits describing active options.
+   * Use bitwise AND to test individual flags:
+   * ```ts
+   * if (params.spriteFlags & SpriteFlags.Sp1Padding) { ... }
+   * ```
+   */
+  spriteFlags: number;
+  /**
+   * Pre-extracted pixel bitmasks for every sprite frame, indexed as
+   * `spriteBitmasks[spriteIndex][frameIndex]`.
+   *
+   * Each inner array is row-major with length `sprite.width * sprite.height`.
+   * `true` = ink pixel (dark / opaque), `false` = paper pixel.
+   *
+   * Populated by `useExtractGraphics` before invoking the generator, using
+   * {@link extractSpritesBitmasks} from `image-utils`.
+   */
+  spriteBitmasks: boolean[][][];
 }
 
 /** Parameters for tile code-generation strategies. */

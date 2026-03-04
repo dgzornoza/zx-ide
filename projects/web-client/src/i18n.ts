@@ -72,6 +72,8 @@ const messages = {
       spriteSp1PaddingLabel: "Add SP1 padding",
       spriteSp1PaddingTooltip:
         "Adds 7 zero-bytes before and 8 zero-bytes after each sprite column (Used by the SP1 library).",
+      spriteUseMaskLabel: "Use mask",
+      spriteUseMaskTooltip: "Use a mask for the sprite.",
     },
   },
   es: {
@@ -153,6 +155,8 @@ const messages = {
       spriteSp1PaddingLabel: "Añadir padding SP1",
       spriteSp1PaddingTooltip:
         "Añade 7 bytes a cero antes y 8 bytes a cero después de cada columna del sprite (Utilizado por la librería SP1).",
+      spriteUseMaskLabel: "Usar máscara",
+      spriteUseMaskTooltip: "Usar sprites con máscara.",
     },
   },
 } as const;

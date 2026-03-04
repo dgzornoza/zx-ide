@@ -1,10 +1,21 @@
+/**
+ * Code generators for tile-based graphics exports.
+ *
+ * Provides strategy interfaces for tiles, each with two
+ * concrete implementations selected via the factory functions:
+ *
+ * Tiles:
+ * - `"c"`   → {@link CTilesCodeGeneratorStrategy}  (C header + Z88DK assembly)
+ * - `"asm"` → {@link AsmTilesCodeGeneratorStrategy} (sjasmplus assembly)
+ */
+
 import {
   GeneratedFile,
   TilesCodeGeneratorParams,
   TilesCodeGeneratorStrategy,
 } from "src/extract-graphics/composables/codeGenerators/codeGeneratorStrategy";
+import { generateTileDefbLines } from "src/extract-graphics/composables/codeGenerators/codeGeneratorUtils";
 import { TilesMapModel } from "src/extract-graphics/models/tilesDefinition";
-import { generateTileDefbLines } from "src/utils/image-utils";
 import { toIdentifier, toMacroGuard } from "src/utils/string-utils";
 
 // ─── Helpers ───────────────────────────────────────────────
@@ -95,7 +106,7 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
 
     tileNames.forEach((name, tileIndex) => {
       const tileName = `_${id}_${name}`;
-      const bitmask = tiles.bitmasks[tileIndex] ?? [];
+      const bitmask = tiles.inkBitmaps[tileIndex] ?? [];
 
       lines.push(
         "",
@@ -126,7 +137,7 @@ export class AsmTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy
     const lines: string[] = [`${id}_tiles:`];
 
     tileNames.forEach((name, tileIndex) => {
-      const bitmask = tiles.bitmasks[tileIndex] ?? [];
+      const bitmask = tiles.inkBitmaps[tileIndex] ?? [];
 
       lines.push(
         "",

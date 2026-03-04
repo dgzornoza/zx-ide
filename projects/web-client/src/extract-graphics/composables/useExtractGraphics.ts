@@ -7,7 +7,10 @@ import {
   StatusMessage,
   StatusMessageType,
 } from "src/extract-graphics/models/graphicsMapData";
-import { SpriteDefinition } from "src/extract-graphics/models/spriteDefinition";
+import {
+  SpriteDefinition,
+  SpriteFlags,
+} from "src/extract-graphics/models/spriteDefinition";
 import {
   GraphicsMapModel,
   TilesModel,
@@ -22,7 +25,10 @@ import {
 } from "../../../../shared/extract-graphics/extract-graphics-dtos";
 import { createVsCodeBridge } from "../../bridge/vscode";
 import { downloadBlob } from "../../utils/html-utils";
-import { extractTilesFromFile } from "../../utils/image-utils";
+import {
+  extractSpritesFromFile,
+  extractTilesFromFile,
+} from "../../utils/image-utils";
 
 /**
  * Composable that manages the full state and business logic for the
@@ -45,7 +51,7 @@ export function useExtractGraphics() {
       tileHeight: 8,
       names: [] as string[],
       previews: [] as string[],
-      bitmasks: [] as boolean[][],
+      inkBitmaps: [] as boolean[][],
     } as TilesModel,
     sprites: [] as SpriteDefinition[],
   });
@@ -57,7 +63,7 @@ export function useExtractGraphics() {
   const selectedType = ref<"tiles" | "sprites" | "">("");
   const codeGenerationType = ref<CodeGenerationType>("asm");
   const isCodeGenerationTypeReadOnly = ref(false);
-  const spriteSp1Padding = ref(false);
+  const spriteFlags = ref<number>(SpriteFlags.None);
 
   /**
    * Keeps the tile names array in sync with tile count.
@@ -101,7 +107,11 @@ export function useExtractGraphics() {
           state.sprites.length,
           ...mapData.sprites.map((s) => ({ ...s, _id: crypto.randomUUID() })),
         );
-        spriteSp1Padding.value = mapData.spriteSp1Padding ?? false;
+        spriteFlags.value =
+          mapData.spriteFlags ??
+          (mapData.spriteSp1Padding
+            ? SpriteFlags.Sp1Padding
+            : SpriteFlags.None);
         selectedType.value = "sprites";
       } else {
         // Tiles (explicit type: "tiles" or legacy files without type field)
@@ -132,7 +142,11 @@ export function useExtractGraphics() {
    */
   const extractTiles = async (file: File): Promise<void> => {
     try {
-      const { count, previews, bitmasks } = await extractTilesFromFile({
+      const {
+        count,
+        previews,
+        inkBitmaps: bitmasks,
+      } = await extractTilesFromFile({
         file,
         tileWidth: state.tiles.tileWidth,
         tileHeight: state.tiles.tileHeight,
@@ -140,7 +154,7 @@ export function useExtractGraphics() {
 
       state.tiles.count = count;
       state.tiles.previews = previews;
-      state.tiles.bitmasks = bitmasks;
+      state.tiles.inkBitmaps = bitmasks;
       syncTileNames(count);
     } catch (error) {
       console.error("Tile extraction failed:", error);
@@ -241,10 +255,22 @@ export function useExtractGraphics() {
 
     if (selectedType.value === "sprites") {
       const generator = createSpritesCodeGenerator(codeGenerationType.value);
+      const spriteBitmasks = await extractSpritesFromFile(
+        currentImageFile.value,
+        state.sprites.map((sprite) =>
+          sprite.frames.map((frame) => ({
+            x: frame.x,
+            y: frame.y,
+            width: sprite.width,
+            height: sprite.height,
+          })),
+        ),
+      );
       codeFiles = generator.generate({
         name: fileNameWithoutExtension,
         sprites: state.sprites,
-        spriteSp1Padding: spriteSp1Padding.value,
+        spriteFlags: spriteFlags.value,
+        spriteBitmasks,
       });
     } else {
       const generator = createTilesCodeGenerator(codeGenerationType.value);
@@ -304,7 +330,7 @@ export function useExtractGraphics() {
     selectedType,
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
-    spriteSp1Padding,
+    spriteFlags,
     currentImageFile,
     tp,
     setSourceFile,

@@ -1,6 +1,11 @@
 <script setup lang="ts">
-import { SpriteDefinition } from "src/extract-graphics/models/spriteDefinition";
+import {
+  SpriteDefinition,
+  SpriteFlags,
+} from "src/extract-graphics/models/spriteDefinition";
+import { TypeEnumHelpers } from "src/utils/type-utils";
 import { createTranslationPrefixFn } from "src/utils/vue-utils";
+import { computed } from "vue";
 import SpriteItemDefinition from "./SpriteItemDefinition.vue";
 
 const tp = createTranslationPrefixFn("extract-graphics");
@@ -10,8 +15,41 @@ defineProps<{
   sourceImage: File | null;
 }>();
 
-const spriteSp1Padding = defineModel<boolean>("spriteSp1Padding", {
+const spriteFlags = defineModel<number>("spriteFlags", {
   required: true,
+});
+
+/**
+ * Checkbox active-state for each sprite flag.
+ * Each property maps to a {@link SpriteFlags} bit.
+ */
+interface ISpriteCheckBoxState {
+  sp1Padding: boolean;
+  useMask: boolean;
+}
+
+/** Whether the SP1 padding flag is active. */
+const sp1Padding = computed<ISpriteCheckBoxState["sp1Padding"]>({
+  get: () => TypeEnumHelpers.hasFlag(SpriteFlags.Sp1Padding, spriteFlags.value),
+  set: (newValue) => {
+    spriteFlags.value = TypeEnumHelpers.setFlag(
+      SpriteFlags.Sp1Padding,
+      spriteFlags.value,
+      newValue,
+    );
+  },
+});
+
+/** Whether the use-mask flag is active. */
+const useMask = computed<ISpriteCheckBoxState["useMask"]>({
+  get: () => TypeEnumHelpers.hasFlag(SpriteFlags.UseMask, spriteFlags.value),
+  set: (newValue) => {
+    spriteFlags.value = TypeEnumHelpers.setFlag(
+      SpriteFlags.UseMask,
+      spriteFlags.value,
+      newValue,
+    );
+  },
 });
 
 const emit = defineEmits<{
@@ -32,17 +70,32 @@ const emit = defineEmits<{
     <p class="mt-2 text-xs text-[color:var(--ink-soft)]">
       {{ tp("spritesHint") }}
     </p>
-    <label
-      class="mt-4 inline-flex cursor-pointer items-center gap-2 text-xs"
-      :title="tp('spriteSp1PaddingTooltip')"
-    >
-      <input
-        v-model="spriteSp1Padding"
-        type="checkbox"
-        class="accent-[color:var(--button-bg)]"
-      />
-      <span class="select-none">{{ tp("spriteSp1PaddingLabel") }}</span>
-    </label>
+
+    <!-- Sprite flags -->
+    <div class="mt-4 flex flex-wrap gap-4">
+      <label
+        class="inline-flex cursor-pointer items-center gap-2 text-xs"
+        :title="tp('spriteSp1PaddingTooltip')"
+      >
+        <input
+          v-model="sp1Padding"
+          type="checkbox"
+          class="accent-[color:var(--button-bg)]"
+        />
+        <span class="select-none">{{ tp("spriteSp1PaddingLabel") }}</span>
+      </label>
+      <label
+        class="inline-flex cursor-pointer items-center gap-2 text-xs"
+        :title="tp('spriteUseMaskTooltip')"
+      >
+        <input
+          v-model="useMask"
+          type="checkbox"
+          class="accent-[color:var(--button-bg)]"
+        />
+        <span class="select-none">{{ tp("spriteUseMaskLabel") }}</span>
+      </label>
+    </div>
 
     <div class="mt-4 space-y-3">
       <SpriteItemDefinition

@@ -31,13 +31,12 @@ let updateTimer: ReturnType<typeof setTimeout> | null = null;
 const updatePreviews = async () => {
   framePreviews.value = await Promise.all(
     props.sprite.frames.map((frame) =>
-      extractSpriteFramePreview(
-        props.sourceImage,
-        frame.x,
-        frame.y,
-        props.sprite.width,
-        props.sprite.height,
-      ),
+      extractSpriteFramePreview(props.sourceImage, {
+        x: frame.x,
+        y: frame.y,
+        width: props.sprite.width,
+        height: props.sprite.height,
+      }),
     ),
   );
   if (currentFrameIndex.value >= props.sprite.frames.length) {
