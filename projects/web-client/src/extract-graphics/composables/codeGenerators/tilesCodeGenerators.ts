@@ -14,7 +14,7 @@ import {
   TilesCodeGeneratorParams,
   TilesCodeGeneratorStrategy,
 } from "src/extract-graphics/composables/codeGenerators/codeGeneratorStrategy";
-import { generateTileDefbLines } from "src/extract-graphics/composables/codeGenerators/codeGeneratorUtils";
+import { generateBitmapDefbLines } from "src/extract-graphics/composables/codeGenerators/codeGeneratorUtils";
 import { TilesMapModel } from "src/extract-graphics/models/tilesDefinition";
 import { toIdentifier, toMacroGuard } from "src/utils/string-utils";
 
@@ -112,7 +112,7 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
         "",
         `PUBLIC ${tileName}`,
         `${tileName}:`,
-        ...generateTileDefbLines(bitmask, tiles.tileWidth, tiles.tileHeight),
+        ...generateBitmapDefbLines(bitmask, tiles.tileWidth, tiles.tileHeight),
       );
     });
 
@@ -142,7 +142,7 @@ export class AsmTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy
       lines.push(
         "",
         `${id}_${name}:`,
-        ...generateTileDefbLines(bitmask, tiles.tileWidth, tiles.tileHeight),
+        ...generateBitmapDefbLines(bitmask, tiles.tileWidth, tiles.tileHeight),
       );
     });
 

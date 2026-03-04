@@ -13,11 +13,14 @@ import {
   SpritesCodeGeneratorStrategy,
 } from "src/extract-graphics/composables/codeGenerators/codeGeneratorStrategy";
 import {
+  generateBitmapDefbLines,
+  generatePaddingDefbLines,
+} from "src/extract-graphics/composables/codeGenerators/codeGeneratorUtils";
+import {
   SpriteDefinition,
   SpriteFlags,
 } from "src/extract-graphics/models/spriteDefinition";
 import { SpritesMapModel } from "src/extract-graphics/models/tilesDefinition";
-import { generateTileDefbLines, tileRowToBytes } from "src/utils/image-utils";
 import { toIdentifier, toMacroGuard } from "src/utils/string-utils";
 
 // ─── Constants ─────────────────────────────────────────────
@@ -45,61 +48,6 @@ function buildMapFile(params: SpritesCodeGeneratorParams): GeneratedFile {
 // ─── Shared ASM helpers ────────────────────────────────────
 
 /**
- * Generates `count` complete padding rows for a sprite of `spriteWidth` pixels.
- * Each row occupies `ceil(spriteWidth / 8)` bytes.
- *
- * Without mask: `defb @00000000` per byte.
- * With mask:    `defb @11111111, @00000000` per byte (mask=opaque, sprite=empty).
- */
-function generatePaddingLines(
-  count: number,
-  spriteWidth: number,
-  useMask: boolean,
-): string[] {
-  const lines: string[] = [];
-  const bytesPerRow = Math.ceil(spriteWidth / 8);
-  for (let row = 0; row < count; row++) {
-    for (let byteIndex = 0; byteIndex < bytesPerRow; byteIndex++) {
-      lines.push(
-        useMask ? "    defb @11111111, @00000000" : "    defb @00000000",
-      );
-    }
-  }
-  return lines;
-}
-
-/**
- * Generates `defb` lines for one sprite frame.
- *
- * Without mask: plain `defb @XXXXXXXX` per byte.
- * With mask:    `defb @MMMMMMMM, @XXXXXXXX` pairs where the mask byte is the
- *               bitwise NOT of the sprite byte (transparent pixels = 1).
- */
-function generateFrameDataLines(
-  bitmask: boolean[],
-  width: number,
-  height: number,
-  useMask: boolean,
-): string[] {
-  if (!useMask) {
-    return generateTileDefbLines(bitmask, width, height);
-  }
-
-  const lines: string[] = [];
-  for (let row = 0; row < height; row++) {
-    const rowOffset = row * width;
-    const spriteBytes = tileRowToBytes(bitmask, rowOffset, width);
-    for (const spriteByte of spriteBytes) {
-      const maskByte = ~spriteByte & 0xff;
-      const maskBits = maskByte.toString(2).padStart(8, "0");
-      const spriteBits = spriteByte.toString(2).padStart(8, "0");
-      lines.push(`    defb @${maskBits}, @${spriteBits}`);
-    }
-  }
-  return lines;
-}
-
-/**
  * Builds the complete ASM body for all frames of a single sprite.
  *
  * Frame 1 uses `baseLabel` directly (no suffix).
@@ -125,7 +73,7 @@ function generateSpriteAsmBody(
 
   if (hasPadding) {
     lines.push(
-      ...generatePaddingLines(PADDING_ROWS_ABOVE, sprite.width, useMask),
+      ...generatePaddingDefbLines(PADDING_ROWS_ABOVE, sprite.width, useMask),
       "",
     );
   }
@@ -137,11 +85,15 @@ function generateSpriteAsmBody(
 
     lines.push(
       `${frameLabel}:`,
-      ...generateFrameDataLines(bitmask, sprite.width, sprite.height, useMask),
+      ...generateBitmapDefbLines(bitmask, sprite.width, sprite.height, useMask),
       ...(hasPadding
         ? [
             "",
-            ...generatePaddingLines(PADDING_ROWS_BELOW, sprite.width, useMask),
+            ...generatePaddingDefbLines(
+              PADDING_ROWS_BELOW,
+              sprite.width,
+              useMask,
+            ),
           ]
         : []),
       "",
