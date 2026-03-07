@@ -1,5 +1,5 @@
+import { AttachProjectGraphicsCmd } from '@commands/attach-project-graphics.cmd';
 import { CreateProjectCmd } from '@commands/create-project.cmd';
-import { AttachProjectGraphicsCmd } from '@commands/extract-graphics.cmd';
 import { OpenHelpCmd } from '@commands/open-help.cmd';
 import { IStatusBar, StatusBar } from '@components/status-bar.component';
 import { IDisposable } from '@core/abstractions/disposable';

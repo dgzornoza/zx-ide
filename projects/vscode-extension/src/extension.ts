@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import { AttachProjectGraphicsCmd } from '@commands/attach-project-graphics.cmd';
 import { CreateProjectCmd } from '@commands/create-project.cmd';
-import { AttachProjectGraphicsCmd } from '@commands/extract-graphics.cmd';
 import { OpenHelpCmd } from '@commands/open-help.cmd';
 import '@core/helpers/array-helpers';
 import { FeaturesService } from '@core/services/features.service';

@@ -1,7 +1,8 @@
 import { FileHelpers } from '@core/helpers/file-helpers';
 import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
-import { ProjectType, ZxideFile } from '@core/infrastructure';
+import { ZxideFile } from '@core/infrastructure';
 import * as vscode from 'vscode';
+import { ProjectType } from '../../../../shared/infrastructure';
 
 export class FeaturesService {
   static zxideFile?: ZxideFile;
