@@ -21,7 +21,7 @@ import {
   SpriteFlags,
 } from "src/extract-graphics/models/spriteDefinition";
 import { SpritesMapModel } from "src/extract-graphics/models/tilesDefinition";
-import { toIdentifier, toMacroGuard } from "src/utils/string-utils";
+import { toCodeIdentifier, toMacroGuard } from "src/utils/string-utils";
 
 // ─── Constants ─────────────────────────────────────────────
 
@@ -132,7 +132,7 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
   }
 
   private generateHeaderFile(params: SpritesCodeGeneratorParams): string {
-    const id = toIdentifier(params.name);
+    const id = toCodeIdentifier(params.name);
     const guard = toMacroGuard(params.name);
 
     const lines: string[] = [
@@ -143,7 +143,7 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
       "",
       ...params.sprites.map(
         (sprite) =>
-          `extern const uint8_t ${id}_${toIdentifier(sprite.name)}[];`,
+          `extern const uint8_t ${id}_${toCodeIdentifier(sprite.name)}[];`,
       ),
       "",
       `#endif // __${guard}_H__`,
@@ -154,7 +154,7 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
   }
 
   private generateAsmFile(params: SpritesCodeGeneratorParams): string {
-    const id = toIdentifier(params.name);
+    const id = toCodeIdentifier(params.name);
     const hasPadding = (params.spriteFlags & SpriteFlags.Sp1Padding) !== 0;
     const useMask = (params.spriteFlags & SpriteFlags.UseMask) !== 0;
 
@@ -165,7 +165,7 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
     ];
 
     params.sprites.forEach((sprite, spriteIndex) => {
-      const spriteName = toIdentifier(sprite.name);
+      const spriteName = toCodeIdentifier(sprite.name);
       const baseLabel = `_${id}_${spriteName}`;
       const frameBitmasks = params.spriteBitmasks[spriteIndex] ?? [];
 
@@ -194,14 +194,14 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
  */
 export class AsmSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrategy {
   generate(params: SpritesCodeGeneratorParams): GeneratedFile[] {
-    const id = toIdentifier(params.name);
+    const id = toCodeIdentifier(params.name);
     const hasPadding = (params.spriteFlags & SpriteFlags.Sp1Padding) !== 0;
     const useMask = (params.spriteFlags & SpriteFlags.UseMask) !== 0;
 
     const lines: string[] = [];
 
     params.sprites.forEach((sprite, spriteIndex) => {
-      const spriteName = toIdentifier(sprite.name);
+      const spriteName = toCodeIdentifier(sprite.name);
       const baseLabel = `${id}_${spriteName}`;
       const frameBitmasks = params.spriteBitmasks[spriteIndex] ?? [];
 

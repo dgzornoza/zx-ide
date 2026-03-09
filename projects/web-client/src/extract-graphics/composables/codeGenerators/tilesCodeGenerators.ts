@@ -16,7 +16,7 @@ import {
 } from "src/extract-graphics/composables/codeGenerators/codeGeneratorStrategy";
 import { generateBitmapDefbLines } from "src/extract-graphics/composables/codeGenerators/codeGeneratorUtils";
 import { TilesMapModel } from "src/extract-graphics/models/tilesDefinition";
-import { toIdentifier, toMacroGuard } from "src/utils/string-utils";
+import { toCodeIdentifier, toMacroGuard } from "src/utils/string-utils";
 
 // ─── Helpers ───────────────────────────────────────────────
 
@@ -70,7 +70,7 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
   }
 
   private generateHeaderFile(baseName: string, tileNames: string[]): string {
-    const id = toIdentifier(baseName);
+    const id = toCodeIdentifier(baseName);
     const guard = toMacroGuard(baseName);
 
     const lines: string[] = [
@@ -93,8 +93,8 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
     params: TilesCodeGeneratorParams,
     tileNames: string[],
   ): string {
-    const { name: baseName, tiles } = params;
-    const id = toIdentifier(baseName);
+    const { name, tiles } = params;
+    const id = toCodeIdentifier(name);
 
     const lines: string[] = [
       "// Read-Only Data Section for User Module",
@@ -132,7 +132,7 @@ export class AsmTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy
   generate(params: TilesCodeGeneratorParams): GeneratedFile[] {
     const { name: baseName, tiles } = params;
     const tileNames = tiles.names.slice(0, tiles.count);
-    const id = toIdentifier(baseName);
+    const id = toCodeIdentifier(baseName);
 
     const lines: string[] = [`${id}_tiles:`];
 

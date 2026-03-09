@@ -17,22 +17,22 @@ export class FeaturesService {
   }
 
   private static async initialize(): Promise<void> {
-    const fileUri = WorkspaceHelpers.getWorkspaceUri('.zxide.json');
+    const fileUri = await WorkspaceHelpers.getWorkspaceUri('.zxide.json');
 
     if (await FileHelpers.fileExists(fileUri)) {
       FeaturesService.zxideFile = await WorkspaceHelpers.readWorkspaceJsonFile('.zxide.json');
       vscode.commands.executeCommand('setContext', 'ZxIdeProjectType', FeaturesService.zxideFile?.project?.type);
-      FeaturesService.setupFileWatcher();
+      await FeaturesService.setupFileWatcher();
     }
   }
 
   /** Watch for changes in the .zxide.json file */
-  private static setupFileWatcher(): void {
+  private static async setupFileWatcher(): Promise<void> {
     if (FeaturesService.fileWatcher) {
       return;
     }
 
-    const fileUri = WorkspaceHelpers.getWorkspaceUri('.zxide.json');
+    const fileUri = await WorkspaceHelpers.getWorkspaceUri('.zxide.json');
     FeaturesService.fileWatcher = vscode.workspace.createFileSystemWatcher(fileUri.fsPath);
 
     FeaturesService.fileWatcher.onDidChange(async () => {

@@ -4,27 +4,28 @@ import { Edit, modify, parse } from 'jsonc-parser';
 import * as vscode from 'vscode';
 
 export class WorkspaceHelpers {
+  private static _zxideWorkspaceFolder?: vscode.WorkspaceFolder;
+
   /**
    * Get workspace path ended with slash
    */
-  public static get workspacePath(): string {
-    return vscode.workspace.workspaceFolders![0].uri.path.replace(/\/?$/, '/');
+  public static async getWorkspacePath(): Promise<string> {
+    const folder = await WorkspaceHelpers.findZxideWorkspaceFolder();
+    return folder.uri.path.replace(/\/?$/, '/');
   }
 
-  public static getWorkspaceUri(...relativePathSegments: string[]): vscode.Uri {
-    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
-      throw new Error(vscode.l10n.t('No workspace folders found'));
-    }
-    return vscode.Uri.joinPath(vscode.workspace.workspaceFolders[0].uri, ...relativePathSegments);
+  public static async getWorkspaceUri(...relativePathSegments: string[]): Promise<vscode.Uri> {
+    const folder = await WorkspaceHelpers.findZxideWorkspaceFolder();
+    return vscode.Uri.joinPath(folder.uri, ...relativePathSegments);
   }
 
   public static async workspaceFileExists(...relativePathSegments: string[]): Promise<boolean> {
-    const fileUri = WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
+    const fileUri = await WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
     return await FileHelpers.fileExists(fileUri);
   }
 
   public static async readWorkspaceFile(...relativePathSegments: string[]): Promise<string> {
-    const fileUri = WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
+    const fileUri = await WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
     return await FileHelpers.readFile(fileUri);
   }
 
@@ -39,7 +40,7 @@ export class WorkspaceHelpers {
   }
 
   public static async writeWorkspaceFile(content: string, ...relativePathSegments: string[]): Promise<void> {
-    const fileUri = WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
+    const fileUri = await WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
     await FileHelpers.writeFile(content, fileUri);
   }
 
@@ -60,7 +61,7 @@ export class WorkspaceHelpers {
       return text;
     }
 
-    const fileUri = WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
+    const fileUri = await WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
 
     if (await FileHelpers.fileExists(fileUri)) {
       const originalText = await FileHelpers.readFile(fileUri);
@@ -81,7 +82,7 @@ export class WorkspaceHelpers {
   }
 
   public static async openWorkspaceFile(findLineRegex?: RegExp, ...relativePathSegments: string[]): Promise<void> {
-    const fileUri = WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
+    const fileUri = await WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
     if (fileUri) {
       const document = await vscode.workspace.openTextDocument(fileUri);
       const editor = await vscode.window.showTextDocument(document);
@@ -98,5 +99,26 @@ export class WorkspaceHelpers {
         }
       }
     }
+  }
+
+  /**
+   * Finds the workspace folder containing the .zxide.json file. Caches the result for future calls.
+   * @returns The workspace folder containing the .zxide.json file.
+   */
+  private static async findZxideWorkspaceFolder(): Promise<vscode.WorkspaceFolder> {
+    if (WorkspaceHelpers._zxideWorkspaceFolder) {
+      return WorkspaceHelpers._zxideWorkspaceFolder;
+    }
+    if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+      throw new Error(vscode.l10n.t('No workspace folders found'));
+    }
+    for (const folder of vscode.workspace.workspaceFolders) {
+      const zxideUri = vscode.Uri.joinPath(folder.uri, '.zxide.json');
+      if (await FileHelpers.fileExists(zxideUri)) {
+        WorkspaceHelpers._zxideWorkspaceFolder = folder;
+        return folder;
+      }
+    }
+    throw new Error(vscode.l10n.t('No workspace folder containing .zxide.json was found'));
   }
 }

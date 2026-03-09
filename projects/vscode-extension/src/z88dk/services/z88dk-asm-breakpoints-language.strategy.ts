@@ -17,11 +17,12 @@ export class BreakpointsLanguageFactory {
 }
 
 export abstract class BreakpointsLanguageStrategy {
-  protected getBreakpointRelativeFilePath(breakpoint: vscode.SourceBreakpoint): string {
+  protected async getBreakpointRelativeFilePath(breakpoint: vscode.SourceBreakpoint): Promise<string> {
     let filePath: string = '';
+    const workspacePath = await WorkspaceHelpers.getWorkspacePath();
 
-    if (breakpoint.location.uri.path.indexOf(WorkspaceHelpers.workspacePath) === 0) {
-      filePath = breakpoint.location.uri.path.substring(WorkspaceHelpers.workspacePath.length);
+    if (breakpoint.location.uri.path.indexOf(workspacePath) === 0) {
+      filePath = breakpoint.location.uri.path.substring(workspacePath.length);
     }
 
     return filePath;
@@ -68,7 +69,7 @@ export class BreakpointsCLanguageStrategy extends BreakpointsLanguageStrategy {
     const lisFileTextLines = await FileHelpers.readFileSplittedByNewLine(lisFilePath);
 
     for (const breakpoint of breakpoints) {
-      const breakpointFilePath = this.getBreakpointRelativeFilePath(breakpoint);
+      const breakpointFilePath = await this.getBreakpointRelativeFilePath(breakpoint);
 
       // c label in .lis file line is in base 0, so add 1 (label generated (ie: src/main.c:10:)
       const clabelInLisFile = `${breakpointFilePath}:${breakpoint.location.range.start.line + 1}:`;

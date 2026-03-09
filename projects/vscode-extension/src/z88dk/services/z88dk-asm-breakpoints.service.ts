@@ -109,10 +109,10 @@ export class Z88dkAsmBreakpointService extends Disposable {
     this.isUpdatingBreakpoints = false;
   }
 
-  private getLisFilePath(): string {
+  private async getLisFilePath(): Promise<string> {
     if (!this.lisFilePath) {
-      const projectName = path.basename(WorkspaceHelpers.workspacePath);
-      this.lisFilePath = WorkspaceHelpers.getWorkspaceUri(BUILD_DIRECTORY, `${projectName}.source.lis`).fsPath;
+      const projectName = path.basename(await WorkspaceHelpers.getWorkspacePath());
+      this.lisFilePath = (await WorkspaceHelpers.getWorkspaceUri(BUILD_DIRECTORY, `${projectName}.source.lis`)).fsPath;
     }
 
     return this.lisFilePath;
@@ -131,7 +131,7 @@ export class Z88dkAsmBreakpointService extends Disposable {
    * @param breakpoints List of source breakpoints
    */
   private async mapSourceBreakpointsToLisFileBreakpoints(breakpoints: vscode.SourceBreakpoint[]): Promise<void> {
-    const lisFilePath = this.getLisFilePath();
+    const lisFilePath = await this.getLisFilePath();
 
     const groupedBreakpoints = breakpoints
       .filter((item) => this.isBreakpointInSourceFile(item))

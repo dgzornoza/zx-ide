@@ -76,7 +76,7 @@ export class AttachProjectGraphicsCmd extends Command<unknown> {
 
     try {
       for (const file of message.codeFiles) {
-        const targetUri = WorkspaceHelpers.getWorkspaceUri(file.fileName);
+        const targetUri = await WorkspaceHelpers.getWorkspaceUri(file.fileName);
         const targetParentUri = vscode.Uri.joinPath(targetUri, '..');
         await vscode.workspace.fs.createDirectory(targetParentUri);
         await FileHelpers.writeFile(file.content, targetUri);

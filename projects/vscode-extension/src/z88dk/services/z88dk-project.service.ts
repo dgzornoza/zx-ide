@@ -55,7 +55,7 @@ export class Z88dkProjectService extends ProjectService {
     const files = (await Promise.all(findFiles)).flat();
 
     for (const file of files) {
-      const newFilePath = path.join(WorkspaceHelpers.workspacePath, BUILD_DIRECTORY, path.basename(file.path));
+      const newFilePath = path.join(await WorkspaceHelpers.getWorkspacePath(), BUILD_DIRECTORY, path.basename(file.path));
       await vscode.workspace.fs.rename(file, vscode.Uri.file(newFilePath), { overwrite: true });
     }
   }
@@ -72,11 +72,11 @@ export class Z88dkProjectService extends ProjectService {
       if (config.type === 'dezog') {
         // using Asm debug configuration
         if (useAsmDebug) {
-          z88dkConfig = this.getZ88dkAsmDebugConfiguration();
+          z88dkConfig = await this.getZ88dkAsmDebugConfiguration();
           this.z88dkBreakpointService.enable();
         } else {
           // using C debug configuration
-          z88dkConfig = this.getZ88dkCDebugConfiguration();
+          z88dkConfig = await this.getZ88dkCDebugConfiguration();
           this.z88dkBreakpointService.disable();
         }
 
@@ -87,8 +87,8 @@ export class Z88dkProjectService extends ProjectService {
   }
 
   /** Debug configuration for assembler code (only can debug in .source.lis asm code with C comments) */
-  private getZ88dkAsmDebugConfiguration(): Z88dkv2ConfigurationModel[] {
-    const projectName = path.basename(WorkspaceHelpers.workspacePath);
+  private async getZ88dkAsmDebugConfiguration(): Promise<Z88dkv2ConfigurationModel[]> {
+    const projectName = path.basename(await WorkspaceHelpers.getWorkspacePath());
 
     return [
       {
@@ -100,8 +100,8 @@ export class Z88dkProjectService extends ProjectService {
   }
 
   /** Debug configuration for C code (only can debug C code) */
-  private getZ88dkCDebugConfiguration(): Z88dkv2ConfigurationModel[] {
-    const projectName = path.basename(WorkspaceHelpers.workspacePath);
+  private async getZ88dkCDebugConfiguration(): Promise<Z88dkv2ConfigurationModel[]> {
+    const projectName = path.basename(await WorkspaceHelpers.getWorkspacePath());
 
     return [
       {
