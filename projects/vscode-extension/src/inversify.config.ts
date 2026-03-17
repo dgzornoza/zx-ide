@@ -1,4 +1,5 @@
-import { AttachProjectGraphicsCmd } from '@commands/attach-project-graphics.cmd';
+import { AttachProjectSpritesCmd } from '@commands/attach-project-sprites.cmd';
+import { AttachProjectTilesCmd } from '@commands/attach-project-tiles.cmd';
 import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { OpenHelpCmd } from '@commands/open-help.cmd';
 import { IStatusBar, StatusBar } from '@components/status-bar.component';
@@ -63,8 +64,14 @@ export class InversifyConfig {
       .onActivation(InversifyConfig._subscribe);
 
     InversifyConfig._container
-      .bind<AttachProjectGraphicsCmd>(Types.AttachProjectGraphicsCmd)
-      .to(AttachProjectGraphicsCmd)
+      .bind<AttachProjectTilesCmd>(Types.AttachProjectTilesCmd)
+      .to(AttachProjectTilesCmd)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
+
+    InversifyConfig._container
+      .bind<AttachProjectSpritesCmd>(Types.AttachProjectSpritesCmd)
+      .to(AttachProjectSpritesCmd)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
 

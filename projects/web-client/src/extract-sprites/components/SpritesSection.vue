@@ -2,13 +2,13 @@
 import {
   SpriteDefinition,
   SpriteFlags,
-} from "src/extract-graphics/models/spriteDefinition";
+} from "src/extract-sprites/models/spriteDefinition";
 import { TypeEnumHelpers } from "src/utils/type-utils";
 import { createTranslationPrefixFn } from "src/utils/vue-utils";
 import { computed } from "vue";
 import SpriteItemDefinition from "./SpriteItemDefinition.vue";
 
-const tp = createTranslationPrefixFn("extract-graphics");
+const tp = createTranslationPrefixFn("extract-sprites");
 
 defineProps<{
   sprites: SpriteDefinition[];

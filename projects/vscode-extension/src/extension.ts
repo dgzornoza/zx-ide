@@ -1,6 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { AttachProjectGraphicsCmd } from '@commands/attach-project-graphics.cmd';
+import { AttachProjectSpritesCmd } from '@commands/attach-project-sprites.cmd';
+import { AttachProjectTilesCmd } from '@commands/attach-project-tiles.cmd';
 import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { OpenHelpCmd } from '@commands/open-help.cmd';
 import '@core/helpers/array-helpers';
@@ -19,7 +20,8 @@ export function activate(context: vscode.ExtensionContext) {
   // Register commands
   InversifyConfig.container.get<CreateProjectCmd>(Types.CreateProjectCmd);
   InversifyConfig.container.get<OpenHelpCmd>(Types.OpenHelpCmd);
-  InversifyConfig.container.get<AttachProjectGraphicsCmd>(Types.AttachProjectGraphicsCmd);
+  InversifyConfig.container.get<AttachProjectTilesCmd>(Types.AttachProjectTilesCmd);
+  InversifyConfig.container.get<AttachProjectSpritesCmd>(Types.AttachProjectSpritesCmd);
 
   FeaturesService.getProjectType().then((projectType) => {
     switch (projectType) {

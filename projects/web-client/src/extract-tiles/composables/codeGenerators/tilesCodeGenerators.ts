@@ -1,10 +1,8 @@
 /**
  * Code generators for tile-based graphics exports.
  *
- * Provides strategy interfaces for tiles, each with two
- * concrete implementations selected via the factory functions:
+ * Provides two concrete implementations selected by {@link createTilesCodeGenerator}:
  *
- * Tiles:
  * - `"c"`   → {@link CTilesCodeGeneratorStrategy}  (C header + Z88DK assembly)
  * - `"asm"` → {@link AsmTilesCodeGeneratorStrategy} (sjasmplus assembly)
  */
@@ -13,14 +11,15 @@ import {
   GeneratedFile,
   TilesCodeGeneratorParams,
   TilesCodeGeneratorStrategy,
-} from "src/extract-graphics/composables/codeGenerators/codeGeneratorStrategy";
-import { generateBitmapDefbLines } from "src/extract-graphics/composables/codeGenerators/codeGeneratorUtils";
-import { TilesMapModel } from "src/extract-graphics/models/tilesDefinition";
+} from "src/extract-tiles/composables/codeGenerators/codeGeneratorStrategy";
+import { TilesMapModel } from "src/extract-tiles/models/tilesDefinition";
+import { generateBitmapDefbLines } from "src/shared/composables/codeGenerators/codeGeneratorUtils";
 import { toCodeIdentifier, toMacroGuard } from "src/utils/string-utils";
+import type { CodeGenerationType } from "../../../../../shared/extract-graphics/extract-graphics-dtos";
 
 // ─── Helpers ───────────────────────────────────────────────
 
-/** Builds the serialisable `.map` model from tiles params. */
+/** Builds the serialisable `.tiles.map` model from tiles params. */
 function buildTilesMap(params: TilesCodeGeneratorParams): TilesMapModel {
   const { tiles } = params;
   return {
@@ -31,11 +30,11 @@ function buildTilesMap(params: TilesCodeGeneratorParams): TilesMapModel {
   };
 }
 
-/** Creates the `.map` {@link GeneratedFile} entry. */
+/** Creates the `.tiles.map` {@link GeneratedFile} entry. */
 function buildMapFile(params: TilesCodeGeneratorParams): GeneratedFile {
   return {
     fileType: "map",
-    fileName: `${params.name}.map`,
+    fileName: `${params.name}.tiles.map`,
     content: JSON.stringify(buildTilesMap(params), null, 2),
   };
 }
@@ -44,7 +43,7 @@ function buildMapFile(params: TilesCodeGeneratorParams): GeneratedFile {
 
 /**
  * Generates tiles for a z88dk C language.
- * Produces a `.map` file, a C header (`.h`) with `extern` declarations,
+ * Produces a `.tiles.map` file, a C header (`.h`) with `extern` declarations,
  * and a Z88DK assembly file (`.asm`) with tile binary data in the
  * `rodata_user` section.
  */
@@ -125,7 +124,7 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
 
 /**
  * Generates tiles for a sjasmplus assembly language.
- * Produces a `.map` file and a single sjasmplus assembly file (`.asm`)
+ * Produces a `.tiles.map` file and a single sjasmplus assembly file (`.asm`)
  * with plain labels and `defb @XXXXXXXX` binary tile data.
  */
 export class AsmTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
@@ -155,5 +154,22 @@ export class AsmTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy
         content: lines.join("\n"),
       },
     ];
+  }
+}
+
+// ─── Factory ───────────────────────────────────────────────
+
+/**
+ * Returns the appropriate {@link TilesCodeGeneratorStrategy} for the given
+ * code-generation type.
+ */
+export function createTilesCodeGenerator(
+  type: CodeGenerationType,
+): TilesCodeGeneratorStrategy {
+  switch (type) {
+    case "c":
+      return new CTilesCodeGeneratorStrategy();
+    case "asm":
+      return new AsmTilesCodeGeneratorStrategy();
   }
 }

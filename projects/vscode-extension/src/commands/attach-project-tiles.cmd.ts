@@ -11,9 +11,9 @@ import * as vscode from 'vscode';
 import { InitMessage, SaveMapMessage, WriteFilesMessage } from '../../../shared/extract-graphics/extract-graphics-dtos';
 
 @injectable()
-export class AttachProjectGraphicsCmd extends Command<unknown> {
+export class AttachProjectTilesCmd extends Command<unknown> {
   public getCommandName(): CommandName {
-    return CommandName.AttachProjectGraphics;
+    return CommandName.AttachProjectTiles;
   }
 
   private _panel: vscode.WebviewPanel | null = null;
@@ -31,28 +31,23 @@ export class AttachProjectGraphicsCmd extends Command<unknown> {
       const initMessage: InitMessage = { messageType: 'init', projectType };
       this._panel.webview.postMessage(initMessage);
     } catch (error) {
-      vscode.window.showErrorMessage(vscode.l10n.t('Error attaching Asset-Graphics file: {0}', String(error)));
+      vscode.window.showErrorMessage(vscode.l10n.t('Error opening Extract Tiles: {0}', String(error)));
     }
   }
 
   private async createWebViewPanel(): Promise<vscode.WebviewPanel> {
     const locale = vscode.env.language;
 
-    let panel = vscode.window.createWebviewPanel(
-      'zxide.attachProjectGraphics',
-      vscode.l10n.t('Attach project graphics'),
-      vscode.ViewColumn.Active,
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-        localResourceRoots: [vscode.Uri.joinPath(this.extensionContext.extensionUri, 'media')],
-      }
-    );
+    const panel = vscode.window.createWebviewPanel('zxide.attachProjectTiles', vscode.l10n.t('Extract tiles'), vscode.ViewColumn.Active, {
+      enableScripts: true,
+      retainContextWhenHidden: true,
+      localResourceRoots: [vscode.Uri.joinPath(this.extensionContext.extensionUri, 'media')],
+    });
 
     panel.webview.html = await WebviewHelpers.buildWebviewHtml({
       webview: panel.webview,
       extensionUri: this.extensionContext.extensionUri,
-      htmlPageName: 'extract-graphics.html',
+      htmlPageName: 'extract-tiles.html',
       locale,
     });
 

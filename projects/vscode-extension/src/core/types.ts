@@ -6,7 +6,8 @@ const Types = {
 
   CreateProjectCmd: Symbol.for('CreateProjectCmd'),
   OpenHelpCmd: Symbol.for('OpenHelpCmd'),
-  AttachProjectGraphicsCmd: Symbol.for('AttachProjectGraphicsCmd'),
+  AttachProjectTilesCmd: Symbol.for('AttachProjectTilesCmd'),
+  AttachProjectSpritesCmd: Symbol.for('AttachProjectSpritesCmd'),
 
   ConfigurationService: Symbol.for('ConfigurationService'),
   OutputChannelService: Symbol.for('OutputChannelService'),

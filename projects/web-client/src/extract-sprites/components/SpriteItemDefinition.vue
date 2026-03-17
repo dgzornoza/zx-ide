@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { SpriteDefinition } from "src/extract-graphics/models/spriteDefinition";
+import { SpriteDefinition } from "src/extract-sprites/models/spriteDefinition";
 import { extractSpriteFramePreview } from "src/utils/image-utils";
 import { createTranslationPrefixFn } from "src/utils/vue-utils";
 import { onBeforeUnmount, ref, watch } from "vue";
 
-const tp = createTranslationPrefixFn("extract-graphics");
+const tp = createTranslationPrefixFn("extract-sprites");
 
 const props = defineProps<{
   sprite: SpriteDefinition;

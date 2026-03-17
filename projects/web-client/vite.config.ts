@@ -16,7 +16,8 @@ export default defineConfig({
     assetsDir: "assets",
     rollupOptions: {
       input: {
-        "extract-graphics": path.resolve(root, "extract-graphics.html"),
+        "extract-tiles": path.resolve(root, "extract-tiles.html"),
+        "extract-sprites": path.resolve(root, "extract-sprites.html"),
       },
       output: {
         entryFileNames: "assets/[name].js",

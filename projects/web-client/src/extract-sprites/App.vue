@@ -1,14 +1,11 @@
 <script setup lang="ts">
-import SourceSection from "./components/SourceSection.vue";
+import SourceSection from "src/shared/components/SourceSection.vue";
 import SpritesSection from "./components/SpritesSection.vue";
-import TilesSection from "./components/TilesSection.vue";
-import TypeSelector from "./components/TypeSelector.vue";
-import { useExtractGraphics } from "./composables/useExtractGraphics";
+import { useExtractSprites } from "./composables/useExtractSprites";
 
 const {
   state,
   status,
-  selectedType,
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
   spriteFlags,
@@ -21,7 +18,7 @@ const {
   addSpriteFrame,
   removeSpriteFrame,
   extractResources,
-} = useExtractGraphics();
+} = useExtractSprites();
 </script>
 
 <template>
@@ -41,21 +38,13 @@ const {
         v-model:map-source="state.mapSource"
         v-model:code-generation-type="codeGenerationType"
         :read-only="isCodeGenerationTypeReadOnly"
+        translation-namespace="extract-sprites"
+        accept-map-formats=".sprites.map,.map"
         @file-selected="setSourceFile"
         @map-file-selected="setMapFile"
       />
 
-      <TypeSelector v-if="state.source" v-model="selectedType" />
-
-      <TilesSection
-        v-if="selectedType === 'tiles'"
-        :tiles="state.tiles"
-        v-model:tile-width="state.tiles.tileWidth"
-        v-model:tile-height="state.tiles.tileHeight"
-      />
-
       <SpritesSection
-        v-if="selectedType === 'sprites'"
         v-model:sprite-flags="spriteFlags"
         :sprites="state.sprites"
         :source-image="currentImageFile"
@@ -84,7 +73,7 @@ const {
         <button
           class="ml-auto inline-flex items-center gap-2 bg-[color:var(--button-bg)] px-5 py-3 text-sm font-semibold text-[color:var(--button-ink)] hover:bg-[color:var(--button-hover)] disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
-          :disabled="!selectedType"
+          :disabled="!state.source"
           @click="extractResources"
         >
           {{ tp("create") }}

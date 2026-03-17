@@ -32,8 +32,12 @@
         "title": "%extension.cmd-title.create-project%"
       },
       {
-        "command": "zx-ide.extract-graphics",
-        "title": "%extension.cmd-title.extract-graphics%"
+        "command": "zx-ide.extract-tiles",
+        "title": "%extension.cmd-title.extract-tiles%"
+      },
+      {
+        "command": "zx-ide.extract-sprites",
+        "title": "%extension.cmd-title.extract-sprites%"
       }
     ],
     "configuration": {

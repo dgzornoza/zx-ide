@@ -2,7 +2,13 @@
 import { createTranslationPrefixFn } from "src/utils/vue-utils";
 import type { CodeGenerationType } from "../../../../shared/extract-graphics/extract-graphics-dtos";
 
-const tp = createTranslationPrefixFn("extract-graphics");
+const props = defineProps<{
+  readOnly?: boolean;
+  translationNamespace: string;
+  acceptMapFormats?: string;
+}>();
+
+const tp = createTranslationPrefixFn(props.translationNamespace);
 
 const source = defineModel<string>("source", { required: true });
 const mapSource = defineModel<string>("mapSource", { default: "" });
@@ -10,10 +16,6 @@ const codeGenerationType = defineModel<CodeGenerationType>(
   "codeGenerationType",
   { default: "asm" },
 );
-
-defineProps<{
-  readOnly?: boolean;
-}>();
 
 const emit = defineEmits<{
   fileSelected: [file: File];
@@ -65,7 +67,7 @@ function onMapFileChange(event: Event) {
           </span>
           <input
             id="source-input"
-            accept=".png"
+            accept=".png,.zxp"
             class="sr-only"
             type="file"
             @change="onFileChange"
@@ -94,7 +96,7 @@ function onMapFileChange(event: Event) {
           </span>
           <input
             id="map-source-input"
-            accept=".map"
+            :accept="acceptMapFormats ?? '.map'"
             class="sr-only"
             type="file"
             @change="onMapFileChange"

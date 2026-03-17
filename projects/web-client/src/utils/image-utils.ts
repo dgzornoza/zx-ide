@@ -29,6 +29,38 @@ export interface Rect {
   height: number;
 }
 
+/**
+ * Decoded ZX Spectrum colour attribute byte.
+ *
+ * Bit layout of the raw attribute byte:
+ * - Bit 7: Flash
+ * - Bit 6: Bright
+ * - Bits 5–3: Paper colour index (0–7)
+ * - Bits 2–0: Ink colour index (0–7)
+ */
+export interface ZxpColorAttribute {
+  /** Bit 7 — flash effect enabled. */
+  flash: boolean;
+  /** Bit 6 — bright palette variant. */
+  bright: boolean;
+  /** Bits 5–3 — paper (background) colour index (0–7). */
+  paper: number;
+  /** Bits 2–0 — ink (foreground) colour index (0–7). */
+  ink: number;
+}
+
+/**
+ * Result of {@link extractTilesFromZxpFile}.
+ * Extends {@link ExtractTilesFromFileResult} with a per-tile colour attribute.
+ */
+export interface ExtractTilesFromZxpFileResult extends ExtractTilesFromFileResult {
+  /**
+   * Per-tile decoded ZX Spectrum colour attribute.
+   * `attributes[i]` corresponds to `inkBitmaps[i]` and `previews[i]`.
+   */
+  attributes: ZxpColorAttribute[];
+}
+
 // ─── Shared low-level helpers ─────────────────────────────────────────────────
 
 /**
@@ -129,7 +161,7 @@ function getInkBitmap(
  * Loads a PNG File, slices it into tiles of (tileWidth × tileHeight) pixels,
  * generates a base64 data-URL preview for each tile, and returns the results.
  */
-export async function extractTilesFromFile(
+export async function extractTilesFromPng(
   params: ExtractTilesFromFileModel,
 ): Promise<ExtractTilesFromFileResult> {
   return loadImage(params.file, (img) => {
@@ -167,7 +199,7 @@ export async function extractTilesFromFile(
  * Loads a PNG File **once** and extracts pixel bitmasks for all sprite frames
  * described by `requests`.
  *
- * Bitmasks use the same convention as {@link extractTilesFromFile}:
+ * Bitmasks use the same convention as {@link extractTilesFromPng}:
  * `true` = white pixel (light), `false` = black or transparent (dark).
  *
  * @param file     - The source PNG File.
@@ -214,4 +246,181 @@ export async function extractSpriteFramePreview(
     const { canvas } = drawRegionToCanvas(img, rect);
     return canvas.toDataURL("image/png");
   });
+}
+
+// ─── ZX-Paintbrush (.zxp) tile extraction ────────────────────────────────────
+
+/**
+ * ZX Spectrum colour palette — normal intensity.
+ * Index corresponds to colour number (0 = black … 7 = white).
+ */
+const ZX_COLORS_NORMAL: readonly string[] = [
+  "#000000",
+  "#0000D7",
+  "#D70000",
+  "#D700D7",
+  "#00D700",
+  "#00D7D7",
+  "#D7D700",
+  "#D7D7D7",
+];
+
+/**
+ * ZX Spectrum colour palette — bright intensity.
+ * Index corresponds to colour number (0 = black … 7 = white).
+ */
+const ZX_COLORS_BRIGHT: readonly string[] = [
+  "#000000",
+  "#0000FF",
+  "#FF0000",
+  "#FF00FF",
+  "#00FF00",
+  "#00FFFF",
+  "#FFFF00",
+  "#FFFFFF",
+];
+
+/**
+ * Parses a ZX-Paintbrush `.zxp` text file, extracts all 8×8 tiles in
+ * row-major order (left-to-right, top-to-bottom), and returns:
+ * - `count`      — total number of tiles.
+ * - `previews`   — base64 PNG data-URLs rendered with real ZX Spectrum colours.
+ * - `inkBitmaps` — per-tile boolean pixel bitmask (`true` = ink pixel).
+ * - `attributes` — per-tile decoded ZX Spectrum colour attribute.
+ *
+ * The tile size is always 8×8 pixels (one attribute per tile).
+ *
+ * @param file - The `.zxp` text file to parse.
+ */
+export async function extractTilesFromZxpFile(
+  file: File,
+): Promise<ExtractTilesFromZxpFileResult> {
+  const text = await file.text();
+  const {
+    pixels,
+    attributes: parsedAttributes,
+    tilesPerRow,
+    tileRows,
+  } = parseZxpFile(text);
+
+  const count = tilesPerRow * tileRows;
+  const previews: string[] = [];
+  const inkBitmaps: boolean[][] = [];
+  const tileAttributes: ZxpColorAttribute[] = [];
+
+  for (let tileRow = 0; tileRow < tileRows; tileRow++) {
+    for (let tileCol = 0; tileCol < tilesPerRow; tileCol++) {
+      const tileIndex = tileRow * tilesPerRow + tileCol;
+      // Fall back to black ink on white paper if the attribute is missing.
+      const attribute: ZxpColorAttribute = parsedAttributes[tileIndex] ?? {
+        flash: false,
+        bright: false,
+        paper: 7,
+        ink: 0,
+      };
+
+      const canvas = renderZxpTileToCanvas(pixels, tileCol, tileRow, attribute);
+      previews.push(canvas.toDataURL("image/png"));
+
+      const baseRow = tileRow * 8;
+      const baseCol = tileCol * 8;
+      const inkBitmap: boolean[] = [];
+      for (let pixelRow = 0; pixelRow < 8; pixelRow++) {
+        for (let pixelCol = 0; pixelCol < 8; pixelCol++) {
+          inkBitmap.push(
+            pixels[baseRow + pixelRow]?.[baseCol + pixelCol] ?? false,
+          );
+        }
+      }
+
+      inkBitmaps.push(inkBitmap);
+      tileAttributes.push(attribute);
+    }
+  }
+
+  return { count, previews, inkBitmaps, attributes: tileAttributes };
+}
+
+/**
+ * Parses the plain-text content of a ZX-Paintbrush `.zxp` file into raw pixel
+ * rows and decoded colour attributes.
+ *
+ * The file format is:
+ * 1. An optional header line (`ZX-Paintbrush image`).
+ * 2. Lines of `0`/`1` characters — one line per pixel row.
+ * 3. Blank line(s) separating the two sections.
+ * 4. Lines of space-separated two-digit hex attribute bytes — one line per
+ *    row of 8×8-pixel tiles.
+ */
+function parseZxpFile(text: string): {
+  pixels: boolean[][];
+  attributes: ZxpColorAttribute[];
+  tilesPerRow: number;
+  tileRows: number;
+} {
+  const lines = text.split(/\r?\n/).map((line) => line.trim());
+
+  const pixels: boolean[][] = [];
+  const attributes: ZxpColorAttribute[] = [];
+
+  for (const line of lines) {
+    if (/^[01]+$/.test(line)) {
+      pixels.push(Array.from(line, (character) => character === "1"));
+    } else if (/^(?:[0-9A-Fa-f]{2}\s*)+$/.test(line)) {
+      for (const hex of line.split(/\s+/).filter(Boolean)) {
+        const byte = Number.parseInt(hex, 16);
+        attributes.push({
+          flash: (byte & 0x80) !== 0,
+          bright: (byte & 0x40) !== 0,
+          paper: (byte >> 3) & 0x07,
+          ink: byte & 0x07,
+        });
+      }
+    }
+  }
+
+  const pixelCols = pixels.length > 0 ? pixels[0].length : 0;
+  const tilesPerRow = Math.floor(pixelCols / 8);
+  const tileRows = Math.floor(pixels.length / 8);
+
+  return { pixels, attributes, tilesPerRow, tileRows };
+}
+
+/**
+ * Renders an 8×8 tile from a `.zxp` pixel grid onto a new offscreen canvas,
+ * using the ZX Spectrum ink/paper colours from `attribute`.
+ *
+ * @param pixels    - Full pixel grid (row-major boolean array from {@link parseZxpFile}).
+ * @param tileCol   - Tile column index (0-based).
+ * @param tileRow   - Tile row index (0-based).
+ * @param attribute - Decoded ZX Spectrum colour attribute for this tile.
+ * @returns A 8×8 offscreen canvas with the tile rendered in Spectrum colours.
+ */
+function renderZxpTileToCanvas(
+  pixels: boolean[][],
+  tileCol: number,
+  tileRow: number,
+  attribute: ZxpColorAttribute,
+): HTMLCanvasElement {
+  const canvas = document.createElement("canvas");
+  canvas.width = 8;
+  canvas.height = 8;
+  const ctx = canvas.getContext("2d")!;
+
+  const palette = attribute.bright ? ZX_COLORS_BRIGHT : ZX_COLORS_NORMAL;
+  const inkColor = palette[attribute.ink];
+  const paperColor = palette[attribute.paper];
+
+  const baseRow = tileRow * 8;
+  const baseCol = tileCol * 8;
+
+  for (let pixelRow = 0; pixelRow < 8; pixelRow++) {
+    for (let pixelCol = 0; pixelCol < 8; pixelCol++) {
+      const isInk = pixels[baseRow + pixelRow]?.[baseCol + pixelCol] ?? false;
+      ctx.fillStyle = isInk ? inkColor : paperColor;
+      ctx.fillRect(pixelCol, pixelRow, 1, 1);
+    }
+  }
+
+  return canvas;
 }

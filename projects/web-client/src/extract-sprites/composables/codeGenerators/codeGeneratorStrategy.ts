@@ -1,5 +1,4 @@
-import { SpriteDefinition } from "src/extract-graphics/models/spriteDefinition";
-import { TilesModel } from "src/extract-graphics/models/tilesDefinition";
+import { SpriteDefinition } from "src/extract-sprites/models/spriteDefinition";
 import { FileEntry } from "../../../../../shared/extract-graphics/extract-graphics-dtos";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
@@ -27,27 +26,11 @@ export interface SpritesCodeGeneratorParams {
    *
    * Each inner array is row-major with length `sprite.width * sprite.height`.
    * `true` = ink pixel (dark / opaque), `false` = paper pixel.
-   *
-   * Populated by `useExtractGraphics` before invoking the generator, using
-   * {@link extractSpritesBitmasks} from `image-utils`.
    */
   spriteBitmasks: boolean[][][];
 }
 
-/** Parameters for tile code-generation strategies. */
-export interface TilesCodeGeneratorParams {
-  /** Filename without extension (e.g. `"mainTiles"`). */
-  name: string;
-  /** Full tiles model containing dimensions, names, bitmasks and count. */
-  tiles: TilesModel;
-}
-
-// ─── Strategy interfaces ──────────────────────────────────────────────────────
-
-/** Strategy that produces all output files (map + source) from tile data. */
-export interface TilesCodeGeneratorStrategy {
-  generate(params: TilesCodeGeneratorParams): GeneratedFile[];
-}
+// ─── Strategy interface ───────────────────────────────────────────────────────
 
 /**
  * Strategy that produces all output files (map + source) from sprite data.

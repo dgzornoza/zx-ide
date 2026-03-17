@@ -1,7 +1,7 @@
 /**
  * Code generators for sprite-based graphics exports.
  *
- * Provides two concrete strategy implementations:
+ * Provides two concrete strategy implementations selected by {@link createSpritesCodeGenerator}:
  *
  * - `"c"`   → {@link CSpritesCodeGeneratorStrategy}  (C header + Z88DK assembly)
  * - `"asm"` → {@link AsmSpritesCodeGeneratorStrategy} (sjasmplus assembly)
@@ -11,17 +11,18 @@ import {
   GeneratedFile,
   SpritesCodeGeneratorParams,
   SpritesCodeGeneratorStrategy,
-} from "src/extract-graphics/composables/codeGenerators/codeGeneratorStrategy";
-import {
-  generateBitmapDefbLines,
-  generatePaddingDefbLines,
-} from "src/extract-graphics/composables/codeGenerators/codeGeneratorUtils";
+} from "src/extract-sprites/composables/codeGenerators/codeGeneratorStrategy";
 import {
   SpriteDefinition,
   SpriteFlags,
-} from "src/extract-graphics/models/spriteDefinition";
-import { SpritesMapModel } from "src/extract-graphics/models/tilesDefinition";
+} from "src/extract-sprites/models/spriteDefinition";
+import { SpritesMapModel } from "src/extract-sprites/models/spritesMapModel";
+import {
+  generateBitmapDefbLines,
+  generatePaddingDefbLines,
+} from "src/shared/composables/codeGenerators/codeGeneratorUtils";
 import { toCodeIdentifier, toMacroGuard } from "src/utils/string-utils";
+import type { CodeGenerationType } from "../../../../../shared/extract-graphics/extract-graphics-dtos";
 
 // ─── Constants ─────────────────────────────────────────────
 
@@ -30,7 +31,7 @@ const PADDING_ROWS_BELOW = 8;
 
 // ─── Map file helper ───────────────────────────────────────
 
-/** Creates the `.map` {@link GeneratedFile} entry for sprites. */
+/** Creates the `.sprites.map` {@link GeneratedFile} entry for sprites. */
 function buildMapFile(params: SpritesCodeGeneratorParams): GeneratedFile {
   const spritesMap: SpritesMapModel = {
     type: "sprites",
@@ -40,7 +41,7 @@ function buildMapFile(params: SpritesCodeGeneratorParams): GeneratedFile {
 
   return {
     fileType: "map",
-    fileName: `${params.name}.map`,
+    fileName: `${params.name}.sprites.map`,
     content: JSON.stringify(spritesMap, null, 2),
   };
 }
@@ -107,7 +108,7 @@ function generateSpriteAsmBody(
 
 /**
  * Generates sprites for Z88DK C language.
- * Produces a `.map` file, a C header (`.h`) with `extern` declarations,
+ * Produces a `.sprites.map` file, a C header (`.h`) with `extern` declarations,
  * and a Z88DK assembly file (`.asm`) with sprite binary data in the
  * `rodata_user` section.
  */
@@ -189,7 +190,7 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
 
 /**
  * Generates sprites for sjasmplus assembly language.
- * Produces a `.map` file and a single sjasmplus assembly file (`.asm`)
+ * Produces a `.sprites.map` file and a single sjasmplus assembly file (`.asm`)
  * with plain labels and `defb @XXXXXXXX` binary sprite data.
  */
 export class AsmSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrategy {
@@ -225,5 +226,22 @@ export class AsmSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStra
         content: lines.join("\n"),
       },
     ];
+  }
+}
+
+// ─── Factory ───────────────────────────────────────────────
+
+/**
+ * Returns the appropriate {@link SpritesCodeGeneratorStrategy} for the given
+ * code-generation type.
+ */
+export function createSpritesCodeGenerator(
+  type: CodeGenerationType,
+): SpritesCodeGeneratorStrategy {
+  switch (type) {
+    case "c":
+      return new CSpritesCodeGeneratorStrategy();
+    case "asm":
+      return new AsmSpritesCodeGeneratorStrategy();
   }
 }
