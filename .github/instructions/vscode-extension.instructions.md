@@ -1,3 +1,9 @@
+# Copilot instructions — VS Code extension
+
+Uso: aplicar estas instrucciones cuando trabajes en el proyecto `projects/vscode-extension`. Contiene flujo de activación, DI (Inversify), convenciones de disposables, y puntos de integración con CLI y web-client.
+
+---
+
 # Copilot instructions for zx-ide VS Code extension
 
 ## Big picture

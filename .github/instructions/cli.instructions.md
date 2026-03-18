@@ -1,3 +1,9 @@
+# Copilot instructions — CLI
+
+Uso: aplicar estas instrucciones cuando trabajes en el proyecto `projects/cli`. Contiene la visión general, convenciones de plantillas, estrategias de generador y flujos de desarrollo específicos del CLI.
+
+---
+
 # Copilot instructions for zx-ide CLI
 
 ## Big picture
