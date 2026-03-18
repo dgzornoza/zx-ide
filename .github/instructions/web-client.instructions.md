@@ -18,7 +18,7 @@ Los siguientes skills de Copilot están disponibles para este proyecto (se encue
 
 - **vue-best-practices**: MUST be used for Vue.js tasks. Recomienda usar Composition API con `<script setup>` y TypeScript. Cargar para `.vue` files, composables, Vue Router, Pinia o trabajo con Vite + Vue. Ver [.github/skills/vue-best-practices/SKILL.md](.github/skills/vue-best-practices/SKILL.md) para detalles y referencias.
 
-Si aparecen nuevos skills, añádelos a la carpeta `.github/skills` y actualiza esta sección.
+Si aparecen nuevos skills relacionados aplicables a este proyecto, añádelos a la carpeta `.github/skills` y actualiza esta sección.
 
 ## Architecture
 
