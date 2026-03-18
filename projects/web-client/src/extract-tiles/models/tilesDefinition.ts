@@ -9,7 +9,6 @@ export interface TilesMapModel {
   type: "tiles";
   tileWidth: number;
   tileHeight: number;
-  names: string[];
   /** Indices of tiles excluded from code generation output. */
   excluded?: number[];
 }

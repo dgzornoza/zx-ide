@@ -38,7 +38,6 @@ export function useExtractTiles() {
       count: 0,
       tileWidth: 8,
       tileHeight: 8,
-      names: [] as string[],
       excluded: [] as number[],
       excludedSet: new Set<number>(),
       previews: [] as string[],
@@ -54,26 +53,11 @@ export function useExtractTiles() {
   const isCodeGenerationTypeReadOnly = ref(false);
 
   /**
-   * Keeps the tile names array in sync with tile count.
-   * Adds empty entries when count grows, splices extras when count shrinks.
-   * Also removes out-of-range indices from the excluded set.
+   * Removes out-of-range indices from the excluded set when tile count shrinks.
    */
   const syncTileArrays = (count: number) => {
     const normalized = Math.max(0, Math.floor(count));
 
-    if (normalized < state.tiles.names.length) {
-      state.tiles.names.splice(normalized);
-    } else if (normalized > state.tiles.names.length) {
-      const startIndex = state.tiles.names.length;
-      state.tiles.names.push(
-        ...Array.from(
-          { length: normalized - startIndex },
-          (_, tileIndex) => `tile${startIndex + tileIndex + 1}`,
-        ),
-      );
-    }
-
-    // Remove excluded indices that are now out of range
     for (const excludedIndex of state.tiles.excludedSet) {
       if (excludedIndex >= normalized) {
         state.tiles.excludedSet.delete(excludedIndex);
@@ -102,9 +86,6 @@ export function useExtractTiles() {
       // Tiles (explicit type: "tiles" or legacy files without type field)
       state.tiles.tileWidth = mapData.tileWidth ?? state.tiles.tileWidth;
       state.tiles.tileHeight = mapData.tileHeight ?? state.tiles.tileHeight;
-      state.tiles.names = Array.isArray(mapData.names)
-        ? [...mapData.names]
-        : [];
 
       const loadedExcluded: number[] = Array.isArray(mapData.excluded)
         ? mapData.excluded

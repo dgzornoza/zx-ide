@@ -15,6 +15,7 @@ import {
 import { TilesMapModel } from "src/extract-tiles/models/tilesDefinition";
 import { generateBitmapDefbLines } from "src/shared/composables/codeGenerators/codeGeneratorUtils";
 import { toCodeIdentifier, toMacroGuard } from "src/utils/string-utils";
+import type { ZxpColorAttribute } from "src/utils/image-utils";
 import type { CodeGenerationType } from "../../../../../shared/extract-graphics/extract-graphics-dtos";
 
 // ─── Helpers ───────────────────────────────────────────────
@@ -26,21 +27,65 @@ function buildTilesMap(params: TilesCodeGeneratorParams): TilesMapModel {
     type: "tiles",
     tileWidth: tiles.tileWidth,
     tileHeight: tiles.tileHeight,
-    names: [...tiles.names],
     excluded: tiles.excluded ? [...tiles.excluded] : [],
   };
 }
 
-/** Returns tile names with their original indices, excluding those in `tiles.excludedSet`. */
-function getIncludedTileEntries(
-  params: TilesCodeGeneratorParams,
-): { tileIndex: number; tileName: string }[] {
+/** Returns tile indices excluding those in `tiles.excludedSet`. */
+function getIncludedTileIndices(params: TilesCodeGeneratorParams): number[] {
   const { tiles } = params;
   const excludedSet = tiles.excludedSet ?? new Set<number>();
-  return tiles.names
-    .slice(0, tiles.count)
-    .map((tileName, tileIndex) => ({ tileIndex, tileName }))
-    .filter(({ tileIndex }) => !excludedSet.has(tileIndex));
+  return Array.from({ length: tiles.count }, (_, i) => i).filter(
+    (i) => !excludedSet.has(i),
+  );
+}
+
+/**
+ * Converts a {@link ZxpColorAttribute} to its ZX Spectrum raw attribute byte.
+ *
+ * Bit layout:
+ * - Bit 7: Flash
+ * - Bit 6: Bright
+ * - Bits 5–3: Paper colour index
+ * - Bits 2–0: Ink colour index
+ */
+function attributeToByte(attribute: ZxpColorAttribute): number {
+  return (
+    (attribute.flash ? 0x80 : 0) |
+    (attribute.bright ? 0x40 : 0) |
+    ((attribute.paper & 0x07) << 3) |
+    (attribute.ink & 0x07)
+  );
+}
+
+/** Formats a single byte as a `$XX` hex string for use in `defb` directives. */
+function toAttributeHexByte(value: number): string {
+  return `$${value.toString(16).padStart(2, "0").toUpperCase()}`;
+}
+
+/**
+ * Generates `defb` lines for the tile attributes array,
+ * including only the tiles at `includedIndices`, 8 bytes per line.
+ */
+function generateAttributeDefbLines(
+  attributes: ZxpColorAttribute[],
+  includedIndices: number[],
+): string[] {
+  const hexBytes = includedIndices.map((tileIndex) => {
+    const attribute = attributes[tileIndex] ?? {
+      flash: false,
+      bright: false,
+      paper: 7,
+      ink: 0,
+    };
+    return toAttributeHexByte(attributeToByte(attribute));
+  });
+
+  const lines: string[] = [];
+  for (let offset = 0; offset < hexBytes.length; offset += 8) {
+    lines.push(`    defb ${hexBytes.slice(offset, offset + 8).join(",")}`);
+  }
+  return lines;
 }
 
 /** Creates the `.tiles.map` {@link GeneratedFile} entry. */
@@ -62,10 +107,10 @@ function buildMapFile(params: TilesCodeGeneratorParams): GeneratedFile {
  */
 export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
   generate(params: TilesCodeGeneratorParams): GeneratedFile[] {
-    const includedEntries = getIncludedTileEntries(params);
-    const tileNames = includedEntries.map(({ tileName }) => tileName);
-    const headerContent = this.generateHeaderFile(params.name, tileNames);
-    const asmContent = this.generateAsmFile(params, includedEntries);
+    const includedIndices = getIncludedTileIndices(params);
+    const hasAttributes = (params.tiles.attributes?.length ?? 0) > 0;
+    const headerContent = this.generateHeaderFile(params.name, hasAttributes);
+    const asmContent = this.generateAsmFile(params, includedIndices);
 
     return [
       buildMapFile(params),
@@ -82,7 +127,7 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
     ];
   }
 
-  private generateHeaderFile(baseName: string, tileNames: string[]): string {
+  private generateHeaderFile(baseName: string, hasAttributes: boolean): string {
     const id = toCodeIdentifier(baseName);
     const guard = toMacroGuard(baseName);
 
@@ -93,18 +138,20 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
       "#include <stdint.h>",
       "",
       `extern const uint8_t ${id}_tiles[];`,
-      ...tileNames.map((name) => `extern const uint8_t ${id}_${name}[];`),
-      "",
-      `#endif // __${guard}_H__`,
-      "",
     ];
+
+    if (hasAttributes) {
+      lines.push(`extern const uint8_t ${id}_tiles_attributes[];`);
+    }
+
+    lines.push("", `#endif // __${guard}_H__`, "");
 
     return lines.join("\n");
   }
 
   private generateAsmFile(
     params: TilesCodeGeneratorParams,
-    includedEntries: { tileIndex: number; tileName: string }[],
+    includedIndices: number[],
   ): string {
     const { name, tiles } = params;
     const id = toCodeIdentifier(name);
@@ -117,17 +164,22 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
       `_${id}_tiles:`,
     ];
 
-    includedEntries.forEach(({ tileIndex, tileName }) => {
-      const label = `_${id}_${tileName}`;
+    includedIndices.forEach((tileIndex) => {
       const bitmask = tiles.inkBitmaps[tileIndex] ?? [];
-
       lines.push(
         "",
-        `PUBLIC ${label}`,
-        `${label}:`,
         ...generateBitmapDefbLines(bitmask, tiles.tileWidth, tiles.tileHeight),
       );
     });
+
+    if (tiles.attributes && tiles.attributes.length > 0) {
+      lines.push(
+        "",
+        `PUBLIC _${id}_tiles_attributes`,
+        `_${id}_tiles_attributes:`,
+        ...generateAttributeDefbLines(tiles.attributes, includedIndices),
+      );
+    }
 
     lines.push("");
     return lines.join("\n");
@@ -145,19 +197,26 @@ export class AsmTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy
   generate(params: TilesCodeGeneratorParams): GeneratedFile[] {
     const { name: baseName, tiles } = params;
     const id = toCodeIdentifier(baseName);
-    const includedEntries = getIncludedTileEntries(params);
+    const includedIndices = getIncludedTileIndices(params);
 
     const lines: string[] = [`${id}_tiles:`];
 
-    includedEntries.forEach(({ tileIndex, tileName }) => {
+    includedIndices.forEach((tileIndex) => {
       const bitmask = tiles.inkBitmaps[tileIndex] ?? [];
 
       lines.push(
         "",
-        `${id}_${tileName}:`,
         ...generateBitmapDefbLines(bitmask, tiles.tileWidth, tiles.tileHeight),
       );
     });
+
+    if (tiles.attributes && tiles.attributes.length > 0) {
+      lines.push(
+        "",
+        `${id}_tiles_attributes:`,
+        ...generateAttributeDefbLines(tiles.attributes, includedIndices),
+      );
+    }
 
     lines.push("");
     return [
