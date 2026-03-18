@@ -39,6 +39,8 @@ export function useExtractTiles() {
       tileWidth: 8,
       tileHeight: 8,
       names: [] as string[],
+      excluded: [] as number[],
+      excludedSet: new Set<number>(),
       previews: [] as string[],
       inkBitmaps: [] as boolean[][],
     } as TilesModel,
@@ -54,8 +56,9 @@ export function useExtractTiles() {
   /**
    * Keeps the tile names array in sync with tile count.
    * Adds empty entries when count grows, splices extras when count shrinks.
+   * Also removes out-of-range indices from the excluded set.
    */
-  const syncTileNames = (count: number) => {
+  const syncTileArrays = (count: number) => {
     const normalized = Math.max(0, Math.floor(count));
 
     if (normalized < state.tiles.names.length) {
@@ -69,6 +72,14 @@ export function useExtractTiles() {
         ),
       );
     }
+
+    // Remove excluded indices that are now out of range
+    for (const excludedIndex of state.tiles.excludedSet) {
+      if (excludedIndex >= normalized) {
+        state.tiles.excludedSet.delete(excludedIndex);
+      }
+    }
+    state.tiles.excluded = [...state.tiles.excludedSet];
   };
 
   // ─── Load map ──────────────────────────────────────────────────────────────
@@ -94,6 +105,12 @@ export function useExtractTiles() {
       state.tiles.names = Array.isArray(mapData.names)
         ? [...mapData.names]
         : [];
+
+      const loadedExcluded: number[] = Array.isArray(mapData.excluded)
+        ? mapData.excluded
+        : [];
+      state.tiles.excluded = [...loadedExcluded];
+      state.tiles.excludedSet = new Set(loadedExcluded);
 
       if (currentImageFile.value) {
         await extractTiles(currentImageFile.value);
@@ -128,7 +145,7 @@ export function useExtractTiles() {
         state.tiles.previews = previews;
         state.tiles.inkBitmaps = bitmasks;
         state.tiles.attributes = attributes;
-        syncTileNames(count);
+        syncTileArrays(count);
       } else {
         const {
           count,
@@ -143,7 +160,7 @@ export function useExtractTiles() {
         state.tiles.previews = previews;
         state.tiles.inkBitmaps = bitmasks;
         state.tiles.attributes = undefined;
-        syncTileNames(count);
+        syncTileArrays(count);
       }
     } catch (error) {
       console.error("Tile extraction failed:", error);
@@ -174,6 +191,21 @@ export function useExtractTiles() {
   /** Updates the status banner with a success or error message. */
   const setStatus = (type: StatusMessageType, text: string) => {
     status.value = { type, text };
+  };
+
+  // ─── Tile exclusion ────────────────────────────────────────────────────────
+
+  /**
+   * Toggles the excluded state of the tile at `tileIndex`.
+   * Excluded tiles are omitted from generated `.h` and `.asm` output.
+   */
+  const toggleTileExclusion = (tileIndex: number) => {
+    if (state.tiles.excludedSet.has(tileIndex)) {
+      state.tiles.excludedSet.delete(tileIndex);
+    } else {
+      state.tiles.excludedSet.add(tileIndex);
+    }
+    state.tiles.excluded = [...state.tiles.excludedSet];
   };
 
   // ─── Create map ────────────────────────────────────────────────────────────
@@ -251,5 +283,6 @@ export function useExtractTiles() {
     setSourceFile,
     setMapFile,
     extractResources,
+    toggleTileExclusion,
   };
 }

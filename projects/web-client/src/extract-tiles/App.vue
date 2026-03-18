@@ -12,6 +12,7 @@ const {
   setSourceFile,
   setMapFile,
   extractResources,
+  toggleTileExclusion,
 } = useExtractTiles();
 </script>
 
@@ -43,6 +44,7 @@ const {
         :tiles="state.tiles"
         v-model:tile-width="state.tiles.tileWidth"
         v-model:tile-height="state.tiles.tileHeight"
+        @toggle-tile-exclusion="toggleTileExclusion"
       />
     </main>
 

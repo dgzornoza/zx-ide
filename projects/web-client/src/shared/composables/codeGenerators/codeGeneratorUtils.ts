@@ -34,51 +34,40 @@ function bitmapRowToBytes(
   return bytes;
 }
 
-/**
- * Formats a single `defb` directive for one data byte.
- *
- * Without mask: `    defb @XXXXXXXX`
- * With mask:    `    defb @MMMMMMMM, @XXXXXXXX`
- *               where the mask byte is `~dataByte & 0xFF`
- *               (transparent pixels → 1, ink pixels → 0).
- */
-function formatDefbLine(dataByte: number, useMask: boolean): string {
-  const dataBits = dataByte.toString(2).padStart(8, "0");
-  if (!useMask) {
-    return `    defb @${dataBits}`;
-  }
-  const maskBits = (~dataByte & 0xff).toString(2).padStart(8, "0");
-  return `    defb @${maskBits}, @${dataBits}`;
-}
-
 // ─── defb line generators ─────────────────────────────────────────────────────
 
+/** Formats a single byte as a `$XX` hex string. */
+function toHexByte(value: number): string {
+  return `$${value.toString(16).padStart(2, "0").toUpperCase()}`;
+}
+
 /**
- * Converts a row-major ink bitmap into assembly `defb` directives.
+ * Converts a row-major ink bitmap into assembly `defb` directives
+ * using hexadecimal byte values.
  *
- * Iterates each row of the bitmap, packs pixels into bytes
- * (MSB = leftmost pixel), and emits one `defb` directive per byte.
+ * Groups bytes 8 per `defb` line (16 per line when `useMask` is true,
+ * since each data byte is preceded by its mask byte).
  *
- * Without mask: plain `defb @XXXXXXXX` per byte.
- * With mask:    `defb @MMMMMMMM, @XXXXXXXX` pairs per byte, where the mask
- *               byte is the bitwise NOT of the data byte
+ * Without mask: `defb $XX,$XX,$XX,$XX,$XX,$XX,$XX,$XX`
+ * With mask:    `defb $MM,$XX,$MM,$XX,$MM,$XX,$MM,$XX,$MM,$XX,$MM,$XX,$MM,$XX,$MM,$XX`
+ *               where `$MM` is the bitwise NOT of the data byte
  *               (transparent pixels → 1, ink pixels → 0).
  *
  * @example
- * // 8×2 bitmap where only the top-left pixel is ink:
+ * // 8×2 bitmap where only the top-left pixel of each row is ink:
  * generateBitmapDefbLines([true, false, ...], 8, 2);
- * // → ['    defb @10000000', '    defb @00000000']
+ * // → ['    defb $80,$00']
  *
  * @example
  * // 8×1 bitmap with mask, leftmost pixel is ink:
  * generateBitmapDefbLines([true, false, ...], 8, 1, true);
- * // → ['    defb @01111111, @10000000']
+ * // → ['    defb $7F,$80']
  *
  * @param inkBitmap - Row-major boolean[] of length `width × height`.
  * @param width     - Width in pixels.
  * @param height    - Height in pixels.
- * @param useMask   - When `true`, prepends a computed mask byte to each
- *                    directive. Defaults to `false`.
+ * @param useMask   - When `true`, prepends a computed mask byte before each
+ *                    data byte. Defaults to `false`.
  * @returns Array of indented `defb` lines ready to join into an ASM file.
  */
 export function generateBitmapDefbLines(
@@ -87,28 +76,34 @@ export function generateBitmapDefbLines(
   height: number,
   useMask = false,
 ): string[] {
-  const lines: string[] = [];
+  const entries: string[] = [];
 
   for (let row = 0; row < height; row++) {
-    const rowOffset = row * width;
-    const bytes = bitmapRowToBytes(inkBitmap, rowOffset, width);
-
+    const bytes = bitmapRowToBytes(inkBitmap, row * width, width);
     for (const byte of bytes) {
-      lines.push(formatDefbLine(byte, useMask));
+      if (useMask) {
+        entries.push(toHexByte(~byte & 0xff));
+      }
+      entries.push(toHexByte(byte));
     }
   }
 
+  const bytesPerLine = useMask ? 16 : 8;
+  const lines: string[] = [];
+  for (let i = 0; i < entries.length; i += bytesPerLine) {
+    lines.push(`    defb ${entries.slice(i, i + bytesPerLine).join(",")}`);
+  }
   return lines;
 }
 
 /**
- * Generates `count` complete rows of zeroed `defb` padding directives.
- * Each row occupies `ceil(width / 8)` bytes.
+ * Generates `count` complete rows of zeroed `defb` padding directives
+ * using hexadecimal byte values, grouped 8 bytes per line (16 with mask).
  *
  * Used for SP1 sprite padding (vertical rotation guard rows).
  *
- * Without mask: `defb @00000000` per byte (empty row).
- * With mask:    `defb @11111111, @00000000` per byte (opaque mask, empty data).
+ * Without mask: `defb $00,$00,...` (8 zero bytes per line).
+ * With mask:    `defb $FF,$00,$FF,$00,...` (opaque mask + zero data, 16 entries per line).
  *
  * @param count   - Number of padding rows to generate.
  * @param width   - Width in pixels (determines bytes per row).
@@ -121,16 +116,22 @@ export function generatePaddingDefbLines(
   width: number,
   useMask = false,
 ): string[] {
-  const lines: string[] = [];
   const bytesPerRow = Math.ceil(width / 8);
+  const entries: string[] = [];
 
   for (let row = 0; row < count; row++) {
     for (let byteIndex = 0; byteIndex < bytesPerRow; byteIndex++) {
-      lines.push(
-        useMask ? "    defb @11111111, @00000000" : "    defb @00000000",
-      );
+      if (useMask) {
+        entries.push("$FF");
+      }
+      entries.push("$00");
     }
   }
 
+  const bytesPerLine = useMask ? 16 : 8;
+  const lines: string[] = [];
+  for (let i = 0; i < entries.length; i += bytesPerLine) {
+    lines.push(`    defb ${entries.slice(i, i + bytesPerLine).join(",")}`);
+  }
   return lines;
 }

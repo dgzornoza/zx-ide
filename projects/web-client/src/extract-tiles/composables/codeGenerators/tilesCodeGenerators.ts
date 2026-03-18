@@ -27,7 +27,20 @@ function buildTilesMap(params: TilesCodeGeneratorParams): TilesMapModel {
     tileWidth: tiles.tileWidth,
     tileHeight: tiles.tileHeight,
     names: [...tiles.names],
+    excluded: tiles.excluded ? [...tiles.excluded] : [],
   };
+}
+
+/** Returns tile names with their original indices, excluding those in `tiles.excludedSet`. */
+function getIncludedTileEntries(
+  params: TilesCodeGeneratorParams,
+): { tileIndex: number; tileName: string }[] {
+  const { tiles } = params;
+  const excludedSet = tiles.excludedSet ?? new Set<number>();
+  return tiles.names
+    .slice(0, tiles.count)
+    .map((tileName, tileIndex) => ({ tileIndex, tileName }))
+    .filter(({ tileIndex }) => !excludedSet.has(tileIndex));
 }
 
 /** Creates the `.tiles.map` {@link GeneratedFile} entry. */
@@ -49,9 +62,10 @@ function buildMapFile(params: TilesCodeGeneratorParams): GeneratedFile {
  */
 export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
   generate(params: TilesCodeGeneratorParams): GeneratedFile[] {
-    const tileNames = params.tiles.names.slice(0, params.tiles.count);
+    const includedEntries = getIncludedTileEntries(params);
+    const tileNames = includedEntries.map(({ tileName }) => tileName);
     const headerContent = this.generateHeaderFile(params.name, tileNames);
-    const asmContent = this.generateAsmFile(params, tileNames);
+    const asmContent = this.generateAsmFile(params, includedEntries);
 
     return [
       buildMapFile(params),
@@ -90,7 +104,7 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
 
   private generateAsmFile(
     params: TilesCodeGeneratorParams,
-    tileNames: string[],
+    includedEntries: { tileIndex: number; tileName: string }[],
   ): string {
     const { name, tiles } = params;
     const id = toCodeIdentifier(name);
@@ -103,14 +117,14 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
       `_${id}_tiles:`,
     ];
 
-    tileNames.forEach((name, tileIndex) => {
-      const tileName = `_${id}_${name}`;
+    includedEntries.forEach(({ tileIndex, tileName }) => {
+      const label = `_${id}_${tileName}`;
       const bitmask = tiles.inkBitmaps[tileIndex] ?? [];
 
       lines.push(
         "",
-        `PUBLIC ${tileName}`,
-        `${tileName}:`,
+        `PUBLIC ${label}`,
+        `${label}:`,
         ...generateBitmapDefbLines(bitmask, tiles.tileWidth, tiles.tileHeight),
       );
     });
@@ -130,17 +144,17 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
 export class AsmTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
   generate(params: TilesCodeGeneratorParams): GeneratedFile[] {
     const { name: baseName, tiles } = params;
-    const tileNames = tiles.names.slice(0, tiles.count);
     const id = toCodeIdentifier(baseName);
+    const includedEntries = getIncludedTileEntries(params);
 
     const lines: string[] = [`${id}_tiles:`];
 
-    tileNames.forEach((name, tileIndex) => {
+    includedEntries.forEach(({ tileIndex, tileName }) => {
       const bitmask = tiles.inkBitmaps[tileIndex] ?? [];
 
       lines.push(
         "",
-        `${id}_${name}:`,
+        `${id}_${tileName}:`,
         ...generateBitmapDefbLines(bitmask, tiles.tileWidth, tiles.tileHeight),
       );
     });

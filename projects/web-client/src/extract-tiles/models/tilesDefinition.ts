@@ -3,12 +3,15 @@ import type { ZxpColorAttribute } from "src/utils/image-utils";
 /**
  * Serialisable tiles map model (persisted to `.tiles.map` file).
  * Backward-compatible: if `type` is absent it is treated as `"tiles"`.
+ * `excluded` is optional for backward-compatibility (absent = no exclusions).
  */
 export interface TilesMapModel {
   type: "tiles";
   tileWidth: number;
   tileHeight: number;
   names: string[];
+  /** Indices of tiles excluded from code generation output. */
+  excluded?: number[];
 }
 
 /**
@@ -17,6 +20,8 @@ export interface TilesMapModel {
 export interface TilesModel extends TilesMapModel {
   count: number;
   previews: string[];
+  /** Runtime set of excluded tile indices (mirrors `excluded` array). */
+  excludedSet: Set<number>;
   /**
    * Per-tile pixel ink bitmap.
    * `inkBitmaps[i]` is a boolean[] of length `tileWidth * tileHeight`, row-major.

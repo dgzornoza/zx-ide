@@ -40,6 +40,8 @@ const messages = {
       errorNoSourceFile: "Please select a source image before creating a map",
       errorMapLoadFailed:
         "Failed to load .tiles.map file: invalid or corrupted data",
+      tileExcludeTooltip: "Exclude tile from output",
+      tileIncludeTooltip: "Include tile in output",
     },
     "extract-sprites": {
       title: "Extract Sprites",
@@ -135,6 +137,8 @@ const messages = {
         "Selecciona una imagen de origen antes de crear el mapa",
       errorMapLoadFailed:
         "No se pudo cargar el archivo .tiles.map: datos inválidos o corruptos",
+      tileExcludeTooltip: "Excluir tile de la salida",
+      tileIncludeTooltip: "Incluir tile en la salida",
     },
     "extract-sprites": {
       title: "Extracción de sprites",
