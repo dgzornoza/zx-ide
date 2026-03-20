@@ -14,8 +14,8 @@ import {
 } from "src/extract-tiles/composables/codeGenerators/codeGeneratorStrategy";
 import { TilesMapModel } from "src/extract-tiles/models/tilesDefinition";
 import { generateBitmapDefbLines } from "src/shared/composables/codeGenerators/codeGeneratorUtils";
-import { toCodeIdentifier, toMacroGuard } from "src/utils/string-utils";
 import type { ZxpColorAttribute } from "src/utils/image-utils";
+import { toCodeIdentifier, toMacroGuard } from "src/utils/string-utils";
 import type { CodeGenerationType } from "../../../../../shared/extract-graphics/extract-graphics-dtos";
 
 // ─── Helpers ───────────────────────────────────────────────
