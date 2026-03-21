@@ -34,6 +34,7 @@ const {
         v-model:code-generation-type="codeGenerationType"
         :read-only="isCodeGenerationTypeReadOnly"
         translation-namespace="extract-tiles"
+        accept-source-formats=".png,.zxp"
         accept-map-formats=".tiles.map,.map"
         @file-selected="setSourceFile"
         @map-file-selected="setMapFile"

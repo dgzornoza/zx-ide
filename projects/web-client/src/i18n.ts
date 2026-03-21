@@ -97,11 +97,10 @@ const messages = {
       subtitle:
         "Generate assembly code from a Tiled map file and save it into your project.",
       sectionSource: "Source data",
-      xmlLabel: "Map file (.tmx / .xml)",
-      xmlHint: "Select the Tiled map file from your workspace.",
+      sourceLabel: "Map file (.tmx / .xml)",
+      sourceHint: "Select the Tiled map file from your workspace.",
       imageLabel: "Tileset image (.png)",
-      imageHint:
-        "Select the PNG tileset image referenced by the map file.",
+      imageHint: "Select the PNG tileset image referenced by the map file.",
       browseButton: "Browse\u2026",
       noFileSelected: "No file selected",
       sectionResults: "Results",
@@ -231,8 +230,8 @@ const messages = {
       subtitle:
         "Genera código ensamblador desde un archivo de mapa Tiled y guárdalo en tu proyecto.",
       sectionSource: "Datos de origen",
-      xmlLabel: "Archivo de mapa (.tmx / .xml)",
-      xmlHint: "Selecciona el archivo de mapa Tiled desde tu workspace.",
+      sourceLabel: "Archivo de mapa (.tmx / .xml)",
+      sourceHint: "Selecciona el archivo de mapa Tiled desde tu workspace.",
       imageLabel: "Imagen del tileset (.png)",
       imageHint:
         "Selecciona la imagen PNG del tileset referenciada en el archivo de mapa.",

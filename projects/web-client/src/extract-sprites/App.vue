@@ -39,6 +39,7 @@ const {
         v-model:code-generation-type="codeGenerationType"
         :read-only="isCodeGenerationTypeReadOnly"
         translation-namespace="extract-sprites"
+        accept-source-formats=".png"
         accept-map-formats=".sprites.map,.map"
         @file-selected="setSourceFile"
         @map-file-selected="setMapFile"

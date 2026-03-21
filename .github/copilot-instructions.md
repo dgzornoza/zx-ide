@@ -17,6 +17,11 @@ Convenciones de Copilot / Agentes
 - Mantén el estilo y convención del proyecto (TypeScript, nombres en camelCase, sin abreviaturas).
 - Si detectas un nuevo "skill" o convención orgánica (ej. elección de librería o patrón), registra la decisión y agrega una breve nota en `.github/instructions/` o propone un `copilot-instructions.md` update.
 
+### Convenciones TypeScript (todos los proyectos)
+
+- **No usar `null`** — usar siempre `undefined`. Las propiedades opcionales se declaran con `?`: `myVar?: string;` en lugar de `myVar: string | null`.
+- Los parámetros y variables opcionales siguen el mismo patrón: `function foo(bar?: string)` en lugar de `function foo(bar: string | null)`.
+
 Pautas de uso para asistentes
 
 - Para tareas de diseño o decisiones de arquitectura, sugiere alternativas con pros/cons y solicita confirmación antes de aplicar cambios.

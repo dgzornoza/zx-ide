@@ -26,6 +26,14 @@ Uso: aplicar estas instrucciones cuando trabajes en el proyecto `projects/vscode
 - Global array extension `groupBy` is added in [src/core/helpers/array-helpers.ts](src/core/helpers/array-helpers.ts#L1). Avoid redefining or shadowing it.
 - Path aliases are used everywhere (`@core/*`, `@z88dk/*`, etc.) and are configured in [tsconfig.json](tsconfig.json#L1) and [webpack.config.js](webpack.config.js#L17).
 
+### Naming conventions
+
+- **Commands** — class files use the `.cmd.ts` suffix and the name mirrors the VS Code command ID in kebab-case, e.g. `attach-project-tiles.cmd.ts`, `create-project.cmd.ts`. Never use `-command` as a suffix.
+- **Base / abstract command classes** — also use `.cmd.ts` (e.g. `extract-webview.cmd.ts`). When in doubt, follow the naming of the other files in the same folder.
+- **Services** — `*.service.ts` suffix. **Helpers** — `*.helpers.ts`. **Decorators** — `*.decorator.ts`. **Strategies** — `*.strategy.ts`.
+- In general, always follow the naming pattern of existing files in the same folder before inventing a new one.
+- **Member variables** — no underscore prefix (`panel`, not `_panel`). The only exception is a private backing field when a public property with the same name exists on the same class (e.g. `private _foo` with `get foo()`). Inherited members from base classes (`_subscriptions`, `_isEnabled`) are exempt from this rule.
+
 ## Workflows (build/test)
 
 - Build/watch: `npm run watch` (also builds the external CLI via `npm --prefix ../cli run build`). See [package.json](package.json#L37).

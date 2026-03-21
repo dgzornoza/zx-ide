@@ -424,3 +424,80 @@ function renderZxpTileToCanvas(
 
   return canvas;
 }
+
+// ─── Tileset map preview ─────────────────────────────────────────────────────
+
+/** Tile-grid dimensions needed by {@link renderTilesetMapPreview}. */
+export interface TileMapRenderOptions {
+  mapWidth: number;
+  mapHeight: number;
+  tileWidth: number;
+  tileHeight: number;
+  columns: number;
+}
+
+/**
+ * Renders a Tiled map onto `canvas` by sampling tiles from a tileset
+ * {@link ImageBitmap}.
+ *
+ * Each cell in the flat `tileIndices` array is a 1-based tile index
+ * (0 = empty/transparent). The function sizes the canvas to
+ * `(mapWidth * tileWidth) × (mapHeight * tileHeight)` and draws each
+ * non-empty tile by slicing it out of `bitmap` using its column / row
+ * position in the tileset sheet.
+ *
+ * @param canvas      - Target canvas element.
+ * @param tileIndices - Flat row-major tile index array (0 = transparent).
+ * @param options     - Map and tile dimensions.
+ * @param bitmap      - Decoded tileset image, or `null` if not yet loaded.
+ */
+export function renderTilesetMapPreview(
+  canvas: HTMLCanvasElement,
+  tileIndices: number[],
+  options: TileMapRenderOptions,
+  bitmap: ImageBitmap | null,
+): void {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    return;
+  }
+
+  const { mapWidth, mapHeight, tileWidth, tileHeight, columns } = options;
+
+  canvas.width = mapWidth * tileWidth;
+  canvas.height = mapHeight * tileHeight;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (!bitmap) {
+    ctx.fillStyle = "#333";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#aaa";
+    ctx.font = "12px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("No tileset image", canvas.width / 2, canvas.height / 2);
+    return;
+  }
+
+  for (let row = 0; row < mapHeight; row++) {
+    for (let col = 0; col < mapWidth; col++) {
+      const localIndex = tileIndices[row * mapWidth + col] ?? 0;
+      if (localIndex === 0) {
+        continue;
+      }
+
+      const tileColumn = (localIndex - 1) % columns;
+      const tileRow = Math.floor((localIndex - 1) / columns);
+      ctx.drawImage(
+        bitmap,
+        tileColumn * tileWidth,
+        tileRow * tileHeight,
+        tileWidth,
+        tileHeight,
+        col * tileWidth,
+        row * tileHeight,
+        tileWidth,
+        tileHeight,
+      );
+    }
+  }
+}

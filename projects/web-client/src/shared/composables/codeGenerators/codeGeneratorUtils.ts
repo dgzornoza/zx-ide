@@ -135,3 +135,30 @@ export function generatePaddingDefbLines(
   }
   return lines;
 }
+
+/**
+ * Converts a flat row-major array of tile indices into assembly `defb`
+ * directives using decimal values, one map row per line.
+ *
+ * Used by map code generators where tiles are addressed by uint8 index (0-255).
+ *
+ * @example
+ * generateIndexDefbLines([1,2,3,0,4,5,6,0], 4);
+ * // -> ['    defb 1,2,3,0', '    defb 4,5,6,0']
+ *
+ * @param indices  - Flat row-major array of tile indices.
+ * @param rowWidth - Number of indices per row (= map width in tiles).
+ * @returns Array of indented `defb` lines ready to join into an ASM file.
+ */
+export function generateIndexDefbLines(
+  indices: number[],
+  rowWidth: number,
+): string[] {
+  const rowCount = Math.floor(indices.length / rowWidth);
+  const lines: string[] = [];
+  for (let row = 0; row < rowCount; row++) {
+    const rowValues = indices.slice(row * rowWidth, row * rowWidth + rowWidth);
+    lines.push(`    defb ${rowValues.join(",")}`);
+  }
+  return lines;
+}

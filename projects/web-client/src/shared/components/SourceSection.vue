@@ -6,6 +6,10 @@ const props = defineProps<{
   readOnly?: boolean;
   translationNamespace: string;
   acceptMapFormats?: string;
+  /** When true, hides the .map file input entirely. */
+  hideMapInput?: boolean;
+  /** Override the accepted file formats for the source input (default: '.png,.zxp'). */
+  acceptSourceFormats: string;
 }>();
 
 const tp = createTranslationPrefixFn(props.translationNamespace);
@@ -67,7 +71,7 @@ function onMapFileChange(event: Event) {
           </span>
           <input
             id="source-input"
-            accept=".png,.zxp"
+            :accept="props.acceptSourceFormats"
             class="sr-only"
             type="file"
             @change="onFileChange"
@@ -79,7 +83,7 @@ function onMapFileChange(event: Event) {
       </div>
 
       <!-- .map file input -->
-      <div>
+      <div v-if="!props.hideMapInput">
         <label for="map-source-input" class="text-xs font-semibold">{{
           tp("mapSourceLabel")
         }}</label>

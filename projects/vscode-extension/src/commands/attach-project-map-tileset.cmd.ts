@@ -2,13 +2,12 @@ import { CommandName } from '@core/infrastructure';
 import { Types } from '@core/types';
 import { inject, injectable } from 'inversify';
 import * as vscode from 'vscode';
-import type { SaveMapMessage } from '../../../shared/extract-graphics/extract-graphics-dtos';
 import { ExtractWebviewCommand } from './extract-webview.cmd';
 
 @injectable()
-export class AttachProjectTilesCmd extends ExtractWebviewCommand {
+export class AttachProjectMapTilesetCmd extends ExtractWebviewCommand {
   public getCommandName(): CommandName {
-    return CommandName.AttachProjectTiles;
+    return CommandName.AttachProjectMapTileset;
   }
 
   constructor(@inject(Types.ExtensionContext) extensionContext: vscode.ExtensionContext) {
@@ -16,17 +15,12 @@ export class AttachProjectTilesCmd extends ExtractWebviewCommand {
   }
 
   protected get viewType(): string {
-    return 'zxide.attachProjectTiles';
+    return 'zxide.attachProjectMapTileset';
   }
   protected get panelTitle(): string {
-    return vscode.l10n.t('Extract tiles');
+    return vscode.l10n.t('Extract Map Tileset');
   }
   protected get htmlPageName(): string {
-    return 'extract-tiles.html';
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  protected async onSaveMap(_message: SaveMapMessage): Promise<void> {
-    // TODO: implement save map logic
+    return 'extract-map-tileset.html';
   }
 }
