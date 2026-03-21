@@ -46,8 +46,7 @@ export function useExtractMapTileset() {
       errors.value.length === 0 &&
       metadata.value !== null &&
       tileIndices.value.length > 0 &&
-      xmlSource.value !== "" &&
-      imageSource.value !== "",
+      xmlSource.value !== "",
   );
 
   const usedTileCount = computed(() => {
@@ -55,6 +54,17 @@ export function useExtractMapTileset() {
   });
 
   const mapByteSize = computed(() => tileIndices.value.length);
+
+  /** Bytes occupied by the used tiles (ZX Spectrum: ceil(tileWidth/8) × tileHeight per tile). */
+  const usedTilesByteSize = computed(() => {
+    if (!metadata.value) return 0;
+    const { tileWidth, tileHeight } = metadata.value;
+    return usedTileCount.value * Math.ceil(tileWidth / 8) * tileHeight;
+  });
+
+  const totalByteSize = computed(
+    () => usedTilesByteSize.value + mapByteSize.value,
+  );
 
   // ─── Bridge ──────────────────────────────────────────────────────────────────
 
@@ -80,11 +90,16 @@ export function useExtractMapTileset() {
 
   // ─── XML File Loading ─────────────────────────────────────────────────────────
 
-  async function setXmlFile(file: File): Promise<void> {
+  async function setXmlFile(
+    file: File,
+    companions: File[] = [],
+  ): Promise<void> {
     errors.value = [];
     warnings.value = [];
     metadata.value = null;
     tileIndices.value = [];
+    imageSource.value = "";
+    tilesetImageBitmap.value = null;
     xmlSource.value = file.name;
 
     try {
@@ -94,6 +109,15 @@ export function useExtractMapTileset() {
 
       const rawIndices = parseCsvLayer(content, parsedMetadata);
       tileIndices.value = normalizeGids(rawIndices, parsedMetadata.firstGid);
+
+      // Auto-load the PNG if it was selected alongside the TMX
+      const imageFileName = parsedMetadata.sourceImage.split("/").at(-1) ?? "";
+      if (imageFileName) {
+        const match = companions.find((f) => f.name === imageFileName);
+        if (match) {
+          await setImageFile(match);
+        }
+      }
     } catch (error) {
       errors.value = [String(error)];
     }
@@ -284,10 +308,11 @@ export function useExtractMapTileset() {
     isCodeGenerationTypeReadOnly,
     isReady,
     usedTileCount,
+    usedTilesByteSize,
     mapByteSize,
+    totalByteSize,
     statusMessage,
     setXmlFile,
-    setImageFile,
     renderPreview,
     extractResources,
   };

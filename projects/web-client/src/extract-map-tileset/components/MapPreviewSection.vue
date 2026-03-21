@@ -6,23 +6,12 @@ import type { TmxMapMetadata } from "../models/mapTilesetDefinition";
 const props = defineProps<{
   metadata: TmxMapMetadata | null;
   tileIndices: number[];
+  imageSource: string;
   renderPreview: (canvas: HTMLCanvasElement) => void;
-}>();
-
-const emit = defineEmits<{
-  "file-selected": [file: File];
 }>();
 
 const { t } = useI18n();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
-
-function onFileChange(event: Event): void {
-  const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (file) {
-    emit("file-selected", file);
-  }
-}
 
 function triggerRender(): void {
   if (canvasRef.value) {
@@ -30,37 +19,30 @@ function triggerRender(): void {
   }
 }
 
-watch(() => [props.tileIndices, props.metadata] as const, triggerRender, {
-  deep: true,
-});
+watch(
+  () => [props.tileIndices, props.metadata, props.imageSource] as const,
+  triggerRender,
+  { deep: true, flush: "post" },
+);
 
 onMounted(triggerRender);
 </script>
 
 <template>
   <div class="flex flex-col gap-3">
-    <div class="flex flex-col gap-1">
-      <span
-        class="text-xs font-semibold uppercase tracking-wide text-[color:var(--ink-soft)]"
-      >
-        {{ t("extract-map-tileset.imageLabel") }}
-      </span>
-      <p class="text-xs text-[color:var(--ink-soft)]">
-        {{ t("extract-map-tileset.imageHint") }}
-      </p>
-      <label
-        class="inline-flex cursor-pointer items-center gap-2 bg-[color:var(--button-bg)] px-4 py-2 text-sm font-semibold text-[color:var(--button-ink)] hover:bg-[color:var(--button-hover)] w-fit"
-      >
-        {{ t("extract-map-tileset.browseButton") }}
-        <input
-          type="file"
-          accept="image/png"
-          class="hidden"
-          @change="onFileChange"
-        />
-      </label>
-    </div>
+    <!-- PNG not auto-loaded: hint to re-select including the PNG -->
+    <p
+      v-if="metadata && !imageSource"
+      class="text-xs text-[color:var(--warning-ink)]"
+    >
+      {{
+        t("extract-map-tileset.imageNotLoaded", {
+          filename: metadata.sourceImage,
+        })
+      }}
+    </p>
 
+    <!-- Preview Section -->
     <div v-if="metadata" class="mt-2">
       <canvas
         ref="canvasRef"

@@ -18,10 +18,11 @@ const {
   isCodeGenerationTypeReadOnly,
   isReady,
   usedTileCount,
+  usedTilesByteSize,
   mapByteSize,
+  totalByteSize,
   statusMessage,
   setXmlFile,
-  setImageFile,
   renderPreview,
   extractResources,
 } = useExtractMapTileset();
@@ -33,12 +34,13 @@ const baseName = computed(() => {
   return xmlSource.value.replace(/\.[^.]+$/, "");
 });
 
-function onXmlFileSelected(file: File): void {
-  setXmlFile(file);
-}
-
-function onImageFileSelected(file: File): void {
-  setImageFile(file);
+function onXmlFilesSelected(files: File[]): void {
+  const tmxFile = files.find((f) => /\.(tmx|xml)$/i.test(f.name));
+  if (!tmxFile) return;
+  setXmlFile(
+    tmxFile,
+    files.filter((f) => f !== tmxFile),
+  );
 }
 
 function onExtract(): void {
@@ -82,20 +84,18 @@ function formatError(error: string): string {
         translation-namespace="extract-map-tileset"
         :read-only="isCodeGenerationTypeReadOnly"
         :hide-map-input="true"
-        accept-source-formats=".tmx,.xml"
-        @file-selected="onXmlFileSelected"
+        :multiple-source="true"
+        accept-source-formats=".tmx,.xml,.png"
+        @files-selected="onXmlFilesSelected"
       />
 
-      <!-- PNG tileset input + canvas preview -->
+      <!-- Canvas preview + PNG status -->
       <MapPreviewSection
         :metadata="metadata"
         :tile-indices="tileIndices"
+        :image-source="imageSource"
         :render-preview="renderPreview"
-        @file-selected="onImageFileSelected"
       />
-      <span v-if="imageSource" class="text-sm text-[color:var(--ink-soft)]">
-        {{ imageSource }}
-      </span>
 
       <!-- Validation errors -->
       <ul v-if="errors.length > 0" class="flex flex-col gap-1">
@@ -126,7 +126,7 @@ function formatError(error: string): string {
         >
           {{ t("extract-map-tileset.sectionResults") }}
         </h2>
-        <dl class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm sm:grid-cols-4">
+        <dl class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm sm:grid-cols-3">
           <div>
             <dt class="text-xs text-[color:var(--ink-soft)]">
               {{ t("extract-map-tileset.tilesUsedLabel") }}
@@ -135,9 +135,9 @@ function formatError(error: string): string {
           </div>
           <div>
             <dt class="text-xs text-[color:var(--ink-soft)]">
-              {{ t("extract-map-tileset.mapBytesLabel") }}
+              {{ t("extract-map-tileset.tilesBytesLabel") }}
             </dt>
-            <dd class="font-semibold">{{ mapByteSize }}</dd>
+            <dd class="font-semibold">{{ usedTilesByteSize }}</dd>
           </div>
           <div>
             <dt class="text-xs text-[color:var(--ink-soft)]">
@@ -150,6 +150,18 @@ function formatError(error: string): string {
               {{ t("extract-map-tileset.mapHeightLabel") }}
             </dt>
             <dd class="font-semibold">{{ metadata.mapHeight }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-[color:var(--ink-soft)]">
+              {{ t("extract-map-tileset.mapBytesLabel") }}
+            </dt>
+            <dd class="font-semibold">{{ mapByteSize }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-[color:var(--ink-soft)]">
+              {{ t("extract-map-tileset.totalBytesLabel") }}
+            </dt>
+            <dd class="font-semibold">{{ totalByteSize }}</dd>
           </div>
         </dl>
       </section>

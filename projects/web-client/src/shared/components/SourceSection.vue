@@ -10,6 +10,8 @@ const props = defineProps<{
   hideMapInput?: boolean;
   /** Override the accepted file formats for the source input (default: '.png,.zxp'). */
   acceptSourceFormats: string;
+  /** When true, allows selecting multiple files at once. */
+  multipleSource?: boolean;
 }>();
 
 const tp = createTranslationPrefixFn(props.translationNamespace);
@@ -23,16 +25,21 @@ const codeGenerationType = defineModel<CodeGenerationType>(
 
 const emit = defineEmits<{
   fileSelected: [file: File];
+  filesSelected: [files: File[]];
   mapFileSelected: [file: File];
 }>();
 
 function onFileChange(event: Event) {
   const input = event.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (file) {
-    source.value = file.name;
-    emit("fileSelected", file);
-  }
+  const files = Array.from(input.files ?? []);
+  if (files.length === 0) return;
+  // When multipleSource, show the primary (non-PNG) file as the source label
+  const primary = props.multipleSource
+    ? (files.find((f) => !/\.png$/i.test(f.name)) ?? files[0])
+    : files[0];
+  source.value = primary.name;
+  emit("fileSelected", primary);
+  emit("filesSelected", files);
 }
 
 function onMapFileChange(event: Event) {
@@ -72,6 +79,7 @@ function onMapFileChange(event: Event) {
           <input
             id="source-input"
             :accept="props.acceptSourceFormats"
+            :multiple="props.multipleSource"
             class="sr-only"
             type="file"
             @change="onFileChange"
