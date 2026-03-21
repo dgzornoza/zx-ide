@@ -47,8 +47,7 @@
         ],
         "files.exclude": {
 			".devcontainer": true,
-		    "**/.git": true,        
-			"**/.github": true,
+		    "**/.git": true,        			
 			"**/.agents": true,
             "**/dist/**": true,
             "**/out/**": true,
@@ -61,8 +60,7 @@
         },
         "search.exclude": {
 			".devcontainer": true,
-		    "**/.git": true,        
-			"**/.github": true,		
+		    "**/.git": true,        				
             "**/dist/**": true,
             "**/out/**": true,
             "**/node_modules/**": true,

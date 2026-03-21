@@ -8,6 +8,7 @@ const Types = {
   OpenHelpCmd: Symbol.for('OpenHelpCmd'),
   AttachProjectTilesCmd: Symbol.for('AttachProjectTilesCmd'),
   AttachProjectSpritesCmd: Symbol.for('AttachProjectSpritesCmd'),
+  AttachProjectMapTilesetCmd: Symbol.for('AttachProjectMapTilesetCmd'),
 
   ConfigurationService: Symbol.for('ConfigurationService'),
   OutputChannelService: Symbol.for('OutputChannelService'),

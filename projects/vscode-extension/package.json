@@ -38,6 +38,10 @@
       {
         "command": "zx-ide.extract-sprites",
         "title": "%extension.cmd-title.extract-sprites%"
+      },
+      {
+        "command": "zx-ide.extract-map-tileset",
+        "title": "%extension.cmd-title.extract-map-tileset%"
       }
     ],
     "configuration": {

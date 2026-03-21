@@ -92,6 +92,40 @@ const messages = {
       errorFrameXInvalid: "Frame X coordinate must be a non-negative number",
       errorFrameYInvalid: "Frame Y coordinate must be a non-negative number",
     },
+    "extract-map-tileset": {
+      title: "Extract Map Tileset",
+      subtitle:
+        "Generate assembly code from a Tiled map file and save it into your project.",
+      sectionSource: "Source data",
+      xmlLabel: "Map file (.tmx / .xml)",
+      xmlHint: "Select the Tiled map file from your workspace.",
+      imageLabel: "Tileset image (.png)",
+      imageHint:
+        "Select the PNG tileset image referenced by the map file.",
+      browseButton: "Browse\u2026",
+      noFileSelected: "No file selected",
+      sectionResults: "Results",
+      tilesUsedLabel: "Tiles used",
+      mapBytesLabel: "Map size (bytes)",
+      mapWidthLabel: "Map width (tiles)",
+      mapHeightLabel: "Map height (tiles)",
+      codeGenerationTypeLabel: "Code generation",
+      codeGenerationTypeAsm: "ASM",
+      codeGenerationTypeC: "C",
+      codeGenerationTypeReadOnlyHint:
+        "Determined by the VS Code project type and cannot be changed here.",
+      create: "Extract",
+      statusSent: "Message sent in standalone mode.",
+      errorTileCountExceeds255:
+        "Tileset has {count} tiles, which exceeds the maximum of 255 for uint8 indexing.",
+      errorNoLayerCsv:
+        "No CSV layer found in the map file. Only CSV encoding is supported.",
+      errorGidOutOfRange:
+        "Tile index out of range after normalisation. Check the map file consistency.",
+      errorXmlInvalid: "The map file is not valid XML.",
+      warningDimensionsMismatch:
+        "PNG width ({actual}px) does not match expected ({expected}px). Preview may be incorrect.",
+    },
   },
   es: {
     "extract-tiles": {
@@ -192,6 +226,40 @@ const messages = {
       errorFrameYInvalid:
         "La coordenada Y del frame debe ser un entero no negativo",
     },
+    "extract-map-tileset": {
+      title: "Extraer mapa de tileset",
+      subtitle:
+        "Genera código ensamblador desde un archivo de mapa Tiled y guárdalo en tu proyecto.",
+      sectionSource: "Datos de origen",
+      xmlLabel: "Archivo de mapa (.tmx / .xml)",
+      xmlHint: "Selecciona el archivo de mapa Tiled desde tu workspace.",
+      imageLabel: "Imagen del tileset (.png)",
+      imageHint:
+        "Selecciona la imagen PNG del tileset referenciada en el archivo de mapa.",
+      browseButton: "Examinar\u2026",
+      noFileSelected: "Ningún archivo seleccionado",
+      sectionResults: "Resultados",
+      tilesUsedLabel: "Tiles usados",
+      mapBytesLabel: "Tamaño del mapa (bytes)",
+      mapWidthLabel: "Ancho del mapa (tiles)",
+      mapHeightLabel: "Alto del mapa (tiles)",
+      codeGenerationTypeLabel: "Generación de código",
+      codeGenerationTypeAsm: "ASM",
+      codeGenerationTypeC: "C",
+      codeGenerationTypeReadOnlyHint:
+        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
+      create: "Extraer",
+      statusSent: "Mensaje enviado en modo standalone.",
+      errorTileCountExceeds255:
+        "El tileset tiene {count} tiles, que supera el máximo de 255 para indexado uint8.",
+      errorNoLayerCsv:
+        "No se encontró ninguna capa CSV en el archivo de mapa. Solo se admite codificación CSV.",
+      errorGidOutOfRange:
+        "Índice de tile fuera de rango tras la normalización. Comprueba la consistencia del archivo de mapa.",
+      errorXmlInvalid: "El archivo de mapa no es XML válido.",
+      warningDimensionsMismatch:
+        "El ancho del PNG ({actual}px) no coincide con el esperado ({expected}px). La vista previa puede ser incorrecta.",
+    },
   },
 } as const;
 
@@ -209,10 +277,12 @@ const normalizeLocale = (value?: string): SupportedLocale => {
 };
 
 export const getInitialLocale = (): SupportedLocale => {
-  if (typeof window === "undefined") {
+  if (globalThis.window === undefined) {
     return "en";
   }
-  return normalizeLocale(window.__WEBVIEW_LOCALE__ ?? navigator.language);
+  return normalizeLocale(
+    globalThis.window.__WEBVIEW_LOCALE__ ?? navigator.language,
+  );
 };
 
 export const i18n = createI18n({

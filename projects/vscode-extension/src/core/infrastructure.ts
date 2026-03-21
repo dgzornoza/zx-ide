@@ -7,6 +7,7 @@ export enum CommandName {
   OpenHelp = 'zx-ide.open-help',
   AttachProjectTiles = 'zx-ide.extract-tiles',
   AttachProjectSprites = 'zx-ide.extract-sprites',
+  AttachProjectMapTileset = 'zx-ide.extract-map-tileset',
 }
 
 /**

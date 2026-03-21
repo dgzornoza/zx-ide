@@ -1,3 +1,4 @@
+import { AttachProjectMapTilesetCmd } from '@commands/attach-project-map-tileset.cmd';
 import { AttachProjectSpritesCmd } from '@commands/attach-project-sprites.cmd';
 import { AttachProjectTilesCmd } from '@commands/attach-project-tiles.cmd';
 import { CreateProjectCmd } from '@commands/create-project.cmd';
@@ -72,6 +73,12 @@ export class InversifyConfig {
     InversifyConfig._container
       .bind<AttachProjectSpritesCmd>(Types.AttachProjectSpritesCmd)
       .to(AttachProjectSpritesCmd)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
+
+    InversifyConfig._container
+      .bind<AttachProjectMapTilesetCmd>(Types.AttachProjectMapTilesetCmd)
+      .to(AttachProjectMapTilesetCmd)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
 
