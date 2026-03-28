@@ -135,7 +135,7 @@ const messages = {
       subtitle:
         "Genera código fuente con la definición de tiles desde un archivo .png para usarlas en tu proyecto.",
       sectionSource: "Datos de origen",
-      sourceLabel: "Imagen fuente",
+      sourceLabel: "Imagen origen",
       sourceHint:
         "Selecciona el archivo PNG o ZX-Paintbrush (.zxp) de origen desde tu workspace.",
       browseButton: "Examinar…",

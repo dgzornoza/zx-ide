@@ -235,10 +235,10 @@ export function useExtractMapTileset() {
 
   async function setImageFile(file: File): Promise<void> {
     warnings.value = [];
-    imageSource.value = file.name;
 
     const bitmap = await createImageBitmap(file);
     tilesetImageBitmap.value = bitmap;
+    imageSource.value = file.name;
 
     if (metadata.value) {
       const expectedWidth = metadata.value.columns * metadata.value.tileWidth;
