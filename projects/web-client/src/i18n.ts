@@ -25,7 +25,7 @@ const messages = {
       statusMapDownloaded: "Map file downloaded successfully",
       mapSourceLabel: "Map file (optional)",
       mapSourceHint:
-        "Load a previously saved .tiles.map file to restore tile configuration.",
+        "Load a previously saved .cfg file to restore tile configuration.",
       codeGenerationTypeLabel: "Code generation",
       codeGenerationTypeAsm: "ASM",
       codeGenerationTypeC: "C",
@@ -38,8 +38,7 @@ const messages = {
       errorTileNameEmpty: "All tile names must be non-empty strings",
       errorTileExtractionFailed: "Failed to extract tiles from the source file",
       errorNoSourceFile: "Please select a source image before creating a map",
-      errorMapLoadFailed:
-        "Failed to load .tiles.map file: invalid or corrupted data",
+      errorMapLoadFailed: "Failed to load .cfg file: invalid or corrupted data",
       tileExcludeTooltip: "Exclude tile from output",
       tileIncludeTooltip: "Include tile in output",
     },
@@ -71,7 +70,7 @@ const messages = {
       statusMapDownloaded: "Map file downloaded successfully",
       mapSourceLabel: "Map file (optional)",
       mapSourceHint:
-        "Load a previously saved .sprites.map file to restore sprite configuration.",
+        "Load a previously saved .cfg file to restore sprite configuration.",
       codeGenerationTypeLabel: "Code generation",
       codeGenerationTypeAsm: "ASM",
       codeGenerationTypeC: "C",
@@ -83,8 +82,7 @@ const messages = {
       spriteUseMaskLabel: "Use mask",
       spriteUseMaskTooltip: "Use a mask for the sprite.",
       errorNoSourceFile: "Please select a source image before creating a map",
-      errorMapLoadFailed:
-        "Failed to load .sprites.map file: invalid or corrupted data",
+      errorMapLoadFailed: "Failed to load .cfg file: invalid or corrupted data",
       errorSpriteNameRequired: "Sprite name is required",
       errorSpriteWidthInvalid: "Sprite width must be greater than zero",
       errorSpriteHeightInvalid: "Sprite height must be greater than zero",
@@ -150,10 +148,10 @@ const messages = {
       addTile: "Agregar tile",
       create: "Crear",
       statusSent: "Mensaje enviado en modo standalone.",
-      statusMapDownloaded: "Archivo .tiles.map descargado correctamente",
-      mapSourceLabel: "Archivo .map (opcional)",
+      statusMapDownloaded: "Archivo .cfg descargado correctamente",
+      mapSourceLabel: "Archivo .cfg (opcional)",
       mapSourceHint:
-        "Carga un archivo .tiles.map guardado previamente para restaurar la configuración de tiles.",
+        "Carga un archivo .cfg guardado previamente para restaurar la configuración de tiles.",
       codeGenerationTypeLabel: "Generación de código",
       codeGenerationTypeAsm: "ASM",
       codeGenerationTypeC: "C",
@@ -172,7 +170,7 @@ const messages = {
       errorNoSourceFile:
         "Selecciona una imagen de origen antes de crear el mapa",
       errorMapLoadFailed:
-        "No se pudo cargar el archivo .tiles.map: datos inválidos o corruptos",
+        "No se pudo cargar el archivo .cfg: datos inválidos o corruptos",
       tileExcludeTooltip: "Excluir tile de la salida",
       tileIncludeTooltip: "Incluir tile en la salida",
     },
@@ -201,10 +199,10 @@ const messages = {
       remove: "Quitar",
       create: "Crear",
       statusSent: "Mensaje enviado en modo standalone.",
-      statusMapDownloaded: "Archivo .sprites.map descargado correctamente",
-      mapSourceLabel: "Archivo .map (opcional)",
+      statusMapDownloaded: "Archivo .cfg descargado correctamente",
+      mapSourceLabel: "Archivo .cfg (opcional)",
       mapSourceHint:
-        "Carga un archivo .sprites.map guardado previamente para restaurar la configuración de sprites.",
+        "Carga un archivo .cfg guardado previamente para restaurar la configuración de sprites.",
       codeGenerationTypeLabel: "Generación de código",
       codeGenerationTypeAsm: "ASM",
       codeGenerationTypeC: "C",
@@ -218,7 +216,7 @@ const messages = {
       errorNoSourceFile:
         "Selecciona una imagen de origen antes de crear el mapa",
       errorMapLoadFailed:
-        "No se pudo cargar el archivo .sprites.map: datos inválidos o corruptos",
+        "No se pudo cargar el archivo .cfg: datos inválidos o corruptos",
       errorSpriteNameRequired: "El nombre del sprite es requerido",
       errorSpriteWidthInvalid: "El ancho del sprite debe ser mayor que cero",
       errorSpriteHeightInvalid: "La altura del sprite debe ser mayor que cero",

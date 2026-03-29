@@ -48,7 +48,7 @@ export function useExtractSprites() {
   // ─── Load map ──────────────────────────────────────────────────────────────
 
   /**
-   * Parses a `.sprites.map` file and restores sprite configuration from it.
+   * Parses a `.cfg` file and restores sprite configuration from it.
    */
   const setMapFile = async (file: File): Promise<void> => {
     try {

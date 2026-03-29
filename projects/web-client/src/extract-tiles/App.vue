@@ -35,7 +35,7 @@ const {
         :read-only="isCodeGenerationTypeReadOnly"
         translation-namespace="extract-tiles"
         accept-source-formats=".png,.zxp"
-        accept-map-formats=".tiles.map,.map"
+        accept-map-formats=".cfg"
         @file-selected="setSourceFile"
         @map-file-selected="setMapFile"
       />

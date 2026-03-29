@@ -69,7 +69,7 @@ export function useExtractTiles() {
   // ─── Load map ──────────────────────────────────────────────────────────────
 
   /**
-   * Parses a `.tiles.map` file and restores tile configuration from it.
+   * Parses a `.cfg` file and restores tile configuration from it.
    * Files without a `type` field are treated as tiles (backward-compatibility).
    * Also re-extracts tile previews if a source image is already loaded.
    */

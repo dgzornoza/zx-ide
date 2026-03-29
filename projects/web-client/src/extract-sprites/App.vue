@@ -40,7 +40,7 @@ const {
         :read-only="isCodeGenerationTypeReadOnly"
         translation-namespace="extract-sprites"
         accept-source-formats=".png"
-        accept-map-formats=".sprites.map,.map"
+        accept-map-formats=".cfg"
         @file-selected="setSourceFile"
         @map-file-selected="setMapFile"
       />

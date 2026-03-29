@@ -93,9 +93,7 @@ const tileHeight = defineModel<number>("tileHeight", { required: true });
           v-if="tiles.excludedSet.has(index)"
           class="pointer-events-none absolute inset-0 flex items-center justify-center"
         >
-          <span class="text-lg font-bold text-[color:var(--error-ink)]"
-            >✕</span
-          >
+          <span class="text-lg font-bold text-[color:var(--error-ink)]">✕</span>
         </div>
         <!-- toggle button -->
         <button

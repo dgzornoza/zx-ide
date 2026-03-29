@@ -20,7 +20,7 @@ import type { CodeGenerationType } from "../../../../../shared/extract-graphics/
 
 // ─── Helpers ───────────────────────────────────────────────
 
-/** Builds the serialisable `.tiles.map` model from tiles params. */
+/** Builds the serialisable `.cfg` model from tiles params. */
 function buildTilesMap(params: TilesCodeGeneratorParams): TilesMapModel {
   const { tiles } = params;
   return {
@@ -88,11 +88,11 @@ function generateAttributeDefbLines(
   return lines;
 }
 
-/** Creates the `.tiles.map` {@link GeneratedFile} entry. */
+/** Creates the `.cfg` {@link GeneratedFile} entry. */
 function buildMapFile(params: TilesCodeGeneratorParams): GeneratedFile {
   return {
     fileType: "map",
-    fileName: `${params.name}.tiles.map`,
+    fileName: `${params.name}.cfg`,
     content: JSON.stringify(buildTilesMap(params), null, 2),
   };
 }
@@ -101,7 +101,7 @@ function buildMapFile(params: TilesCodeGeneratorParams): GeneratedFile {
 
 /**
  * Generates tiles for a z88dk C language.
- * Produces a `.tiles.map` file, a C header (`.h`) with `extern` declarations,
+ * Produces a `.cfg` file, a C header (`.h`) with `extern` declarations,
  * and a Z88DK assembly file (`.asm`) with tile binary data in the
  * `rodata_user` section.
  */
@@ -190,7 +190,7 @@ export class CTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {
 
 /**
  * Generates tiles for a sjasmplus assembly language.
- * Produces a `.tiles.map` file and a single sjasmplus assembly file (`.asm`)
+ * Produces a `.cfg` file and a single sjasmplus assembly file (`.asm`)
  * with plain labels and `defb @XXXXXXXX` binary tile data.
  */
 export class AsmTilesCodeGeneratorStrategy implements TilesCodeGeneratorStrategy {

@@ -31,7 +31,7 @@ const PADDING_ROWS_BELOW = 8;
 
 // ─── Map file helper ───────────────────────────────────────
 
-/** Creates the `.sprites.map` {@link GeneratedFile} entry for sprites. */
+/** Creates the `.cfg` {@link GeneratedFile} entry for sprites. */
 function buildMapFile(params: SpritesCodeGeneratorParams): GeneratedFile {
   const spritesMap: SpritesMapModel = {
     type: "sprites",
@@ -41,7 +41,7 @@ function buildMapFile(params: SpritesCodeGeneratorParams): GeneratedFile {
 
   return {
     fileType: "map",
-    fileName: `${params.name}.sprites.map`,
+    fileName: `${params.name}.cfg`,
     content: JSON.stringify(spritesMap, null, 2),
   };
 }
@@ -108,7 +108,7 @@ function generateSpriteAsmBody(
 
 /**
  * Generates sprites for Z88DK C language.
- * Produces a `.sprites.map` file, a C header (`.h`) with `extern` declarations,
+ * Produces a `.cfg` file, a C header (`.h`) with `extern` declarations,
  * and a Z88DK assembly file (`.asm`) with sprite binary data in the
  * `rodata_user` section.
  */
@@ -190,7 +190,7 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
 
 /**
  * Generates sprites for sjasmplus assembly language.
- * Produces a `.sprites.map` file and a single sjasmplus assembly file (`.asm`)
+ * Produces a `.cfg` file and a single sjasmplus assembly file (`.asm`)
  * with plain labels and `defb @XXXXXXXX` binary sprite data.
  */
 export class AsmSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrategy {

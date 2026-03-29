@@ -1,7 +1,7 @@
 import type { ZxpColorAttribute } from "src/utils/image-utils";
 
 /**
- * Serialisable tiles map model (persisted to `.tiles.map` file).
+ * Serialisable tiles map model (persisted to `.cfg` file).
  * Backward-compatible: if `type` is absent it is treated as `"tiles"`.
  * `excluded` is optional for backward-compatibility (absent = no exclusions).
  */

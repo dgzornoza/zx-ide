@@ -1,7 +1,7 @@
 import type { SpriteDefinition } from "./spriteDefinition";
 
 /**
- * Serialisable sprites map model (persisted to `.sprites.map` file).
+ * Serialisable sprites map model (persisted to `.cfg` file).
  */
 export interface SpritesMapModel {
   type: "sprites";
