@@ -49,7 +49,7 @@ export function useExtractTiles() {
   const currentImageFile = ref<File | null>(null);
 
   const status = ref<StatusMessage | null>(null);
-  const codeGenerationType = ref<CodeGenerationType>("asm");
+  const codeGenerationType = ref<CodeGenerationType>("c");
   const isCodeGenerationTypeReadOnly = ref(false);
 
   /**

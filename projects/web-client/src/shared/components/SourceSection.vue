@@ -20,7 +20,7 @@ const source = defineModel<string>("source", { required: true });
 const mapSource = defineModel<string>("mapSource", { default: "" });
 const codeGenerationType = defineModel<CodeGenerationType>(
   "codeGenerationType",
-  { default: "asm" },
+  { default: "c" },
 );
 
 const emit = defineEmits<{
@@ -132,12 +132,12 @@ function onMapFileChange(event: Event) {
             <input
               type="radio"
               name="codeGenerationType"
-              value="asm"
+              value="c"
               v-model="codeGenerationType"
               :disabled="readOnly"
               class="accent-[color:var(--button-bg)]"
             />
-            {{ tp("codeGenerationTypeAsm") }}
+            {{ tp("codeGenerationTypeC") }}
           </label>
           <label
             class="flex cursor-pointer items-center gap-2 text-sm"
@@ -146,12 +146,12 @@ function onMapFileChange(event: Event) {
             <input
               type="radio"
               name="codeGenerationType"
-              value="c"
+              value="asm"
               v-model="codeGenerationType"
               :disabled="readOnly"
               class="accent-[color:var(--button-bg)]"
             />
-            {{ tp("codeGenerationTypeC") }}
+            {{ tp("codeGenerationTypeAsm") }}
           </label>
         </div>
         <p v-if="readOnly" class="mt-1 text-xs text-[color:var(--ink-soft)]">

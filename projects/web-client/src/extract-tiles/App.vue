@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import SourceSection from "src/shared/components/SourceSection.vue";
+import ResultsSection from "./components/ResultsSection.vue";
 import TilesSection from "./components/TilesSection.vue";
 import { useExtractTiles } from "./composables/useExtractTiles";
 
@@ -46,6 +47,15 @@ const {
         v-model:tile-width="state.tiles.tileWidth"
         v-model:tile-height="state.tiles.tileHeight"
         @toggle-tile-exclusion="toggleTileExclusion"
+      />
+
+      <ResultsSection
+        v-if="state.tiles.count > 0"
+        :total-tiles="state.tiles.count"
+        :total-bytes="
+          (state.tiles.count * state.tiles.tileWidth * state.tiles.tileHeight) /
+          8
+        "
       />
     </main>
 
