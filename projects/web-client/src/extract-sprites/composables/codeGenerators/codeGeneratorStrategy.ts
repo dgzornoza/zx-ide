@@ -1,5 +1,5 @@
+import { FileEntry } from "externalShared/extract-graphics/extract-graphics-dtos";
 import { SpriteDefinition } from "src/extract-sprites/models/spriteDefinition";
-import { FileEntry } from "../../../../../shared/extract-graphics/extract-graphics-dtos";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 

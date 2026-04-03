@@ -1,4 +1,4 @@
-import type { CodeGenerationType } from "../../../../shared/extract-graphics/extract-graphics-dtos";
+import type { CodeGenerationType } from "externalShared/extract-graphics/extract-graphics-dtos";
 
 /** Datos extraídos del documento XML Tiled (.tmx). */
 export interface TmxMapMetadata {

@@ -1,6 +1,6 @@
-import { generateIndexDefbLines } from "src/shared/composables/codeGenerators/codeGeneratorUtils";
-import { toCodeIdentifier, toMacroGuard } from "src/utils/string-utils";
-import type { CodeGenerationType } from "../../../../../shared/extract-graphics/extract-graphics-dtos";
+import type { CodeGenerationType } from "externalShared/extract-graphics/extract-graphics-dtos";
+import { generateIndexDefbLines } from "src/helpers/code-generator-utils";
+import { toCodeIdentifier, toMacroGuard } from "src/helpers/string-utils";
 import type {
   GeneratedFile,
   IMapCodeGeneratorStrategy,

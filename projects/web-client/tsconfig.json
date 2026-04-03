@@ -1,6 +1,5 @@
 {
     "compilerOptions": {
-        "baseUrl": "./",
         "target": "ES2022",
         "module": "ESNext",
         "moduleResolution": "Bundler",
@@ -17,7 +16,22 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "paths": {
+            "src/*": [
+                "./src/*"
+            ],
+            "shared/*": [
+                "./src/shared/*"
+            ],
+            "externalShared/*": [
+                "../shared/*"
+            ],
+            "utils/*": [
+                "./src/helpers/*"
+            ],
+        }
     },
     "include": [
         "src/**/*",

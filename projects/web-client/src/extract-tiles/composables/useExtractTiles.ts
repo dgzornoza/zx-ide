@@ -1,24 +1,24 @@
-import JSZip from "jszip";
-import { createTilesCodeGenerator } from "src/extract-tiles/composables/codeGenerators/tilesCodeGenerators";
-import { TilesModel } from "src/extract-tiles/models/tilesDefinition";
-import {
-  StatusMessage,
-  StatusMessageType,
-} from "src/shared/models/statusMessage";
-import { createTranslationPrefixFn } from "src/utils/vue-utils";
-import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import {
   CodeGenerationType,
   FileEntry,
   InitMessage,
   WriteFilesMessage,
-} from "../../../../shared/extract-graphics/extract-graphics-dtos";
+} from "externalShared/extract-graphics/extract-graphics-dtos";
+import JSZip from "jszip";
+import { createTilesCodeGenerator } from "src/extract-tiles/composables/codeGenerators/codeGeneratorFactory";
+import { TilesModel } from "src/extract-tiles/models/tilesDefinition";
+import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import {
+  StatusMessage,
+  StatusMessageType,
+} from "src/shared/models/statusMessage";
+import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
-import { downloadBlob } from "../../utils/html-utils";
+import { downloadBlob } from "../../helpers/html-utils";
 import {
   extractTilesFromPng,
   extractTilesFromZxpFile,
-} from "../../utils/image-utils";
+} from "../../helpers/image-utils";
 
 /**
  * Composable that manages the full state and business logic for the

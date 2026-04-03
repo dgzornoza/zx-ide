@@ -1,12 +1,12 @@
-import { computed, onMounted, ref, watch } from "vue";
 import type {
   CodeGenerationType,
   InitMessage,
   WriteFilesMessage,
-} from "../../../../shared/extract-graphics/extract-graphics-dtos";
+} from "externalShared/extract-graphics/extract-graphics-dtos";
+import { computed, onMounted, ref, watch } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
-import { downloadFilesAsZip } from "../../utils/html-utils";
-import { renderTilesetMapPreview } from "../../utils/image-utils";
+import { downloadFilesAsZip } from "../../helpers/html-utils";
+import { renderTilesetMapPreview } from "../../helpers/image-utils";
 import type { TmxMapMetadata } from "../models/mapTilesetDefinition";
 import { createMapCodeGenerator } from "./codeGenerators/mapTilesetCodeGenerators";
 

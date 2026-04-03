@@ -3,8 +3,8 @@ import {
   SpriteDefinition,
   SpriteFlags,
 } from "src/extract-sprites/models/spriteDefinition";
-import { TypeEnumHelpers } from "src/utils/type-utils";
-import { createTranslationPrefixFn } from "src/utils/vue-utils";
+import { TypeEnumHelpers } from "src/helpers/type-utils";
+import { createTranslationPrefixFn } from "src/helpers/vue-utils";
 import { computed } from "vue";
 import SpriteItemDefinition from "./SpriteItemDefinition.vue";
 

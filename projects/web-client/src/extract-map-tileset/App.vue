@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import SourceSection from "shared/components/SourceSection.vue";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import SourceSection from "../shared/components/SourceSection.vue";
 import MapPreviewSection from "./components/MapPreviewSection.vue";
 import { useExtractMapTileset } from "./composables/useExtractMapTileset";
 

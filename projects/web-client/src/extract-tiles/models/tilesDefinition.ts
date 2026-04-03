@@ -1,4 +1,4 @@
-import type { ZxpColorAttribute } from "src/utils/image-utils";
+import type { ZxpColorAttribute } from "src/helpers/image-utils";
 
 /**
  * Serialisable tiles map model (persisted to `.cfg` file).

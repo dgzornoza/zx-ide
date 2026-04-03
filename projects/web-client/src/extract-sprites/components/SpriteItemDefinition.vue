@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { SpriteDefinition } from "src/extract-sprites/models/spriteDefinition";
-import { extractSpriteFramePreview } from "src/utils/image-utils";
-import { createTranslationPrefixFn } from "src/utils/vue-utils";
+import { extractSpriteFramePreview } from "src/helpers/image-utils";
+import { createTranslationPrefixFn } from "src/helpers/vue-utils";
 import { onBeforeUnmount, ref, watch } from "vue";
 
 const tp = createTranslationPrefixFn("extract-sprites");

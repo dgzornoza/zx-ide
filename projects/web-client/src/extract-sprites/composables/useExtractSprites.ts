@@ -1,25 +1,25 @@
-import JSZip from "jszip";
-import { createSpritesCodeGenerator } from "src/extract-sprites/composables/codeGenerators/spritesCodeGenerators";
-import {
-  SpriteDefinition,
-  SpriteFlags,
-} from "src/extract-sprites/models/spriteDefinition";
-import { SpritesMapModel } from "src/extract-sprites/models/spritesMapModel";
-import {
-  StatusMessage,
-  StatusMessageType,
-} from "src/shared/models/statusMessage";
-import { createTranslationPrefixFn } from "src/utils/vue-utils";
-import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import {
   CodeGenerationType,
   FileEntry,
   InitMessage,
   WriteFilesMessage,
-} from "../../../../shared/extract-graphics/extract-graphics-dtos";
+} from "externalShared/extract-graphics/extract-graphics-dtos";
+import JSZip from "jszip";
+import { createSpritesCodeGenerator } from "src/extract-sprites/composables/codeGenerators/spritesCodeGenerators";
+import {
+  SpriteDefinition,
+  SpriteFlags,
+  SpritesMapModel,
+} from "src/extract-sprites/models/spriteDefinition";
+import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import {
+  StatusMessage,
+  StatusMessageType,
+} from "src/shared/models/statusMessage";
+import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
-import { downloadBlob } from "../../utils/html-utils";
-import { extractSpritesFromFile } from "../../utils/image-utils";
+import { downloadBlob } from "../../helpers/html-utils";
+import { extractSpritesFromFile } from "../../helpers/image-utils";
 
 /**
  * Composable that manages the full state and business logic for the
@@ -69,9 +69,7 @@ export function useExtractSprites() {
           _id: crypto.randomUUID(),
         })),
       );
-      spriteFlags.value =
-        mapData.spriteFlags ??
-        (mapData.spriteSp1Padding ? SpriteFlags.Sp1Padding : SpriteFlags.None);
+      spriteFlags.value = mapData.spriteFlags ?? SpriteFlags.None;
     } catch {
       setStatus("error", tp("errorMapLoadFailed"));
     }

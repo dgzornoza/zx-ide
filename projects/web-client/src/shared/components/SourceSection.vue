@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { createTranslationPrefixFn } from "src/utils/vue-utils";
-import type { CodeGenerationType } from "../../../../shared/extract-graphics/extract-graphics-dtos";
+import type { CodeGenerationType } from "externalShared/extract-graphics/extract-graphics-dtos";
+import { createTranslationPrefixFn } from "src/helpers/vue-utils";
 
 const props = defineProps<{
   readOnly?: boolean;

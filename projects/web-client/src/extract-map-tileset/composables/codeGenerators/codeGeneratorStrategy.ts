@@ -1,4 +1,4 @@
-import type { FileEntry } from "../../../../../shared/extract-graphics/extract-graphics-dtos";
+import type { FileEntry } from "externalShared/extract-graphics/extract-graphics-dtos";
 import type { TmxMapMetadata } from "../../models/mapTilesetDefinition";
 
 /** Generated file entry — alias for FileEntry to match existing pattern. */

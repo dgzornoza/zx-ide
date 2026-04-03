@@ -1,5 +1,7 @@
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 
+import { ZxpColorAttribute } from "src/helpers/image-utils";
+
 /**
  * Packs one row of boolean ink values into an array of bytes
  * (one byte per 8 pixels, MSB = leftmost pixel).
@@ -32,6 +34,24 @@ function bitmapRowToBytes(
   }
 
   return bytes;
+}
+
+/**
+ * Converts a {@link ZxpColorAttribute} to its ZX Spectrum raw attribute byte.
+ *
+ * Bit layout:
+ * - Bit 7: Flash
+ * - Bit 6: Bright
+ * - Bits 5–3: Paper colour index
+ * - Bits 2–0: Ink colour index
+ */
+function attributeToByte(attribute: ZxpColorAttribute): number {
+  return (
+    (attribute.flash ? 0x80 : 0) |
+    (attribute.bright ? 0x40 : 0) |
+    ((attribute.paper & 0x07) << 3) |
+    (attribute.ink & 0x07)
+  );
 }
 
 // ─── defb line generators ─────────────────────────────────────────────────────
@@ -159,6 +179,31 @@ export function generateIndexDefbLines(
   for (let row = 0; row < rowCount; row++) {
     const rowValues = indices.slice(row * rowWidth, row * rowWidth + rowWidth);
     lines.push(`    defb ${rowValues.join(",")}`);
+  }
+  return lines;
+}
+
+/**
+ * Generates `defb` lines for the tile attributes array,
+ * including only the tiles at `includedIndices`, 8 bytes per line.
+ */
+export function generateAttributeDefbLines(
+  attributes: ZxpColorAttribute[],
+  includedIndices: number[],
+): string[] {
+  const hexBytes = includedIndices.map((tileIndex) => {
+    const attribute = attributes[tileIndex] ?? {
+      flash: false,
+      bright: false,
+      paper: 7,
+      ink: 0,
+    };
+    return toHexByte(attributeToByte(attribute));
+  });
+
+  const lines: string[] = [];
+  for (let offset = 0; offset < hexBytes.length; offset += 8) {
+    lines.push(`    defb ${hexBytes.slice(offset, offset + 8).join(",")}`);
   }
   return lines;
 }
