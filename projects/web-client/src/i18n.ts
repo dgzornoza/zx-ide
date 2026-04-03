@@ -95,7 +95,7 @@ const messages = {
       subtitle:
         "Generate assembly code from a Tiled map file and save it into your project.",
       sectionSource: "Source data",
-      sourceLabel: "Map file (.tmx / .xml)",
+      sourceLabel: "Map file (.tmx)",
       sourceHint:
         "Select the Tiled map file and its PNG tileset image together.",
       browseButton: "Browse\u2026",
@@ -122,7 +122,7 @@ const messages = {
         "No CSV layer found in the map file. Only CSV encoding is supported.",
       errorGidOutOfRange:
         "Tile index out of range after normalisation. Check the map file consistency.",
-      errorXmlInvalid: "The map file is not valid XML.",
+      errorXmlInvalid: "The map file is not valid TMX.",
       warningDimensionsMismatch:
         "PNG width ({actual}px) does not match expected ({expected}px). Preview may be incorrect.",
     },
@@ -231,7 +231,7 @@ const messages = {
       subtitle:
         "Genera código ensamblador desde un archivo de mapa Tiled y guárdalo en tu proyecto.",
       sectionSource: "Datos de origen",
-      sourceLabel: "Archivo de mapa (.tmx / .xml)",
+      sourceLabel: "Archivo de mapa (.tmx)",
       sourceHint:
         "Selecciona el archivo .tmx y su imagen PNG del tileset juntos.",
       browseButton: "Examinar\u2026",
@@ -258,7 +258,7 @@ const messages = {
         "No se encontró ninguna capa CSV en el archivo de mapa. Solo se admite codificación CSV.",
       errorGidOutOfRange:
         "Índice de tile fuera de rango tras la normalización. Comprueba la consistencia del archivo de mapa.",
-      errorXmlInvalid: "El archivo de mapa no es XML válido.",
+      errorXmlInvalid: "El archivo de mapa no es TMX válido.",
       warningDimensionsMismatch:
         "El ancho del PNG ({actual}px) no coincide con el esperado ({expected}px). La vista previa puede ser incorrecta.",
     },

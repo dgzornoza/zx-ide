@@ -22,14 +22,8 @@
             "src/*": [
                 "./src/*"
             ],
-            "shared/*": [
-                "./src/shared/*"
-            ],
             "externalShared/*": [
                 "../shared/*"
-            ],
-            "utils/*": [
-                "./src/helpers/*"
             ],
         }
     },
