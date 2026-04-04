@@ -29,14 +29,16 @@ var ZxIdeUtils = {
       let content = file.readAll(); // Si falla, Tiled puede cerrar el archivo internamente
       let json = JSON.parse(content);
       return json && Array.isArray(json.excluded) ? json.excluded : [];
-    } catch (e) {
-      return null;
+    } catch (error) {
+      tiled.alert("loadCfgForTileset: error" + error.toString());
     } finally {
       // Cerrar solo si sigue abierto
       if (file) {
         try {
           file.close();
-        } catch (_) {}
+        } catch (error) {
+          tiled.alert("loadCfgForTileset finally: error" + error.toString());
+        }
       }
     }
   },
@@ -109,8 +111,8 @@ tiled.registerMapFormat("zx-ide-map-tiled", {
 
       file.write(jsonString);
       file.commit();
-      file.close();
 
+      tiled.warn("Mapa exportado correctamente");
       return undefined;
     } catch (err) {
       return "Error al exportar: " + err.toString();
