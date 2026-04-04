@@ -18,6 +18,7 @@ import { downloadBlob } from "../../helpers/html-utils";
 import {
   extractTilesFromPng,
   extractTilesFromZxpFile,
+  generateTileSheetPng,
 } from "../../helpers/image-utils";
 
 /**
@@ -36,6 +37,7 @@ export function useExtractTiles() {
     tiles: {
       type: "tiles" as const,
       count: 0,
+      columns: 0,
       tileWidth: 8,
       tileHeight: 8,
       excluded: [] as number[],
@@ -66,14 +68,14 @@ export function useExtractTiles() {
     state.tiles.excluded = [...state.tiles.excludedSet];
   };
 
-  // ─── Load map ──────────────────────────────────────────────────────────────
+  // ─── Load configuration file ──────────────────────────────────────────────────────────────
 
   /**
    * Parses a `.cfg` file and restores tile configuration from it.
    * Files without a `type` field are treated as tiles (backward-compatibility).
    * Also re-extracts tile previews if a source image is already loaded.
    */
-  const setMapFile = async (file: File): Promise<void> => {
+  const setCfgFile = async (file: File): Promise<void> => {
     try {
       const text = await file.text();
       const mapData = JSON.parse(text);
@@ -119,10 +121,12 @@ export function useExtractTiles() {
           previews,
           inkBitmaps: bitmasks,
           attributes,
+          columns,
         } = await extractTilesFromZxpFile(file);
         state.tiles.tileWidth = 8;
         state.tiles.tileHeight = 8;
         state.tiles.count = count;
+        state.tiles.columns = columns;
         state.tiles.previews = previews;
         state.tiles.inkBitmaps = bitmasks;
         state.tiles.attributes = attributes;
@@ -132,12 +136,14 @@ export function useExtractTiles() {
           count,
           previews,
           inkBitmaps: bitmasks,
+          columns,
         } = await extractTilesFromPng({
           file,
           tileWidth: state.tiles.tileWidth,
           tileHeight: state.tiles.tileHeight,
         });
         state.tiles.count = count;
+        state.tiles.columns = columns;
         state.tiles.previews = previews;
         state.tiles.inkBitmaps = bitmasks;
         state.tiles.attributes = undefined;
@@ -189,7 +195,7 @@ export function useExtractTiles() {
     state.tiles.excluded = [...state.tiles.excludedSet];
   };
 
-  // ─── Create map ────────────────────────────────────────────────────────────
+  // ─── Extract/generate resources ────────────────────────────────────────────
 
   /**
    * Generates all resource files for the current tiles.
@@ -213,6 +219,26 @@ export function useExtractTiles() {
       tiles: state.tiles,
     });
 
+    const tileSheetBlob = await generateTileSheetPng(
+      state.tiles.previews,
+      state.tiles.columns,
+      state.tiles.tileWidth,
+      state.tiles.tileHeight,
+      state.tiles.excludedSet,
+    );
+    const tileSheetBase64 = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string).split(",")[1]);
+      reader.onerror = () =>
+        reject(reader.error ?? new Error("Failed to read tile sheet blob"));
+      reader.readAsDataURL(tileSheetBlob);
+    });
+    codeFiles.push({
+      fileType: "png",
+      fileName: `${fileNameWithoutExtension}.png`,
+      content: tileSheetBase64,
+    });
+
     if (vscode.isAvailable) {
       const message: WriteFilesMessage = {
         messageType: "writeFiles",
@@ -222,7 +248,11 @@ export function useExtractTiles() {
     } else {
       const zip = new JSZip();
       for (const file of codeFiles) {
-        zip.file(file.fileName, file.content);
+        if (file.fileType === "png") {
+          zip.file(file.fileName, file.content, { base64: true });
+        } else {
+          zip.file(file.fileName, file.content);
+        }
       }
 
       const blob = await zip.generateAsync({ type: "blob" });
@@ -262,7 +292,7 @@ export function useExtractTiles() {
     isCodeGenerationTypeReadOnly,
     tp,
     setSourceFile,
-    setMapFile,
+    setMapFile: setCfgFile,
     extractResources,
     toggleTileExclusion,
   };

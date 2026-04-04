@@ -1,21 +1,17 @@
 {
     "folders": [
         {
-            "name": ".github",
-            "path": ".github"
-        },	
-        {
-            "name": "doc",
-            "path": "doc"
-        },	
+            "name": "zx-ide",
+            "path": ".",
+        },
         {
             "name": "shared",
             "path": "projects/shared"
-        },			
+        },
         {
             "name": "vscode-extension",
             "path": "projects/vscode-extension"
-        },		
+        },
         {
             "name": "cli",
             "path": "projects/cli"
@@ -23,8 +19,7 @@
         {
             "name": "web-client",
             "path": "projects/web-client"
-        },		
-
+        }
     ],
     "extensions": {
         "recommendations": [
@@ -38,25 +33,33 @@
         "eslint.workingDirectories": [
             {
                 "directory": "shared"
-            },		
+            },
             {
                 "directory": "vscode-extension"
-            },		
+            },
             {
                 "directory": "cli"
             },
             {
                 "directory": "web-client"
-            }			
+            }
         ],
         "files.exclude": {
-			".devcontainer": true,
-		    "**/.git": true,        			
-			"**/.github": true,  
-			"**/.agents": true,
+            ".devcontainer": true,
+            "**/.git": true,
+            "**/.github": false,
+            "**/.agents": true,
             "**/dist/**": true,
             "**/out/**": true,
-            "**/node_modules/**": true
+            "**/node_modules/**": true,
+            ".gitattributes": true,
+            ".gitignore": true,
+            "*.md": true,
+            "LICENSE": true,
+            "zx-ide.code-workspace": false,
+            "assets": true,
+            "scripts": true,
+            "projects": true,
         },
         "files.watcherExclude": {
             "**/dist/**": true,
@@ -64,13 +67,12 @@
             "**/node_modules/**": true
         },
         "search.exclude": {
-			".devcontainer": true,
-		    "**/.git": true,        				
+            ".devcontainer": true,
+            "**/.git": true,
             "**/dist/**": true,
             "**/out/**": true,
             "**/node_modules/**": true,
-			"./projects/vscode-extension/media/*": true,
+            "./projects/vscode-extension/media/*": true,
         },
-        "typescript.tsdk": "${workspaceFolder:vscode-extension}/node_modules/typescript/lib"
     }
 }

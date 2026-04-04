@@ -13,6 +13,8 @@ export interface ExtractTilesFromFileResult {
    * `true` = ink pixel (light), `false` = paper pixel (dark).
    */
   inkBitmaps: boolean[][];
+  /** Number of tile columns derived from the source image dimensions. */
+  columns: number;
 }
 
 /**
@@ -99,6 +101,21 @@ async function loadImage<T>(
 }
 
 /**
+ * Creates an offscreen canvas of the given dimensions and returns it
+ * together with its 2D rendering context.
+ */
+function createCanvas(
+  width: number,
+  height: number,
+): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d")!;
+  return { canvas, ctx };
+}
+
+/**
  * Draws the rectangular region `(sx, sy, sw, sh)` from `img` onto a new
  * offscreen canvas sized `sw × sh` and returns that canvas.
  * The caller can then call `canvas.toDataURL()` or `ctx.getImageData()`.
@@ -107,10 +124,7 @@ function drawRegionToCanvas(
   img: HTMLImageElement,
   rect: Rect,
 ): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
-  const canvas = document.createElement("canvas");
-  canvas.width = rect.width;
-  canvas.height = rect.height;
-  const ctx = canvas.getContext("2d")!;
+  const { canvas, ctx } = createCanvas(rect.width, rect.height);
   ctx.drawImage(
     img,
     rect.x,
@@ -191,7 +205,7 @@ export async function extractTilesFromPng(
         inkBitmaps.push(inkBitmap);
       }
     }
-    return { count, previews, inkBitmaps: inkBitmaps };
+    return { count, previews, inkBitmaps: inkBitmaps, columns: cols };
   });
 }
 
@@ -338,7 +352,13 @@ export async function extractTilesFromZxpFile(
     }
   }
 
-  return { count, previews, inkBitmaps, attributes: tileAttributes };
+  return {
+    count,
+    previews,
+    inkBitmaps,
+    attributes: tileAttributes,
+    columns: tilesPerRow,
+  };
 }
 
 /**
@@ -402,10 +422,7 @@ function renderZxpTileToCanvas(
   tileRow: number,
   attribute: ZxpColorAttribute,
 ): HTMLCanvasElement {
-  const canvas = document.createElement("canvas");
-  canvas.width = 8;
-  canvas.height = 8;
-  const ctx = canvas.getContext("2d")!;
+  const { canvas, ctx } = createCanvas(8, 8);
 
   const palette = attribute.bright ? ZX_COLORS_BRIGHT : ZX_COLORS_NORMAL;
   const inkColor = palette[attribute.ink];
@@ -500,4 +517,74 @@ export function renderTilesetMapPreview(
       );
     }
   }
+}
+
+// ─── Tile sheet PNG export ────────────────────────────────────────────────────
+
+/**
+ * Renders all tile previews onto a single tile-sheet canvas (columns × rows grid)
+ * at the real tile size, overlaying a red diagonal cross on excluded tiles.
+ *
+ * @param previews    - Per-tile base64 PNG data-URL array, row-major order.
+ * @param columns     - Number of tile columns (from the source file).
+ * @param tileWidth   - Width of each tile cell in pixels.
+ * @param tileHeight  - Height of each tile cell in pixels.
+ * @param excludedSet - Set of tile indices that are marked as excluded.
+ * @returns A Promise resolving to a PNG {@link Blob} of the tile sheet.
+ */
+export function generateTileSheetPng(
+  previews: string[],
+  columns: number,
+  tileWidth: number,
+  tileHeight: number,
+  excludedSet: Set<number>,
+): Promise<Blob> {
+  const count = previews.length;
+  const cols = Math.max(1, columns);
+  const rows = Math.ceil(count / cols);
+
+  const { canvas, ctx } = createCanvas(cols * tileWidth, rows * tileHeight);
+
+  const drawTile = (index: number, dataUrl: string): Promise<void> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const col = index % cols;
+        const row = Math.floor(index / cols);
+        const x = col * tileWidth;
+        const y = row * tileHeight;
+        ctx.drawImage(img, x, y, tileWidth, tileHeight);
+
+        if (excludedSet.has(index)) {
+          ctx.save();
+          ctx.strokeStyle = "red";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x + tileWidth, y + tileHeight);
+          ctx.moveTo(x + tileWidth, y);
+          ctx.lineTo(x, y + tileHeight);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        resolve();
+      };
+      img.src = dataUrl;
+    });
+
+  return Promise.all(
+    previews.map((dataUrl, index) => drawTile(index, dataUrl)),
+  ).then(
+    () =>
+      new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error("Failed to generate tile sheet PNG blob"));
+          }
+        }, "image/png");
+      }),
+  );
 }

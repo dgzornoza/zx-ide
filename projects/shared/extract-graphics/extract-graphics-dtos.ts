@@ -5,7 +5,7 @@ import { ProjectType, VsCodeBridgeMessage } from "../infrastructure";
  */
 export interface FileEntry {
   /** File content type */
-  fileType: "map" | "c-header" | "asm";
+  fileType: "map" | "c-header" | "asm" | "png";
   /** Workspace-relative path (forward-slash separated). */
   fileName: string;
   /** UTF-8 file content. */

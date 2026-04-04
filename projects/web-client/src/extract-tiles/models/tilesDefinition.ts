@@ -18,6 +18,8 @@ export interface TilesMapModel {
  */
 export interface TilesModel extends TilesMapModel {
   count: number;
+  /** Number of tile columns from the source file (used to build the exported tile sheet). */
+  columns: number;
   previews: string[];
   /** Runtime set of excluded tile indices (mirrors `excluded` array). */
   excludedSet: Set<number>;

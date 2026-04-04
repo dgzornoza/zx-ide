@@ -1,0 +1,26 @@
+schema: spec-driven
+# https://github.com/Fission-AI/OpenSpec/blob/main/docs/customization.md
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+context: |
+  Idioma: Español
+  All artifacts must be written in English
+
+  Tech stack: vscode api, Typescript
+  Rules, Instructions and conventions, documented in ./github/copilot-instructions.md
+  We use conventional commits
+  Domain: vscode extension
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+rules:
+  proposal:
+    - Keep proposals under 500 words
+    - Always include a "Non-goals" section
+  specs:
+    - Use Given/When/Then format
+    - Reference existing patterns before inventing new ones
+  tasks:
+    - Break tasks into chunks of max 1 hours
