@@ -1,47 +1,65 @@
 import type { CodeGenerationType } from "externalShared/extract-graphics/extract-graphics-dtos";
 
-/** Datos extraídos del documento XML Tiled (.tmx). */
-export interface TmxMapMetadata {
-  /** Ancho del mapa en tiles. */
+/** Normalized map metadata used for code generation and preview rendering. */
+export interface MapTilesetMetadata {
+  /** Map width in tiles (from the selected layer). */
   mapWidth: number;
-  /** Alto del mapa en tiles. */
+  /** Map height in tiles (from the selected layer). */
   mapHeight: number;
-  /** Ancho de cada tile en píxeles. */
+  /** Width of each tile in pixels. */
   tileWidth: number;
-  /** Alto de cada tile en píxeles. */
+  /** Height of each tile in pixels. */
   tileHeight: number;
-  /** Nombre del tileset (atributo `name` del nodo `<tileset>`). */
+  /** Tileset name derived from the source image filename. */
   tilesetName: string;
-  /** GID del primer tile del tileset (normalmente 1). */
-  firstGid: number;
-  /** Número total de tiles en el tileset. Máximo 255; si > 255 → error. */
+  /** Total number of tiles in the tileset. Maximum 255; values above throw an error. */
   tileCount: number;
-  /** Número de columnas del tileset (para calcular posición en el PNG). */
+  /** Number of tileset columns (used to compute tile position in the PNG). */
   columns: number;
-  /** Path relativo a la imagen fuente del tileset (atributo `source` de `<image>`). */
+  /** Relative path of the tileset source image. */
   sourceImage: string;
 }
 
-/** Estado reactivo completo del composable useExtractMapTileset. */
+export interface TiledJsonTileset {
+  image: string;
+  tileWidth: number;
+  tileHeight: number;
+  tileCount: number;
+  columns: number;
+}
+
+export interface TiledJsonLayer {
+  name: string;
+  width: number;
+  height: number;
+  data: number[];
+}
+
+export interface TiledJsonMapSource {
+  tileset: TiledJsonTileset;
+  layers: TiledJsonLayer[];
+}
+
+/** Complete reactive state exposed by useExtractMapTileset. */
 export interface MapTilesetState {
-  /** Nombre del fichero TMX cargado. */
-  xmlSource: string;
-  /** Nombre del fichero PNG del tileset. */
+  /** Name of the loaded JSON map file. */
+  mapSource: string;
+  /** Name of the tileset PNG file. */
   imageSource: string;
-  /** Metadatos parseados del XML. undefined si no hay TMX válido. */
-  metadata?: TmxMapMetadata;
+  /** Normalized metadata. Undefined when no valid JSON is loaded. */
+  metadata?: MapTilesetMetadata;
   /**
-   * Índices normalizados por celda (row-major).
-   * localIndex = gid === 0 ? 0 : gid - firstGid + 1
-   * Longitud: mapWidth * mapHeight.
+   * Normalized indices per cell (row-major).
+   * localIndex = gid (0 means empty cell).
+   * Length: mapWidth * mapHeight.
    */
   tileIndices: number[];
-  /** Errores de validación o parseo activos (bloquean la extracción). */
+  /** Active validation or parsing errors (these block extraction). */
   errors: string[];
-  /** Avisos no bloqueantes (e.g. dimensiones PNG inconsistentes). */
+  /** Non-blocking warnings (for example, inconsistent PNG dimensions). */
   warnings: string[];
-  /** Modo de generación de código seleccionado. */
+  /** Selected code-generation mode. */
   codeGenerationType: CodeGenerationType;
-  /** true cuando hay metadata válida, tileCount ≤ 255 y tileIndices no vacío. */
+  /** True when metadata is valid, tileCount is <= 255, and tileIndices is not empty. */
   isReady: boolean;
 }

@@ -8,7 +8,7 @@ import { useExtractMapTileset } from "./composables/useExtractMapTileset";
 const { t } = useI18n();
 
 const {
-  xmlSource,
+  mapSource,
   imageSource,
   metadata,
   tileIndices,
@@ -22,24 +22,27 @@ const {
   mapByteSize,
   totalByteSize,
   statusMessage,
-  setXmlFile,
+  setMapFile,
   renderPreview,
   extractResources,
 } = useExtractMapTileset();
 
 const baseName = computed(() => {
-  if (!xmlSource.value) {
+  if (!mapSource.value) {
     return "map";
   }
-  return xmlSource.value.replace(/\.[^.]+$/, "");
+  return mapSource.value.replace(/\.[^.]+$/, "");
 });
 
-function onXmlFilesSelected(files: File[]): void {
-  const tmxFile = files.find((f) => /\.(tmx|xml)$/i.test(f.name));
-  if (!tmxFile) return;
-  setXmlFile(
-    tmxFile,
-    files.filter((f) => f !== tmxFile),
+function onMapFilesSelected(files: File[]): void {
+  const jsonFile = files.find((file) => /\.json$/i.test(file.name));
+  const rejectedXmlFile = files.find((file) => /\.(tmx|xml)$/i.test(file.name));
+  const selectedMapFile = jsonFile ?? rejectedXmlFile;
+  if (!selectedMapFile) return;
+
+  setMapFile(
+    selectedMapFile,
+    files.filter((file) => file !== selectedMapFile),
   );
 }
 
@@ -52,6 +55,11 @@ function formatError(error: string): string {
   if (key === "errorTileCountExceeds255" && args[0]) {
     return t("extract-map-tileset.errorTileCountExceeds255", {
       count: args[0],
+    });
+  }
+  if (key === "errorJsonMissingField" && args[0]) {
+    return t("extract-map-tileset.errorJsonMissingField", {
+      field: args[0],
     });
   }
   if (key === "warningDimensionsMismatch" && args.length === 2) {
@@ -79,14 +87,14 @@ function formatError(error: string): string {
     <main class="mt-6 flex w-full flex-col gap-6">
       <!-- Source data section (XML input + code gen type) -->
       <SourceSection
-        v-model:source="xmlSource"
+        v-model:source="mapSource"
         v-model:code-generation-type="codeGenerationType"
         translation-namespace="extract-map-tileset"
         :read-only="isCodeGenerationTypeReadOnly"
         :hide-map-input="true"
         :multiple-source="true"
-        accept-source-formats=".tmx,.xml,.png"
-        @files-selected="onXmlFilesSelected"
+        accept-source-formats=".json,.png"
+        @files-selected="onMapFilesSelected"
       />
 
       <!-- Canvas preview + PNG status -->

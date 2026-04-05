@@ -1,7 +1,9 @@
-import { GeneratedFile } from "src/extract-map-tileset/composables/codeGenerators/codeGeneratorStrategy";
 import {
+  buildDataSizeComment,
   buildMapFile,
+  calculateTilesDataByteCount,
   CodeGeneratorStrategy,
+  GeneratedFile,
   getIncludedTileIndices,
   TilesCodeGeneratorParams,
 } from "src/extract-tiles/composables/codeGenerators/codeGeneratorStrategy";
@@ -67,9 +69,12 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
   ): string {
     const { name, tiles } = params;
     const id = toCodeIdentifier(name);
+    const dataByteCount = calculateTilesDataByteCount(params, includedIndices);
+    const dataSizeComment = buildDataSizeComment(dataByteCount);
 
     const lines: string[] = [
-      "// Read-Only Data Section for User Module",
+      dataSizeComment,
+      "; Read-Only Data Section for User Module",
       "SECTION rodata_user",
       "",
       `PUBLIC _${id}_tiles`,

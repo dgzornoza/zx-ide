@@ -58,7 +58,7 @@
             "LICENSE": true,
             "zx-ide.code-workspace": false,
             "assets": true,
-            "scripts": true,
+            "scripts": false,
             "projects": true,
         },
         "files.watcherExclude": {

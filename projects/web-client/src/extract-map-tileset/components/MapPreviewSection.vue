@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import type { TmxMapMetadata } from "../models/mapTilesetDefinition";
+import type { MapTilesetMetadata } from "../models/mapTilesetDefinition";
 
 const props = defineProps<{
-  metadata: TmxMapMetadata | null;
+  metadata?: MapTilesetMetadata;
   tileIndices: number[];
   imageSource: string;
   renderPreview: (canvas: HTMLCanvasElement) => void;

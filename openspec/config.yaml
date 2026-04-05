@@ -5,7 +5,7 @@ schema: spec-driven
 # This is shown to AI when creating artifacts.
 # Add your tech stack, conventions, style guides, domain knowledge, etc.
 context: |
-  Idioma: Español
+  Idioma: English
   All artifacts must be written in English
 
   Tech stack: vscode api, Typescript

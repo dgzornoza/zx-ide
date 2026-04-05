@@ -3,19 +3,20 @@ import type {
   InitMessage,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
+import { createMapCodeGenerator } from "src/extract-map-tileset/composables/codeGenerators/codeGeneratorFactory";
 import { computed, onMounted, ref, watch } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
 import { downloadFilesAsZip } from "../../helpers/html-utils";
 import { renderTilesetMapPreview } from "../../helpers/image-utils";
-import type { TmxMapMetadata } from "../models/mapTilesetDefinition";
-import { createMapCodeGenerator } from "./codeGenerators/mapTilesetCodeGenerators";
+import type { MapTilesetMetadata } from "../models/mapTilesetDefinition";
+import { parseAndValidateTiledJson } from "./tiledJsonValidation";
 
-function normalizeGids(rawGids: number[], firstGid: number): number[] {
+function normalizeGids(rawGids: number[]): number[] {
   const normalised: number[] = [];
 
   for (const gid of rawGids) {
     const safeGid = gid ?? 0;
-    const localIndex = safeGid === 0 ? 0 : safeGid - firstGid + 1;
+    const localIndex = safeGid;
 
     if (localIndex < 0 || localIndex > 255) {
       throw new Error("errorGidOutOfRange");
@@ -27,26 +28,33 @@ function normalizeGids(rawGids: number[], firstGid: number): number[] {
   return normalised;
 }
 
+function toUserErrorKey(error: unknown): string {
+  if (error instanceof Error && error.message.trim() !== "") {
+    return error.message;
+  }
+  return "errorJsonInvalid";
+}
+
 export function useExtractMapTileset() {
   // ─── State ───────────────────────────────────────────────────────────────────
 
-  const xmlSource = ref("");
+  const mapSource = ref("");
   const imageSource = ref("");
-  const metadata = ref<TmxMapMetadata | null>(null);
+  const metadata = ref<MapTilesetMetadata>();
   const tileIndices = ref<number[]>([]);
   const errors = ref<string[]>([]);
   const warnings = ref<string[]>([]);
   const codeGenerationType = ref<CodeGenerationType>("asm");
   const isCodeGenerationTypeReadOnly = ref(false);
-  const tilesetImageBitmap = ref<ImageBitmap | null>(null);
+  const tilesetImageBitmap = ref<ImageBitmap>();
   const statusMessage = ref("");
 
   const isReady = computed(
     () =>
       errors.value.length === 0 &&
-      metadata.value !== null &&
+      metadata.value !== undefined &&
       tileIndices.value.length > 0 &&
-      xmlSource.value !== "",
+      mapSource.value !== "",
   );
 
   const usedTileCount = computed(() => {
@@ -88,30 +96,37 @@ export function useExtractMapTileset() {
     }
   }
 
-  // ─── XML File Loading ─────────────────────────────────────────────────────────
+  // ─── JSON Map File Loading ────────────────────────────────────────────────────
 
-  async function setXmlFile(
+  async function setMapFile(
     file: File,
     companions: File[] = [],
   ): Promise<void> {
     errors.value = [];
     warnings.value = [];
-    metadata.value = null;
+    metadata.value = undefined;
     tileIndices.value = [];
     imageSource.value = "";
-    tilesetImageBitmap.value = null;
-    xmlSource.value = file.name;
+    tilesetImageBitmap.value = undefined;
+    mapSource.value = file.name;
 
     try {
+      if (/\.(tmx|xml)$/i.test(file.name)) {
+        throw new Error("errorJsonRequired");
+      }
+      if (!/\.json$/i.test(file.name)) {
+        throw new Error("errorJsonUnsupportedFormat");
+      }
+
       const content = await file.text();
-      const parsedMetadata = parseTmxDocument(content);
-      metadata.value = parsedMetadata;
+      const parsedMap = parseAndValidateTiledJson(content);
+      metadata.value = parsedMap.metadata;
 
-      const rawIndices = parseCsvLayer(content, parsedMetadata);
-      tileIndices.value = normalizeGids(rawIndices, parsedMetadata.firstGid);
+      tileIndices.value = normalizeGids(parsedMap.layer.data);
 
-      // Auto-load the PNG if it was selected alongside the TMX
-      const imageFileName = parsedMetadata.sourceImage.split("/").at(-1) ?? "";
+      // Auto-load the PNG if it was selected alongside the JSON map file.
+      const imageFileName =
+        parsedMap.metadata.sourceImage.split("/").at(-1) ?? "";
       if (imageFileName) {
         const match = companions.find((f) => f.name === imageFileName);
         if (match) {
@@ -119,116 +134,8 @@ export function useExtractMapTileset() {
         }
       }
     } catch (error) {
-      errors.value = [String(error)];
+      errors.value = [toUserErrorKey(error)];
     }
-  }
-
-  function parseTmxDocument(xmlContent: string): TmxMapMetadata {
-    const parser = new DOMParser();
-    const document_ = parser.parseFromString(xmlContent, "text/xml");
-
-    const parseError = document_.querySelector("parsererror");
-    if (parseError) {
-      throw new Error("errorXmlInvalid");
-    }
-
-    const mapElement = document_.querySelector("map");
-    if (!mapElement) {
-      throw new Error("errorXmlInvalid");
-    }
-
-    const tilesetElement = document_.querySelector("tileset");
-    if (!tilesetElement) {
-      throw new Error("errorXmlInvalid");
-    }
-
-    const imageElement = tilesetElement.querySelector("image");
-
-    const mapWidth = Number.parseInt(
-      mapElement.getAttribute("width") ?? "0",
-      10,
-    );
-    const mapHeight = Number.parseInt(
-      mapElement.getAttribute("height") ?? "0",
-      10,
-    );
-    const tileWidth = Number.parseInt(
-      mapElement.getAttribute("tilewidth") ?? "0",
-      10,
-    );
-    const tileHeight = Number.parseInt(
-      mapElement.getAttribute("tileheight") ?? "0",
-      10,
-    );
-    const firstGid = Number.parseInt(
-      tilesetElement.getAttribute("firstgid") ?? "1",
-      10,
-    );
-    const tileCount = Number.parseInt(
-      tilesetElement.getAttribute("tilecount") ?? "0",
-      10,
-    );
-    const columns = Number.parseInt(
-      tilesetElement.getAttribute("columns") ?? "0",
-      10,
-    );
-    const tilesetName = tilesetElement.getAttribute("name") ?? "";
-    const sourceImage = imageElement?.getAttribute("source") ?? "";
-
-    if (tileCount > 255) {
-      throw new Error(`errorTileCountExceeds255:${tileCount}`);
-    }
-    if (tileCount <= 0) {
-      throw new Error("errorXmlInvalid");
-    }
-
-    return {
-      mapWidth,
-      mapHeight,
-      tileWidth,
-      tileHeight,
-      tilesetName,
-      firstGid,
-      tileCount,
-      columns,
-      sourceImage,
-    };
-  }
-
-  function parseCsvLayer(
-    xmlContent: string,
-    mapMetadata: TmxMapMetadata,
-  ): number[] {
-    const parser = new DOMParser();
-    const document_ = parser.parseFromString(xmlContent, "text/xml");
-
-    const layers = Array.from(document_.querySelectorAll("layer"));
-    const csvLayer = layers.find(
-      (layer) => layer.querySelector("data[encoding='csv']") !== null,
-    );
-
-    if (!csvLayer) {
-      throw new Error("errorNoLayerCsv");
-    }
-
-    const dataElement = csvLayer.querySelector("data");
-    const csvContent = dataElement?.textContent ?? "";
-
-    const rawGids = csvContent
-      .trim()
-      .split(",")
-      .map((token) => token.trim())
-      .filter((token) => token !== "")
-      .map((token) => Number.parseInt(token, 10))
-      .filter((value) => !Number.isNaN(value));
-
-    const expectedCount = mapMetadata.mapWidth * mapMetadata.mapHeight;
-    if (rawGids.length !== expectedCount) {
-      // Accept the data anyway — truncate or pad silently
-      rawGids.length = expectedCount;
-    }
-
-    return rawGids;
   }
 
   // ─── PNG File Loading ─────────────────────────────────────────────────────────
@@ -260,7 +167,7 @@ export function useExtractMapTileset() {
       canvas,
       tileIndices.value,
       metadata.value,
-      tilesetImageBitmap.value,
+      tilesetImageBitmap.value ?? null,
     );
   }
 
@@ -298,7 +205,7 @@ export function useExtractMapTileset() {
   });
 
   return {
-    xmlSource,
+    mapSource,
     imageSource,
     metadata,
     tileIndices,
@@ -312,7 +219,7 @@ export function useExtractMapTileset() {
     mapByteSize,
     totalByteSize,
     statusMessage,
-    setXmlFile,
+    setMapFile,
     renderPreview,
     extractResources,
   };

@@ -5,7 +5,7 @@ import {
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
 import JSZip from "jszip";
-import { createSpritesCodeGenerator } from "src/extract-sprites/composables/codeGenerators/spritesCodeGenerators";
+import { createSpritesCodeGenerator } from "src/extract-sprites/composables/codeGenerators/codeGeneratorFactory";
 import {
   SpriteDefinition,
   SpriteFlags,

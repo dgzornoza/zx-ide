@@ -93,14 +93,14 @@ const messages = {
     "extract-map-tileset": {
       title: "Extract Map Tileset",
       subtitle:
-        "Generate assembly code from a Tiled map file and save it into your project.",
+        "Generate assembly code from a Tiled JSON map file and save it into your project.",
       sectionSource: "Source data",
-      sourceLabel: "Map file (.tmx)",
+      sourceLabel: "Map file (.json)",
       sourceHint:
-        "Select the Tiled map file and its PNG tileset image together.",
+        "Select the Tiled JSON map file and its PNG tileset image together.",
       browseButton: "Browse\u2026",
       imageNotLoaded:
-        "PNG not loaded. Re-select including {filename} alongside the .tmx file.",
+        "PNG not loaded. Re-select including {filename} alongside the .json file.",
       noFileSelected: "No file selected",
       sectionResults: "Results",
       tilesUsedLabel: "Tiles used",
@@ -118,11 +118,21 @@ const messages = {
       statusSent: "Message sent in standalone mode.",
       errorTileCountExceeds255:
         "Tileset has {count} tiles, which exceeds the maximum of 255 for uint8 indexing.",
-      errorNoLayerCsv:
-        "No CSV layer found in the map file. Only CSV encoding is supported.",
+      errorJsonInvalid: "The map file is not valid JSON.",
+      errorJsonRequired:
+        "JSON map file required. TMX/XML files are not supported.",
+      errorJsonUnsupportedFormat:
+        "Unsupported map format. Please select a .json file.",
+      errorJsonMissingField: "Missing or invalid required field: {field}.",
+      errorNoLayers: "The map JSON does not contain any layers.",
+      errorLayerDataInvalid:
+        "Layer data must be an array of numeric tile identifiers.",
+      errorJsonInvalidDimensions:
+        "Map layer width and height must be greater than zero.",
+      errorExporterVersionMismatch:
+        "This map was exported with an unsupported exporter version.",
       errorGidOutOfRange:
         "Tile index out of range after normalisation. Check the map file consistency.",
-      errorXmlInvalid: "The map file is not valid TMX.",
       warningDimensionsMismatch:
         "PNG width ({actual}px) does not match expected ({expected}px). Preview may be incorrect.",
     },
@@ -229,14 +239,14 @@ const messages = {
     "extract-map-tileset": {
       title: "Extraer mapa de tileset",
       subtitle:
-        "Genera código ensamblador desde un archivo de mapa Tiled y guárdalo en tu proyecto.",
+        "Genera código ensamblador desde un archivo JSON de mapa Tiled y guárdalo en tu proyecto.",
       sectionSource: "Datos de origen",
-      sourceLabel: "Archivo de mapa (.tmx)",
+      sourceLabel: "Archivo de mapa (.json)",
       sourceHint:
-        "Selecciona el archivo .tmx y su imagen PNG del tileset juntos.",
+        "Selecciona el archivo .json y su imagen PNG del tileset juntos.",
       browseButton: "Examinar\u2026",
       imageNotLoaded:
-        "PNG no cargado. Vuelve a seleccionar incluyendo {filename} junto al archivo .tmx.",
+        "PNG no cargado. Vuelve a seleccionar incluyendo {filename} junto al archivo .json.",
       noFileSelected: "Ningún archivo seleccionado",
       sectionResults: "Resultados",
       tilesUsedLabel: "Tiles usados",
@@ -254,11 +264,22 @@ const messages = {
       statusSent: "Mensaje enviado en modo standalone.",
       errorTileCountExceeds255:
         "El tileset tiene {count} tiles, que supera el máximo de 255 para indexado uint8.",
-      errorNoLayerCsv:
-        "No se encontró ninguna capa CSV en el archivo de mapa. Solo se admite codificación CSV.",
+      errorJsonInvalid: "El archivo de mapa no es un JSON válido.",
+      errorJsonRequired:
+        "Se requiere un archivo de mapa JSON. Los archivos TMX/XML no son compatibles.",
+      errorJsonUnsupportedFormat:
+        "Formato de mapa no compatible. Selecciona un archivo .json.",
+      errorJsonMissingField:
+        "Falta o es inválido el campo obligatorio: {field}.",
+      errorNoLayers: "El JSON de mapa no contiene capas.",
+      errorLayerDataInvalid:
+        "Los datos de la capa deben ser un array de identificadores de tile numéricos.",
+      errorJsonInvalidDimensions:
+        "El ancho y alto de la capa del mapa deben ser mayores que cero.",
+      errorExporterVersionMismatch:
+        "Este mapa fue exportado con una versión de exportador no compatible.",
       errorGidOutOfRange:
         "Índice de tile fuera de rango tras la normalización. Comprueba la consistencia del archivo de mapa.",
-      errorXmlInvalid: "El archivo de mapa no es TMX válido.",
       warningDimensionsMismatch:
         "El ancho del PNG ({actual}px) no coincide con el esperado ({expected}px). La vista previa puede ser incorrecta.",
     },

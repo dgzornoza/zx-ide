@@ -61,6 +61,7 @@ Translation keys are namespaced by page (e.g. `extract-graphics.sourceLabel`). U
 ## Conventions
 
 - **Composition API with `<script setup>`** and TypeScript — always. No Options API.
+- Source code (identifiers, inline comments, doc comments, and developer-facing messages) must be written in English.
 - No abbreviations in variable/property names (e.g. `codeGenerationType`, not `codeGenType`). For loop/iteration variables, `item` is acceptable as a generic loop variable name.
 - Never use single-letter or shortened parameter names (e.g. `newValue` not `v`, `spriteIndex` not `i` unless it is a generic `item` iteration).
 - Styling via **Tailwind CSS** with CSS custom properties for theming (`var(--button-bg)`, `var(--ink-soft)`, etc.). These map to VS Code's webview theme tokens.

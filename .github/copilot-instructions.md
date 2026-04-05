@@ -21,6 +21,7 @@ Convenciones de Copilot / Agentes
 
 - **No usar `null`** — usar siempre `undefined`. Las propiedades opcionales se declaran con `?`: `myVar?: string;` en lugar de `myVar: string | null`.
 - Los parámetros y variables opcionales siguen el mismo patrón: `function foo(bar?: string)` en lugar de `function foo(bar: string | null)`.
+- Código fuente y comentarios técnicos en inglés en todos los proyectos.
 
 Pautas de uso para asistentes
 

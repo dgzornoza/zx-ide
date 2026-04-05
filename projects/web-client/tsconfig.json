@@ -10,7 +10,8 @@
         "strict": true,
         "jsx": "preserve",
         "types": [
-            "vite/client"
+            "vite/client",
+            "vitest/globals"
         ],
         "allowJs": false,
         "resolveJsonModule": true,

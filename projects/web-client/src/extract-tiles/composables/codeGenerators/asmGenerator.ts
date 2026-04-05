@@ -1,7 +1,9 @@
-import { GeneratedFile } from "src/extract-map-tileset/composables/codeGenerators/codeGeneratorStrategy";
 import {
+  buildDataSizeComment,
   buildMapFile,
+  calculateTilesDataByteCount,
   CodeGeneratorStrategy,
+  GeneratedFile,
   getIncludedTileIndices,
   TilesCodeGeneratorParams,
 } from "src/extract-tiles/composables/codeGenerators/codeGeneratorStrategy";
@@ -22,7 +24,10 @@ export class AsmTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
     const id = toCodeIdentifier(baseName);
     const includedIndices = getIncludedTileIndices(params);
 
-    const lines: string[] = [`${id}_tiles:`];
+    const dataByteCount = calculateTilesDataByteCount(params, includedIndices);
+    const dataSizeComment = buildDataSizeComment(dataByteCount);
+
+    const lines: string[] = [dataSizeComment, `${id}_tiles:`];
 
     includedIndices.forEach((tileIndex) => {
       const bitmask = tiles.inkBitmaps[tileIndex] ?? [];
