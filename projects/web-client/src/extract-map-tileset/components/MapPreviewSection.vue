@@ -12,10 +12,13 @@ const props = defineProps<{
 
 const { t } = useI18n();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
+const previewScaleFactor = 2;
 
 function triggerRender(): void {
   if (canvasRef.value) {
     props.renderPreview(canvasRef.value);
+    canvasRef.value.style.width = `${canvasRef.value.width * previewScaleFactor}px`;
+    canvasRef.value.style.height = `${canvasRef.value.height * previewScaleFactor}px`;
   }
 }
 

@@ -44,7 +44,7 @@ export function useExtractMapTileset() {
   const tileIndices = ref<number[]>([]);
   const errors = ref<string[]>([]);
   const warnings = ref<string[]>([]);
-  const codeGenerationType = ref<CodeGenerationType>("asm");
+  const codeGenerationType = ref<CodeGenerationType>("c");
   const isCodeGenerationTypeReadOnly = ref(false);
   const tilesetImageBitmap = ref<ImageBitmap>();
   const statusMessage = ref("");
