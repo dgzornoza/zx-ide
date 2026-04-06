@@ -1,9 +1,23 @@
+/**
+ * Parses assembler tileset source text and converts it into UI-friendly tile data.
+ *
+ * This module reads `defb` byte declarations from an ASM file, separates tile bitmap
+ * bytes from optional `_tiles_attributes` bytes, and decodes each tile into a flat
+ * boolean bitmap (`true` = ink pixel, `false` = paper pixel).
+ */
 export interface ParsedAsmTileset {
+  /** Flattened ink/paper bitmap per tile, row-major order. */
   tileInkBitmaps: boolean[][];
+  /** Raw attribute bytes found in the `_tiles_attributes` section, if present. */
   attributeBytes: number[];
+  /** Number of parsed tiles inferred from tile byte count and tile dimensions. */
   tileCount: number;
 }
 
+/**
+ * Extracts byte values from a single ASM line containing `defb`.
+ * Supports hexadecimal (`$ff`) and decimal (`255`) byte literals.
+ */
 function parseDefbBytes(line: string): number[] {
   const noCommentLine = line.split(";")[0] ?? "";
   const defbRegex = /\bdefb\b(.*)$/i;
@@ -36,6 +50,10 @@ function parseDefbBytes(line: string): number[] {
   return bytes;
 }
 
+/**
+ * Decodes tile bytes into a flattened boolean bitmap.
+ * Bits are read from most-significant to least-significant bit per byte.
+ */
 function decodeTileBitmap(
   tileBytes: number[],
   tileWidth: number,
@@ -57,6 +75,16 @@ function decodeTileBitmap(
   return bitmap;
 }
 
+/**
+ * Parses the full ASM tileset content and returns decoded tile/attribute data.
+ *
+ * Expected behavior:
+ * - Reads all `defb` bytes before `_tiles_attributes` as tile bitmap bytes.
+ * - Reads all `defb` bytes after `_tiles_attributes` as attribute bytes.
+ * - Validates tile dimensions and total tile byte count consistency.
+ *
+ * Throws localized error keys when parsing fails.
+ */
 export function parseAsmTilesetData(
   content: string,
   tileWidth: number,

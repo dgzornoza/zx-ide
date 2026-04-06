@@ -1,3 +1,11 @@
+/**
+ * Validates and parses Tiled JSON map exports for ZX-IDE tilemap tools.
+ *
+ * This module reads a JSON string exported from the Tiled map editor (with a custom exporter),
+ * validates its structure and version, and extracts the tileset and layer data into a normalized,
+ * UI-friendly format. It ensures all required fields are present, checks for valid dimensions,
+ * and normalizes the tile data array to match the expected map size.
+ */
 import type {
   MapTilesetMetadata,
   TiledJsonLayer,
@@ -10,6 +18,9 @@ export interface ParsedTiledJsonMap {
   layer: TiledJsonLayer;
 }
 
+/**
+ * Returns true if the value is a non-null object (record).
+ */
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -78,6 +89,15 @@ function parseLayer(value: unknown, index: number): TiledJsonLayer {
   };
 }
 
+/**
+ * Parses and validates a Tiled JSON map export string.
+ *
+ * - Checks exporter version compatibility.
+ * - Validates and normalizes tileset and layer data.
+ * - Ensures tile data array matches map dimensions, filling with 0 if needed.
+ *
+ * Throws localized error keys if validation fails.
+ */
 export function parseAndValidateTiledJson(content: string): ParsedTiledJsonMap {
   let parsedValue: unknown;
   try {

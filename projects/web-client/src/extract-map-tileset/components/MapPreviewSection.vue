@@ -5,6 +5,7 @@ import type { MapTilesetMetadata } from "../models/mapTilesetDefinition";
 const props = defineProps<{
   metadata?: MapTilesetMetadata;
   tileIndices: number[];
+  previewRefreshKey: number;
   renderPreview: (canvas: HTMLCanvasElement) => void;
 }>();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
@@ -18,10 +19,14 @@ function triggerRender(): void {
   }
 }
 
-watch(() => [props.tileIndices, props.metadata] as const, triggerRender, {
-  deep: true,
-  flush: "post",
-});
+watch(
+  () => [props.tileIndices, props.metadata, props.previewRefreshKey] as const,
+  triggerRender,
+  {
+    deep: true,
+    flush: "post",
+  },
+);
 
 onMounted(triggerRender);
 </script>

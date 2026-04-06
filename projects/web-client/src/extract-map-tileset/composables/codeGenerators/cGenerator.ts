@@ -19,7 +19,7 @@ import { toCodeIdentifier, toMacroGuard } from "src/helpers/string-utils";
 export class CMapCodeGenerator implements CodeGeneratorStrategy {
   generate(params: MapCodeGeneratorParams): GeneratedFile[] {
     const { name, metadata, tileIndices } = params;
-    const { mapWidth, mapHeight } = metadata;
+    const { mapWidth, mapHeight, tileCount } = metadata;
     const identifier = toCodeIdentifier(name);
     const macroGuard = toMacroGuard(name);
     const header = buildHeader(name, mapWidth, mapHeight);
@@ -36,6 +36,7 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy {
       `#define ${macroGuard}_WIDTH  ${mapWidth}`,
       `#define ${macroGuard}_HEIGHT ${mapHeight}`,
       `#define ${macroGuard}_SIZE   ${mapWidth * mapHeight}`,
+      `#define ${macroGuard}_TILES_COUNT ${tileCount}`,
       `extern unsigned char ${identifier}[${mapHeight}][${mapWidth}];`,
       "",
       `#endif`,
@@ -43,6 +44,10 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy {
     ].join("\n");
 
     const asmContent = [
+      `; ${macroGuard}_WIDTH: ${mapWidth}`,
+      `; ${macroGuard}_HEIGHT: ${mapHeight}`,
+      `; ${macroGuard}_SIZE: ${mapWidth * mapHeight}`,
+      `; ${macroGuard}_TILES_COUNT: ${tileCount}`,
       dataSizeComment,
       "SECTION rodata_user",
       `PUBLIC _${identifier}`,

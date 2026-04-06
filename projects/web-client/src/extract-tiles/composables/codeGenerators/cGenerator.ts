@@ -51,11 +51,11 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
       "",
       "#include <stdint.h>",
       "",
-      `extern const uint8_t ${id}_tiles[];`,
+      `extern const uint8_t ${id}[];`,
     ];
 
     if (hasAttributes) {
-      lines.push(`extern const uint8_t ${id}_tiles_attributes[];`);
+      lines.push(`extern const uint8_t ${id}_attributes[];`);
     }
 
     lines.push("", `#endif // __${guard}_H__`, "");
@@ -77,8 +77,8 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
       "; Read-Only Data Section for User Module",
       "SECTION rodata_user",
       "",
-      `PUBLIC _${id}_tiles`,
-      `_${id}_tiles:`,
+      `PUBLIC _${id}`,
+      `_${id}:`,
     ];
 
     includedIndices.forEach((tileIndex) => {
@@ -92,8 +92,8 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
     if (tiles.attributes && tiles.attributes.length > 0) {
       lines.push(
         "",
-        `PUBLIC _${id}_tiles_attributes`,
-        `_${id}_tiles_attributes:`,
+        `PUBLIC _${id}_attributes`,
+        `_${id}_attributes:`,
         ...generateAttributeDefbLines(tiles.attributes, includedIndices),
       );
     }

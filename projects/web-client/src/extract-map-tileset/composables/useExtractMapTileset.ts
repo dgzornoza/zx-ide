@@ -51,6 +51,11 @@ export function useExtractMapTileset() {
   const codeGenerationType = ref<CodeGenerationType>("c");
   const isCodeGenerationTypeReadOnly = ref(false);
   const statusMessage = ref("");
+  /**
+   * Forces the map preview canvas to rerender when incremented.
+   * Used as a reactive trigger when loading JSON or ASM files,
+   */
+  const previewRefreshKey = ref(0);
 
   const isReady = computed(
     () =>
@@ -122,6 +127,7 @@ export function useExtractMapTileset() {
     validateMapVsTileset(parsed.tileCount);
     tileInkBitmaps.value = parsed.tileInkBitmaps;
     tileAttributeBytes.value = parsed.attributeBytes;
+    previewRefreshKey.value += 1;
   }
 
   // ─── JSON Map File Loading ────────────────────────────────────────────────────
@@ -133,6 +139,7 @@ export function useExtractMapTileset() {
     tileIndices.value = [];
     tileInkBitmaps.value = [];
     tileAttributeBytes.value = [];
+    previewRefreshKey.value += 1;
     mapSource.value = file.name;
 
     try {
@@ -162,6 +169,7 @@ export function useExtractMapTileset() {
     warnings.value = [];
     tileInkBitmaps.value = [];
     tileAttributeBytes.value = [];
+    previewRefreshKey.value += 1;
     asmSource.value = file.name;
 
     try {
@@ -238,6 +246,7 @@ export function useExtractMapTileset() {
     usedTilesByteSize,
     mapByteSize,
     totalByteSize,
+    previewRefreshKey,
     statusMessage,
     setMapFile,
     setAsmFile,

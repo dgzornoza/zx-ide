@@ -27,7 +27,7 @@ export class AsmTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
     const dataByteCount = calculateTilesDataByteCount(params, includedIndices);
     const dataSizeComment = buildDataSizeComment(dataByteCount);
 
-    const lines: string[] = [dataSizeComment, `${id}_tiles:`];
+    const lines: string[] = [dataSizeComment, `${id}:`];
 
     includedIndices.forEach((tileIndex) => {
       const bitmask = tiles.inkBitmaps[tileIndex] ?? [];
@@ -41,7 +41,7 @@ export class AsmTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
     if (tiles.attributes && tiles.attributes.length > 0) {
       lines.push(
         "",
-        `${id}_tiles_attributes:`,
+        `${id}_attributes:`,
         ...generateAttributeDefbLines(tiles.attributes, includedIndices),
       );
     }

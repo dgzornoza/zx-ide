@@ -21,6 +21,7 @@ const {
   usedTilesByteSize,
   mapByteSize,
   totalByteSize,
+  previewRefreshKey,
   statusMessage,
   setMapFile,
   setAsmFile,
@@ -99,6 +100,7 @@ function formatError(error: string): string {
       <MapPreviewSection
         :metadata="metadata"
         :tile-indices="tileIndices"
+        :preview-refresh-key="previewRefreshKey"
         :render-preview="renderPreview"
       />
 
