@@ -519,6 +519,88 @@ export function renderTilesetMapPreview(
   }
 }
 
+/**
+ * Renders a map preview using decoded tile bitmaps instead of a PNG tileset image.
+ *
+ * Each value in `tileIndices` is 1-based (0 means transparent cell).
+ * `tileInkBitmaps[tileIndex]` is a row-major boolean array where true=ink pixel.
+ */
+export function renderTilesetMapPreviewFromTileData(
+  canvas: HTMLCanvasElement,
+  tileIndices: number[],
+  options: TileMapRenderOptions,
+  tileInkBitmaps: boolean[][],
+  attributeBytes: number[] = [],
+): void {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    return;
+  }
+
+  const { mapWidth, mapHeight, tileWidth, tileHeight } = options;
+
+  canvas.width = mapWidth * tileWidth;
+  canvas.height = mapHeight * tileHeight;
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const resolveTileColors = (
+    attributeByte: number | undefined,
+  ): { paperColor: string; inkColor: string } => {
+    if (attributeByte === undefined) {
+      return { paperColor: "#000000", inkColor: "#FFFFFF" };
+    }
+
+    const bright = (attributeByte & 0x40) !== 0;
+    const paper = (attributeByte >> 3) & 0x07;
+    const ink = attributeByte & 0x07;
+    const palette = bright ? ZX_COLORS_BRIGHT : ZX_COLORS_NORMAL;
+    return {
+      paperColor: palette[paper] ?? "#000000",
+      inkColor: palette[ink] ?? "#FFFFFF",
+    };
+  };
+
+  const drawTileBitmap = (
+    bitmap: boolean[],
+    xOffset: number,
+    yOffset: number,
+    paperColor: string,
+    inkColor: string,
+  ) => {
+    for (let pixelRow = 0; pixelRow < tileHeight; pixelRow++) {
+      for (let pixelColumn = 0; pixelColumn < tileWidth; pixelColumn++) {
+        const pixelIndex = pixelRow * tileWidth + pixelColumn;
+        ctx.fillStyle = bitmap[pixelIndex] ? inkColor : paperColor;
+        ctx.fillRect(xOffset + pixelColumn, yOffset + pixelRow, 1, 1);
+      }
+    }
+  };
+
+  for (let row = 0; row < mapHeight; row++) {
+    for (let col = 0; col < mapWidth; col++) {
+      const localIndex = tileIndices[row * mapWidth + col] ?? 0;
+      if (localIndex === 0) {
+        continue;
+      }
+
+      const tileIndex = localIndex - 1;
+      const bitmap = tileInkBitmaps[tileIndex];
+      if (!bitmap) {
+        continue;
+      }
+
+      const attributeByte = attributeBytes[tileIndex];
+      const { paperColor, inkColor } = resolveTileColors(attributeByte);
+
+      const xOffset = col * tileWidth;
+      const yOffset = row * tileHeight;
+
+      drawTileBitmap(bitmap, xOffset, yOffset, paperColor, inkColor);
+    }
+  }
+}
+
 // ─── Tile sheet PNG export ────────────────────────────────────────────────────
 
 /**

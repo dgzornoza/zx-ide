@@ -1,18 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
 import type { MapTilesetMetadata } from "../models/mapTilesetDefinition";
 
 const props = defineProps<{
   metadata?: MapTilesetMetadata;
   tileIndices: number[];
-  imageSource: string;
   renderPreview: (canvas: HTMLCanvasElement) => void;
 }>();
-
-const { t } = useI18n();
 const canvasRef = ref<HTMLCanvasElement | null>(null);
-const previewScaleFactor = 2;
+const previewScaleFactor = 3;
 
 function triggerRender(): void {
   if (canvasRef.value) {
@@ -22,29 +18,16 @@ function triggerRender(): void {
   }
 }
 
-watch(
-  () => [props.tileIndices, props.metadata, props.imageSource] as const,
-  triggerRender,
-  { deep: true, flush: "post" },
-);
+watch(() => [props.tileIndices, props.metadata] as const, triggerRender, {
+  deep: true,
+  flush: "post",
+});
 
 onMounted(triggerRender);
 </script>
 
 <template>
   <div class="flex flex-col gap-3">
-    <!-- PNG not auto-loaded: hint to re-select including the PNG -->
-    <p
-      v-if="metadata && !imageSource"
-      class="text-xs text-[color:var(--warning-ink)]"
-    >
-      {{
-        t("extract-map-tileset.imageNotLoaded", {
-          filename: metadata.sourceImage,
-        })
-      }}
-    </p>
-
     <!-- Preview Section -->
     <div v-if="metadata" class="mt-2">
       <canvas

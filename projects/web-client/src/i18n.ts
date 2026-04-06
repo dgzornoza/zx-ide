@@ -93,14 +93,14 @@ const messages = {
     "extract-map-tileset": {
       title: "Extract Map Tileset",
       subtitle:
-        "Generate assembly code from a Tiled JSON map file and save it into your project.",
+        "Generate map resources from a Tiled JSON map and ASM tileset data.",
       sectionSource: "Source data",
       sourceLabel: "Map file (.json)",
-      sourceHint:
-        "Select the Tiled JSON map file and its PNG tileset image together.",
+      sourceHint: "Select the exported Tiled JSON map file.",
+      mapSourceLabel: "Tiles data file (.asm)",
+      mapSourceHint:
+        "Select the ASM file exported from extract-tiles with tile data and attributes.",
       browseButton: "Browse\u2026",
-      imageNotLoaded:
-        "PNG not loaded. Re-select including {filename} alongside the .json file.",
       noFileSelected: "No file selected",
       sectionResults: "Results",
       tilesUsedLabel: "Tiles used",
@@ -133,8 +133,18 @@ const messages = {
         "This map was exported with an unsupported exporter version.",
       errorGidOutOfRange:
         "Tile index out of range after normalisation. Check the map file consistency.",
-      warningDimensionsMismatch:
-        "PNG width ({actual}px) does not match expected ({expected}px). Preview may be incorrect.",
+      errorAsmUnsupportedFormat:
+        "Unsupported ASM format. Please select a .asm file.",
+      errorAsmInvalidToken:
+        "ASM contains unsupported byte tokens. Use files exported by extract-tiles.",
+      errorAsmMissingTileData:
+        "ASM file does not contain tile data (defb entries).",
+      errorAsmInvalidByteCount:
+        "ASM tile data size is not compatible with the JSON tile dimensions.",
+      errorAsmInvalidTileDimensions:
+        "Invalid tile dimensions in JSON metadata.",
+      errorAsmTileCountMismatch:
+        "Map uses tile index {maxIndex}, but ASM only provides {tileCount} tiles.",
     },
   },
   es: {
@@ -239,14 +249,14 @@ const messages = {
     "extract-map-tileset": {
       title: "Extraer mapa de tileset",
       subtitle:
-        "Genera código ensamblador desde un archivo JSON de mapa Tiled y guárdalo en tu proyecto.",
+        "Genera recursos de mapa a partir de un JSON de Tiled y datos ASM de tiles.",
       sectionSource: "Datos de origen",
       sourceLabel: "Archivo de mapa (.json)",
-      sourceHint:
-        "Selecciona el archivo .json y su imagen PNG del tileset juntos.",
+      sourceHint: "Selecciona el archivo JSON exportado desde Tiled.",
+      mapSourceLabel: "Archivo de datos de tiles (.asm)",
+      mapSourceHint:
+        "Selecciona el archivo ASM exportado desde extract-tiles con datos y atributos.",
       browseButton: "Examinar\u2026",
-      imageNotLoaded:
-        "PNG no cargado. Vuelve a seleccionar incluyendo {filename} junto al archivo .json.",
       noFileSelected: "Ningún archivo seleccionado",
       sectionResults: "Resultados",
       tilesUsedLabel: "Tiles usados",
@@ -280,8 +290,18 @@ const messages = {
         "Este mapa fue exportado con una versión de exportador no compatible.",
       errorGidOutOfRange:
         "Índice de tile fuera de rango tras la normalización. Comprueba la consistencia del archivo de mapa.",
-      warningDimensionsMismatch:
-        "El ancho del PNG ({actual}px) no coincide con el esperado ({expected}px). La vista previa puede ser incorrecta.",
+      errorAsmUnsupportedFormat:
+        "Formato ASM no compatible. Selecciona un archivo .asm.",
+      errorAsmInvalidToken:
+        "El ASM contiene tokens de bytes no soportados. Usa archivos exportados por extract-tiles.",
+      errorAsmMissingTileData:
+        "El archivo ASM no contiene datos de tiles (entradas defb).",
+      errorAsmInvalidByteCount:
+        "El tamaño de datos de tiles en ASM no es compatible con las dimensiones del JSON.",
+      errorAsmInvalidTileDimensions:
+        "Las dimensiones de tile del JSON no son válidas.",
+      errorAsmTileCountMismatch:
+        "El mapa usa el índice de tile {maxIndex}, pero el ASM solo tiene {tileCount} tiles.",
     },
   },
 } as const;

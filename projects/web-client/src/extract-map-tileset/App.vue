@@ -9,7 +9,7 @@ const { t } = useI18n();
 
 const {
   mapSource,
-  imageSource,
+  asmSource,
   metadata,
   tileIndices,
   errors,
@@ -23,6 +23,7 @@ const {
   totalByteSize,
   statusMessage,
   setMapFile,
+  setAsmFile,
   renderPreview,
   extractResources,
 } = useExtractMapTileset();
@@ -34,16 +35,12 @@ const baseName = computed(() => {
   return mapSource.value.replace(/\.[^.]+$/, "");
 });
 
-function onMapFilesSelected(files: File[]): void {
-  const jsonFile = files.find((file) => /\.json$/i.test(file.name));
-  const rejectedXmlFile = files.find((file) => /\.(tmx|xml)$/i.test(file.name));
-  const selectedMapFile = jsonFile ?? rejectedXmlFile;
-  if (!selectedMapFile) return;
+function onMapFileSelected(file: File): void {
+  setMapFile(file);
+}
 
-  setMapFile(
-    selectedMapFile,
-    files.filter((file) => file !== selectedMapFile),
-  );
+function onAsmFileSelected(file: File): void {
+  setAsmFile(file);
 }
 
 function onExtract(): void {
@@ -62,10 +59,10 @@ function formatError(error: string): string {
       field: args[0],
     });
   }
-  if (key === "warningDimensionsMismatch" && args.length === 2) {
-    return t("extract-map-tileset.warningDimensionsMismatch", {
-      actual: args[0],
-      expected: args[1],
+  if (key === "errorAsmTileCountMismatch" && args.length === 2) {
+    return t("extract-map-tileset.errorAsmTileCountMismatch", {
+      maxIndex: args[0],
+      tileCount: args[1],
     });
   }
   const translationKey = `extract-map-tileset.${key}`;
@@ -85,23 +82,23 @@ function formatError(error: string): string {
     </header>
 
     <main class="mt-6 flex w-full flex-col gap-6">
-      <!-- Source data section (XML input + code gen type) -->
+      <!-- Source data section (JSON + ASM inputs + code gen type) -->
       <SourceSection
         v-model:source="mapSource"
+        v-model:map-source="asmSource"
         v-model:code-generation-type="codeGenerationType"
         translation-namespace="extract-map-tileset"
         :read-only="isCodeGenerationTypeReadOnly"
-        :hide-map-input="true"
-        :multiple-source="true"
-        accept-source-formats=".json,.png"
-        @files-selected="onMapFilesSelected"
+        accept-source-formats=".json"
+        accept-map-formats=".asm"
+        @file-selected="onMapFileSelected"
+        @map-file-selected="onAsmFileSelected"
       />
 
-      <!-- Canvas preview + PNG status -->
+      <!-- Canvas preview generated from ASM tile data -->
       <MapPreviewSection
         :metadata="metadata"
         :tile-indices="tileIndices"
-        :image-source="imageSource"
         :render-preview="renderPreview"
       />
 

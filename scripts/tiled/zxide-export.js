@@ -65,6 +65,32 @@ let ZxIdeUtils = {
   },
 
   /**
+   * Cuenta cuántos IDs de tile distintos (excluyendo 0) hay en la data
+   * de la primera capa exportada.
+   * @param {{ data: number[] }[]} layers - Capas exportadas con su propiedad data.
+   * @returns {number} Número de tiles usados (IDs no-cero distintos).
+   */
+  countUsedTilesFromLayerData: function (layers) {
+    if (!Array.isArray(layers) || layers.length === 0) {
+      return 0;
+    }
+
+    const firstLayer = layers[0];
+    if (!firstLayer || !Array.isArray(firstLayer.data)) {
+      return 0;
+    }
+
+    const usedTileIds = new Set();
+    for (const tileId of firstLayer.data) {
+      if (typeof tileId === "number" && tileId > 0) {
+        usedTileIds.add(tileId);
+      }
+    }
+
+    return usedTileIds.size;
+  },
+
+  /**
    * Genera el JSON de exportación del mapa, omitiendo o remapeando tiles prohibidos.
    * @param {TileMap} map - Mapa activo de Tiled.
    * @param {Tileset} tileset - Tileset asociado al mapa.
@@ -80,7 +106,7 @@ let ZxIdeUtils = {
         image: tileset.image.replace(/^.*[\\/]/, ""),
         tileWidth: tileset.tileWidth,
         tileHeight: tileset.tileHeight,
-        tileCount: tileset.tileCount,
+        tileCount: 0,
         columns: tileset.columnCount,
       },
       layers: [],
@@ -109,6 +135,8 @@ let ZxIdeUtils = {
         data: processedData,
       });
     }
+
+    json.tileset.tileCount = this.countUsedTilesFromLayerData(json.layers);
 
     return JSON.stringify(json, null, 2);
   },

@@ -3,11 +3,12 @@ import type {
   InitMessage,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
+import { parseAsmTilesetData } from "src/extract-map-tileset/composables/asmTilesetParser";
 import { createMapCodeGenerator } from "src/extract-map-tileset/composables/codeGenerators/codeGeneratorFactory";
 import { computed, onMounted, ref, watch } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
 import { downloadFilesAsZip } from "../../helpers/html-utils";
-import { renderTilesetMapPreview } from "../../helpers/image-utils";
+import { renderTilesetMapPreviewFromTileData } from "../../helpers/image-utils";
 import type { MapTilesetMetadata } from "../models/mapTilesetDefinition";
 import { parseAndValidateTiledJson } from "./tiledJsonValidation";
 
@@ -39,14 +40,16 @@ export function useExtractMapTileset() {
   // ─── State ───────────────────────────────────────────────────────────────────
 
   const mapSource = ref("");
-  const imageSource = ref("");
+  const asmSource = ref("");
   const metadata = ref<MapTilesetMetadata>();
   const tileIndices = ref<number[]>([]);
+  const asmRawContent = ref("");
+  const tileInkBitmaps = ref<boolean[][]>([]);
+  const tileAttributeBytes = ref<number[]>([]);
   const errors = ref<string[]>([]);
   const warnings = ref<string[]>([]);
   const codeGenerationType = ref<CodeGenerationType>("c");
   const isCodeGenerationTypeReadOnly = ref(false);
-  const tilesetImageBitmap = ref<ImageBitmap>();
   const statusMessage = ref("");
 
   const isReady = computed(
@@ -54,7 +57,9 @@ export function useExtractMapTileset() {
       errors.value.length === 0 &&
       metadata.value !== undefined &&
       tileIndices.value.length > 0 &&
-      mapSource.value !== "",
+      mapSource.value !== "" &&
+      asmSource.value !== "" &&
+      tileInkBitmaps.value.length > 0,
   );
 
   const usedTileCount = computed(() => {
@@ -96,18 +101,38 @@ export function useExtractMapTileset() {
     }
   }
 
+  function validateMapVsTileset(tileCount: number): void {
+    const maxMapIndex = Math.max(0, ...tileIndices.value);
+    if (maxMapIndex > tileCount) {
+      throw new Error(`errorAsmTileCountMismatch:${maxMapIndex}:${tileCount}`);
+    }
+  }
+
+  function tryDecodeAsmData(): void {
+    if (!metadata.value || asmRawContent.value.trim() === "") {
+      return;
+    }
+
+    const parsed = parseAsmTilesetData(
+      asmRawContent.value,
+      metadata.value.tileWidth,
+      metadata.value.tileHeight,
+    );
+
+    validateMapVsTileset(parsed.tileCount);
+    tileInkBitmaps.value = parsed.tileInkBitmaps;
+    tileAttributeBytes.value = parsed.attributeBytes;
+  }
+
   // ─── JSON Map File Loading ────────────────────────────────────────────────────
 
-  async function setMapFile(
-    file: File,
-    companions: File[] = [],
-  ): Promise<void> {
+  async function setMapFile(file: File): Promise<void> {
     errors.value = [];
     warnings.value = [];
     metadata.value = undefined;
     tileIndices.value = [];
-    imageSource.value = "";
-    tilesetImageBitmap.value = undefined;
+    tileInkBitmaps.value = [];
+    tileAttributeBytes.value = [];
     mapSource.value = file.name;
 
     try {
@@ -124,36 +149,30 @@ export function useExtractMapTileset() {
 
       tileIndices.value = normalizeGids(parsedMap.layer.data);
 
-      // Auto-load the PNG if it was selected alongside the JSON map file.
-      const imageFileName =
-        parsedMap.metadata.sourceImage.split("/").at(-1) ?? "";
-      if (imageFileName) {
-        const match = companions.find((f) => f.name === imageFileName);
-        if (match) {
-          await setImageFile(match);
-        }
-      }
+      tryDecodeAsmData();
     } catch (error) {
       errors.value = [toUserErrorKey(error)];
     }
   }
 
-  // ─── PNG File Loading ─────────────────────────────────────────────────────────
+  // ─── ASM File Loading ─────────────────────────────────────────────────────────
 
-  async function setImageFile(file: File): Promise<void> {
+  async function setAsmFile(file: File): Promise<void> {
+    errors.value = [];
     warnings.value = [];
+    tileInkBitmaps.value = [];
+    tileAttributeBytes.value = [];
+    asmSource.value = file.name;
 
-    const bitmap = await createImageBitmap(file);
-    tilesetImageBitmap.value = bitmap;
-    imageSource.value = file.name;
-
-    if (metadata.value) {
-      const expectedWidth = metadata.value.columns * metadata.value.tileWidth;
-      if (bitmap.width !== expectedWidth) {
-        warnings.value = [
-          `warningDimensionsMismatch:${bitmap.width}:${expectedWidth}`,
-        ];
+    try {
+      if (!/\.asm$/i.test(file.name)) {
+        throw new Error("errorAsmUnsupportedFormat");
       }
+
+      asmRawContent.value = await file.text();
+      tryDecodeAsmData();
+    } catch (error) {
+      errors.value = [toUserErrorKey(error)];
     }
   }
 
@@ -163,11 +182,12 @@ export function useExtractMapTileset() {
     if (!metadata.value) {
       return;
     }
-    renderTilesetMapPreview(
+    renderTilesetMapPreviewFromTileData(
       canvas,
       tileIndices.value,
       metadata.value,
-      tilesetImageBitmap.value ?? null,
+      tileInkBitmaps.value,
+      tileAttributeBytes.value,
     );
   }
 
@@ -200,13 +220,13 @@ export function useExtractMapTileset() {
 
   // ─── Watchers ─────────────────────────────────────────────────────────────────
 
-  watch([tileIndices, tilesetImageBitmap], () => {
+  watch([tileIndices, tileInkBitmaps], () => {
     // Canvas re-render is triggered by the component via renderPreview()
   });
 
   return {
     mapSource,
-    imageSource,
+    asmSource,
     metadata,
     tileIndices,
     errors,
@@ -220,6 +240,7 @@ export function useExtractMapTileset() {
     totalByteSize,
     statusMessage,
     setMapFile,
+    setAsmFile,
     renderPreview,
     extractResources,
   };
