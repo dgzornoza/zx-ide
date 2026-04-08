@@ -70,12 +70,12 @@ export class Z88dkProjectService extends ProjectService {
     for (const [index, config] of launchJson.configurations.entries()) {
       let z88dkConfig: Z88dkv2ConfigurationModel[];
       if (config.type === 'dezog') {
-        // using Asm debug configuration
+        // using Asm debug configuration (custom debugger service)
         if (useAsmDebug) {
           z88dkConfig = await this.getZ88dkAsmDebugConfiguration();
           this.z88dkBreakpointService.enable();
         } else {
-          // using C debug configuration
+          // using C debug configuration (vs code default)
           z88dkConfig = await this.getZ88dkCDebugConfiguration();
           this.z88dkBreakpointService.disable();
         }

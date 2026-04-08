@@ -5,7 +5,7 @@ import { BUILD_DIRECTORY, SOURCE_FILE_EXTENSIONS } from '@z88dk/infrastructure';
 import { MappedBreakpointsModel } from '@z88dk/models/mapped-breakpoints.model';
 import { BreakpointsLanguageFactory } from '@z88dk/services/z88dk-asm-breakpoints-language.strategy';
 import { injectable } from 'inversify';
-import * as path from 'path';
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 
 /**
@@ -21,7 +21,7 @@ export class Z88dkAsmBreakpointService extends Disposable {
   private isUpdatingBreakpoints = false;
 
   // dictionary with mapped breakpoints, key is source breakpoint and value is .lis file breakpoint
-  private mappedBreakpoints = new MappedBreakpointsModel();
+  private readonly mappedBreakpoints = new MappedBreakpointsModel();
   private isDebugging = false;
 
   constructor() {
@@ -29,9 +29,11 @@ export class Z88dkAsmBreakpointService extends Disposable {
   }
 
   enable(): void {
-    this._subscriptions.push(vscode.debug.onDidStartDebugSession(this.onDidStartDebugSession));
-    this._subscriptions.push(vscode.debug.onDidTerminateDebugSession(this.onDidTerminateDebugSession));
-    this._subscriptions.push(vscode.debug.onDidChangeBreakpoints(this.onBreakpointsChange));
+    this._subscriptions.push(
+      vscode.debug.onDidStartDebugSession(this.onDidStartDebugSession),
+      vscode.debug.onDidTerminateDebugSession(this.onDidTerminateDebugSession),
+      vscode.debug.onDidChangeBreakpoints(this.onBreakpointsChange)
+    );
   }
 
   disable(): void {

@@ -21,7 +21,7 @@ export abstract class BreakpointsLanguageStrategy {
     let filePath: string = '';
     const workspacePath = await WorkspaceHelpers.getWorkspacePath();
 
-    if (breakpoint.location.uri.path.indexOf(workspacePath) === 0) {
+    if (breakpoint.location.uri.path.startsWith(workspacePath)) {
       filePath = breakpoint.location.uri.path.substring(workspacePath.length);
     }
 
@@ -65,7 +65,7 @@ export class BreakpointsCLanguageStrategy extends BreakpointsLanguageStrategy {
     // Remarks: For find 'c' breakpoint equivalent in .lis file, we need to find c label in .lis file
     // and check if next line is valid assembler code
 
-    var result: [vscode.SourceBreakpoint, vscode.SourceBreakpoint | undefined][] = [];
+    let result: [vscode.SourceBreakpoint, vscode.SourceBreakpoint | undefined][] = [];
     const lisFileTextLines = await FileHelpers.readFileSplittedByNewLine(lisFilePath);
 
     for (const breakpoint of breakpoints) {
@@ -97,7 +97,7 @@ export class BreakpointsAsmLanguageStrategy extends BreakpointsLanguageStrategy 
     lisFilePath: string
   ): Promise<[vscode.SourceBreakpoint, vscode.SourceBreakpoint | undefined][]> {
     // Remarks: For find 'asm' breakpoint equivalent in .lis file, we need to find assembler source code in .lis file, is same.
-    var result: [vscode.SourceBreakpoint, vscode.SourceBreakpoint | undefined][] = [];
+    let result: [vscode.SourceBreakpoint, vscode.SourceBreakpoint | undefined][] = [];
 
     const lisFileTextLines = await FileHelpers.readFileSplittedByNewLine(lisFilePath);
     const sourceFileTextLines = await FileHelpers.readFileSplittedByNewLine(sourceFilePath);
