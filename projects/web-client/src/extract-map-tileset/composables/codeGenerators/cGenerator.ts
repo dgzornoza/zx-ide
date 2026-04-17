@@ -29,8 +29,8 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy {
     const dataSizeComment = buildDataSizeComment(dataByteCount);
 
     const headerContent = [
-      `#ifndef ${macroGuard}_H`,
-      `#define ${macroGuard}_H`,
+      `#ifndef __DATA_${macroGuard}_H__`,
+      `#define __DATA_${macroGuard}_H__`,
       "",
       `// ${header.slice(2)}`,
       `#define ${macroGuard}_WIDTH  ${mapWidth}`,
@@ -39,7 +39,7 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy {
       `#define ${macroGuard}_TILES_COUNT ${tileCount}`,
       `extern unsigned char ${identifier}[${mapHeight}][${mapWidth}];`,
       "",
-      `#endif`,
+      `#endif // __DATA_${macroGuard}_H__`,
       "",
     ].join("\n");
 

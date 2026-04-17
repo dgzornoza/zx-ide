@@ -46,8 +46,8 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
     const guard = toMacroGuard(baseName);
 
     const lines: string[] = [
-      `#ifndef __${guard}_H__`,
-      `#define __${guard}_H__`,
+      `#ifndef __DATA_${guard}_H__`,
+      `#define __DATA_${guard}_H__`,
       "",
       "#include <stdint.h>",
       "",
@@ -58,7 +58,7 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
       lines.push(`extern const uint8_t ${id}_attributes[];`);
     }
 
-    lines.push("", `#endif // __${guard}_H__`, "");
+    lines.push("", `#endif // __DATA_${guard}_H__`, "");
 
     return lines.join("\n");
   }
