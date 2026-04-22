@@ -3,6 +3,7 @@
 import { AttachProjectSpritesCmd } from '@commands/attach-project-sprites.cmd';
 import { AttachProjectTilesCmd } from '@commands/attach-project-tiles.cmd';
 import { CreateProjectCmd } from '@commands/create-project.cmd';
+import { CreateSpritesCmd } from '@commands/create-sprites.cmd';
 import { OpenHelpCmd } from '@commands/open-help.cmd';
 import '@core/helpers/array-helpers';
 import { FeaturesService } from '@core/services/features.service';
@@ -22,6 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
   InversifyConfig.container.get<OpenHelpCmd>(Types.OpenHelpCmd);
   InversifyConfig.container.get<AttachProjectTilesCmd>(Types.AttachProjectTilesCmd);
   InversifyConfig.container.get<AttachProjectSpritesCmd>(Types.AttachProjectSpritesCmd);
+  InversifyConfig.container.get<CreateSpritesCmd>(Types.CreateSpritesCmd);
 
   FeaturesService.getProjectType().then((projectType) => {
     switch (projectType) {

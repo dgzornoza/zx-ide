@@ -5,13 +5,13 @@ import {
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
 import JSZip from "jszip";
-import { createSpritesCodeGenerator } from "src/extract-sprites/composables/codeGenerators/codeGeneratorFactory";
 import {
   SpriteDefinition,
   SpriteFlags,
   SpritesMapModel,
 } from "src/extract-sprites/models/spriteDefinition";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import { createSpritesCodeGenerator } from "src/shared/composables/spritesCodeGenerators/codeGeneratorFactory";
 import {
   StatusMessage,
   StatusMessageType,

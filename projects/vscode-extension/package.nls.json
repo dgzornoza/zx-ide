@@ -4,5 +4,6 @@
   "extension.cmd-title.extract-tiles": "ZxIde: Extract tiles",
   "extension.cmd-title.extract-sprites": "ZxIde: Extract sprites",
   "extension.cmd-title.extract-map-tileset": "ZxIde: Extract Map Tileset",
+  "extension.cmd-title.create-sprites": "ZxIde: Create sprites",
   "extension.configuration.z88dk.useAsmDebug": "Debug in asm, using .lis files with 'c' code comments for debugging",
 }

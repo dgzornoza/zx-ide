@@ -121,6 +121,46 @@ const messages = {
       outputNameLabel: "Name",
       outputNamePlaceholder: "tiles",
     },
+    "create-sprites": {
+      title: "Create Sprites",
+      subtitle:
+        "Design sprites visually by entering binary frames (0s and 1s) and save them into your project.",
+      sectionInput: "Binary input",
+      binaryInputLabel: "Binary matrix",
+      binaryInputPlaceholder: "Enter rows of 0s and 1s, one row per line\u2026",
+      binaryInputHint:
+        "Use 0 and 1 only, one row per line. All rows must have the same length.",
+      previewLabel: "Preview",
+      addButton: "Add frame",
+      sectionSprites: "Sprites",
+      spritesHint:
+        'Each "Add frame" adds a frame to the active sprite. Use "Add sprite" to start a new sprite.',
+      spriteNameLabel: "Name",
+      spriteWidthLabel: "Width (px)",
+      spriteHeightLabel: "Height (px)",
+      frameLabel: "Frame",
+      addSprite: "Add sprite",
+      remove: "Remove",
+      playAnimation: "Play",
+      stopAnimation: "Stop",
+      codeGenerationTypeLabel: "Code generation",
+      codeGenerationTypeAsm: "ASM",
+      codeGenerationTypeC: "C",
+      codeGenerationTypeReadOnlyHint:
+        "Determined by the VS Code project type and cannot be changed here.",
+      create: "Create",
+      statusSent: "Message sent to VS Code.",
+      statusDownloaded: "Sprites file downloaded successfully.",
+      errorNoSprites:
+        "Please add at least one sprite with a frame before creating code.",
+      errorDimensionMismatch:
+        "Frame dimensions do not match the first frame of this sprite.",
+      errorInvalidCharacters:
+        "Only 0 and 1 are allowed. Remove any spaces or other characters.",
+      errorUnequalRowLengths: "All rows must have the same length.",
+      outputNameLabel: "Name",
+      outputNamePlaceholder: "sprites",
+    },
     "extract-map-tileset": {
       title: "Extract Map Tileset",
       subtitle:
@@ -308,6 +348,47 @@ const messages = {
       errorUnequalRowLengths: "Todas las filas deben tener la misma longitud.",
       outputNameLabel: "Nombre",
       outputNamePlaceholder: "tiles",
+    },
+    "create-sprites": {
+      title: "Crear Sprites",
+      subtitle:
+        "Dise\u00f1a sprites visualmente introduciendo frames binarios (0s y 1s) y gu\u00e1rdalos en tu proyecto.",
+      sectionInput: "Entrada binaria",
+      binaryInputLabel: "Matriz binaria",
+      binaryInputPlaceholder:
+        "Introduce filas de 0s y 1s, una fila por l\u00ednea\u2026",
+      binaryInputHint:
+        "Usa solo 0 y 1, una fila por l\u00ednea. Todas las filas deben tener la misma longitud.",
+      previewLabel: "Vista previa",
+      addButton: "A\u00f1adir frame",
+      sectionSprites: "Sprites",
+      spritesHint:
+        'Cada "A\u00f1adir frame" agrega un frame al sprite activo. Usa "A\u00f1adir sprite" para empezar uno nuevo.',
+      spriteNameLabel: "Nombre",
+      spriteWidthLabel: "Ancho (px)",
+      spriteHeightLabel: "Alto (px)",
+      frameLabel: "Frame",
+      addSprite: "A\u00f1adir sprite",
+      remove: "Quitar",
+      playAnimation: "Reproducir",
+      stopAnimation: "Detener",
+      codeGenerationTypeLabel: "Generaci\u00f3n de c\u00f3digo",
+      codeGenerationTypeAsm: "ASM",
+      codeGenerationTypeC: "C",
+      codeGenerationTypeReadOnlyHint:
+        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aqu\u00ed.",
+      create: "Crear",
+      statusSent: "Mensaje enviado a VS Code.",
+      statusDownloaded: "Archivo de sprites descargado correctamente.",
+      errorNoSprites:
+        "A\u00f1ade al menos un sprite con un frame antes de generar c\u00f3digo.",
+      errorDimensionMismatch:
+        "Las dimensiones del frame no coinciden con el primer frame de este sprite.",
+      errorInvalidCharacters:
+        "Solo se permiten 0 y 1. Elimina espacios u otros caracteres.",
+      errorUnequalRowLengths: "Todas las filas deben tener la misma longitud.",
+      outputNameLabel: "Nombre",
+      outputNamePlaceholder: "sprites",
     },
     "extract-map-tileset": {
       title: "Extraer mapa de tileset",

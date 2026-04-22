@@ -2,6 +2,7 @@ import { AttachProjectMapTilesetCmd } from '@commands/attach-project-map-tileset
 import { AttachProjectSpritesCmd } from '@commands/attach-project-sprites.cmd';
 import { AttachProjectTilesCmd } from '@commands/attach-project-tiles.cmd';
 import { CreateProjectCmd } from '@commands/create-project.cmd';
+import { CreateSpritesCmd } from '@commands/create-sprites.cmd';
 import { OpenHelpCmd } from '@commands/open-help.cmd';
 import { IStatusBar, StatusBar } from '@components/status-bar.component';
 import { IDisposable } from '@core/abstractions/disposable';
@@ -79,6 +80,12 @@ export class InversifyConfig {
     InversifyConfig._container
       .bind<AttachProjectMapTilesetCmd>(Types.AttachProjectMapTilesetCmd)
       .to(AttachProjectMapTilesetCmd)
+      .inSingletonScope()
+      .onActivation(InversifyConfig._subscribe);
+
+    InversifyConfig._container
+      .bind<CreateSpritesCmd>(Types.CreateSpritesCmd)
+      .to(CreateSpritesCmd)
       .inSingletonScope()
       .onActivation(InversifyConfig._subscribe);
 

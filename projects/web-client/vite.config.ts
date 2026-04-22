@@ -20,6 +20,7 @@ export default defineConfig({
         "extract-sprites": path.resolve(root, "extract-sprites.html"),
         "extract-map-tileset": path.resolve(root, "extract-map-tileset.html"),
         "create-tiles": path.resolve(root, "create-tiles.html"),
+        "create-sprites": path.resolve(root, "create-sprites.html"),
       },
       output: {
         entryFileNames: "assets/[name].js",

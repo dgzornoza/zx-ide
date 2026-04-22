@@ -42,6 +42,10 @@
       {
         "command": "zx-ide.extract-map-tileset",
         "title": "%extension.cmd-title.extract-map-tileset%"
+      },
+      {
+        "command": "zx-ide.create-sprites",
+        "title": "%extension.cmd-title.create-sprites%"
       }
     ],
     "configuration": {

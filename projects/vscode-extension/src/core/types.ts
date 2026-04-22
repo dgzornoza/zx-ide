@@ -9,6 +9,7 @@ const Types = {
   AttachProjectTilesCmd: Symbol.for('AttachProjectTilesCmd'),
   AttachProjectSpritesCmd: Symbol.for('AttachProjectSpritesCmd'),
   AttachProjectMapTilesetCmd: Symbol.for('AttachProjectMapTilesetCmd'),
+  CreateSpritesCmd: Symbol.for('CreateSpritesCmd'),
 
   ConfigurationService: Symbol.for('ConfigurationService'),
   OutputChannelService: Symbol.for('OutputChannelService'),

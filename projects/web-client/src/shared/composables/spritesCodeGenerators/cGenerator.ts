@@ -1,3 +1,5 @@
+import { SpriteFlags } from "src/extract-sprites/models/spriteDefinition";
+import { toCodeIdentifier, toMacroGuard } from "src/helpers/string-utils";
 import {
   buildDataSizeComment,
   buildMapFile,
@@ -6,9 +8,7 @@ import {
   generateSpriteAsmBody,
   SpritesCodeGeneratorParams,
   SpritesCodeGeneratorStrategy,
-} from "src/extract-sprites/composables/codeGenerators/codeGeneratorStrategy";
-import { SpriteFlags } from "src/extract-sprites/models/spriteDefinition";
-import { toCodeIdentifier, toMacroGuard } from "src/helpers/string-utils";
+} from "src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy";
 
 /**
  * Generates sprites for Z88DK C language.
