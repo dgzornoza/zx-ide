@@ -1,4 +1,9 @@
 import {
+  generateAttributeDefbLines,
+  generateBitmapDefbLines,
+} from "src/helpers/code-generator-utils";
+import { toCodeIdentifier, toMacroGuard } from "src/helpers/string-utils";
+import {
   buildDataSizeComment,
   buildMapFile,
   calculateTilesDataByteCount,
@@ -6,12 +11,7 @@ import {
   GeneratedFile,
   getIncludedTileIndices,
   TilesCodeGeneratorParams,
-} from "src/extract-tiles/composables/codeGenerators/codeGeneratorStrategy";
-import {
-  generateAttributeDefbLines,
-  generateBitmapDefbLines,
-} from "src/helpers/code-generator-utils";
-import { toCodeIdentifier, toMacroGuard } from "src/helpers/string-utils";
+} from "src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy";
 
 /**
  * Generates tiles for a z88dk C language.

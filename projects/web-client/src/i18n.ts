@@ -90,6 +90,37 @@ const messages = {
       errorFrameXInvalid: "Frame X coordinate must be a non-negative number",
       errorFrameYInvalid: "Frame Y coordinate must be a non-negative number",
     },
+    "create-tiles": {
+      title: "Create Tiles",
+      subtitle:
+        "Design tiles visually by entering a binary matrix (0s and 1s) and save them into your project.",
+      sectionInput: "Binary input",
+      binaryInputLabel: "Binary matrix",
+      binaryInputPlaceholder: "Enter rows of 0s and 1s, one row per line\u2026",
+      binaryInputHint:
+        "Use 0 and 1 only, one row per line. All rows must have the same length.",
+      previewLabel: "Preview",
+      addButton: "Add tile",
+      sectionTiles: "Tiles",
+      tilesHint: "Click \u2212 to remove a tile from the collection.",
+      noTilesYet:
+        "No tiles added yet. Enter a binary matrix above and click Add tile.",
+      tileRemoveTooltip: "Remove tile",
+      codeGenerationTypeLabel: "Code generation",
+      codeGenerationTypeAsm: "ASM",
+      codeGenerationTypeC: "C",
+      codeGenerationTypeReadOnlyHint:
+        "Determined by the VS Code project type and cannot be changed here.",
+      create: "Create",
+      statusSent: "Message sent to VS Code.",
+      statusDownloaded: "Tiles file downloaded successfully.",
+      errorNoTiles: "Please add at least one tile before creating code.",
+      errorInvalidCharacters:
+        "Only 0 and 1 are allowed. Remove any spaces or other characters.",
+      errorUnequalRowLengths: "All rows must have the same length.",
+      outputNameLabel: "Name",
+      outputNamePlaceholder: "tiles",
+    },
     "extract-map-tileset": {
       title: "Extract Map Tileset",
       subtitle:
@@ -245,6 +276,38 @@ const messages = {
         "La coordenada X del frame debe ser un entero no negativo",
       errorFrameYInvalid:
         "La coordenada Y del frame debe ser un entero no negativo",
+    },
+    "create-tiles": {
+      title: "Crear Tiles",
+      subtitle:
+        "Diseña tiles visualmente introduciendo una matriz binaria (0s y 1s) y guárdalos en tu proyecto.",
+      sectionInput: "Entrada binaria",
+      binaryInputLabel: "Matriz binaria",
+      binaryInputPlaceholder:
+        "Introduce filas de 0s y 1s, una fila por línea\u2026",
+      binaryInputHint:
+        "Usa solo 0 y 1, una fila por línea. Todas las filas deben tener la misma longitud.",
+      previewLabel: "Vista previa",
+      addButton: "Añadir tile",
+      sectionTiles: "Tiles",
+      tilesHint: "Haz clic en \u2212 para eliminar un tile de la colección.",
+      noTilesYet:
+        "Aún no se han añadido tiles. Introduce una matriz binaria arriba y haz clic en Añadir tile.",
+      tileRemoveTooltip: "Eliminar tile",
+      codeGenerationTypeLabel: "Generación de código",
+      codeGenerationTypeAsm: "ASM",
+      codeGenerationTypeC: "C",
+      codeGenerationTypeReadOnlyHint:
+        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
+      create: "Crear",
+      statusSent: "Mensaje enviado a VS Code.",
+      statusDownloaded: "Archivo de tiles descargado correctamente.",
+      errorNoTiles: "Añade al menos un tile antes de generar código.",
+      errorInvalidCharacters:
+        "Solo se permiten 0 y 1. Elimina espacios u otros caracteres.",
+      errorUnequalRowLengths: "Todas las filas deben tener la misma longitud.",
+      outputNameLabel: "Nombre",
+      outputNamePlaceholder: "tiles",
     },
     "extract-map-tileset": {
       title: "Extraer mapa de tileset",

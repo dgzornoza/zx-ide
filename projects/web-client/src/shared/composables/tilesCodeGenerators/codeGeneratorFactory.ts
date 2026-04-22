@@ -1,7 +1,7 @@
 import type { CodeGenerationType } from "externalShared/extract-graphics/extract-graphics-dtos";
-import { AsmTilesCodeGeneratorStrategy } from "src/extract-tiles/composables/codeGenerators/asmGenerator";
-import { CTilesCodeGeneratorStrategy } from "src/extract-tiles/composables/codeGenerators/cGenerator";
-import { CodeGeneratorStrategy } from "src/extract-tiles/composables/codeGenerators/codeGeneratorStrategy";
+import { AsmTilesCodeGeneratorStrategy } from "src/shared/composables/tilesCodeGenerators/asmGenerator";
+import { CTilesCodeGeneratorStrategy } from "src/shared/composables/tilesCodeGenerators/cGenerator";
+import { CodeGeneratorStrategy } from "src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy";
 
 /**
  * Returns the appropriate {@link CodeGeneratorStrategy} for the given

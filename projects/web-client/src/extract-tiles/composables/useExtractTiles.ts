@@ -5,13 +5,13 @@ import {
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
 import JSZip from "jszip";
-import { createTilesCodeGenerator } from "src/extract-tiles/composables/codeGenerators/codeGeneratorFactory";
-import { TilesModel } from "src/extract-tiles/models/tilesDefinition";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import { createTilesCodeGenerator } from "src/shared/composables/tilesCodeGenerators/codeGeneratorFactory";
 import {
   StatusMessage,
   StatusMessageType,
 } from "src/shared/models/statusMessage";
+import { TilesModel } from "src/shared/models/tilesDefinition";
 import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
 import { downloadBlob } from "../../helpers/html-utils";

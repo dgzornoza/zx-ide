@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { TilesModel } from "src/extract-tiles/models/tilesDefinition";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import TileGallery from "src/shared/components/TileGallery.vue";
+import { TilesModel } from "src/shared/models/tilesDefinition";
 
 const tp = createTranslationPrefixFn("extract-tiles");
 
@@ -67,53 +68,13 @@ const tileHeight = defineModel<number>("tileHeight", { required: true });
     </div>
 
     <!-- tile previews (only show if tiles were extracted) -->
-    <div v-if="tiles.count > 0" class="mt-4 flex flex-wrap gap-2">
-      <div
-        v-for="(_, index) in tiles.count"
-        :key="`tile-${index}`"
-        class="relative"
-        style="width: 40px; height: 40px"
-      >
-        <img
-          v-if="tiles.previews[index]"
-          :src="tiles.previews[index]"
-          :alt="`Tile ${index} preview`"
-          class="border border-[color:var(--input-border)]"
-          :class="{ 'opacity-30': tiles.excludedSet.has(index) }"
-          style="width: 40px; height: 40px; image-rendering: pixelated"
-        />
-        <div
-          v-else
-          class="border border-[color:var(--input-border)] bg-[color:var(--input-bg)]"
-          :class="{ 'opacity-30': tiles.excludedSet.has(index) }"
-          style="width: 40px; height: 40px"
-        />
-        <!-- exclusion overlay icon -->
-        <div
-          v-if="tiles.excludedSet.has(index)"
-          class="pointer-events-none absolute inset-0 flex items-center justify-center"
-        >
-          <span class="text-lg font-bold text-[color:var(--error-ink)]">✕</span>
-        </div>
-        <!-- toggle button -->
-        <button
-          class="absolute -right-2 -top-2 flex h-4 w-4 items-center justify-center rounded-full border text-xs font-bold leading-none"
-          :class="
-            tiles.excludedSet.has(index)
-              ? 'border-[color:var(--error-ink)] bg-[color:var(--card)] text-[color:var(--error-ink)]'
-              : 'border-[color:var(--border)] bg-[color:var(--card)] text-[color:var(--ink-soft)] hover:border-[color:var(--error-ink)] hover:text-[color:var(--error-ink)]'
-          "
-          :title="
-            tiles.excludedSet.has(index)
-              ? tp('tileIncludeTooltip')
-              : tp('tileExcludeTooltip')
-          "
-          type="button"
-          @click="emit('toggleTileExclusion', index)"
-        >
-          {{ tiles.excludedSet.has(index) ? "+" : "−" }}
-        </button>
-      </div>
-    </div>
+    <TileGallery
+      v-if="tiles.count > 0"
+      :previews="tiles.previews"
+      :excluded-indices="tiles.excludedSet"
+      :action-tooltip="tp('tileExcludeTooltip')"
+      :undo-tooltip="tp('tileIncludeTooltip')"
+      @tile-action="emit('toggleTileExclusion', $event)"
+    />
   </section>
 </template>

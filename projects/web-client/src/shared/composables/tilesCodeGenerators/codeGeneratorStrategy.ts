@@ -1,10 +1,7 @@
 import { FileEntry } from "externalShared/extract-graphics/extract-graphics-dtos";
-import {
-  TilesMapModel,
-  TilesModel,
-} from "src/extract-tiles/models/tilesDefinition";
+import { TilesMapModel, TilesModel } from "src/shared/models/tilesDefinition";
 
-// ─── Public types ─────────────────────────────────────────────────────────────
+// --- Public types -----------------------------------------------------------
 
 /** Generated file entry for generators */
 export type GeneratedFile = FileEntry;
@@ -17,14 +14,14 @@ export interface TilesCodeGeneratorParams {
   tiles: TilesModel;
 }
 
-// ─── Strategy interface ───────────────────────────────────────────────────────
+// --- Strategy interface -----------------------------------------------------
 
 /** Strategy that produces all output files from tile data. */
 export interface CodeGeneratorStrategy {
   generate(params: TilesCodeGeneratorParams): GeneratedFile[];
 }
 
-// ─── Common Helpers ──────────────────────────────────────────────────────────
+// --- Common Helpers ---------------------------------------------------------
 
 /** Builds the serialisable `.cfg` model from tiles params. */
 function buildTilesMap(params: TilesCodeGeneratorParams): TilesMapModel {
