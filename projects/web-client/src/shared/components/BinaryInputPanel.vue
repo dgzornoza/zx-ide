@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { rotateBinaryGrid } from "src/helpers/binary-grid-utils";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 
 const props = defineProps<{
   translationNamespace: string;
@@ -15,6 +16,23 @@ const emit = defineEmits<{
 }>();
 
 const CELL_SIZE = 10;
+
+// --- Rotation state ---
+const degX = ref<number>(0);
+const degY = ref<number>(0);
+const degZ = ref<number>(0);
+
+// Original binary text — always rotate from this, not from the (already rotated) model.
+const sourceBinaryText = ref<string>("");
+let applyingRotation = false;
+
+// Track user edits: update the source only when the change comes from the user,
+// not when applyRotation writes back the result.
+watch(binaryText, (newVal) => {
+  if (!applyingRotation) {
+    sourceBinaryText.value = newVal;
+  }
+});
 
 const validationError = computed<string | undefined>(() => {
   const text = binaryText.value.trim();
@@ -77,6 +95,30 @@ function onAdd() {
   const height = bitmap.length;
   emit("add", bitmap.flat(), width, height, previewUrl.value);
 }
+
+function applyRotation(): void {
+  const source = sourceBinaryText.value.trim();
+  if (!source) return;
+
+  const lines = source.split(/\r?\n/).filter((l) => l.length > 0);
+  const bitmap = lines.map((line) => line.split("").map((c) => c === "1"));
+
+  applyingRotation = true;
+
+  if (degX.value === 0 && degY.value === 0 && degZ.value === 0) {
+    // Identity: restore the original text exactly.
+    binaryText.value = source;
+  } else {
+    const result = rotateBinaryGrid(bitmap, degX.value, degY.value, degZ.value);
+    binaryText.value = result
+      .map((row) => row.map((bit) => (bit ? "1" : "0")).join(""))
+      .join("\n");
+  }
+
+  nextTick(() => {
+    applyingRotation = false;
+  });
+}
 </script>
 
 <template>
@@ -118,7 +160,7 @@ function onAdd() {
       <div class="flex flex-col gap-1">
         <span class="text-xs font-semibold">{{ tp("previewLabel") }}</span>
         <div
-          class="flex h-[104px] w-[104px] items-center justify-center border border-[color:var(--input-border)] bg-[color:var(--input-bg)]"
+          class="flex h-[256px] w-[256px] items-center justify-center border border-[color:var(--input-border)] bg-[color:var(--input-bg)]"
         >
           <img
             v-if="previewUrl"
@@ -142,6 +184,54 @@ function onAdd() {
       >
         {{ tp("addButton") }}
       </button>
+    </div>
+
+    <!-- Rotation controls -->
+    <div class="mt-6 border-t border-[color:var(--border)] pt-4">
+      <h3 class="text-xs font-semibold text-[color:var(--ink-soft)]">
+        {{ tp("rotationLabel") }}
+      </h3>
+      <div class="mt-3 flex flex-wrap items-end gap-4">
+        <!-- X -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold">{{ tp("rotationXLabel") }}</label>
+          <input
+            v-model.number="degX"
+            type="number"
+            step="1"
+            class="w-24 border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-2 py-1 text-sm text-[color:var(--input-ink)] focus:outline-none"
+          />
+        </div>
+        <!-- Y -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold">{{ tp("rotationYLabel") }}</label>
+          <input
+            v-model.number="degY"
+            type="number"
+            step="1"
+            class="w-24 border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-2 py-1 text-sm text-[color:var(--input-ink)] focus:outline-none"
+          />
+        </div>
+        <!-- Z -->
+        <div class="flex flex-col gap-1">
+          <label class="text-xs font-semibold">{{ tp("rotationZLabel") }}</label>
+          <input
+            v-model.number="degZ"
+            type="number"
+            step="1"
+            class="w-24 border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-2 py-1 text-sm text-[color:var(--input-ink)] focus:outline-none"
+          />
+        </div>
+        <!-- Apply button -->
+        <button
+          class="inline-flex items-center gap-2 bg-[color:var(--button-bg)] px-4 py-1.5 text-sm font-semibold text-[color:var(--button-ink)] hover:bg-[color:var(--button-hover)] disabled:cursor-not-allowed disabled:opacity-60"
+          type="button"
+          :disabled="!parsedBitmap"
+          @click="applyRotation"
+        >
+          {{ tp("applyRotationButton") }}
+        </button>
+      </div>
     </div>
   </section>
 </template>
