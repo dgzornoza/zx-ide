@@ -48,7 +48,8 @@ const messages = {
         "Generate sprite definitions from a spritesheet and save them into your project.",
       sectionSource: "Source data",
       sourceLabel: "Source image",
-      sourceHint: "Select the PNG source file from your workspace.",
+      sourceHint:
+        "Select the PNG or ZX-Paintbrush (.zxp) source file from your workspace.",
       browseButton: "Browse…",
       noFileSelected: "No file selected",
       sectionSprites: "Sprites",
@@ -82,6 +83,8 @@ const messages = {
       spriteUseMaskLabel: "Use mask",
       spriteUseMaskTooltip: "Use a mask for the sprite.",
       errorNoSourceFile: "Please select a source image before creating a map",
+      errorSourceFileLoad:
+        "Failed to load source file: invalid or corrupted data",
       errorMapLoadFailed: "Failed to load .cfg file: invalid or corrupted data",
       errorSpriteNameRequired: "Sprite name is required",
       errorSpriteWidthInvalid: "Sprite width must be greater than zero",
@@ -232,7 +235,7 @@ const messages = {
     "extract-tiles": {
       title: "Extracción de tiles",
       subtitle:
-        "Genera código fuente con la definición de tiles desde un archivo .png para usarlas en tu proyecto.",
+        "Genera código fuente con la definición de tiles desde un archivo .png o ZX-Paintbrush (.zxp) para usarlas en tu proyecto.",
       sectionSource: "Datos de origen",
       sourceLabel: "Imagen origen",
       sourceHint:
@@ -278,10 +281,11 @@ const messages = {
     "extract-sprites": {
       title: "Extracción de sprites",
       subtitle:
-        "Genera código fuente con la definición de sprites desde un archivo .png para usarlas en tu proyecto.",
+        "Genera código fuente con la definición de sprites desde un archivo .png o ZX-Paintbrush (.zxp) para usarlas en tu proyecto.",
       sectionSource: "Datos de origen",
       sourceLabel: "Imagen fuente",
-      sourceHint: "Selecciona el archivo PNG de origen desde tu workspace.",
+      sourceHint:
+        "Selecciona el archivo PNG o ZX-Paintbrush (.zxp) de origen desde tu workspace.",
       browseButton: "Examinar…",
       noFileSelected: "Ningún archivo seleccionado",
       sectionSprites: "Sprites",

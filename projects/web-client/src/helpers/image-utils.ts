@@ -362,6 +362,40 @@ export async function extractTilesFromZxpFile(
 }
 
 /**
+ * Converts a ZX-Paintbrush `.zxp` file into an in-memory PNG File by rendering
+ * all tiles onto a single canvas using the ZX Spectrum colour palette.
+ *
+ * The resulting File can be used anywhere a standard browser-renderable image
+ * File is expected (e.g. {@link extractSpriteFramePreview},
+ * {@link extractSpritesFromFile}).
+ *
+ * @param file - The `.zxp` source file to convert.
+ * @returns A synthetic PNG File sized `(tilesPerRow * 8) × (tileRows * 8)` pixels.
+ * @throws If the file cannot be parsed or the canvas blob cannot be created.
+ */
+export async function convertZxpFileToImageFile(file: File): Promise<File> {
+  const text = await file.text();
+  const { pixels, attributes, tilesPerRow, tileRows } = parseZxpFile(text);
+
+  if (tilesPerRow === 0 || tileRows === 0) {
+    throw new Error("Invalid or empty .zxp file");
+  }
+
+  const canvas = renderZxpToCanvas(pixels, attributes, tilesPerRow, tileRows);
+
+  return new Promise<File>((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error("Failed to convert .zxp file to PNG"));
+        return;
+      }
+      const pngName = file.name.replace(/\.zxp$/i, ".png");
+      resolve(new File([blob], pngName, { type: "image/png" }));
+    }, "image/png");
+  });
+}
+
+/**
  * Parses the plain-text content of a ZX-Paintbrush `.zxp` file into raw pixel
  * rows and decoded colour attributes.
  *
@@ -439,6 +473,43 @@ function renderZxpTileToCanvas(
     }
   }
 
+  return canvas;
+}
+
+/**
+ * Renders all tiles from a parsed ZXP file onto a single master canvas.
+ *
+ * @param pixels      - Full pixel grid from {@link parseZxpFile}.
+ * @param attributes  - Per-tile decoded colour attributes from {@link parseZxpFile}.
+ * @param tilesPerRow - Number of tile columns.
+ * @param tileRows    - Number of tile rows.
+ * @returns Canvas sized `(tilesPerRow * 8) × (tileRows * 8)` with all tiles rendered.
+ */
+function renderZxpToCanvas(
+  pixels: boolean[][],
+  attributes: ZxpColorAttribute[],
+  tilesPerRow: number,
+  tileRows: number,
+): HTMLCanvasElement {
+  const { canvas, ctx } = createCanvas(tilesPerRow * 8, tileRows * 8);
+  for (let tileRow = 0; tileRow < tileRows; tileRow++) {
+    for (let tileCol = 0; tileCol < tilesPerRow; tileCol++) {
+      const tileIndex = tileRow * tilesPerRow + tileCol;
+      const attribute: ZxpColorAttribute = attributes[tileIndex] ?? {
+        flash: false,
+        bright: false,
+        paper: 7,
+        ink: 0,
+      };
+      const tileCanvas = renderZxpTileToCanvas(
+        pixels,
+        tileCol,
+        tileRow,
+        attribute,
+      );
+      ctx.drawImage(tileCanvas, tileCol * 8, tileRow * 8);
+    }
+  }
   return canvas;
 }
 

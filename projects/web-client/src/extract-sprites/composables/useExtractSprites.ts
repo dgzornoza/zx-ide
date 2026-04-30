@@ -19,7 +19,10 @@ import {
 import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
 import { downloadBlob } from "../../helpers/html-utils";
-import { extractSpritesFromFile } from "../../helpers/image-utils";
+import {
+  convertZxpFileToImageFile,
+  extractSpritesFromFile,
+} from "../../helpers/image-utils";
 
 /**
  * Composable that manages the full state and business logic for the
@@ -37,7 +40,7 @@ export function useExtractSprites() {
     sprites: [] as SpriteDefinition[],
   });
 
-  /** The last PNG File chosen by the user, kept for sprite frame preview extraction. */
+  /** The last source File chosen by the user (PNG or converted-from-ZXP PNG), kept for sprite frame preview extraction. */
   const currentImageFile = ref<File | null>(null);
 
   const status = ref<StatusMessage | null>(null);
@@ -78,10 +81,21 @@ export function useExtractSprites() {
   // ─── Source file ───────────────────────────────────────────────────────────
 
   /**
-   * Stores the selected PNG file for use in sprite frame previews.
+   * Stores the selected source file for use in sprite frame previews.
+   * `.zxp` files are converted to an in-memory PNG before storing so that
+   * the rest of the pipeline (previews, bitmask extraction) works unchanged.
    */
   const setSourceFile = async (file: File) => {
-    currentImageFile.value = file;
+    try {
+      if (file.name.toLowerCase().endsWith(".zxp")) {
+        currentImageFile.value = await convertZxpFileToImageFile(file);
+      } else {
+        currentImageFile.value = file;
+      }
+    } catch (error) {
+      console.error("Source file load failed:", error);
+      setStatus("error", tp("errorSourceFileLoad"));
+    }
   };
 
   // ─── Sprite actions ────────────────────────────────────────────────────────
