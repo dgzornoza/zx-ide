@@ -118,7 +118,12 @@ onBeforeUnmount(() => stop());
             v-if="sprite.frames[currentFrameIndex]?.preview"
             :src="sprite.frames[currentFrameIndex].preview"
             :alt="`Frame ${currentFrameIndex + 1} preview`"
-            style="width: 40px; height: 40px; image-rendering: pixelated"
+            style="
+              width: 40px;
+              height: 40px;
+              object-fit: contain;
+              image-rendering: pixelated;
+            "
           />
           <div
             v-else
@@ -210,7 +215,12 @@ onBeforeUnmount(() => stop());
               v-if="frame.preview"
               :src="frame.preview"
               :alt="`Frame ${frameIndex + 1}`"
-              style="width: 40px; height: 40px; image-rendering: pixelated"
+              style="
+                width: 40px;
+                height: 40px;
+                object-fit: contain;
+                image-rendering: pixelated;
+              "
             />
             <div
               v-else
