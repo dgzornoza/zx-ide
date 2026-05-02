@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import SpriteAnimationPanel from "src/shared/components/SpriteAnimationPanel.vue";
+import SpriteFrameThumbnail from "src/shared/components/SpriteFrameThumbnail.vue";
+import { useSpriteAnimation } from "src/shared/composables/useSpriteAnimation";
 import { CreateSpriteDefinition } from "src/shared/models/createSpriteDefinition";
-import { onBeforeUnmount, ref, watch } from "vue";
 
 const tp = createTranslationPrefixFn("create-sprites");
 
@@ -15,43 +17,11 @@ const emit = defineEmits<{
   "remove-frame": [frameIndex: number];
 }>();
 
-const ANIMATION_FPS = 8;
-
 // ─── Animation ────────────────────────────────────────────────────────────────
 
-const currentFrameIndex = ref(0);
-const isPlaying = ref(false);
-let intervalId: ReturnType<typeof setInterval> | null = null;
-
-const play = () => {
-  if (isPlaying.value || props.sprite.frames.length <= 1) return;
-  isPlaying.value = true;
-  intervalId = setInterval(() => {
-    currentFrameIndex.value =
-      (currentFrameIndex.value + 1) % props.sprite.frames.length;
-  }, 1000 / ANIMATION_FPS);
-};
-
-const stop = () => {
-  isPlaying.value = false;
-  if (intervalId !== null) {
-    clearInterval(intervalId);
-    intervalId = null;
-  }
-};
-
-// Reset animation when frames change
-watch(
+const { currentFrameIndex, isPlaying, play, stop } = useSpriteAnimation(
   () => props.sprite.frames.length,
-  (len) => {
-    if (currentFrameIndex.value >= len) {
-      currentFrameIndex.value = Math.max(0, len - 1);
-    }
-    if (len <= 1) stop();
-  },
 );
-
-onBeforeUnmount(() => stop());
 </script>
 
 <template>
@@ -110,71 +80,16 @@ onBeforeUnmount(() => stop());
       </button>
 
       <!-- col5: Animation panel -->
-      <div class="ml-4 flex flex-row items-end gap-2">
-        <div
-          class="flex items-center justify-center border border-[color:var(--border)] p-1"
-        >
-          <img
-            v-if="sprite.frames[currentFrameIndex]?.preview"
-            :src="sprite.frames[currentFrameIndex].preview"
-            :alt="`Frame ${currentFrameIndex + 1} preview`"
-            style="
-              width: 40px;
-              height: 40px;
-              object-fit: contain;
-              image-rendering: pixelated;
-            "
-          />
-          <div
-            v-else
-            class="bg-[color:var(--border)]"
-            style="width: 40px; height: 40px"
-          />
-        </div>
-        <div class="flex flex-col items-center gap-1">
-          <div class="flex gap-1">
-            <button
-              class="flex items-center justify-center bg-[color:var(--button-secondary-bg)] p-1.5 text-[color:var(--button-secondary-ink)] hover:bg-[color:var(--button-secondary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-              type="button"
-              :title="tp('playAnimation')"
-              :disabled="isPlaying || sprite.frames.length <= 1"
-              @click="play"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path d="M3 2.5l10 5.5-10 5.5V2.5z" />
-              </svg>
-            </button>
-            <button
-              class="flex items-center justify-center bg-[color:var(--button-secondary-bg)] p-1.5 text-[color:var(--button-secondary-ink)] hover:bg-[color:var(--button-secondary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-              type="button"
-              :title="tp('stopAnimation')"
-              :disabled="!isPlaying"
-              @click="stop"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <rect x="3" y="3" width="10" height="10" />
-              </svg>
-            </button>
-          </div>
-          <span class="text-[10px] text-[color:var(--ink-soft)]">
-            {{ currentFrameIndex + 1 }} / {{ sprite.frames.length }}
-          </span>
-        </div>
-      </div>
+      <SpriteAnimationPanel
+        :preview-src="sprite.frames[currentFrameIndex]?.preview"
+        :frame-count="sprite.frames.length"
+        :current-frame-index="currentFrameIndex"
+        :is-playing="isPlaying"
+        :play-title="tp('playAnimation')"
+        :stop-title="tp('stopAnimation')"
+        @play="play"
+        @stop="stop"
+      />
 
       <!-- Frame rows -->
       <template
@@ -202,33 +117,11 @@ onBeforeUnmount(() => stop());
         </button>
 
         <!-- col5: Frame thumbnail -->
-        <div class="ml-4 flex">
-          <div
-            class="justify-left border p-1"
-            :class="
-              isPlaying && currentFrameIndex === frameIndex
-                ? 'border-[color:var(--focus-border,var(--success-ink))]'
-                : 'border-[color:var(--border)]'
-            "
-          >
-            <img
-              v-if="frame.preview"
-              :src="frame.preview"
-              :alt="`Frame ${frameIndex + 1}`"
-              style="
-                width: 40px;
-                height: 40px;
-                object-fit: contain;
-                image-rendering: pixelated;
-              "
-            />
-            <div
-              v-else
-              class="bg-[color:var(--border)]"
-              style="width: 40px; height: 40px"
-            />
-          </div>
-        </div>
+        <SpriteFrameThumbnail
+          :src="frame.preview"
+          :alt="`Frame ${frameIndex + 1}`"
+          :is-active="isPlaying && currentFrameIndex === frameIndex"
+        />
       </template>
     </div>
   </div>
