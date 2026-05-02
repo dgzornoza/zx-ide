@@ -41,8 +41,8 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
     const guard = toMacroGuard(params.name);
 
     const lines: string[] = [
-      `#ifndef __${guard}_H__`,
-      `#define __${guard}_H__`,
+      `#ifndef __DATA_${guard}_H__`,
+      `#define __DATA_${guard}_H__`,
       "",
       "#include <stdint.h>",
       "",
@@ -51,7 +51,7 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
           `extern const uint8_t ${id}_${toCodeIdentifier(sprite.name)}[];`,
       ),
       "",
-      `#endif // __${guard}_H__`,
+      `#endif // __DATA_${guard}_H__`,
       "",
     ];
 

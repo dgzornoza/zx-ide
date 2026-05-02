@@ -708,15 +708,19 @@ export function generateTileSheetPng(
         const y = row * tileHeight;
         ctx.drawImage(img, x, y, tileWidth, tileHeight);
 
+        // excluded tiles, draw a red diagonal cross over them
         if (excludedSet.has(index)) {
+          const margin = 2; // pixels of margin from the tile edges for the cross lines
+
           ctx.save();
           ctx.strokeStyle = "red";
           ctx.lineWidth = 1;
+
           ctx.beginPath();
-          ctx.moveTo(x, y);
-          ctx.lineTo(x + tileWidth, y + tileHeight);
-          ctx.moveTo(x + tileWidth, y);
-          ctx.lineTo(x, y + tileHeight);
+          ctx.moveTo(x + margin, y + margin);
+          ctx.lineTo(x + tileWidth - margin, y + tileHeight - margin);
+          ctx.moveTo(x + tileWidth - margin, y + margin);
+          ctx.lineTo(x + margin, y + tileHeight - margin);
           ctx.stroke();
           ctx.restore();
         }
