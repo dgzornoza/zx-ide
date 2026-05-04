@@ -4,7 +4,7 @@ import {
   SpritesMapModel,
 } from "src/extract-sprites/models/spriteDefinition";
 import {
-  generateBitmapDefbLines,
+  generateColumnBitmapDefbLines,
   generatePaddingDefbLines,
 } from "src/helpers/code-generator-utils";
 
@@ -88,15 +88,22 @@ export function generateSpriteAsmBody(
 ): string[] {
   const lines: string[] = [];
 
+  const columns = Math.ceil(sprite.width / 8);
+
   if (publicLabel !== null) {
-    lines.push(`PUBLIC ${publicLabel}`, "");
+    if (columns > 1) {
+      for (let col = 1; col <= columns; col++) {
+        lines.push(`PUBLIC ${publicLabel}_col_${col}`);
+      }
+      lines.push("");
+    } else {
+      lines.push(`PUBLIC ${publicLabel}`, "");
+    }
   }
 
   if (hasPadding) {
-    lines.push(
-      ...generatePaddingDefbLines(PADDING_ROWS_ABOVE, sprite.width, useMask),
-      "",
-    );
+    // Only 7 rows of top padding before the very first column of the entire sprite data
+    lines.push(...generatePaddingDefbLines(PADDING_ROWS_ABOVE, 8, useMask), "");
   }
 
   sprite.frames.forEach((_, frameIndex) => {
@@ -104,21 +111,30 @@ export function generateSpriteAsmBody(
       frameIndex === 0 ? baseLabel : `${baseLabel}_f${frameIndex + 1}`;
     const bitmask = frameBitmasks[frameIndex] ?? [];
 
-    lines.push(
-      `${frameLabel}:`,
-      ...generateBitmapDefbLines(bitmask, sprite.width, sprite.height, useMask),
-      ...(hasPadding
-        ? [
-            "",
-            ...generatePaddingDefbLines(
-              PADDING_ROWS_BELOW,
-              sprite.width,
-              useMask,
-            ),
-          ]
-        : []),
-      "",
-    );
+    for (let col = 0; col < columns; col++) {
+      const colLabel =
+        columns > 1 ? `${frameLabel}_col_${col + 1}` : frameLabel;
+
+      lines.push(`${colLabel}:`);
+
+      lines.push(
+        ...generateColumnBitmapDefbLines(
+          bitmask,
+          sprite.width,
+          sprite.height,
+          col,
+          useMask,
+        ),
+      );
+
+      if (hasPadding) {
+        lines.push(
+          "",
+          ...generatePaddingDefbLines(PADDING_ROWS_BELOW, 8, useMask),
+          "",
+        );
+      }
+    }
   });
 
   return lines;
@@ -132,19 +148,26 @@ export function calculateSpritesDataByteCount(
 ): number {
   return params.sprites.reduce((totalBytes, sprite) => {
     const frameCount = sprite.frames.length;
-    const bytesPerRow = Math.ceil(sprite.width / 8);
-    const rowDataBytes = useMask ? bytesPerRow * 2 : bytesPerRow;
-    const frameBytes = sprite.height * rowDataBytes;
-    const topPaddingBytes = hasPadding ? PADDING_ROWS_ABOVE * rowDataBytes : 0;
-    const bottomPaddingBytes = hasPadding
-      ? frameCount * PADDING_ROWS_BELOW * rowDataBytes
+    const columns = Math.ceil(sprite.width / 8);
+    const bytesPerColRow = useMask ? 2 : 1;
+
+    // Each column has `height` rows of data
+    const frameDataBytes = sprite.height * bytesPerColRow;
+
+    // Top padding is only 7 rows for the very first column of the entire sprite
+    const topPaddingBytes = hasPadding
+      ? PADDING_ROWS_ABOVE * bytesPerColRow
       : 0;
 
+    // Bottom padding is 8 rows per column per frame
+    const bottomPaddingBytes = hasPadding
+      ? PADDING_ROWS_BELOW * bytesPerColRow
+      : 0;
+
+    const singleFrameColBytes = frameDataBytes + bottomPaddingBytes;
+
     return (
-      totalBytes +
-      topPaddingBytes +
-      frameCount * frameBytes +
-      bottomPaddingBytes
+      totalBytes + topPaddingBytes + frameCount * columns * singleFrameColBytes
     );
   }, 0);
 }

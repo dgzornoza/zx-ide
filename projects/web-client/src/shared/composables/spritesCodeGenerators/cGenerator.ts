@@ -46,10 +46,19 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
       "",
       "#include <stdint.h>",
       "",
-      ...params.sprites.map(
-        (sprite) =>
-          `extern const uint8_t ${id}_${toCodeIdentifier(sprite.name)}[];`,
-      ),
+      ...params.sprites.flatMap((sprite) => {
+        const spriteName = `${id}_${toCodeIdentifier(sprite.name)}`;
+        const columns = Math.ceil(sprite.width / 8);
+        if (columns > 1) {
+          const decls: string[] = [];
+          for (let col = 1; col <= columns; col++) {
+            decls.push(`extern const uint8_t ${spriteName}_col_${col}[];`);
+          }
+          return decls;
+        } else {
+          return [`extern const uint8_t ${spriteName}[];`];
+        }
+      }),
       "",
       `#endif // __DATA_${guard}_H__`,
       "",

@@ -117,6 +117,42 @@ export function generateBitmapDefbLines(
 }
 
 /**
+ * Extracts a single 8-pixel column from a row-major ink bitmap and converts
+ * it into assembly `defb` directives.
+ *
+ * @param inkBitmap - Row-major boolean[] of length `width × height`.
+ * @param width     - Total width of the sprite in pixels (used to index rows).
+ * @param height    - Height in pixels.
+ * @param colIndex  - The 0-based column index to extract (each column is 8px wide).
+ * @param useMask   - When `true`, prepends a computed mask byte.
+ */
+export function generateColumnBitmapDefbLines(
+  inkBitmap: boolean[],
+  width: number,
+  height: number,
+  colIndex: number,
+  useMask = false,
+): string[] {
+  const entries: string[] = [];
+
+  for (let row = 0; row < height; row++) {
+    const bytes = bitmapRowToBytes(inkBitmap, row * width, width);
+    const byte = bytes[colIndex] ?? 0;
+    if (useMask) {
+      entries.push(toHexByte(~byte & 0xff));
+    }
+    entries.push(toHexByte(byte));
+  }
+
+  const bytesPerLine = useMask ? 2 : 1;
+  const lines: string[] = [];
+  for (let i = 0; i < entries.length; i += bytesPerLine) {
+    lines.push(`    defb ${entries.slice(i, i + bytesPerLine).join(",")}`);
+  }
+  return lines;
+}
+
+/**
  * Generates `count` complete rows of zeroed `defb` padding directives
  * using hexadecimal byte values, grouped 8 bytes per line (16 with mask).
  *
