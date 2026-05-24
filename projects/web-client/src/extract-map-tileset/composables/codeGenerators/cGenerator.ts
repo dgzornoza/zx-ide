@@ -37,7 +37,7 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy {
       `#define ${macroGuard}_HEIGHT ${mapHeight}`,
       `#define ${macroGuard}_SIZE   ${mapWidth * mapHeight}`,
       `#define ${macroGuard}_TILES_COUNT ${tileCount}`,
-      `extern unsigned char ${identifier}[${mapHeight}][${mapWidth}];`,
+      `extern uint8_t ${identifier}[${mapHeight}][${mapWidth}];`,
       "",
       `#endif // __DATA_${macroGuard}_H__`,
       "",
