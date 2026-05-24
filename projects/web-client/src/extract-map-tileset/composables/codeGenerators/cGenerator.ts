@@ -32,6 +32,8 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy {
       `#ifndef __DATA_${macroGuard}_H__`,
       `#define __DATA_${macroGuard}_H__`,
       "",
+      "#include <stdint.h>",
+      "",
       `// ${header.slice(2)}`,
       `#define ${macroGuard}_WIDTH  ${mapWidth}`,
       `#define ${macroGuard}_HEIGHT ${mapHeight}`,
