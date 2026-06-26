@@ -1,4 +1,4 @@
-import { SpriteFlags } from "src/extract-sprites/models/spriteDefinition";
+import { SpriteFlags } from "src/shared/models/spriteDefinition";
 import { toCodeIdentifier } from "src/helpers/string-utils";
 import {
   buildDataSizeComment,

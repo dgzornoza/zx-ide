@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import BinaryInputPanel from "src/shared/components/BinaryInputPanel.vue";
 import CodeGenerationSelector from "src/shared/components/CodeGenerationSelector.vue";
-import SpritesCreatorSection from "src/shared/components/SpritesCreatorSection.vue";
+import SpritesEditorSection from "src/shared/components/SpritesEditorSection.vue";
+import { ref } from "vue";
 import { useCreateSprites } from "./composables/useCreateSprites";
 
 const {
@@ -11,13 +12,26 @@ const {
   outputName,
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
+  spriteFlags,
+  activeSpriteIndex,
   tp,
   addSprite,
   removeSprite,
   removeFrame,
+  addSpriteFrame,
   addFrame,
   generateCode,
 } = useCreateSprites();
+
+/** Template ref to the BinaryInputPanel so we can focus its textarea when the user clicks "Add frame" on a sprite card. */
+const binaryInputPanel = ref<InstanceType<typeof BinaryInputPanel> | null>(
+  null,
+);
+
+function handleAddFrame(spriteIndex: number) {
+  addSpriteFrame(spriteIndex);
+  binaryInputPanel.value?.focusTextarea();
+}
 </script>
 
 <template>
@@ -34,6 +48,7 @@ const {
     <main class="mt-6 flex w-full flex-col gap-4">
       <!-- Binary input panel: each "Add" click adds a frame to the active sprite -->
       <BinaryInputPanel
+        ref="binaryInputPanel"
         v-model:binary-text="binaryText"
         translation-namespace="create-sprites"
         @add="addFrame"
@@ -51,10 +66,16 @@ const {
       </section>
 
       <!-- Sprites collection -->
-      <SpritesCreatorSection
+      <SpritesEditorSection
+        v-model:sprite-flags="spriteFlags"
         :sprites="state.sprites"
+        :source-image="null"
+        :show-frame-coords="false"
+        :active-sprite-index="activeSpriteIndex"
+        translation-namespace="create-sprites"
         @add-sprite="addSprite"
         @remove-sprite="removeSprite"
+        @add-frame="handleAddFrame"
         @remove-frame="removeFrame"
       />
     </main>

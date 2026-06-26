@@ -7,6 +7,9 @@ const props = defineProps<{
   translationNamespace: string;
 }>();
 
+/** Ref to the underlying <textarea>, exposed via defineExpose for parent focus(). */
+const textareaRef = ref<HTMLTextAreaElement | null>(null);
+
 const tp = createTranslationPrefixFn(props.translationNamespace);
 
 const binaryText = defineModel<string>("binaryText", { default: "" });
@@ -119,6 +122,16 @@ function applyRotation(): void {
     applyingRotation = false;
   });
 }
+
+/**
+ * Public imperative API exposed to parent components.
+ * `focusTextarea` is used by create-sprites to move focus to the binary input
+ * after the user clicks the per-sprite "Add frame" button, so the next keystroke
+ * lands in the textarea.
+ */
+defineExpose({
+  focusTextarea: () => textareaRef.value?.focus(),
+});
 </script>
 
 <template>
@@ -137,6 +150,7 @@ function applyRotation(): void {
         </label>
         <textarea
           id="binary-input"
+          ref="textareaRef"
           v-model="binaryText"
           rows="10"
           spellcheck="false"

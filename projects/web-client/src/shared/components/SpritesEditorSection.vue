@@ -1,23 +1,48 @@
 <script setup lang="ts">
+import { TypeEnumHelpers } from "src/helpers/type-utils";
+import { createTranslationPrefixFn } from "src/helpers/vue-utils";
 import {
   SpriteDefinition,
   SpriteFlags,
-} from "src/extract-sprites/models/spriteDefinition";
-import { TypeEnumHelpers } from "src/helpers/type-utils";
-import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+} from "src/shared/models/spriteDefinition";
 import { computed } from "vue";
-import SpriteItemDefinition from "./SpriteItemDefinition.vue";
+import SpriteEditorItem from "./SpriteEditorItem.vue";
 
-const tp = createTranslationPrefixFn("extract-sprites");
-
-defineProps<{
-  sprites: SpriteDefinition[];
-  sourceImage: File | null;
-}>();
+// `showFrameCoords` defaults to `true`. Using `withDefaults` keeps the prop
+// strictly boolean (the template expression `showFrameCoords ?? true` does
+// not coerce reliably in all Vue 3 template compiler paths).
+const props = withDefaults(
+  defineProps<{
+    sprites: SpriteDefinition[];
+    /**
+     * Source image used to extract frame previews. Pass `null` for the
+     * create-sprites flow, which uses the bitmap already attached to each frame.
+     */
+    sourceImage: File | null;
+    /**
+     * Whether the per-frame X/Y coordinate inputs are rendered. Defaults to
+     * `true`. Pass `false` from create-sprites where coordinates are not used.
+     */
+    showFrameCoords?: boolean;
+    /** Optional defaults applied when a new sprite is added via the section button. */
+    newSpriteDefaults?: { width?: number; height?: number };
+    /** i18n namespace used to look up labels (e.g. `extract-sprites`). */
+    translationNamespace: string;
+    /**
+     * Index of the active sprite in the collection. Used by create-sprites to
+     * highlight the card that will receive the next frame from the binary
+     * input panel. Leave undefined for flows that do not have an active sprite.
+     */
+    activeSpriteIndex?: number;
+  }>(),
+  { showFrameCoords: true },
+);
 
 const spriteFlags = defineModel<number>("spriteFlags", {
   required: true,
 });
+
+const tp = createTranslationPrefixFn(props.translationNamespace);
 
 /**
  * Checkbox active-state for each sprite flag.
@@ -98,15 +123,22 @@ const emit = defineEmits<{
     </div>
 
     <div class="mt-4 space-y-3">
-      <SpriteItemDefinition
+      <SpriteEditorItem
         v-for="(sprite, index) in sprites"
         :key="sprite._id ?? `sprite-${index}`"
         :sprite="sprite"
         :sprite-index="index"
         :source-image="sourceImage"
+        :show-frame-coords="showFrameCoords"
+        :translation-namespace="translationNamespace"
+        :is-active="
+          activeSpriteIndex !== undefined && activeSpriteIndex === index
+        "
         @remove="emit('remove-sprite', index)"
         @add-frame="emit('add-frame', index)"
-        @remove-frame="(frameIndex) => emit('remove-frame', index, frameIndex)"
+        @remove-frame="
+          (frameIndex) => emit('remove-frame', index, frameIndex)
+        "
       />
     </div>
     <button

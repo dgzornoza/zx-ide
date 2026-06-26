@@ -7,7 +7,10 @@ import JSZip from "jszip";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
 import { createSpritesCodeGenerator } from "src/shared/composables/spritesCodeGenerators/codeGeneratorFactory";
 import type { SpritesCodeGeneratorParams } from "src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy";
-import type { CreateSpriteDefinition } from "src/shared/models/createSpriteDefinition";
+import {
+  SpriteDefinition,
+  SpriteFlags,
+} from "src/shared/models/spriteDefinition";
 import type {
   StatusMessage,
   StatusMessageType,
@@ -21,7 +24,7 @@ export function useCreateSprites() {
   const tp = createTranslationPrefixFn("create-sprites");
 
   const state = reactive({
-    sprites: [] as CreateSpriteDefinition[],
+    sprites: [] as SpriteDefinition[],
   });
 
   const status = ref<StatusMessage | null>(null);
@@ -29,7 +32,9 @@ export function useCreateSprites() {
   const isCodeGenerationTypeReadOnly = ref(false);
   const binaryText = ref("");
   const outputName = ref("sprites");
-  /** Index of the sprite that receives the next "Add frame" action. */
+  /** Combined sprite flags (SP1 padding, Use mask) forwarded to the generator. */
+  const spriteFlags = ref<number>(SpriteFlags.None);
+  /** Index of the sprite that receives the next "Add" from the BinaryInputPanel. */
   const activeSpriteIndex = ref(-1);
 
   const setStatus = (type: StatusMessageType, text: string) => {
@@ -39,7 +44,7 @@ export function useCreateSprites() {
   // ─── Sprite actions ────────────────────────────────────────────────────────
 
   function addSprite() {
-    const newSprite: CreateSpriteDefinition = {
+    const newSprite: SpriteDefinition = {
       _id: crypto.randomUUID(),
       name: "",
       width: 0,
@@ -52,7 +57,11 @@ export function useCreateSprites() {
 
   function removeSprite(index: number) {
     state.sprites.splice(index, 1);
-    if (activeSpriteIndex.value >= state.sprites.length) {
+    if (activeSpriteIndex.value > index) {
+      // Removed sprite was before the active one — shift the pointer down
+      // so the "Active" badge stays on the same sprite.
+      activeSpriteIndex.value -= 1;
+    } else if (activeSpriteIndex.value >= state.sprites.length) {
       activeSpriteIndex.value = state.sprites.length - 1;
     }
   }
@@ -61,6 +70,17 @@ export function useCreateSprites() {
     const sprite = state.sprites[spriteIndex];
     if (!sprite) return;
     sprite.frames.splice(frameIndex, 1);
+  }
+
+  /**
+   * Called when the user clicks the per-sprite "Add frame" button in the
+   * shared SpritesEditorSection. The button does not produce an empty frame;
+   * it only marks the sprite as active so the next frame coming from the
+   * BinaryInputPanel lands in it.
+   */
+  function addSpriteFrame(spriteIndex: number) {
+    if (spriteIndex < 0 || spriteIndex >= state.sprites.length) return;
+    activeSpriteIndex.value = spriteIndex;
   }
 
   /**
@@ -73,7 +93,7 @@ export function useCreateSprites() {
     width: number,
     height: number,
     preview: string,
-  ) {
+  ): void {
     // Auto-create a sprite if there is none
     if (state.sprites.length === 0 || activeSpriteIndex.value < 0) {
       addSprite();
@@ -82,7 +102,8 @@ export function useCreateSprites() {
     const sprite = state.sprites[activeSpriteIndex.value];
     if (!sprite) return;
 
-    // Validate dimensions against the first frame of this sprite
+    // Validate dimensions against the sprite's current width/height.
+    // On the first frame, adopt the bitmap dimensions as the sprite size.
     if (sprite.frames.length > 0) {
       if (sprite.width !== width || sprite.height !== height) {
         setStatus("error", tp("errorDimensionMismatch"));
@@ -93,7 +114,9 @@ export function useCreateSprites() {
       sprite.height = height;
     }
 
-    sprite.frames.push({ inkBitmap, preview });
+    sprite.frames.push({ x: 0, y: 0, bitmap: { inkBitmap, preview } });
+    // Clear the binary input so the next frame starts from a clean slate.
+    binaryText.value = "";
     status.value = null;
   }
 
@@ -107,20 +130,21 @@ export function useCreateSprites() {
       return;
     }
 
-    // Build SpritesCodeGeneratorParams using dummy frame coordinates (x=0, y=0)
-    // since bitmaps are already extracted and stored in CreateSpriteFrame.inkBitmap.
+    // Build SpritesCodeGeneratorParams. Each frame is reduced to (x=0, y=0)
+    // because the pixel data lives in spriteBitmasks, which we derive from
+    // the per-frame bitmap attached by addFrame().
     const params: SpritesCodeGeneratorParams = {
       name: outputName.value.trim() || "sprites",
       sprites: sprites.map((sprite) => ({
         _id: sprite._id,
-        name: sprite.name || sprite._id,
+        name: sprite.name || sprite._id || "",
         width: sprite.width,
         height: sprite.height,
         frames: sprite.frames.map(() => ({ x: 0, y: 0 })),
       })),
-      spriteFlags: 0,
+      spriteFlags: spriteFlags.value,
       spriteBitmasks: sprites.map((sprite) =>
-        sprite.frames.map((frame) => frame.inkBitmap),
+        sprite.frames.map((frame) => frame.bitmap?.inkBitmap ?? []),
       ),
     };
 
@@ -175,11 +199,13 @@ export function useCreateSprites() {
     outputName,
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
+    spriteFlags,
     activeSpriteIndex,
     tp,
     addSprite,
     removeSprite,
     removeFrame,
+    addSpriteFrame,
     addFrame,
     generateCode,
   };

@@ -19,6 +19,20 @@ export const SpriteFlags = {
 /** Union type of all valid {@link SpriteFlags} values. */
 export type SpriteFlagValue = TypeEnumFlagValue<typeof SpriteFlags>;
 
+/**
+ * Row-major ink bitmap plus pixelated preview associated with a
+ * {@link SpriteFrame} authored manually from the binary input panel
+ * (create-sprites flow). Absent on frames produced by extract-sprites,
+ * whose pixel data is recomputed from the source image and the
+ * {@link SpriteFrame.x} / {@link SpriteFrame.y} coordinates.
+ */
+export interface SpriteFrameBitmap {
+  /** Row-major ink bitmap of length `width × height`. `true` = ink pixel. */
+  inkBitmap: boolean[];
+  /** Data-URL of the pixelated miniature preview (PNG). */
+  preview: string;
+}
+
 export interface SpriteDefinition {
   /** Internal runtime ID used as a stable v-for key. Not included in serialized output. */
   _id?: string;
@@ -35,6 +49,12 @@ export interface SpriteFrame {
   x: number;
   /** Y pixel coordinate (0-based) of the top-left corner in the source image. */
   y: number;
+  /**
+   * Optional bitmap payload. Populated only by the create-sprites flow when
+   * the user authors a frame from the binary input panel; left undefined for
+   * frames produced by extract-sprites, which store pixel coordinates instead.
+   */
+  bitmap?: SpriteFrameBitmap;
 }
 
 /**

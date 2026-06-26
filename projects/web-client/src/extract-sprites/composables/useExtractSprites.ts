@@ -9,7 +9,7 @@ import {
   SpriteDefinition,
   SpriteFlags,
   SpritesMapModel,
-} from "src/extract-sprites/models/spriteDefinition";
+} from "src/shared/models/spriteDefinition";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
 import { createSpritesCodeGenerator } from "src/shared/composables/spritesCodeGenerators/codeGeneratorFactory";
 import {

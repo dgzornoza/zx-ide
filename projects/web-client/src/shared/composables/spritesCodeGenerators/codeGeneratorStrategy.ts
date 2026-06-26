@@ -2,7 +2,7 @@ import { FileEntry } from "externalShared/extract-graphics/extract-graphics-dtos
 import {
   SpriteDefinition,
   SpritesMapModel,
-} from "src/extract-sprites/models/spriteDefinition";
+} from "src/shared/models/spriteDefinition";
 import {
   generateColumnBitmapDefbLines,
   generatePaddingDefbLines,

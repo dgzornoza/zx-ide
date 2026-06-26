@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import SourceSection from "src/shared/components/SourceSection.vue";
-import SpritesSection from "./components/SpritesSection.vue";
+import SpritesEditorSection from "src/shared/components/SpritesEditorSection.vue";
 import { useExtractSprites } from "./composables/useExtractSprites";
 
 const {
@@ -45,10 +45,11 @@ const {
         @map-file-selected="setMapFile"
       />
 
-      <SpritesSection
+      <SpritesEditorSection
         v-model:sprite-flags="spriteFlags"
         :sprites="state.sprites"
         :source-image="currentImageFile"
+        translation-namespace="extract-sprites"
         @add-sprite="addSprite"
         @remove-sprite="removeSprite"
         @add-frame="addSpriteFrame"
