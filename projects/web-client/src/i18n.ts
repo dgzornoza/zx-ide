@@ -261,7 +261,7 @@ const messages = {
       addTile: "Agregar tile",
       create: "Crear",
       statusSent: "Mensaje enviado en modo standalone.",
-      statusMapDownloaded: "Archivo .cfg descargado correctamente",
+      statusMapDownloaded: "Archivo descargado correctamente",
       mapSourceLabel: "Archivo .cfg (opcional)",
       mapSourceHint:
         "Carga un archivo .cfg guardado previamente para restaurar la configuración de tiles.",
@@ -313,7 +313,7 @@ const messages = {
       remove: "Quitar",
       create: "Crear",
       statusSent: "Mensaje enviado en modo standalone.",
-      statusMapDownloaded: "Archivo .cfg descargado correctamente",
+      statusMapDownloaded: "Archivo descargado correctamente",
       mapSourceLabel: "Archivo .cfg (opcional)",
       mapSourceHint:
         "Carga un archivo .cfg guardado previamente para restaurar la configuración de sprites.",
