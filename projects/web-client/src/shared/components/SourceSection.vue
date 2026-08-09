@@ -23,6 +23,9 @@ const codeGenerationType = defineModel<CodeGenerationType>(
   "codeGenerationType",
   { default: "c" },
 );
+const useZx0Compression = defineModel<boolean>("useZx0Compression", {
+  default: true,
+});
 
 const emit = defineEmits<{
   fileSelected: [file: File];
@@ -123,6 +126,7 @@ function onMapFileChange(event: Event) {
       <!-- Code generation type -->
       <CodeGenerationSelector
         v-model:code-generation-type="codeGenerationType"
+        v-model:use-zx0-compression="useZx0Compression"
         :translation-namespace="translationNamespace"
         :read-only="readOnly"
       />

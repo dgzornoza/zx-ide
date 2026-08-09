@@ -17,10 +17,10 @@ import * as vscode from 'vscode';
 export class Z88dkProjectService extends ProjectService {
   constructor(
     @inject(Types.ExtensionContext) context: vscode.ExtensionContext,
-    @inject(Types.ConfigurationService) private configurationService: ConfigurationService,
-    @inject(Types.OutputChannelService) private outputChannelService: OutputChannelService,
-    @inject(Types.Z88dkReportService) private z88dkReportService: Z88dkReportService,
-    @inject(Types.Z88dkBreakpointService) private z88dkBreakpointService: Z88dkAsmBreakpointService
+    @inject(Types.ConfigurationService) private readonly configurationService: ConfigurationService,
+    @inject(Types.OutputChannelService) private readonly outputChannelService: OutputChannelService,
+    @inject(Types.Z88dkReportService) private readonly z88dkReportService: Z88dkReportService,
+    @inject(Types.Z88dkBreakpointService) private readonly z88dkBreakpointService: Z88dkAsmBreakpointService
   ) {
     super(context);
 

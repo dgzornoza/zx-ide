@@ -12,6 +12,7 @@ const {
   outputName,
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
+  useZx0Compression,
   spriteFlags,
   activeSpriteIndex,
   tp,
@@ -60,6 +61,7 @@ function handleAddFrame(spriteIndex: number) {
       >
         <CodeGenerationSelector
           v-model:code-generation-type="codeGenerationType"
+          v-model:use-zx0-compression="useZx0Compression"
           translation-namespace="create-sprites"
           :read-only="isCodeGenerationTypeReadOnly"
         />

@@ -2,13 +2,21 @@ import { ProjectType, VsCodeBridgeMessage } from "../infrastructure";
 
 /**
  * A single file to be written to the workspace.
+ *
+ * `content` is always a string for transport, but its encoding depends on
+ * `fileType`:
+ *   - `"map" | "c-header" | "asm"`: UTF-8 text.
+ *   - `"png"` or `"binary"`: base64-encoded raw bytes.
  */
 export interface FileEntry {
-  /** File content type */
-  fileType: "map" | "c-header" | "asm" | "png";
+  /** File content type. */
+  fileType: "map" | "c-header" | "asm" | "png" | "binary";
   /** Workspace-relative path (forward-slash separated). */
   fileName: string;
-  /** UTF-8 file content. */
+  /**
+   * File content. UTF-8 text for `map` / `c-header` / `asm`;
+   * base64-encoded raw bytes for `png` / `binary`.
+   */
   content: string;
 }
 

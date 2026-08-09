@@ -31,6 +31,8 @@ export function useCreateTiles() {
   const status = ref<StatusMessage | null>(null);
   const codeGenerationType = ref<CodeGenerationType>("c");
   const isCodeGenerationTypeReadOnly = ref(false);
+  /** ZX0 compression flag forwarded to the C code generator. Default true. */
+  const useZx0Compression = ref<boolean>(true);
   const binaryText = ref("");
   const outputName = ref("tiles");
 
@@ -84,6 +86,7 @@ export function useCreateTiles() {
     const codeFiles = generator.generate({
       name: outputName.value.trim() || "tiles",
       tiles: tilesModel,
+      compressed: useZx0Compression.value,
     });
 
     if (vscode.isAvailable) {
@@ -96,7 +99,8 @@ export function useCreateTiles() {
     } else {
       const zip = new JSZip();
       for (const file of codeFiles) {
-        zip.file(file.fileName, file.content);
+        const isBinary = file.fileType === "png" || file.fileType === "binary";
+        zip.file(file.fileName, file.content, isBinary ? { base64: true } : undefined);
       }
       const blob = await zip.generateAsync({ type: "blob" });
       downloadBlob(blob, "tiles.zip");
@@ -132,6 +136,7 @@ export function useCreateTiles() {
     outputName,
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
+    useZx0Compression,
     tp,
     addTile,
     removeTile,

@@ -8,6 +8,7 @@ const {
   status,
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
+  useZx0Compression,
   spriteFlags,
   currentImageFile,
   tp,
@@ -37,6 +38,7 @@ const {
         v-model:source="state.source"
         v-model:map-source="state.mapSource"
         v-model:code-generation-type="codeGenerationType"
+        v-model:use-zx0-compression="useZx0Compression"
         :read-only="isCodeGenerationTypeReadOnly"
         translation-namespace="extract-sprites"
         accept-source-formats=".png,.zxp"

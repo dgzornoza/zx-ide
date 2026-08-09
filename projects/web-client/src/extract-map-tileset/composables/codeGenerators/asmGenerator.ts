@@ -6,7 +6,8 @@ import {
   GeneratedFile,
   MapCodeGeneratorParams,
 } from "src/extract-map-tileset/composables/codeGenerators/codeGeneratorStrategy";
-import { generateIndexDefbLines } from "src/helpers/code-generator-utils";
+import { buildMapIndicesBinary } from "src/helpers/binary-builder-utils";
+import { formatIndicesAsDefb } from "src/helpers/code-generator-utils";
 import { toCodeIdentifier, toMacroGuard } from "src/helpers/string-utils";
 
 /**
@@ -24,7 +25,9 @@ export class AsmMapCodeGenerator implements CodeGeneratorStrategy {
     const identifier = toCodeIdentifier(name);
     const macroGuard = toMacroGuard(name);
     const header = buildHeader(name, mapWidth, mapHeight);
-    const rows = generateIndexDefbLines(tileIndices, mapWidth);
+
+    const indexBytes = buildMapIndicesBinary(tileIndices);
+    const rows = formatIndicesAsDefb(indexBytes, mapWidth);
 
     const dataByteCount = calculateMapDataByteCount(params);
     const dataSizeComment = buildDataSizeComment(dataByteCount);

@@ -12,6 +12,11 @@ export interface TilesCodeGeneratorParams {
   name: string;
   /** Full tiles model containing dimensions, names, bitmasks and count. */
   tiles: TilesModel;
+  /**
+   * When `true` and the language is C, the generator emits a single
+   * compressed blob instead of per-tile labels.
+   */
+  compressed?: boolean;
 }
 
 // --- Strategy interface -----------------------------------------------------

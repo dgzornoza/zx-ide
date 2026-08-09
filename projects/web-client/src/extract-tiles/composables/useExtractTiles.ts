@@ -53,6 +53,8 @@ export function useExtractTiles() {
   const status = ref<StatusMessage | null>(null);
   const codeGenerationType = ref<CodeGenerationType>("c");
   const isCodeGenerationTypeReadOnly = ref(false);
+  /** ZX0 compression flag forwarded to the C code generator. Default true. */
+  const useZx0Compression = ref<boolean>(true);
 
   /**
    * Removes out-of-range indices from the excluded set when tile count shrinks.
@@ -217,6 +219,7 @@ export function useExtractTiles() {
     const codeFiles: FileEntry[] = generator.generate({
       name: fileNameWithoutExtension,
       tiles: state.tiles,
+      compressed: useZx0Compression.value,
     });
 
     const tileSheetBlob = await generateTileSheetPng(
@@ -248,7 +251,7 @@ export function useExtractTiles() {
     } else {
       const zip = new JSZip();
       for (const file of codeFiles) {
-        if (file.fileType === "png") {
+        if (file.fileType === "png" || file.fileType === "binary") {
           zip.file(file.fileName, file.content, { base64: true });
         } else {
           zip.file(file.fileName, file.content);
@@ -290,6 +293,7 @@ export function useExtractTiles() {
     status,
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
+    useZx0Compression,
     tp,
     setSourceFile,
     setMapFile: setCfgFile,

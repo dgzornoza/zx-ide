@@ -9,6 +9,7 @@ const {
   status,
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
+  useZx0Compression,
   tp,
   setSourceFile,
   setMapFile,
@@ -33,6 +34,7 @@ const {
         v-model:source="state.source"
         v-model:map-source="state.mapSource"
         v-model:code-generation-type="codeGenerationType"
+        v-model:use-zx0-compression="useZx0Compression"
         :read-only="isCodeGenerationTypeReadOnly"
         translation-namespace="extract-tiles"
         accept-source-formats=".png,.zxp"

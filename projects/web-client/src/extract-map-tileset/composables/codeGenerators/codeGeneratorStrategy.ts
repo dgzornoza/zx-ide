@@ -14,6 +14,11 @@ export interface MapCodeGeneratorParams {
   metadata: MapTilesetMetadata;
   /** Normalised uint8 indices, row-major (0 = empty cell). */
   tileIndices: number[];
+  /**
+   * When `true`, the generator emits a single compressed blob instead of
+   * the per-row `defb` directives.
+   */
+  compressed?: boolean;
 }
 
 // ─── Strategy interface ───────────────────────────────────────────────────────

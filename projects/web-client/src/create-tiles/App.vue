@@ -11,6 +11,7 @@ const {
   outputName,
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
+  useZx0Compression,
   tp,
   addTile,
   removeTile,
@@ -43,6 +44,7 @@ const {
       >
         <CodeGenerationSelector
           v-model:code-generation-type="codeGenerationType"
+          v-model:use-zx0-compression="useZx0Compression"
           translation-namespace="create-tiles"
           :read-only="isCodeGenerationTypeReadOnly"
         />

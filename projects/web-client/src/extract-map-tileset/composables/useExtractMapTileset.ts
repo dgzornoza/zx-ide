@@ -50,6 +50,8 @@ export function useExtractMapTileset() {
   const warnings = ref<string[]>([]);
   const codeGenerationType = ref<CodeGenerationType>("c");
   const isCodeGenerationTypeReadOnly = ref(false);
+  /** ZX0 compression flag forwarded to the C code generator. Default true. */
+  const useZx0Compression = ref<boolean>(true);
   const statusMessage = ref("");
   /**
    * Forces the map preview canvas to rerender when incremented.
@@ -211,6 +213,7 @@ export function useExtractMapTileset() {
       name: baseName,
       metadata: metadata.value,
       tileIndices: tileIndices.value,
+      compressed: useZx0Compression.value,
     });
 
     if (bridge.isAvailable) {
@@ -241,6 +244,7 @@ export function useExtractMapTileset() {
     warnings,
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
+    useZx0Compression,
     isReady,
     usedTileCount,
     usedTilesByteSize,

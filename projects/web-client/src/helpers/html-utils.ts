@@ -1,3 +1,5 @@
+import type { FileEntry } from "externalShared/extract-graphics/extract-graphics-dtos";
+
 /**
  * Triggers a browser download for the given {@link Blob}.
  *
@@ -14,20 +16,22 @@ export function downloadBlob(blob: Blob, fileName: string): void {
 }
 
 /**
- * Packages an array of named text files into a ZIP archive and triggers a
- * browser download.
+ * Packages an array of named files into a ZIP archive and triggers a
+ * browser download. Text file types are stored as UTF-8; `png` and
+ * `binary` entries are decoded from their base64 `content` payload.
  *
- * @param files   - Array of `{ fileName, content }` objects to include in the ZIP.
+ * @param files   - Array of {@link FileEntry} entries (one per output file).
  * @param zipName - Base name for the downloaded `.zip` file (without extension).
  */
 export async function downloadFilesAsZip(
-  files: { fileName: string; content: string }[],
+  files: FileEntry[],
   zipName: string,
 ): Promise<void> {
   const { default: JSZip } = await import("jszip");
   const zip = new JSZip();
   for (const file of files) {
-    zip.file(file.fileName, file.content);
+    const isBinary = file.fileType === "png" || file.fileType === "binary";
+    zip.file(file.fileName, file.content, isBinary ? { base64: true } : undefined);
   }
   const blob = await zip.generateAsync({ type: "blob" });
   downloadBlob(blob, `${zipName}.zip`);

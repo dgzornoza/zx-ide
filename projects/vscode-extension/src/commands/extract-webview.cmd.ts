@@ -95,7 +95,9 @@ export abstract class ExtractWebviewCommand extends Command<unknown> {
         const targetUri = await WorkspaceHelpers.getWorkspaceUri(file.fileName);
         const targetParentUri = vscode.Uri.joinPath(targetUri, '..');
         await vscode.workspace.fs.createDirectory(targetParentUri);
-        await FileHelpers.writeFile(file.content, targetUri);
+
+        const isBinary = file.fileType === 'png' || file.fileType === 'binary';
+        await FileHelpers.writeFile(file.content, targetUri, { binary: isBinary });
       }
 
       this.panel.webview.postMessage({

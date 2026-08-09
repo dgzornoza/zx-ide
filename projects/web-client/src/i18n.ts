@@ -31,6 +31,9 @@ const messages = {
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
         "Determined by the VS Code project type and cannot be changed here.",
+      useZx0CompressionLabel: "Use ZX0 compression",
+      useZx0CompressionAsmHint:
+        "ZX0 compression is only available for C (z88dk) targets.",
       errorTileCountInvalid: "Tile count must be a non-negative number",
       errorTileWidthInvalid: "Tile width must be greater than zero",
       errorTileHeightInvalid: "Tile height must be greater than zero",
@@ -77,6 +80,9 @@ const messages = {
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
         "Determined by the VS Code project type and cannot be changed here.",
+      useZx0CompressionLabel: "Use ZX0 compression",
+      useZx0CompressionAsmHint:
+        "ZX0 compression is only available for C (z88dk) targets.",
       spriteSp1PaddingLabel: "Add SP1 padding",
       spriteSp1PaddingTooltip:
         "Adds 7 zero-bytes before and 8 zero-bytes after each sprite column (Used by the SP1 library).",
@@ -114,6 +120,9 @@ const messages = {
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
         "Determined by the VS Code project type and cannot be changed here.",
+      useZx0CompressionLabel: "Use ZX0 compression",
+      useZx0CompressionAsmHint:
+        "ZX0 compression is only available for C (z88dk) targets.",
       create: "Create",
       statusSent: "Message sent to VS Code.",
       statusDownloaded: "Tiles file downloaded successfully.",
@@ -165,6 +174,9 @@ const messages = {
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
         "Determined by the VS Code project type and cannot be changed here.",
+      useZx0CompressionLabel: "Use ZX0 compression",
+      useZx0CompressionAsmHint:
+        "ZX0 compression is only available for C (z88dk) targets.",
       create: "Create",
       statusSent: "Message sent to VS Code.",
       statusDownloaded: "Sprites file downloaded successfully.",
@@ -207,6 +219,9 @@ const messages = {
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
         "Determined by the VS Code project type and cannot be changed here.",
+      useZx0CompressionLabel: "Use ZX0 compression",
+      useZx0CompressionAsmHint:
+        "ZX0 compression is only available for C (z88dk) targets.",
       create: "Extract",
       statusSent: "Message sent in standalone mode.",
       errorTileCountExceeds255:
@@ -270,6 +285,9 @@ const messages = {
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
         "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
+      useZx0CompressionLabel: "Usar compresión ZX0",
+      useZx0CompressionAsmHint:
+        "La compresión ZX0 solo está disponible para targets C (z88dk).",
       errorTileCountInvalid:
         "El número de tiles debe ser un entero no negativo",
       errorTileWidthInvalid: "El ancho del tile debe ser mayor que cero",
@@ -322,6 +340,9 @@ const messages = {
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
         "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
+      useZx0CompressionLabel: "Usar compresión ZX0",
+      useZx0CompressionAsmHint:
+        "La compresión ZX0 solo está disponible para targets C (z88dk).",
       spriteSp1PaddingLabel: "Añadir padding SP1",
       spriteSp1PaddingTooltip:
         "Añade 7 bytes a cero antes y 8 bytes a cero después de cada columna del sprite (Utilizado por la librería SP1).",
@@ -362,6 +383,9 @@ const messages = {
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
         "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
+      useZx0CompressionLabel: "Usar compresión ZX0",
+      useZx0CompressionAsmHint:
+        "La compresión ZX0 solo está disponible para targets C (z88dk).",
       create: "Crear",
       statusSent: "Mensaje enviado a VS Code.",
       statusDownloaded: "Archivo de tiles descargado correctamente.",
@@ -413,7 +437,10 @@ const messages = {
       codeGenerationTypeAsm: "ASM",
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
-        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aqu\u00ed.",
+        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
+      useZx0CompressionLabel: "Usar compresión ZX0",
+      useZx0CompressionAsmHint:
+        "La compresión ZX0 solo está disponible para targets C (z88dk).",
       create: "Crear",
       statusSent: "Mensaje enviado a VS Code.",
       statusDownloaded: "Archivo de sprites descargado correctamente.",
@@ -456,6 +483,9 @@ const messages = {
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
         "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
+      useZx0CompressionLabel: "Usar compresión ZX0",
+      useZx0CompressionAsmHint:
+        "La compresión ZX0 solo está disponible para targets C (z88dk).",
       create: "Extraer",
       statusSent: "Mensaje enviado en modo standalone.",
       errorTileCountExceeds255:

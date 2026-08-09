@@ -1,12 +1,13 @@
 import { FileEntry } from "externalShared/extract-graphics/extract-graphics-dtos";
 import {
+  buildColumnBytes,
+  buildPaddingBytes,
+} from "src/helpers/binary-builder-utils";
+import { formatBytesAsDefb } from "src/helpers/code-generator-utils";
+import {
   SpriteDefinition,
   SpritesMapModel,
 } from "src/shared/models/spriteDefinition";
-import {
-  generateColumnBitmapDefbLines,
-  generatePaddingDefbLines,
-} from "src/helpers/code-generator-utils";
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -38,6 +39,11 @@ export interface SpritesCodeGeneratorParams {
    * `true` = ink pixel (dark / opaque), `false` = paper pixel.
    */
   spriteBitmasks: boolean[][][];
+  /**
+   * When `true` and the language is C, the generator emits a single
+   * compressed blob instead of per-frame / per-column labels.
+   */
+  compressed?: boolean;
 }
 
 // ─── Strategy interface ───────────────────────────────────────────────────────
@@ -102,8 +108,10 @@ export function generateSpriteAsmBody(
   }
 
   if (hasPadding) {
-    // Only 7 rows of top padding before the very first column of the entire sprite data
-    lines.push(...generatePaddingDefbLines(PADDING_ROWS_ABOVE, 8, useMask), "");
+    // Only 7 rows of top padding before the very first column of the entire sprite data.
+    // Compute padding bytes once, then format as text.
+    const paddingBytes = buildPaddingBytes(PADDING_ROWS_ABOVE, 8, useMask);
+    lines.push(...formatBytesAsDefb(paddingBytes, 16, useMask), "");
   }
 
   sprite.frames.forEach((_, frameIndex) => {
@@ -117,22 +125,20 @@ export function generateSpriteAsmBody(
 
       lines.push(`${colLabel}:`);
 
-      lines.push(
-        ...generateColumnBitmapDefbLines(
-          bitmask,
-          sprite.width,
-          sprite.height,
-          col,
-          useMask,
-        ),
+      // Compute column bytes once, then format. The single source of truth
+      // for bit-packing is `binary-builder-utils.ts`.
+      const colBytes = buildColumnBytes(
+        bitmask,
+        sprite.width,
+        sprite.height,
+        col,
+        useMask,
       );
+      lines.push(...formatBytesAsDefb(colBytes, 16, useMask));
 
       if (hasPadding) {
-        lines.push(
-          "",
-          ...generatePaddingDefbLines(PADDING_ROWS_BELOW, 8, useMask),
-          "",
-        );
+        const padBytes = buildPaddingBytes(PADDING_ROWS_BELOW, 8, useMask);
+        lines.push("", ...formatBytesAsDefb(padBytes, 16, useMask), "");
       }
     }
   });

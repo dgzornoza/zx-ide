@@ -30,6 +30,8 @@ export function useCreateSprites() {
   const status = ref<StatusMessage | null>(null);
   const codeGenerationType = ref<CodeGenerationType>("c");
   const isCodeGenerationTypeReadOnly = ref(false);
+  /** ZX0 compression flag forwarded to the C code generator. Default true. */
+  const useZx0Compression = ref<boolean>(true);
   const binaryText = ref("");
   const outputName = ref("sprites");
   /** Combined sprite flags (SP1 padding, Use mask) forwarded to the generator. */
@@ -146,6 +148,7 @@ export function useCreateSprites() {
       spriteBitmasks: sprites.map((sprite) =>
         sprite.frames.map((frame) => frame.bitmap?.inkBitmap ?? []),
       ),
+      compressed: useZx0Compression.value,
     };
 
     const generator = createSpritesCodeGenerator(codeGenerationType.value);
@@ -161,7 +164,8 @@ export function useCreateSprites() {
     } else {
       const zip = new JSZip();
       for (const file of codeFiles) {
-        zip.file(file.fileName, file.content);
+        const isBinary = file.fileType === "png" || file.fileType === "binary";
+        zip.file(file.fileName, file.content, isBinary ? { base64: true } : undefined);
       }
       const blob = await zip.generateAsync({ type: "blob" });
       downloadBlob(blob, `${params.name}.zip`);
@@ -199,6 +203,7 @@ export function useCreateSprites() {
     outputName,
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
+    useZx0Compression,
     spriteFlags,
     activeSpriteIndex,
     tp,

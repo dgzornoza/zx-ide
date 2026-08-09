@@ -46,6 +46,8 @@ export function useExtractSprites() {
   const status = ref<StatusMessage | null>(null);
   const codeGenerationType = ref<CodeGenerationType>("c");
   const isCodeGenerationTypeReadOnly = ref(false);
+  /** ZX0 compression flag forwarded to the C code generator. Default true. */
+  const useZx0Compression = ref<boolean>(true);
   const spriteFlags = ref<number>(SpriteFlags.None);
 
   // ─── Load map ──────────────────────────────────────────────────────────────
@@ -171,6 +173,7 @@ export function useExtractSprites() {
       sprites: state.sprites,
       spriteFlags: spriteFlags.value,
       spriteBitmasks,
+      compressed: useZx0Compression.value,
     });
 
     if (vscode.isAvailable) {
@@ -182,7 +185,8 @@ export function useExtractSprites() {
     } else {
       const zip = new JSZip();
       for (const file of codeFiles) {
-        zip.file(file.fileName, file.content);
+        const isBinary = file.fileType === "png" || file.fileType === "binary";
+        zip.file(file.fileName, file.content, isBinary ? { base64: true } : undefined);
       }
 
       const blob = await zip.generateAsync({ type: "blob" });
@@ -221,6 +225,7 @@ export function useExtractSprites() {
     status,
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
+    useZx0Compression,
     spriteFlags,
     currentImageFile,
     tp,
