@@ -118,4 +118,11 @@ describe("formatIndicesAsDefb", () => {
     const asUint8 = new Uint8Array(asArray);
     expect(formatIndicesAsDefb(asArray, 4)).toEqual(formatIndicesAsDefb(asUint8, 4));
   });
+
+  it("emits no rows when rowWidth exceeds the input length", () => {
+    // 3 elements with rowWidth=10 → Math.floor(3 / 10) = 0, so no row is
+    // emitted. This is the current behaviour (and is consistent with the
+    // existing "silently drops a partial trailing row" test above).
+    expect(formatIndicesAsDefb([1, 2, 3], 10)).toEqual([]);
+  });
 });
