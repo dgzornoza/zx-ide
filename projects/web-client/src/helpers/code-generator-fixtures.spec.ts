@@ -379,3 +379,103 @@ describe("AsmMapCodeGenerator", () => {
     );
   });
 });
+
+// ─── Multi-frame sprite (ASM) ──────────────────────────────────────────────
+
+describe("AsmSpritesCodeGeneratorStrategy", () => {
+  it("emits one label and defb block per frame for a 2-frame 8x8 sprite", () => {
+    const sprite = {
+      _id: "1",
+      name: "player",
+      width: 8,
+      height: 8,
+      frames: [
+        { x: 0, y: 0 },
+        { x: 8, y: 0 },
+      ],
+    };
+    const spriteBitmasks = [[new Array(64).fill(true), new Array(64).fill(true)]];
+
+    const files = filesByName(
+      new AsmSpritesCodeGeneratorStrategy().generate({
+        name: "player",
+        sprites: [sprite],
+        spriteFlags: 0,
+        spriteBitmasks,
+      }),
+    );
+
+    expect(files["player.asm"]).toContain("player_player:");
+    expect(files["player.asm"]).toContain("player_player_f2:");
+    expect(files["player.asm"]).toContain(
+      "    defb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF",
+    );
+  });
+});
+
+// ─── Multi-column sprite (C, plain) ────────────────────────────────────────
+
+describe("CSpritesCodeGeneratorStrategy (plain mode)", () => {
+  it("emits one extern and one asm label per column for a 16x8 sprite", () => {
+    const sprite = {
+      _id: "1",
+      name: "hero",
+      width: 16,
+      height: 8,
+      frames: [{ x: 0, y: 0 }],
+    };
+    const spriteBitmasks = [[new Array(16 * 8).fill(true)]];
+
+    const files = filesByName(
+      new CSpritesCodeGeneratorStrategy().generate({
+        name: "hero",
+        sprites: [sprite],
+        spriteFlags: 0,
+        spriteBitmasks,
+      }),
+    );
+
+    expect(files["hero.h"]).toContain("extern const uint8_t hero_hero_col_1[];");
+    expect(files["hero.h"]).toContain("extern const uint8_t hero_hero_col_2[];");
+    expect(files["hero.asm"]).toContain("_hero_hero_col_1:");
+    expect(files["hero.asm"]).toContain("_hero_hero_col_2:");
+  });
+});
+
+// ─── Excluded tiles (C, plain) ─────────────────────────────────────────────
+
+describe("CTilesCodeGeneratorStrategy (plain mode)", () => {
+  it("skips excluded tiles in the .asm and records them in the .cfg", () => {
+    const tiles = {
+      type: "tiles" as const,
+      tileWidth: 8,
+      tileHeight: 8,
+      count: 2,
+      columns: 2,
+      excluded: [0],
+      excludedSet: new Set<number>([0]),
+      previews: ["", ""],
+      inkBitmaps: [
+        new Array(64).fill(true),
+        Array.from({ length: 64 }, (_, i) => i % 2),
+      ],
+    };
+
+    const files = filesByName(
+      new CTilesCodeGeneratorStrategy().generate({ name: "hud_tiles", tiles }),
+    );
+
+    expect(JSON.parse(files["hud_tiles.cfg"])).toEqual({
+      type: "tiles",
+      tileWidth: 8,
+      tileHeight: 8,
+      excluded: [0],
+    });
+    expect(files["hud_tiles.asm"]).not.toContain(
+      "defb $FF,$FF,$FF,$FF,$FF,$FF,$FF,$FF",
+    );
+    expect(files["hud_tiles.asm"]).toContain(
+      "    defb $55,$55,$55,$55,$55,$55,$55,$55",
+    );
+  });
+});
