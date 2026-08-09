@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { compress, decompress, MAX_OFFSET_ZX7 } from "./zx0-compress";
+import { compress, decompress, MAX_OFFSET_ZX0, MAX_OFFSET_ZX7 } from "./zx0-compress";
 
 function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
   if (a.length !== b.length) return false;
@@ -95,6 +95,23 @@ describe("zx0-compress", () => {
       const { delta } = compress(original);
       expect(delta).toBeGreaterThanOrEqual(0);
     });
+
+    it("round-trips a payload compressed with the classic (non-quick) sliding window", () => {
+      // Build a 4 KB buffer where the second half is an exact copy of the
+      // first half. The classic mode's 32 KB window can reference across
+      // the whole payload, so the round-trip must remain byte-identical
+      // even when the back-reference distance exceeds the quick-mode
+      // 2176-byte window.
+      const half = new Uint8Array(2048);
+      for (let i = 0; i < half.length; i++) half[i] = (i * 31 + 7) & 0xff;
+      const original = new Uint8Array(half.length * 2);
+      original.set(half, 0);
+      original.set(half, half.length);
+
+      const { data } = compress(original, { quick: false });
+      const out = decompress(data);
+      expect(bytesEqual(out, original)).toBe(true);
+    });
   });
 
   describe("error handling", () => {
@@ -115,5 +132,6 @@ describe("zx0-compress", () => {
   // Touch the constants so they appear referenced (otherwise TS unused-warning).
   it("exports the documented constants", () => {
     expect(MAX_OFFSET_ZX7).toBe(2176);
+    expect(MAX_OFFSET_ZX0).toBe(32640);
   });
 });

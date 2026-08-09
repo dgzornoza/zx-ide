@@ -19,40 +19,30 @@ import {
   getIncludedTileIndices,
   TilesCodeGeneratorParams,
 } from "src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy";
+import { makeTilesModel } from "src/test-utils/builders";
 
 /** Minimal valid {@link TilesCodeGeneratorParams} fixture for the tests. */
 function makeParams(
-  overrides: Partial<TilesCodeGeneratorParams> & {
-    tiles: Partial<TilesCodeGeneratorParams["tiles"]> & {
-      count: number;
-      tileWidth: number;
-      tileHeight: number;
-    };
-  },
+  overrides: Omit<Partial<TilesCodeGeneratorParams>, "tiles"> & {
+    tiles?: Partial<TilesCodeGeneratorParams["tiles"]>;
+  } = {},
 ): TilesCodeGeneratorParams {
   const { tiles, ...rest } = overrides;
   return {
-    name: rest.name ?? "hud_tiles",
+    name: "hud_tiles",
     ...rest,
-    tiles: {
-      type: "tiles",
-      columns: 0,
-      previews: [],
-      inkBitmaps: [],
-      excludedSet: new Set<number>(),
-      ...tiles,
-    } as TilesCodeGeneratorParams["tiles"],
+    tiles: makeTilesModel(tiles ?? {}),
   };
 }
 
 describe("getIncludedTileIndices", () => {
   it("returns every index when no excludedSet is provided", () => {
     // The strategy falls back to an empty Set when `excludedSet` is missing,
-    // so every index from 0..count-1 must be returned.
-    const params = makeParams({
-      tiles: { count: 3, tileWidth: 8, tileHeight: 8 },
-    });
-    // Cast strips the required `excludedSet` to exercise the runtime fallback.
+    // so every index from 0..count-1 must be returned. Cast the post-build
+    // assignment to `undefined` so the runtime `??` fallback is the path
+    // actually exercised (the builder's default would otherwise ship a
+    // non-undefined empty Set and shadow the fallback).
+    const params = makeParams({ tiles: { count: 3 } });
     (params.tiles as { excludedSet?: Set<number> }).excludedSet = undefined;
 
     expect(getIncludedTileIndices(params)).toEqual([0, 1, 2]);
@@ -60,12 +50,7 @@ describe("getIncludedTileIndices", () => {
 
   it("drops indices present in excludedSet", () => {
     const params = makeParams({
-      tiles: {
-        count: 3,
-        tileWidth: 8,
-        tileHeight: 8,
-        excludedSet: new Set([1]),
-      },
+      tiles: { count: 3, excludedSet: new Set([1]) },
     });
 
     expect(getIncludedTileIndices(params)).toEqual([0, 2]);
@@ -73,21 +58,14 @@ describe("getIncludedTileIndices", () => {
 
   it("returns an empty array when every index is excluded", () => {
     const params = makeParams({
-      tiles: {
-        count: 3,
-        tileWidth: 8,
-        tileHeight: 8,
-        excludedSet: new Set([0, 1, 2]),
-      },
+      tiles: { count: 3, excludedSet: new Set([0, 1, 2]) },
     });
 
     expect(getIncludedTileIndices(params)).toEqual([]);
   });
 
   it("returns an empty array when count is zero", () => {
-    const params = makeParams({
-      tiles: { count: 0, tileWidth: 8, tileHeight: 8 },
-    });
+    const params = makeParams({ tiles: { count: 0 } });
 
     expect(getIncludedTileIndices(params)).toEqual([]);
   });
@@ -95,35 +73,26 @@ describe("getIncludedTileIndices", () => {
 
 describe("calculateTilesDataByteCount", () => {
   it("counts bitmap bytes only for two 8x8 tiles with no attributes", () => {
-    // 2 tiles × (ceil(8/8) × 8) = 2 × 8 = 16 bytes.
+    // 2 tiles × (ceil(8/8) × 8) = 2 × 8 = 16 bytes. Override the
+    // builder's default attribute array so the `hasAttributes` branch
+    // is genuinely false.
     const params = makeParams({
-      tiles: { count: 2, tileWidth: 8, tileHeight: 8 },
+      tiles: { attributes: undefined },
     });
 
     expect(calculateTilesDataByteCount(params, [0, 1])).toBe(16);
   });
 
   it("adds one attribute byte per included tile when attributes are present", () => {
-    // 16 bitmap bytes + 2 attribute bytes = 18.
-    const params = makeParams({
-      tiles: {
-        count: 2,
-        tileWidth: 8,
-        tileHeight: 8,
-        attributes: [
-          { flash: false, bright: false, paper: 0, ink: 7 },
-          { flash: false, bright: false, paper: 0, ink: 7 },
-        ],
-      },
-    });
+    // 16 bitmap bytes + 2 attribute bytes = 18. The builder default
+    // already ships 2 attributes, so no override is needed for this case.
+    const params = makeParams();
 
     expect(calculateTilesDataByteCount(params, [0, 1])).toBe(18);
   });
 
   it("returns zero when no tiles are included", () => {
-    const params = makeParams({
-      tiles: { count: 2, tileWidth: 8, tileHeight: 8 },
-    });
+    const params = makeParams();
 
     expect(calculateTilesDataByteCount(params, [])).toBe(0);
   });
@@ -131,7 +100,7 @@ describe("calculateTilesDataByteCount", () => {
   it("counts two bytes per row for a 16x8 tile", () => {
     // 1 tile × (ceil(16/8) × 8) = 1 × 16 = 16 bytes.
     const params = makeParams({
-      tiles: { count: 1, tileWidth: 16, tileHeight: 8 },
+      tiles: { count: 1, tileWidth: 16, attributes: undefined },
     });
 
     expect(calculateTilesDataByteCount(params, [0])).toBe(16);
@@ -140,9 +109,7 @@ describe("calculateTilesDataByteCount", () => {
 
 describe("buildMapFile", () => {
   it("returns a map file with type 'tiles' and the expected JSON payload", () => {
-    const params = makeParams({
-      tiles: { count: 2, tileWidth: 8, tileHeight: 8 },
-    });
+    const params = makeParams();
 
     const file = buildMapFile(params);
 

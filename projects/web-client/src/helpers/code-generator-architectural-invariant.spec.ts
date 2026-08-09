@@ -25,6 +25,11 @@ import {
 } from "src/helpers/binary-builder-utils";
 import { base64ToBytes } from "src/helpers/binary-utils";
 import { decompress } from "src/helpers/zx0-compress";
+import {
+  makeMapModel,
+  makeSpriteModel,
+  makeTilesModel,
+} from "src/test-utils/builders";
 
 /** Parses all `defb` numbers from an asm text blob into a Uint8Array. */
 function parseDefbLines(text: string): Uint8Array {
@@ -58,24 +63,7 @@ function filesByName(
 
 describe("CTilesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin", () => {
   it("produces byte-identical payloads across plain .asm, compressed .bin and buildTilesBinary", () => {
-    const tiles = {
-      type: "tiles" as const,
-      tileWidth: 8,
-      tileHeight: 8,
-      count: 2,
-      columns: 2,
-      excluded: [],
-      excludedSet: new Set<number>(),
-      previews: ["", ""],
-      inkBitmaps: [
-        new Array(64).fill(true),
-        Array.from({ length: 64 }, (_, i) => i % 2),
-      ],
-      attributes: [
-        { flash: false, bright: false, paper: 0, ink: 7 },
-        { flash: false, bright: true, paper: 1, ink: 6 },
-      ],
-    };
+    const tiles = makeTilesModel();
 
     const plainFiles = filesByName(
       new CTilesCodeGeneratorStrategy().generate({ name: "hud_tiles", tiles }),
@@ -111,13 +99,7 @@ describe("CTilesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin", () 
 
 describe("CSpritesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin", () => {
   it("produces byte-identical payloads across plain .asm, compressed .bin and buildSpritesBinary", () => {
-    const sprite = {
-      _id: "1",
-      name: "player",
-      width: 8,
-      height: 8,
-      frames: [{ x: 0, y: 0 }],
-    };
+    const sprite = makeSpriteModel();
     const spriteBitmasks = [[new Array(64).fill(true)]];
 
     const params = {
@@ -158,16 +140,7 @@ describe("CMapCodeGenerator: plain defb ≡ ZX0-decompressed bin", () => {
   it("produces byte-identical payloads across plain .asm, compressed .bin and buildMapIndicesBinary", () => {
     const params = {
       name: "hud_map",
-      metadata: {
-        mapWidth: 4,
-        mapHeight: 2,
-        tileWidth: 8,
-        tileHeight: 8,
-        tilesetName: "hud-tiles",
-        tileCount: 64,
-        columns: 16,
-        sourceImage: "hud-tiles.png",
-      },
+      metadata: makeMapModel(),
       tileIndices: [1, 2, 3, 4, 5, 6, 7, 8],
     };
 
