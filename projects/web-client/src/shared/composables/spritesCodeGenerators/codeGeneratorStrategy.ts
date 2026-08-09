@@ -80,9 +80,14 @@ export function buildMapFile(
  * Frame 1 uses `baseLabel` directly (no suffix).
  * Subsequent frames use `${baseLabel}_f${frameNumber}` (1-based, starting at 2).
  *
- * Padding structure when `hasPadding` is true:
- * - 7 rows of zeros **before** frame 1's label (SP1 vertical rotation guard)
- * - 8 rows of zeros **after** each frame (including the last)
+ * Padding structure when `hasPadding` is true. The function emits ONE
+ * sprite at a time, so the 7-row guard repeats per sprite in a multi-sprite
+ * set, not just once globally.
+ * - 7 rows of zeros **before the first column of the first frame** (SP1
+ *   vertical rotation guard, per sprite)
+ * - 8 rows of zeros **after every column** of this sprite (including the
+ *   last column of the last frame — bottom padding is per-column, not
+ *   per-frame)
  */
 export function generateSpriteAsmBody(
   sprite: SpriteDefinition,
@@ -108,8 +113,10 @@ export function generateSpriteAsmBody(
   }
 
   if (hasPadding) {
-    // Only 7 rows of top padding before the very first column of the entire sprite data.
-    // Compute padding bytes once, then format as text.
+    // 7 rows of top padding before the first column of this sprite's first
+    // frame. Emitted per sprite — the guard repeats for every sprite in a
+    // multi-sprite set, not just the first one. Compute padding bytes once,
+    // then format as text.
     const paddingBytes = buildPaddingBytes(PADDING_ROWS_ABOVE, 8, useMask);
     lines.push(...formatBytesAsDefb(paddingBytes, 16, useMask), "");
   }
