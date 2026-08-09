@@ -107,9 +107,11 @@ export function attributeToByte(attribute: ZxpColorAttribute): number {
 /**
  * Builds the binary payload for an entire tile set.
  *
- * Order: for each included tile index, emit (bitmap bytes) followed by the
- * corresponding attribute byte (if attributes are provided). The result is
- * the same byte sequence that {@link calculateTilesDataByteCount} measures.
+ * Layout: all bitmap bytes first, then all attribute bytes (if `attributes`
+ * is provided). This matches the layout the C and ASM text generators emit,
+ * so ZX0-decompressed `.bin` payloads are byte-equivalent to the plain
+ * `.asm` `defb` directives. The result is the same byte sequence that
+ * {@link calculateTilesDataByteCount} measures.
  *
  * Tiles at indices not in `includedIndices` are skipped.
  */
@@ -128,13 +130,28 @@ export function buildTilesBinary(params: {
   const tileSize = bytesPerTile + (hasAttributes ? 1 : 0);
   const out = new Uint8Array(tileSize * includedIndices.length);
 
+  // Two-pass contiguous layout: first write every tile's bitmap bytes,
+  // then (if attributes are present) write every tile's attribute byte
+  // after them. See the function JSDoc above for the rationale.
   let writeOffset = 0;
   for (const tileIndex of includedIndices) {
     const inkBitmap = inkBitmaps[tileIndex] ?? [];
-    const attribute = hasAttributes ? attributes?.[tileIndex] : undefined;
-    const tileBytes = tileToBytes(inkBitmap, tileWidth, tileHeight, attribute);
-    out.set(tileBytes, writeOffset);
-    writeOffset += tileBytes.length;
+    const bitmapBytes = bitmapToBytes(inkBitmap, tileWidth, tileHeight);
+    out.set(bitmapBytes, writeOffset);
+    writeOffset += bytesPerTile;
+  }
+
+  if (hasAttributes) {
+    const attrOffset = bytesPerTile * includedIndices.length;
+    for (let i = 0; i < includedIndices.length; i++) {
+      const attr = attributes![includedIndices[i]] ?? {
+        flash: false,
+        bright: false,
+        paper: 7,
+        ink: 0,
+      };
+      out[attrOffset + i] = attributeToByte(attr);
+    }
   }
 
   return out;

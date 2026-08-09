@@ -212,9 +212,9 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
     const dataByteCount = calculateTilesDataByteCount(params, includedIndices);
     const dataSizeComment = buildDataSizeComment(dataByteCount);
 
-    // Compute every tile's bytes (pixmap + optional attribute byte) in one
-    // pass through `buildTilesBinary`, then slice per tile for text output.
-    // Single source of truth for byte packing — see binary-builder-utils.ts.
+    // `buildTilesBinary` produces canonical bytes in contiguous layout
+    // (all bitmaps, then all attributes). Slice per-tile from the bitmap
+    // section; the attribute block is emitted separately below.
     const rawBytes = buildTilesBinary({
       inkBitmaps: tiles.inkBitmaps,
       tileWidth: tiles.tileWidth,
@@ -223,7 +223,8 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
       includedIndices,
     });
     const bytesPerTile = Math.ceil(tiles.tileWidth / 8) * tiles.tileHeight;
-    const tileStride = bytesPerTile + (hasAttributes ? 1 : 0);
+    // Contiguous layout: each tile's bitmap occupies exactly `bytesPerTile` bytes.
+    const tileStride = bytesPerTile;
 
     const lines: string[] = [
       dataSizeComment,

@@ -52,13 +52,9 @@ function filesByName(
 
 // ─── Tiles ──────────────────────────────────────────────────────────────────
 //
-// NOTE: attributes are deliberately omitted here. With multi-tile inputs
-// the plain `.asm` emits attributes as a single block after every bitmap
-// (`[bitmap0, bitmap1, attr0, attr1]`) while `buildTilesBinary` interleaves
-// them per tile (`[bitmap0, attr0, bitmap1, attr1]`), so the ZX0-decompressed
-// `.bin` payload does not match the `.asm` byte order. That divergence is a
-// known bug captured outside this suite; this test covers the bitmap-only
-// case where the invariant holds.
+// The invariant holds with attributes too: `buildTilesBinary` now emits
+// bitmaps contiguously followed by all attribute bytes, matching the plain
+// `.asm` byte order. See `binary-builder-utils.ts:buildTilesBinary`.
 
 describe("CTilesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin", () => {
   it("produces byte-identical payloads across plain .asm, compressed .bin and buildTilesBinary", () => {
@@ -74,6 +70,10 @@ describe("CTilesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin", () 
       inkBitmaps: [
         new Array(64).fill(true),
         Array.from({ length: 64 }, (_, i) => i % 2),
+      ],
+      attributes: [
+        { flash: false, bright: false, paper: 0, ink: 7 },
+        { flash: false, bright: true, paper: 1, ink: 6 },
       ],
     };
 
@@ -92,6 +92,7 @@ describe("CTilesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin", () 
       inkBitmaps: tiles.inkBitmaps,
       tileWidth: tiles.tileWidth,
       tileHeight: tiles.tileHeight,
+      attributes: tiles.attributes,
       includedIndices: [0, 1],
     });
 

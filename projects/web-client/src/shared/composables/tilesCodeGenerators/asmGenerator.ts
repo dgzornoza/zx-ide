@@ -43,7 +43,8 @@ export class AsmTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
       includedIndices,
     });
     const bytesPerTile = Math.ceil(tiles.tileWidth / 8) * tiles.tileHeight;
-    const tileStride = bytesPerTile + (hasAttributes ? 1 : 0);
+    // Contiguous layout: each tile's bitmap occupies exactly `bytesPerTile` bytes.
+    const tileStride = bytesPerTile;
 
     const lines: string[] = [dataSizeComment, `${id}:`];
 

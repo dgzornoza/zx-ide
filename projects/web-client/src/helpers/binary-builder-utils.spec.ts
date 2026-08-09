@@ -163,7 +163,9 @@ describe("buildTilesBinary", () => {
   });
 
   it("appends one attribute byte per included tile when attributes are supplied", () => {
-    // 2 tiles × (8 bitmap bytes + 1 attribute byte) = 18 bytes.
+    // Contiguous layout: 2 tiles × 8 bitmap bytes = 16 bitmap bytes, then
+    // 2 attribute bytes. Total 18 bytes. Matches the layout the C/ASM text
+    // generators emit so plain .asm and compressed .bin are byte-equivalent.
     const inkBitmaps = [flatBitmap(8, 8, true), flatBitmap(8, 8, true)];
     const attributes: ZxpColorAttribute[] = [
       { flash: false, bright: false, paper: 0, ink: 7 },
@@ -177,7 +179,9 @@ describe("buildTilesBinary", () => {
       includedIndices: [0, 1],
     });
     expect(out.length).toBe(18);
-    expect(out[8]).toBe(0x07);
+    // Bytes 0..15 are the two tile bitmaps (all 0xFF); bytes 16..17 are the
+    // attribute bytes.
+    expect(out[16]).toBe(0x07);
     expect(out[17]).toBe(0x38);
   });
 
