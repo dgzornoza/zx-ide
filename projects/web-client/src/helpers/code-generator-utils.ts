@@ -46,9 +46,11 @@ export function formatBytesAsDefb(
   const entries: string[] = [];
 
   if (useMask) {
-    // Input is (mask, data) interleaved.
+    // Input is (mask, data) interleaved. `bytes[i]` is always in-bounds
+    // here (the loop condition is `i < bytes.length`); only `bytes[i + 1]`
+    // can be undefined when the input has an odd length.
     for (let i = 0; i < bytes.length; i += 2) {
-      entries.push(toHexByte(bytes[i] ?? 0xff), toHexByte(bytes[i + 1] ?? 0));
+      entries.push(toHexByte(bytes[i]), toHexByte(bytes[i + 1] ?? 0));
     }
   } else {
     for (const element of bytes) {

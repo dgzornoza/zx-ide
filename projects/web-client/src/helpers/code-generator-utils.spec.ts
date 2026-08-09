@@ -43,13 +43,12 @@ describe("formatBytesAsDefb", () => {
     ]);
   });
 
-  it("falls back to ($FF,$00) only for the missing trailing byte of an odd-length masked input", () => {
-    // Three bytes: the third (odd index) byte is preserved as-is ($02), and
-    // the missing fourth byte falls through to the `?? 0` defensive default.
-    // The `?? 0xff` fallback for `bytes[i]` only kicks in when the *first*
-    // index of the pair is past the end, which never happens here because the
-    // loop steps by 2 and the length is odd (3, 5, 7…). The quirk is real
-    // but subtler than "missing mask byte defaults to 0xff".
+  it("preserves the trailing mask byte and defaults only the missing data byte to $00 in an odd-length masked input", () => {
+    // Three bytes [0x00, 0x01, 0x02] with `useMask=true` pair as
+    // (mask=$00, data=$01) and (mask=$02, data=$00, default fallback).
+    // The `?? 0xff` mask-side default was removed because the loop
+    // condition `i < bytes.length` already guarantees `bytes[i]` is
+    // in-bounds on every iteration.
     expect(formatBytesAsDefb(new Uint8Array([0x00, 0x01, 0x02]), undefined, true))
       .toEqual(["    defb $00,$01,$02,$00"]);
   });
