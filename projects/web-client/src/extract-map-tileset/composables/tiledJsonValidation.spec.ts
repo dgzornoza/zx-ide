@@ -181,34 +181,33 @@ describe("parseAndValidateTiledJson", () => {
     expect(parsed.layer.data).toEqual([1, 2, 3, 0, 0, 0, 0, 0]);
   });
 
-  it("truncates layer data that exceeds width*height (current behaviour, no warning)", () => {
-    // 4x2 → 8 cells, but data has 12 entries. The normalization step resizes
-    // the array to expectedEntries via `arr.length = N`, which silently drops
-    // the trailing entries. Locking this in: callers must pre-trim or accept
-    // a silent loss. If intentional behaviour changes (e.g. emit a warning),
-    // update both this test and the call sites.
-    const parsed = parseAndValidateTiledJson(
-      JSON.stringify({
-        exporterVersion: "1.0.0",
-        tileset: {
-          image: "hud-tiles.png",
-          tileWidth: 8,
-          tileHeight: 8,
-          tileCount: 64,
-          columns: 16,
-        },
-        layers: [
-          {
-            name: "Layer 1",
-            width: 4,
-            height: 2,
-            data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+  it("rejects layer data that exceeds width*height", () => {
+    // 4x2 → 8 cells, but data has 12 entries. A length mismatch in the
+    // "too long" direction is treated as malformed input and surfaces
+    // `errorLayerDataLengthMismatch:expected:actual` rather than silently
+    // truncating — callers get a loud failure instead of a quiet data loss.
+    expect(() =>
+      parseAndValidateTiledJson(
+        JSON.stringify({
+          exporterVersion: "1.0.0",
+          tileset: {
+            image: "hud-tiles.png",
+            tileWidth: 8,
+            tileHeight: 8,
+            tileCount: 64,
+            columns: 16,
           },
-        ],
-      }),
-    );
-
-    expect(parsed.layer.data).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+          layers: [
+            {
+              name: "Layer 1",
+              width: 4,
+              height: 2,
+              data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+            },
+          ],
+        }),
+      ),
+    ).toThrow("errorLayerDataLengthMismatch:8:12");
   });
 
   it("rejects empty tileset image path", () => {

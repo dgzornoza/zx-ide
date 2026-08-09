@@ -94,7 +94,11 @@ function parseLayer(value: unknown, index: number): TiledJsonLayer {
  *
  * - Checks exporter version compatibility.
  * - Validates and normalizes tileset and layer data.
- * - Ensures tile data array matches map dimensions, filling with 0 if needed.
+ * - Ensures the layer data array matches map dimensions, padding with 0 if
+ *   short and throwing `errorLayerDataLengthMismatch` if it exceeds the
+ *   expected size. A length mismatch in the "too long" direction is treated
+ *   as malformed input rather than silently truncated, so callers get a
+ *   loud failure instead of a quiet data loss.
  *
  * Throws localized error keys if validation fails.
  */
@@ -128,9 +132,19 @@ export function parseAndValidateTiledJson(content: string): ParsedTiledJsonMap {
   }
 
   const expectedEntries = layer.width * layer.height;
+  if (layer.data.length > expectedEntries) {
+    throw new Error(
+      `errorLayerDataLengthMismatch:${expectedEntries}:${layer.data.length}`,
+    );
+  }
   const normalisedData = [...layer.data];
-  if (normalisedData.length !== expectedEntries) {
-    normalisedData.length = expectedEntries;
+  if (normalisedData.length < expectedEntries) {
+    // Pad with 0 to reach the expected size; also replace any NaN entries
+    // (parseLayer already ensures every entry is a number, so this only
+    // catches NaN, not non-numeric values).
+    while (normalisedData.length < expectedEntries) {
+      normalisedData.push(0);
+    }
     for (let index = 0; index < normalisedData.length; index++) {
       const currentValue = normalisedData[index];
       if (typeof currentValue !== "number" || Number.isNaN(currentValue)) {
