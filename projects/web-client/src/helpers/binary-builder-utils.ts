@@ -155,7 +155,9 @@ export function buildTilesBinary(params: {
  *         (mask byte, if useMask) then data byte
  *
  * With SP1 padding:
- *   - 7 padding rows **before** the first column of the first frame
+ *   - 7 padding rows **before the first column of the first frame of every
+ *     sprite** (each sprite is emitted as a self-contained SP1 block, so
+ *     the rotation guard repeats per sprite, not just once globally)
  *   - 8 padding rows **after** every column of every frame
  */
 export function buildSpritesBinary(params: {
