@@ -69,6 +69,24 @@ This repository contains two projects: a CLI (`cli`) and a VS Code extension (`v
 
 Note: if you want to debug the extension code with a app code, you need open this project in devcontainer, and set `devcontainer.json` mounts property to a directory with your app code. Where you can open the app code folder in the extension host window.
 
+## Testing
+
+Test suites are scoped per project. Run them from the project directory or use the `--prefix` flag from the repo root.
+
+### Web client (Vitest)
+
+- Run all tests: `npm test --prefix ./projects/web-client`
+- Watch mode: `npm run test:watch --prefix ./projects/web-client`
+- Type check: `npm run typecheck --prefix ./projects/web-client`
+
+Test files live in `projects/web-client/src/**/*.spec.ts` and cover the bit-packing primitives, code-generator strategies, validation paths, and the architectural invariant between plain `.asm` and compressed `.bin` outputs.
+
+### VS Code extension (Mocha)
+
+- Run tests: `npm test --prefix ./projects/vscode-extension`
+
+This boots a VS Code Extension Host and runs the extension's test suite.
+
 ## License
 
 This project is licensed under the **GNU Affero General Public License v3.0 or later (AGPL-3.0-or-later)**. This means you can use, copy, modify, and distribute this code under the terms of the AGPL-3.0. For more details, see the [LICENSE](./LICENSE) file or visit the [GNU AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html) page.
