@@ -160,7 +160,7 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
       "",
       "#include <stdint.h>",
       "",
-      `#define ${guard}_TILES_COUNT       ${tileCount}u`,
+      `#define ${guard}_TILES_COUNT ${tileCount}u`,
       `#define ${guard}_PIXMAP_SIZE (${guard}_TILES_COUNT * ${perTileBytes}u)`,
       `#define ${guard}_ATTRS_SIZE  ${attrsSize}u`,
       `#define ${guard}_TOTAL_SIZE  (${guard}_PIXMAP_SIZE + ${guard}_ATTRS_SIZE)`,
