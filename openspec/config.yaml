@@ -5,13 +5,71 @@ schema: spec-driven
 # This is shown to AI when creating artifacts.
 # Add your tech stack, conventions, style guides, domain knowledge, etc.
 context: |
-  Idioma: English
-  All artifacts must be written in English
+  Project: zx-ide — VS Code extension IDE for ZX Spectrum development.
 
-  Tech stack: vscode api, Typescript
-  Rules, Instructions and conventions, documented in ./github/copilot-instructions.md
-  We use conventional commits
-  Domain: vscode extension
+  Language: TypeScript (strict). All source code, identifiers, and technical
+  comments are in English.
+
+  Monorepo layout under `projects/`:
+
+    - `cli` — Node.js CLI for ZX Spectrum project scaffolding.
+      TypeScript, Webpack. Entry point: `src/index.ts`.
+      Template system with ZIP archives and placeholder tokens.
+      No test runner detected. Build: `npm run build`. Lint: `npm run lint`.
+
+    - `vscode-extension` — VS Code extension (TypeScript, Webpack).
+      Inversify DI, Disposable pattern, path aliases (`@core/*`, `@z88dk/*`).
+      Commands use `.cmd.ts` suffix. Member variables without underscore prefix
+      (exemption: inherited `_subscriptions`).
+      Test runner: Mocha + `@vscode/test-electron` (integration only, no unit runner).
+      Build: `npm run build`. Lint: `npm run lint`. Test: `npm run test` (after `pretest`).
+
+    - `web-client` — Vue 3 webview embedded in the extension (TypeScript, Vite).
+      Composition API with `<script setup>` ONLY — no Options API.
+      Use `defineModel()` for v-models and `defineProps<T>()` for typed props.
+      Tailwind CSS for styling. Mandatory skill: `vue-best-practices`.
+      Test runner: Vitest (strict TDD enabled). Build: `npm run build`.
+      Lint: `npm run lint`. Test: `npm run test`.
+
+  Governance and conventions are documented at the repo root in `AGENTS.md`
+  and per-sub-project in `.ai/instructions/{cli,vscode-extension,web-client}.md`.
+  The legacy `.github/copilot-instructions.md` is a stub that points to AGENTS.md
+  and MUST NOT be used as a source of truth.
+
+  TypeScript conventions (all sub-projects):
+    - Never use `null` — use `undefined` for optional values. Optional properties
+      are declared with `?`: `myVar?: string`.
+    - Optional parameters and variables follow the same pattern:
+      `function foo(bar?: string)` instead of `function foo(bar: string | null)`.
+    - No abbreviations in variable, parameter, or property names
+      (e.g., `projectName`, not `projName`; `newValue`, not `v`).
+    - Conventional commits are required: `feat`, `fix`, `docs`, `refactor`,
+      `test`, `chore`, `perf`, `build`, `ci`. No AI co-author attribution.
+    - All source code, identifiers, and technical comments in English.
+
+  SDD artifact store policy: HYBRID
+    - OpenSpec (`openspec/`) is the canonical, team-visible store. Specs live in
+      `openspec/specs/<capability>/spec.md` (with optional `design.md`). Active
+      changes live in `openspec/changes/<change-name>/` with `proposal.md` and
+      `tasks.md` (and `specs/` deltas when modifying capabilities).
+    - Engram is the cross-session memory layer for decisions, discoveries, bug
+      fixes, and project conventions. Observations use `topic_key` for evolving
+      topics and `capture_prompt: false` for automated/SDD artifacts.
+    - Conflict resolution: when OpenSpec and Engram disagree, OpenSpec is
+      authoritative for spec content; Engram is authoritative for cross-session
+      context and decisions.
+    - Grandfathered exception: the `unify-ai-governance` change has its
+      artifacts in Engram-only. Do NOT migrate them to OpenSpec.
+
+  Domain knowledge:
+    - VS Code extension development (commands, webviews, tree views, commands
+      with `.cmd.ts` suffix, Disposable pattern, Inversify DI).
+    - ZX Spectrum retro-development tools (Z80 assembly, sjasmplus, ZX0
+      compression, binary asset pipelines).
+    - Webview UI embedded in extensions (Vue 3 + Vite, separate from the
+      extension host process).
+    - Binary asset generation (tiles, sprites, maps), tile/sprite/map editors.
+    - Test fixtures shared across sub-projects (see `builders/`).
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
@@ -19,8 +77,20 @@ rules:
   proposal:
     - Keep proposals under 500 words
     - Always include a "Non-goals" section
+    - Reference existing capabilities in `openspec/specs/` before proposing new ones
+    - State which sub-project(s) the change affects (cli / vscode-extension / web-client)
   specs:
-    - Use Given/When/Then format
+    - Use Given/When/Then format for scenarios
     - Reference existing patterns before inventing new ones
+    - Each capability has its own directory under `openspec/specs/<name>/`
+    - Use `## Requirements` with `### Requirement:` headers and `## Scenarios`
   tasks:
-    - Break tasks into chunks of max 1 hours
+    - Break tasks into chunks of max 1 hour of focused work
+    - Each task MUST have clear acceptance criteria
+    - Tag every task with its sub-project: `[cli]`, `[vscode-extension]`, or `[web-client]`
+    - Include the test command to verify the task (when applicable)
+  design:
+    - Document architecture decisions with rationale
+    - List alternatives considered for non-trivial choices
+    - Include trade-offs explicitly
+    - Note any cross-sub-project coupling
