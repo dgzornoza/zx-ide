@@ -1,1 +1,0 @@
-# See .ai/instructions/web-client.md for canonical conventions.

@@ -1,1 +1,0 @@
-# See AGENTS.md at repo root for canonical workspace governance.

@@ -1,1 +1,0 @@
-# See .ai/instructions/cli.md for canonical conventions.

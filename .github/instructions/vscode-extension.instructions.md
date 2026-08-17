@@ -1,1 +1,0 @@
-# See .ai/instructions/vscode-extension.md for canonical conventions.
