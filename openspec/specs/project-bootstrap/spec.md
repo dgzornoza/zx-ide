@@ -21,7 +21,7 @@ The project SHALL use `hybrid` persistence for SDD artifacts:
 - **OpenSpec** (`openspec/`) is the canonical, team-visible store for specs, proposals, designs, and tasks.
 - **Engram** is the cross-session memory store for decisions, discoveries, and context.
 - Engram observations use `topic_key: sdd-init/zx-ide` and are tagged `capture_prompt: false` for automated artifacts.
-- Existing `openspec/config.yaml` is NOT to be regenerated; it was restored from HEAD and is preserved as-is.
+- `openspec/config.yaml` is generated and maintained by `sdd-init` / `sdd-archive`. It carries the detected project context (stack, governance, conventions, hybrid policy, test runners) and MUST be kept in sync with `openspec/specs/project-bootstrap/`. When the two diverge, the spec is authoritative and `config.yaml` must be regenerated.
 
 ### Requirement: TypeScript conventions are enforced across all projects
 
