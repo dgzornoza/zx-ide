@@ -13,6 +13,8 @@ const {
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
   useZx0Compression,
+
+  isZx0CompressionReadOnly,
   spriteFlags,
   activeSpriteIndex,
   tp,
@@ -64,7 +66,9 @@ function handleAddFrame(spriteIndex: number) {
           v-model:use-zx0-compression="useZx0Compression"
           translation-namespace="create-sprites"
           :read-only="isCodeGenerationTypeReadOnly"
-        />
+
+          :is-zx0-read-only="isZx0CompressionReadOnly"
+      />
       </section>
 
       <!-- Sprites collection -->

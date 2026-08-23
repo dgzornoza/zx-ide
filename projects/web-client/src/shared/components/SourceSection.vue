@@ -5,6 +5,8 @@ import CodeGenerationSelector from "src/shared/components/CodeGenerationSelector
 
 const props = defineProps<{
   readOnly?: boolean;
+  /** When true, the ZX0 checkbox in the embedded CodeGenerationSelector is locked. */
+  isZx0ReadOnly?: boolean;
   translationNamespace: string;
   acceptMapFormats?: string;
   /** When true, hides the .map file input entirely. */
@@ -129,6 +131,7 @@ function onMapFileChange(event: Event) {
         v-model:use-zx0-compression="useZx0Compression"
         :translation-namespace="translationNamespace"
         :read-only="readOnly"
+        :is-zx0-read-only="props.isZx0ReadOnly"
       />
     </div>
   </section>

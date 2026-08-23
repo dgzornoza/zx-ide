@@ -12,6 +12,8 @@ const {
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
   useZx0Compression,
+
+  isZx0CompressionReadOnly,
   tp,
   addTile,
   removeTile,
@@ -47,7 +49,9 @@ const {
           v-model:use-zx0-compression="useZx0Compression"
           translation-namespace="create-tiles"
           :read-only="isCodeGenerationTypeReadOnly"
-        />
+
+          :is-zx0-read-only="isZx0CompressionReadOnly"
+      />
       </section>
 
       <!-- Tiles collection -->

@@ -33,6 +33,8 @@ const messages = {
       useZx0CompressionLabel: "Use ZX0 compression",
       useZx0CompressionAsmHint:
         "ZX0 compression is only available for C (z88dk) targets.",
+      useZx0CompressionReadOnlyHint:
+        "Determined by the VS Code project type and cannot be changed here.",
       errorTileCountInvalid: "Tile count must be a non-negative number",
       errorTileWidthInvalid: "Tile width must be greater than zero",
       errorTileHeightInvalid: "Tile height must be greater than zero",
@@ -83,6 +85,8 @@ const messages = {
       useZx0CompressionLabel: "Use ZX0 compression",
       useZx0CompressionAsmHint:
         "ZX0 compression is only available for C (z88dk) targets.",
+      useZx0CompressionReadOnlyHint:
+        "Determined by the VS Code project type and cannot be changed here.",
       spriteSp1PaddingLabel: "Add SP1 padding",
       spriteSp1PaddingTooltip:
         "Adds 7 zero-bytes before and 8 zero-bytes after each sprite column (Used by the SP1 library).",
@@ -125,6 +129,8 @@ const messages = {
       useZx0CompressionLabel: "Use ZX0 compression",
       useZx0CompressionAsmHint:
         "ZX0 compression is only available for C (z88dk) targets.",
+      useZx0CompressionReadOnlyHint:
+        "Determined by the VS Code project type and cannot be changed here.",
       create: "Create",
       statusSent: "Files saved to your workspace.",
       errorNoTiles: "Please add at least one tile before creating code.",
@@ -180,6 +186,8 @@ const messages = {
       useZx0CompressionLabel: "Use ZX0 compression",
       useZx0CompressionAsmHint:
         "ZX0 compression is only available for C (z88dk) targets.",
+      useZx0CompressionReadOnlyHint:
+        "Determined by the VS Code project type and cannot be changed here.",
       create: "Create",
       statusSent: "Files saved to your workspace.",
       errorNoSprites:
@@ -226,6 +234,8 @@ const messages = {
       useZx0CompressionLabel: "Use ZX0 compression",
       useZx0CompressionAsmHint:
         "ZX0 compression is only available for C (z88dk) targets.",
+      useZx0CompressionReadOnlyHint:
+        "Determined by the VS Code project type and cannot be changed here.",
       create: "Extract",
       statusSent: "Files saved to your workspace.",
       errorVsCodeRequired:
@@ -293,6 +303,8 @@ const messages = {
       useZx0CompressionLabel: "Usar compresión ZX0",
       useZx0CompressionAsmHint:
         "La compresión ZX0 solo está disponible para targets C (z88dk).",
+      useZx0CompressionReadOnlyHint:
+        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
       errorTileCountInvalid:
         "El número de tiles debe ser un entero no negativo",
       errorTileWidthInvalid: "El ancho del tile debe ser mayor que cero",
@@ -349,6 +361,8 @@ const messages = {
       useZx0CompressionLabel: "Usar compresión ZX0",
       useZx0CompressionAsmHint:
         "La compresión ZX0 solo está disponible para targets C (z88dk).",
+      useZx0CompressionReadOnlyHint:
+        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
       spriteSp1PaddingLabel: "Añadir padding SP1",
       spriteSp1PaddingTooltip:
         "Añade 7 bytes a cero antes y 8 bytes a cero después de cada columna del sprite (Utilizado por la librería SP1).",
@@ -375,8 +389,7 @@ const messages = {
         "Diseña tiles visualmente introduciendo una matriz binaria (0s y 1s) y guárdalos en tu proyecto.",
       sectionInput: "Entrada binaria",
       binaryInputLabel: "Matriz binaria",
-      binaryInputPlaceholder:
-        "Introduce filas de 0s y 1s, una fila por línea…",
+      binaryInputPlaceholder: "Introduce filas de 0s y 1s, una fila por línea…",
       binaryInputHint:
         "Usa solo 0 y 1, una fila por línea. Todas las filas deben tener la misma longitud.",
       previewLabel: "Vista previa",
@@ -394,6 +407,8 @@ const messages = {
       useZx0CompressionLabel: "Usar compresión ZX0",
       useZx0CompressionAsmHint:
         "La compresión ZX0 solo está disponible para targets C (z88dk).",
+      useZx0CompressionReadOnlyHint:
+        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
       create: "Crear",
       statusSent: "Archivos guardados en tu workspace.",
       errorNoTiles: "Añade al menos un tile antes de generar código.",
@@ -416,8 +431,7 @@ const messages = {
         "Diseña sprites visualmente introduciendo frames binarios (0s y 1s) y guárdalos en tu proyecto.",
       sectionInput: "Entrada binaria",
       binaryInputLabel: "Matriz binaria",
-      binaryInputPlaceholder:
-        "Introduce filas de 0s y 1s, una fila por línea…",
+      binaryInputPlaceholder: "Introduce filas de 0s y 1s, una fila por línea…",
       binaryInputHint:
         "Usa solo 0 y 1, una fila por línea. Todas las filas deben tener la misma longitud.",
       previewLabel: "Vista previa",
@@ -450,6 +464,8 @@ const messages = {
       useZx0CompressionLabel: "Usar compresión ZX0",
       useZx0CompressionAsmHint:
         "La compresión ZX0 solo está disponible para targets C (z88dk).",
+      useZx0CompressionReadOnlyHint:
+        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
       create: "Crear",
       statusSent: "Archivos guardados en tu workspace.",
       errorNoSprites:
@@ -496,6 +512,8 @@ const messages = {
       useZx0CompressionLabel: "Usar compresión ZX0",
       useZx0CompressionAsmHint:
         "La compresión ZX0 solo está disponible para targets C (z88dk).",
+      useZx0CompressionReadOnlyHint:
+        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
       create: "Extraer",
       statusSent: "Archivos guardados en tu workspace.",
       errorVsCodeRequired:

@@ -6,6 +6,8 @@ import { createTranslationPrefixFn } from "src/helpers/vue-utils";
 const props = defineProps<{
   translationNamespace: string;
   readOnly?: boolean;
+  /** When true, the ZX0 checkbox is locked (typically tied to project type). */
+  isZx0ReadOnly?: boolean;
 }>();
 
 const tp = createTranslationPrefixFn(props.translationNamespace);
@@ -24,6 +26,15 @@ const useZx0Compression = defineModel<boolean>("useZx0Compression", {
 /** Compression is only meaningful for the C (z88dk) target. */
 const isCompressionApplicable = computed(
   () => codeGenerationType.value === "c",
+);
+
+/**
+ * The ZX0 checkbox is disabled when:
+ * - the current target doesn't support compression (asm), or
+ * - the project type forces a fixed value (the parent passes `isZx0ReadOnly`).
+ */
+const isZx0EffectivelyReadOnly = computed(
+  () => !isCompressionApplicable.value || props.isZx0ReadOnly === true,
 );
 </script>
 
@@ -70,19 +81,25 @@ const isCompressionApplicable = computed(
     <div class="mt-3">
       <label
         class="flex cursor-pointer items-center gap-2 text-sm"
-        :class="{ 'cursor-default opacity-60': !isCompressionApplicable }"
+        :class="{ 'cursor-default opacity-60': isZx0EffectivelyReadOnly }"
       >
         <input
           type="checkbox"
           name="useZx0Compression"
           v-model="useZx0Compression"
-          :disabled="!isCompressionApplicable"
+          :disabled="isZx0EffectivelyReadOnly"
           class="accent-[color:var(--button-bg)]"
         />
         {{ tp("useZx0CompressionLabel") }}
       </label>
       <p
-        v-if="!isCompressionApplicable"
+        v-if="isZx0EffectivelyReadOnly && props.isZx0ReadOnly"
+        class="mt-1 text-xs text-[color:var(--ink-soft)]"
+      >
+        {{ tp("useZx0CompressionReadOnlyHint") }}
+      </p>
+      <p
+        v-else-if="!isCompressionApplicable"
         class="mt-1 text-xs text-[color:var(--ink-soft)]"
       >
         {{ tp("useZx0CompressionAsmHint") }}

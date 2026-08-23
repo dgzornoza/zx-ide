@@ -1,16 +1,15 @@
 import type {
-  CodeGenerationType,
-  InitMessage,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
 import { parseAsmTilesetData } from "src/extract-map-tileset/composables/asmTilesetParser";
 import { createMapCodeGenerator } from "src/extract-map-tileset/composables/codeGenerators/codeGeneratorFactory";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
 import {
   StatusMessage,
   StatusMessageType,
 } from "src/shared/models/statusMessage";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
 import { renderTilesetMapPreviewFromTileData } from "../../helpers/image-utils";
 import type { MapTilesetMetadata } from "../models/mapTilesetDefinition";
@@ -54,10 +53,12 @@ export function useExtractMapTileset() {
   const tileAttributeBytes = ref<number[]>([]);
   const errors = ref<string[]>([]);
   const warnings = ref<string[]>([]);
-  const codeGenerationType = ref<CodeGenerationType>("c");
-  const isCodeGenerationTypeReadOnly = ref(false);
-  /** ZX0 compression flag forwarded to the C code generator. Default true. */
-  const useZx0Compression = ref<boolean>(true);
+  const {
+    codeGenerationType,
+    isCodeGenerationTypeReadOnly,
+    useZx0Compression,
+    isZx0CompressionReadOnly,
+  } = useProjectTypeLock();
   const statusMessage = ref<StatusMessage | null>(null);
   /**
    * Forces the map preview canvas to rerender when incremented.
@@ -100,24 +101,6 @@ export function useExtractMapTileset() {
   // ─── Bridge ──────────────────────────────────────────────────────────────────
 
   const bridge = createVsCodeBridge();
-
-  onMounted(() => {
-    window.addEventListener("message", handleInitMessage);
-  });
-
-  function handleInitMessage(event: MessageEvent): void {
-    const message = event.data as InitMessage;
-    if (message?.messageType !== "init") {
-      return;
-    }
-    if (message.projectType === "sjasmplus") {
-      codeGenerationType.value = "asm";
-      isCodeGenerationTypeReadOnly.value = true;
-    } else if (message.projectType === "z88dk") {
-      codeGenerationType.value = "c";
-      isCodeGenerationTypeReadOnly.value = true;
-    }
-  }
 
   function validateMapVsTileset(tileCount: number): void {
     const maxMapIndex = Math.max(0, ...tileIndices.value);
@@ -260,6 +243,7 @@ export function useExtractMapTileset() {
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
     useZx0Compression,
+    isZx0CompressionReadOnly,
     isReady,
     usedTileCount,
     usedTilesByteSize,

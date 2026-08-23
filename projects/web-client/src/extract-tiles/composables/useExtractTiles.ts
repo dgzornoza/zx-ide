@@ -1,17 +1,16 @@
 import {
-  CodeGenerationType,
   FileEntry,
-  InitMessage,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
 import { createTilesCodeGenerator } from "src/shared/composables/tilesCodeGenerators/codeGeneratorFactory";
 import {
   StatusMessage,
   StatusMessageType,
 } from "src/shared/models/statusMessage";
 import { TilesModel } from "src/shared/models/tilesDefinition";
-import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
 import {
   extractTilesFromPng,
@@ -49,10 +48,12 @@ export function useExtractTiles() {
   const currentImageFile = ref<File | null>(null);
 
   const status = ref<StatusMessage | null>(null);
-  const codeGenerationType = ref<CodeGenerationType>("c");
-  const isCodeGenerationTypeReadOnly = ref(false);
-  /** ZX0 compression flag forwarded to the C code generator. Default true. */
-  const useZx0Compression = ref<boolean>(true);
+  const {
+    codeGenerationType,
+    isCodeGenerationTypeReadOnly,
+    useZx0Compression,
+    isZx0CompressionReadOnly,
+  } = useProjectTypeLock();
 
   /**
    * Removes out-of-range indices from the excluded set when tile count shrinks.
@@ -254,33 +255,13 @@ export function useExtractTiles() {
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
-  const onWindowMessage = (event: MessageEvent) => {
-    const message = event.data as InitMessage;
-    if (message?.messageType !== "init") return;
-
-    if (message.projectType === "sjasmplus") {
-      codeGenerationType.value = "asm";
-      isCodeGenerationTypeReadOnly.value = true;
-    } else if (message.projectType === "z88dk") {
-      codeGenerationType.value = "c";
-      isCodeGenerationTypeReadOnly.value = true;
-    }
-  };
-
-  onMounted(() => {
-    window.addEventListener("message", onWindowMessage);
-  });
-
-  onBeforeUnmount(() => {
-    window.removeEventListener("message", onWindowMessage);
-  });
-
   return {
     state,
     status,
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
     useZx0Compression,
+    isZx0CompressionReadOnly,
     tp,
     setSourceFile,
     setMapFile: setCfgFile,

@@ -1,9 +1,8 @@
 import type {
-  CodeGenerationType,
-  InitMessage,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
 import { createSpritesCodeGenerator } from "src/shared/composables/spritesCodeGenerators/codeGeneratorFactory";
 import type { SpritesCodeGeneratorParams } from "src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy";
 import {
@@ -14,7 +13,7 @@ import type {
   StatusMessage,
   StatusMessageType,
 } from "src/shared/models/statusMessage";
-import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { reactive, ref } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
 
 export function useCreateSprites() {
@@ -26,10 +25,12 @@ export function useCreateSprites() {
   });
 
   const status = ref<StatusMessage | null>(null);
-  const codeGenerationType = ref<CodeGenerationType>("c");
-  const isCodeGenerationTypeReadOnly = ref(false);
-  /** ZX0 compression flag forwarded to the C code generator. Default true. */
-  const useZx0Compression = ref<boolean>(true);
+  const {
+    codeGenerationType,
+    isCodeGenerationTypeReadOnly,
+    useZx0Compression,
+    isZx0CompressionReadOnly,
+  } = useProjectTypeLock();
   const binaryText = ref("");
   const outputName = ref("sprites");
   /** Combined sprite flags (SP1 padding, Use mask) forwarded to the generator. */
@@ -165,28 +166,7 @@ export function useCreateSprites() {
     setStatus("success", tp("statusSent"));
   }
 
-  // ─── VSCode init message ───────────────────────────────────────────────────
-
-  const onWindowMessage = (event: MessageEvent) => {
-    const message = event.data as InitMessage;
-    if (message?.messageType !== "init") return;
-
-    if (message.projectType === "sjasmplus") {
-      codeGenerationType.value = "asm";
-      isCodeGenerationTypeReadOnly.value = true;
-    } else if (message.projectType === "z88dk") {
-      codeGenerationType.value = "c";
-      isCodeGenerationTypeReadOnly.value = true;
-    }
-  };
-
-  onMounted(() => {
-    window.addEventListener("message", onWindowMessage);
-  });
-
-  onBeforeUnmount(() => {
-    window.removeEventListener("message", onWindowMessage);
-  });
+  // ─── VSCode init message is handled by useProjectTypeLock ───────────────────
 
   return {
     state,
@@ -196,6 +176,7 @@ export function useCreateSprites() {
     codeGenerationType,
     isCodeGenerationTypeReadOnly,
     useZx0Compression,
+    isZx0CompressionReadOnly,
     spriteFlags,
     activeSpriteIndex,
     tp,

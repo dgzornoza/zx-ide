@@ -17,6 +17,8 @@ const {
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
   useZx0Compression,
+
+  isZx0CompressionReadOnly,
   isReady,
   usedTileCount,
   usedTilesByteSize,
@@ -92,6 +94,8 @@ function formatError(error: string): string {
         v-model:use-zx0-compression="useZx0Compression"
         translation-namespace="extract-map-tileset"
         :read-only="isCodeGenerationTypeReadOnly"
+
+        :is-zx0-read-only="isZx0CompressionReadOnly"
         accept-source-formats=".json"
         accept-map-formats=".asm"
         @file-selected="onMapFileSelected"

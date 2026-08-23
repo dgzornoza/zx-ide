@@ -9,6 +9,8 @@ const {
   codeGenerationType,
   isCodeGenerationTypeReadOnly,
   useZx0Compression,
+
+  isZx0CompressionReadOnly,
   spriteFlags,
   currentImageFile,
   tp,
@@ -40,6 +42,8 @@ const {
         v-model:code-generation-type="codeGenerationType"
         v-model:use-zx0-compression="useZx0Compression"
         :read-only="isCodeGenerationTypeReadOnly"
+
+        :is-zx0-read-only="isZx0CompressionReadOnly"
         translation-namespace="extract-sprites"
         accept-source-formats=".png,.zxp"
         accept-map-formats=".cfg"
