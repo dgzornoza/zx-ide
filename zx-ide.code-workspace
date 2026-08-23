@@ -26,7 +26,8 @@
             "dbaeumer.vscode-eslint",
             "esbenp.prettier-vscode",
             "editorconfig.editorconfig",
-            "christian-kohler.path-intellisense"
+            "christian-kohler.path-intellisense",
+			"Vue.volar"
         ]
     },
     "settings": {
