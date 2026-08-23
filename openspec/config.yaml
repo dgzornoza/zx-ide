@@ -32,7 +32,7 @@ context: |
       Lint: `npm run lint`. Test: `npm run test`.
 
   Governance and conventions are documented at the repo root in `AGENTS.md`
-  and per-sub-project in `.ai/instructions/{cli,vscode-extension,web-client}.md`.
+  and per-sub-project in `.ai/rules/{cli,vscode-extension,web-client}.md`.
   The legacy `.github/copilot-instructions.md` is a stub that points to AGENTS.md
   and MUST NOT be used as a source of truth.
 

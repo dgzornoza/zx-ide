@@ -34,6 +34,6 @@ Uso: aplicar estas instrucciones cuando trabajes en el proyecto `projects/cli`. 
 ## Patterns to follow
 
 - Keep CLI options in `setupCommander()` in [src/index.ts](src/index.ts) synchronized with `NewProjectModel` fields.
-- No abbreviations in variable, parameter, or property names (e.g. `projectName`, not `projName`). For loop/iteration variables, `item` is acceptable as a generic loop variable name. Never use single-letter or shortened parameter names (e.g. `newValue` not `v`, `index` not `i` unless it is a generic `item` iteration).
+- Naming conventions (no abbreviations, no single-letter parameters, camelCase, etc.) are defined in [`../CODE_STYLE.md`](../CODE_STYLE.md).
 - Use `FileHelpers.getAbsolutePath()` for template paths (it is based on `__dirname`) and `FileHelpers.getRealSystemPath()` for user-supplied target paths.
 - Update version constants in [src/infrastructure.ts](src/infrastructure.ts) when bumping CLI version.

@@ -33,7 +33,6 @@ Uso: aplicar estas instrucciones cuando trabajes en el proyecto `projects/vscode
 - **Services** — `*.service.ts` suffix. **Helpers** — `*.helpers.ts`. **Decorators** — `*.decorator.ts`. **Strategies** — `*.strategy.ts`.
 - In general, always follow the naming pattern of existing files in the same folder before inventing a new one.
 - **Member variables** — no underscore prefix (`panel`, not `_panel`). The only exception is a private backing field when a public property with the same name exists on the same class (e.g. `private _foo` with `get foo()`). Inherited members from base classes (`_subscriptions`, `_isEnabled`) are exempt from this rule.
-
 ## Workflows (build/test)
 
 - Build/watch: `npm run watch` (also builds the external CLI via `npm --prefix ../cli run build`). See [package.json](package.json).
@@ -51,4 +50,4 @@ Uso: aplicar estas instrucciones cuando trabajes en el proyecto `projects/vscode
   - `template-version`: version of the template
   - `project.type`: project type (`'sjasmplus'` or `'z88dk'`)
   - `project.assetsGraphics`: optional array of workspace-relative paths to graphics files (`.zxp` format) managed by `AttachProjectGraphicsCmd` ([src/commands/attach-project-graphics.cmd.ts](src/commands/attach-project-graphics.cmd.ts))
-- Always use camelCase for interface properties (e.g. `assetsGraphics`, not `AssetsGraphics`)- No abbreviations in variable, parameter, or property names (e.g. `projectType`, not `projType`). For loop/iteration variables, `item` is acceptable as a generic loop variable name. Never use single-letter or shortened parameter names (e.g. `newValue` not `v`, `index` not `i` unless it is a generic `item` iteration).
+- Naming conventions (camelCase for interface properties, no abbreviations, no single-letter parameters, etc.) are defined in [`../CODE_STYLE.md`](../CODE_STYLE.md).

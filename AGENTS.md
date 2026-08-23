@@ -1,34 +1,60 @@
 # AGENTS.md — Workspace (zx-ide)
 
-Este archivo centraliza las instrucciones generales para asistentes AI que trabajan en este workspace (GitHub Copilot, Continue, u otros).
+This file is the entry point for AI coding assistants working in this
+workspace (GitHub Copilot, Continue, Pi, or others).
 
-## Uso general
+## General usage
 
-- Consulta las instrucciones específicas por proyecto dentro de `.ai/instructions/` antes de hacer cambios en ese proyecto.
-  - CLI: [.ai/instructions/cli.md](.ai/instructions/cli.md)
-  - VS Code extension: [.ai/instructions/vscode-extension.md](.ai/instructions/vscode-extension.md)
-  - Web-client: [.ai/instructions/web-client.md](.ai/instructions/web-client.md)
-- Cuando trabajes en `projects/web-client`, carga el skill `vue-best-practices` desde `.ai/skills/vue-best-practices/`.
-- Para cambios que afectan a varios proyectos (por ejemplo: cambiar DTOs compartidos), documenta el alcance en la PR y actualiza los archivos relevantes en `.ai/instructions/`.
+- Read the per-project instruction in [`.ai/rules/`](.ai/instructions)
+  before making changes to that project.
+  - CLI: [`.ai/rules/cli.md`](.ai/rules/cli.md)
+  - VS Code extension: [`.ai/rules/vscode-extension.md`](.ai/rules/vscode-extension.md)
+  - Web-client: [`.ai/rules/web-client.md`](.ai/rules/web-client.md)
+- When working in `projects/web-client`, load the `vue-best-practices` skill
+  from [`.ai/skills/vue-best-practices/`](.ai/skills/vue-best-practices/).
+- For cross-project changes (e.g. a shared DTO), document the scope in the PR
+  and update the relevant files in `.ai/rules/`.
 
-## Convenciones de Agentes
+## Code style
 
-- Antes de editar código, revisa la instrucción del proyecto correspondiente en `.ai/instructions/`.
-- Mantén el estilo y convención del proyecto (TypeScript, nombres en camelCase, sin abreviaturas).
-- Si detectas un nuevo "skill" o convención orgánica (ej. elección de librería o patrón), registra la decisión y agrega una breve nota en `.ai/instructions/` o propone un `AGENTS.md` update.
+The single source of truth for code style lives in
+**[`.ai/rules/CODE_STYLE.md`](.ai/rules/CODE_STYLE.md)**. That document covers naming,
+TypeScript, Vue 3, tests, git, and comments across every project in this
+workspace. **If a rule in a per-project instruction contradicts
+`.ai/rules/CODE_STYLE.md`, the style file wins.** Fix the contradiction in the
+per-project file rather than forking the rule.
 
-## Convenciones TypeScript (todos los proyectos)
+Quick recap of the workspace-level rules:
 
-- **No usar `null`** — usar siempre `undefined`. Las propiedades opcionales se declaran con `?`: `myVar?: string;` en lugar de `myVar: string | null`.
-- Los parámetros y variables opcionales siguen el mismo patrón: `function foo(bar?: string)` en lugar de `function foo(bar: string | null)`.
-- Código fuente y comentarios técnicos en inglés en todos los proyectos.
+- **Never use `null`** — use `undefined` and the optional `?` modifier for
+  optional properties/parameters (`myVar?: string`, not `myVar: string | null`).
+- **All identifiers, comments, and developer-facing strings must be in English.**
+- **No abbreviations, no single-letter or shortened parameter names.** Use
+  full words everywhere. The only accepted exceptions are domain acronyms
+  (`zx0`, `zxide`, `vscode`) and `item` as a generic loop variable. See
+  [`.ai/rules/CODE_STYLE.md`](.ai/rules/CODE_STYLE.md) for the full table.
 
-## Pautas de uso para asistentes
+## Agent conventions
 
-- Para tareas de diseño o decisiones de arquitectura, sugiere alternativas con pros/cons y solicita confirmación antes de aplicar cambios.
-- Para tareas locales (ej. arreglar un bug en `projects/cli`), aplica cambios mínimos y céntrate en la causa raíz.
-- Para cambios que requieran múltiples commits o pasos, crea un checklist en la PR y usa el archivo `.ai/instructions/` correspondiente para documentar por qué se hicieron las decisiones.
+- Before editing code in a project, read its instruction in `.ai/rules/`.
+- Follow the project's existing style and conventions (TypeScript, camelCase,
+  no abbreviations).
+- If you spot an emerging convention that should be codified (e.g. library
+  choice, recurring pattern), record the decision and add a short note to
+  `.ai/rules/` or propose an update to `AGENTS.md` /
+  `.ai/rules/CODE_STYLE.md`.
 
-## Contacto
+## Workflow guidelines for assistants
 
-- Si no está claro qué instrucción usar, pregunta en la PR o añade un comentario en el issue asociado antes de aplicar cambios.
+- For design or architectural decisions, propose alternatives with pros and
+  cons and ask for confirmation before applying changes.
+- For local tasks (e.g. fixing a bug in `projects/cli`), apply minimal changes
+  focused on the root cause.
+- For changes that span multiple commits or steps, create a checklist in the
+  PR and update the relevant `.ai/rules/` file to record why the
+  decisions were made.
+
+## Contact
+
+If it is unclear which instruction to follow, ask in the PR or add a comment
+to the associated issue before applying changes.

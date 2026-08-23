@@ -69,5 +69,5 @@ The `.atl/skill-registry.md` exists and is current as of 2026-08-17. SDD agents 
 ### Scenario: Agent works on CLI sub-project
 
 - No test runner is available. Strict TDD is not enforced.
-- Agent follows CLI conventions in `.ai/instructions/cli.md`.
+- Agent follows CLI conventions in `.ai/rules/cli.md`.
 - Build: `npm run build`. Lint: `npm run lint`.

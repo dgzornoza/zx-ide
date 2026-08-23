@@ -24,9 +24,9 @@
 
 **Rationale**: Having a registry avoids agents having to search skill paths at runtime. The `.atl/` location follows the opencode convention for agent tooling.
 
-### AD-4: Per-project instructions in `.ai/instructions/`
+### AD-4: Per-project instructions in `.ai/rules/`
 
-**Decision**: Each sub-project has its own instruction file (`.ai/instructions/{cli,vscode-extension,web-client}.md`) created during the `unify-ai-governance` change. These are the canonical conventions for agents working in each sub-project.
+**Decision**: Each sub-project has its own instruction file (`.ai/rules/{cli,vscode-extension,web-client}.md`) created during the `unify-ai-governance` change. These are the canonical conventions for agents working in each sub-project.
 
 **Rationale**: Consolidating project-specific conventions into per-project files keeps AGENTS.md lean while ensuring agents get relevant context before editing code.
 
