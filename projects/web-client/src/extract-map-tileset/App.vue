@@ -182,9 +182,14 @@ function formatError(error: string): string {
       >
         <div
           v-if="statusMessage"
-          class="text-xs font-semibold text-[color:var(--success-ink)]"
+          class="text-xs font-semibold"
+          :class="
+            statusMessage.type === 'error'
+              ? 'text-[color:var(--error-ink)]'
+              : 'text-[color:var(--success-ink)]'
+          "
         >
-          {{ t(`extract-map-tileset.${statusMessage}`) }}
+          {{ statusMessage.text }}
         </div>
         <button
           class="ml-auto inline-flex items-center gap-2 bg-[color:var(--button-bg)] px-5 py-3 text-sm font-semibold text-[color:var(--button-ink)] hover:bg-[color:var(--button-hover)] disabled:cursor-not-allowed disabled:opacity-60"

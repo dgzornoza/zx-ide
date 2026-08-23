@@ -5,9 +5,13 @@ import type {
 } from "externalShared/extract-graphics/extract-graphics-dtos";
 import { parseAsmTilesetData } from "src/extract-map-tileset/composables/asmTilesetParser";
 import { createMapCodeGenerator } from "src/extract-map-tileset/composables/codeGenerators/codeGeneratorFactory";
+import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import {
+  StatusMessage,
+  StatusMessageType,
+} from "src/shared/models/statusMessage";
 import { computed, onMounted, ref, watch } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
-import { downloadFilesAsZip } from "../../helpers/html-utils";
 import { renderTilesetMapPreviewFromTileData } from "../../helpers/image-utils";
 import type { MapTilesetMetadata } from "../models/mapTilesetDefinition";
 import { parseAndValidateTiledJson } from "./tiledJsonValidation";
@@ -39,6 +43,8 @@ function toUserErrorKey(error: unknown): string {
 export function useExtractMapTileset() {
   // ─── State ───────────────────────────────────────────────────────────────────
 
+  const tp = createTranslationPrefixFn("extract-map-tileset");
+
   const mapSource = ref("");
   const asmSource = ref("");
   const metadata = ref<MapTilesetMetadata>();
@@ -52,12 +58,17 @@ export function useExtractMapTileset() {
   const isCodeGenerationTypeReadOnly = ref(false);
   /** ZX0 compression flag forwarded to the C code generator. Default true. */
   const useZx0Compression = ref<boolean>(true);
-  const statusMessage = ref("");
+  const statusMessage = ref<StatusMessage | null>(null);
   /**
    * Forces the map preview canvas to rerender when incremented.
    * Used as a reactive trigger when loading JSON or ASM files,
    */
   const previewRefreshKey = ref(0);
+
+  /** Updates the status banner with a success or error message. */
+  const setStatus = (type: StatusMessageType, text: string) => {
+    statusMessage.value = { type, text };
+  };
 
   const isReady = computed(
     () =>
@@ -203,6 +214,10 @@ export function useExtractMapTileset() {
 
   // ─── Extraction ───────────────────────────────────────────────────────────────
 
+  /**
+   * Generates all resource files for the current map and posts them to the
+   * VS Code extension via {@link WriteFilesMessage}.
+   */
   async function extractResources(baseName: string): Promise<void> {
     if (!isReady.value || !metadata.value) {
       return;
@@ -216,17 +231,17 @@ export function useExtractMapTileset() {
       compressed: useZx0Compression.value,
     });
 
-    if (bridge.isAvailable) {
-      const writeMessage: WriteFilesMessage = {
-        messageType: "writeFiles",
-        codeFiles: files,
-      };
-      bridge.postMessage(writeMessage);
-      statusMessage.value = "statusSent";
-    } else {
-      await downloadFilesAsZip(files, baseName);
-      statusMessage.value = "statusSent";
+    if (!bridge.isAvailable) {
+      setStatus("error", tp("errorVsCodeRequired"));
+      return;
     }
+
+    const writeMessage: WriteFilesMessage = {
+      messageType: "writeFiles",
+      codeFiles: files,
+    };
+    bridge.postMessage(writeMessage);
+    setStatus("success", tp("statusSent"));
   }
 
   // ─── Watchers ─────────────────────────────────────────────────────────────────

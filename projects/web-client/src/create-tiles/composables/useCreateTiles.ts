@@ -3,7 +3,6 @@ import type {
   InitMessage,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
-import JSZip from "jszip";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
 import { createTilesCodeGenerator } from "src/shared/composables/tilesCodeGenerators/codeGeneratorFactory";
 import type {
@@ -13,7 +12,6 @@ import type {
 import type { TilesModel } from "src/shared/models/tilesDefinition";
 import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
-import { downloadBlob } from "../../helpers/html-utils";
 
 export function useCreateTiles() {
   const vscode = createVsCodeBridge();
@@ -89,23 +87,17 @@ export function useCreateTiles() {
       compressed: useZx0Compression.value,
     });
 
-    if (vscode.isAvailable) {
-      const message: WriteFilesMessage = {
-        messageType: "writeFiles",
-        codeFiles,
-      };
-      vscode.postMessage(message);
-      setStatus("success", tp("statusSent"));
-    } else {
-      const zip = new JSZip();
-      for (const file of codeFiles) {
-        const isBinary = file.fileType === "png" || file.fileType === "binary";
-        zip.file(file.fileName, file.content, isBinary ? { base64: true } : undefined);
-      }
-      const blob = await zip.generateAsync({ type: "blob" });
-      downloadBlob(blob, "tiles.zip");
-      setStatus("success", tp("statusDownloaded"));
+    if (!vscode.isAvailable) {
+      setStatus("error", tp("errorVsCodeRequired"));
+      return;
     }
+
+    const message: WriteFilesMessage = {
+      messageType: "writeFiles",
+      codeFiles,
+    };
+    vscode.postMessage(message);
+    setStatus("success", tp("statusSent"));
   }
 
   const onWindowMessage = (event: MessageEvent) => {

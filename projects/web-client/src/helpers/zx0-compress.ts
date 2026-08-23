@@ -12,8 +12,8 @@
 //
 // We use the *quick* mode (`-q` equivalent) which compresses in milliseconds
 // even on small inputs. Switching to JS (instead of a native binary) gives
-// us cross-platform parity (Linux/macOS/Windows/ARM, no native dependency)
-// and lets standalone browser mode also produce compressed `.bin` outputs.
+// us cross-platform parity (Linux/macOS/Windows/ARM, no native dependency),
+// so compressed `.bin` outputs are produced entirely inside the webview.
 //
 // Output is byte-for-byte compatible with `zx0.exe -q` (V2 format).
 

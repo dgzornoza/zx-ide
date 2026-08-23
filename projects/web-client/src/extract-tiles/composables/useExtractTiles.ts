@@ -4,7 +4,6 @@ import {
   InitMessage,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
-import JSZip from "jszip";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
 import { createTilesCodeGenerator } from "src/shared/composables/tilesCodeGenerators/codeGeneratorFactory";
 import {
@@ -14,7 +13,6 @@ import {
 import { TilesModel } from "src/shared/models/tilesDefinition";
 import { onBeforeUnmount, onMounted, reactive, ref, watch } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
-import { downloadBlob } from "../../helpers/html-utils";
 import {
   extractTilesFromPng,
   extractTilesFromZxpFile,
@@ -200,9 +198,8 @@ export function useExtractTiles() {
   // ─── Extract/generate resources ────────────────────────────────────────────
 
   /**
-   * Generates all resource files for the current tiles.
-   * Output is either sent to VS Code via {@link WriteFilesMessage}
-   * or downloaded as a ZIP bundle in standalone browser mode.
+   * Generates all resource files for the current tiles and posts them to
+   * the VS Code extension via {@link WriteFilesMessage}.
    */
   const extractResources = async () => {
     if (!currentImageFile.value) {
@@ -242,27 +239,17 @@ export function useExtractTiles() {
       content: tileSheetBase64,
     });
 
-    if (vscode.isAvailable) {
-      const message: WriteFilesMessage = {
-        messageType: "writeFiles",
-        codeFiles,
-      };
-      vscode.postMessage(message);
-    } else {
-      const zip = new JSZip();
-      for (const file of codeFiles) {
-        if (file.fileType === "png" || file.fileType === "binary") {
-          zip.file(file.fileName, file.content, { base64: true });
-        } else {
-          zip.file(file.fileName, file.content);
-        }
-      }
-
-      const blob = await zip.generateAsync({ type: "blob" });
-      downloadBlob(blob, `${fileNameWithoutExtension}.zip`);
-
-      setStatus("success", tp("statusMapDownloaded"));
+    if (!vscode.isAvailable) {
+      setStatus("error", tp("errorVsCodeRequired"));
+      return;
     }
+
+    const message: WriteFilesMessage = {
+      messageType: "writeFiles",
+      codeFiles,
+    };
+    vscode.postMessage(message);
+    setStatus("success", tp("statusSent"));
   };
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────

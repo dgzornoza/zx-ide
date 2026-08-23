@@ -77,8 +77,8 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
     });
 
     // ZX0-compress the raw payload in the webview. The base64-encoded
-    // compressed bytes travel through the DTO; both VS Code and standalone
-    // ZIP paths write them to disk as-is.
+    // compressed bytes travel through the DTO and are written to disk
+    // by the VS Code extension as-is.
     const compressedBytes = compressZx0(rawBytes).data;
 
     const perTileBytes =

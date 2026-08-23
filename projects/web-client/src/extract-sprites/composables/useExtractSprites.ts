@@ -4,21 +4,19 @@ import {
   InitMessage,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
-import JSZip from "jszip";
+import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import { createSpritesCodeGenerator } from "src/shared/composables/spritesCodeGenerators/codeGeneratorFactory";
 import {
   SpriteDefinition,
   SpriteFlags,
   SpritesMapModel,
 } from "src/shared/models/spriteDefinition";
-import { createTranslationPrefixFn } from "src/helpers/vue-utils";
-import { createSpritesCodeGenerator } from "src/shared/composables/spritesCodeGenerators/codeGeneratorFactory";
 import {
   StatusMessage,
   StatusMessageType,
 } from "src/shared/models/statusMessage";
 import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
-import { downloadBlob } from "../../helpers/html-utils";
 import {
   convertZxpFileToImageFile,
   extractSpritesFromFile,
@@ -141,9 +139,8 @@ export function useExtractSprites() {
   // ─── Create map ────────────────────────────────────────────────────────────
 
   /**
-   * Generates all resource files for the current sprites.
-   * Output is either sent to VS Code via {@link WriteFilesMessage}
-   * or downloaded as a ZIP bundle in standalone browser mode.
+   * Generates all resource files for the current sprites and posts them to
+   * the VS Code extension via {@link WriteFilesMessage}.
    */
   const extractResources = async () => {
     if (!currentImageFile.value) {
@@ -176,24 +173,17 @@ export function useExtractSprites() {
       compressed: useZx0Compression.value,
     });
 
-    if (vscode.isAvailable) {
-      const message: WriteFilesMessage = {
-        messageType: "writeFiles",
-        codeFiles,
-      };
-      vscode.postMessage(message);
-    } else {
-      const zip = new JSZip();
-      for (const file of codeFiles) {
-        const isBinary = file.fileType === "png" || file.fileType === "binary";
-        zip.file(file.fileName, file.content, isBinary ? { base64: true } : undefined);
-      }
-
-      const blob = await zip.generateAsync({ type: "blob" });
-      downloadBlob(blob, `${fileNameWithoutExtension}.zip`);
-
-      setStatus("success", tp("statusMapDownloaded"));
+    if (!vscode.isAvailable) {
+      setStatus("error", tp("errorVsCodeRequired"));
+      return;
     }
+
+    const message: WriteFilesMessage = {
+      messageType: "writeFiles",
+      codeFiles,
+    };
+    vscode.postMessage(message);
+    setStatus("success", tp("statusSent"));
   };
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────

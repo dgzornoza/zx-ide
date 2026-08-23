@@ -21,8 +21,7 @@ const messages = {
       tileNameLabel: "Tile {index}",
       addTile: "Add tile",
       create: "Create",
-      statusSent: "Message sent in standalone mode.",
-      statusMapDownloaded: "Map file downloaded successfully",
+      statusSent: "Files saved to your workspace.",
       mapSourceLabel: "Map file (optional)",
       mapSourceHint:
         "Load a previously saved .cfg file to restore tile configuration.",
@@ -42,6 +41,8 @@ const messages = {
       errorTileExtractionFailed: "Failed to extract tiles from the source file",
       errorNoSourceFile: "Please select a source image before creating a map",
       errorMapLoadFailed: "Failed to load .cfg file: invalid or corrupted data",
+      errorVsCodeRequired:
+        "VS Code is required to save these files. Open this command from the VS Code command palette instead of running it in a standalone browser.",
       tileExcludeTooltip: "Exclude tile from output",
       tileIncludeTooltip: "Include tile in output",
     },
@@ -70,8 +71,7 @@ const messages = {
       addSprite: "Add sprite",
       remove: "Remove",
       create: "Create",
-      statusSent: "Message sent in standalone mode.",
-      statusMapDownloaded: "Map file downloaded successfully",
+      statusSent: "Files saved to your workspace.",
       mapSourceLabel: "Map file (optional)",
       mapSourceHint:
         "Load a previously saved .cfg file to restore sprite configuration.",
@@ -98,6 +98,8 @@ const messages = {
       errorSpriteFramesInvalid: "Sprite frames must be an array",
       errorFrameXInvalid: "Frame X coordinate must be a non-negative number",
       errorFrameYInvalid: "Frame Y coordinate must be a non-negative number",
+      errorVsCodeRequired:
+        "VS Code is required to save these files. Open this command from the VS Code command palette instead of running it in a standalone browser.",
     },
     "create-tiles": {
       title: "Create Tiles",
@@ -105,13 +107,13 @@ const messages = {
         "Design tiles visually by entering a binary matrix (0s and 1s) and save them into your project.",
       sectionInput: "Binary input",
       binaryInputLabel: "Binary matrix",
-      binaryInputPlaceholder: "Enter rows of 0s and 1s, one row per line\u2026",
+      binaryInputPlaceholder: "Enter rows of 0s and 1s, one row per line…",
       binaryInputHint:
         "Use 0 and 1 only, one row per line. All rows must have the same length.",
       previewLabel: "Preview",
       addButton: "Add tile",
       sectionTiles: "Tiles",
-      tilesHint: "Click \u2212 to remove a tile from the collection.",
+      tilesHint: "Click − to remove a tile from the collection.",
       noTilesYet:
         "No tiles added yet. Enter a binary matrix above and click Add tile.",
       tileRemoveTooltip: "Remove tile",
@@ -124,12 +126,13 @@ const messages = {
       useZx0CompressionAsmHint:
         "ZX0 compression is only available for C (z88dk) targets.",
       create: "Create",
-      statusSent: "Message sent to VS Code.",
-      statusDownloaded: "Tiles file downloaded successfully.",
+      statusSent: "Files saved to your workspace.",
       errorNoTiles: "Please add at least one tile before creating code.",
       errorInvalidCharacters:
         "Only 0 and 1 are allowed. Remove any spaces or other characters.",
       errorUnequalRowLengths: "All rows must have the same length.",
+      errorVsCodeRequired:
+        "VS Code is required to save these files. Open this command from the VS Code command palette instead of running it in a standalone browser.",
       outputNameLabel: "Name",
       outputNamePlaceholder: "tiles",
       rotationLabel: "Rotation (degrees)",
@@ -144,7 +147,7 @@ const messages = {
         "Design sprites visually by entering binary frames (0s and 1s) and save them into your project.",
       sectionInput: "Binary input",
       binaryInputLabel: "Binary matrix",
-      binaryInputPlaceholder: "Enter rows of 0s and 1s, one row per line\u2026",
+      binaryInputPlaceholder: "Enter rows of 0s and 1s, one row per line…",
       binaryInputHint:
         "Use 0 and 1 only, one row per line. All rows must have the same length.",
       previewLabel: "Preview",
@@ -178,8 +181,7 @@ const messages = {
       useZx0CompressionAsmHint:
         "ZX0 compression is only available for C (z88dk) targets.",
       create: "Create",
-      statusSent: "Message sent to VS Code.",
-      statusDownloaded: "Sprites file downloaded successfully.",
+      statusSent: "Files saved to your workspace.",
       errorNoSprites:
         "Please add at least one sprite with a frame before creating code.",
       errorDimensionMismatch:
@@ -187,6 +189,8 @@ const messages = {
       errorInvalidCharacters:
         "Only 0 and 1 are allowed. Remove any spaces or other characters.",
       errorUnequalRowLengths: "All rows must have the same length.",
+      errorVsCodeRequired:
+        "VS Code is required to save these files. Open this command from the VS Code command palette instead of running it in a standalone browser.",
       outputNameLabel: "Name",
       outputNamePlaceholder: "sprites",
       rotationLabel: "Rotation (degrees)",
@@ -205,7 +209,7 @@ const messages = {
       mapSourceLabel: "Tiles data file (.asm)",
       mapSourceHint:
         "Select the ASM file exported from extract-tiles with tile data and attributes.",
-      browseButton: "Browse\u2026",
+      browseButton: "Browse…",
       noFileSelected: "No file selected",
       sectionResults: "Results",
       tilesUsedLabel: "Tiles used",
@@ -223,7 +227,9 @@ const messages = {
       useZx0CompressionAsmHint:
         "ZX0 compression is only available for C (z88dk) targets.",
       create: "Extract",
-      statusSent: "Message sent in standalone mode.",
+      statusSent: "Files saved to your workspace.",
+      errorVsCodeRequired:
+        "VS Code is required to save these files. Open this command from the VS Code command palette instead of running it in a standalone browser.",
       errorTileCountExceeds255:
         "Tileset has {count} tiles, which exceeds the maximum of 255 for uint8 indexing.",
       errorJsonInvalid: "The map file is not valid JSON.",
@@ -275,8 +281,7 @@ const messages = {
       tileNameLabel: "Tile {index}",
       addTile: "Agregar tile",
       create: "Crear",
-      statusSent: "Mensaje enviado en modo standalone.",
-      statusMapDownloaded: "Archivo descargado correctamente",
+      statusSent: "Archivos guardados en tu workspace.",
       mapSourceLabel: "Archivo .cfg (opcional)",
       mapSourceHint:
         "Carga un archivo .cfg guardado previamente para restaurar la configuración de tiles.",
@@ -302,6 +307,8 @@ const messages = {
         "Selecciona una imagen de origen antes de crear el mapa",
       errorMapLoadFailed:
         "No se pudo cargar el archivo .cfg: datos inválidos o corruptos",
+      errorVsCodeRequired:
+        "VS Code es necesario para guardar estos archivos. Abre este comando desde la paleta de comandos de VS Code en lugar de ejecutarlo en un navegador independiente.",
       tileExcludeTooltip: "Excluir tile de la salida",
       tileIncludeTooltip: "Incluir tile en la salida",
     },
@@ -330,8 +337,7 @@ const messages = {
       addSprite: "Agregar sprite",
       remove: "Quitar",
       create: "Crear",
-      statusSent: "Mensaje enviado en modo standalone.",
-      statusMapDownloaded: "Archivo descargado correctamente",
+      statusSent: "Archivos guardados en tu workspace.",
       mapSourceLabel: "Archivo .cfg (opcional)",
       mapSourceHint:
         "Carga un archivo .cfg guardado previamente para restaurar la configuración de sprites.",
@@ -360,6 +366,8 @@ const messages = {
         "La coordenada X del frame debe ser un entero no negativo",
       errorFrameYInvalid:
         "La coordenada Y del frame debe ser un entero no negativo",
+      errorVsCodeRequired:
+        "VS Code es necesario para guardar estos archivos. Abre este comando desde la paleta de comandos de VS Code en lugar de ejecutarlo en un navegador independiente.",
     },
     "create-tiles": {
       title: "Crear Tiles",
@@ -368,13 +376,13 @@ const messages = {
       sectionInput: "Entrada binaria",
       binaryInputLabel: "Matriz binaria",
       binaryInputPlaceholder:
-        "Introduce filas de 0s y 1s, una fila por línea\u2026",
+        "Introduce filas de 0s y 1s, una fila por línea…",
       binaryInputHint:
         "Usa solo 0 y 1, una fila por línea. Todas las filas deben tener la misma longitud.",
       previewLabel: "Vista previa",
       addButton: "Añadir tile",
       sectionTiles: "Tiles",
-      tilesHint: "Haz clic en \u2212 para eliminar un tile de la colección.",
+      tilesHint: "Haz clic en − para eliminar un tile de la colección.",
       noTilesYet:
         "Aún no se han añadido tiles. Introduce una matriz binaria arriba y haz clic en Añadir tile.",
       tileRemoveTooltip: "Eliminar tile",
@@ -387,53 +395,54 @@ const messages = {
       useZx0CompressionAsmHint:
         "La compresión ZX0 solo está disponible para targets C (z88dk).",
       create: "Crear",
-      statusSent: "Mensaje enviado a VS Code.",
-      statusDownloaded: "Archivo de tiles descargado correctamente.",
+      statusSent: "Archivos guardados en tu workspace.",
       errorNoTiles: "Añade al menos un tile antes de generar código.",
       errorInvalidCharacters:
         "Solo se permiten 0 y 1. Elimina espacios u otros caracteres.",
       errorUnequalRowLengths: "Todas las filas deben tener la misma longitud.",
+      errorVsCodeRequired:
+        "VS Code es necesario para guardar estos archivos. Abre este comando desde la paleta de comandos de VS Code en lugar de ejecutarlo en un navegador independiente.",
       outputNameLabel: "Nombre",
       outputNamePlaceholder: "tiles",
-      rotationLabel: "Rotaci\u00f3n (grados)",
+      rotationLabel: "Rotación (grados)",
       rotationXLabel: "X",
       rotationYLabel: "Y",
       rotationZLabel: "Z",
-      applyRotationButton: "Aplicar rotaci\u00f3n",
+      applyRotationButton: "Aplicar rotación",
     },
     "create-sprites": {
       title: "Crear Sprites",
       subtitle:
-        "Dise\u00f1a sprites visualmente introduciendo frames binarios (0s y 1s) y gu\u00e1rdalos en tu proyecto.",
+        "Diseña sprites visualmente introduciendo frames binarios (0s y 1s) y guárdalos en tu proyecto.",
       sectionInput: "Entrada binaria",
       binaryInputLabel: "Matriz binaria",
       binaryInputPlaceholder:
-        "Introduce filas de 0s y 1s, una fila por l\u00ednea\u2026",
+        "Introduce filas de 0s y 1s, una fila por línea…",
       binaryInputHint:
-        "Usa solo 0 y 1, una fila por l\u00ednea. Todas las filas deben tener la misma longitud.",
+        "Usa solo 0 y 1, una fila por línea. Todas las filas deben tener la misma longitud.",
       previewLabel: "Vista previa",
-      addButton: "A\u00f1adir frame",
+      addButton: "Añadir frame",
       sectionSprites: "Sprites",
       spritesHint:
-        'Pulsa "A\u00f1adir frame" en la card de un sprite para marcarlo como activo, luego introduce una matriz binaria arriba y pulsa "A\u00f1adir" para rellenarlo. Usa "A\u00f1adir sprite" para empezar uno nuevo.',
+        'Pulsa "Añadir frame" en la card de un sprite para marcarlo como activo, luego introduce una matriz binaria arriba y pulsa "Añadir" para rellenarlo. Usa "Añadir sprite" para empezar uno nuevo.',
       spriteNameLabel: "Nombre",
       spriteWidthLabel: "Ancho (px)",
       spriteHeightLabel: "Alto (px)",
       frameLabel: "Frame",
       xLabel: "X",
       yLabel: "Y",
-      addFrame: "A\u00f1adir frame",
-      addSprite: "A\u00f1adir sprite",
+      addFrame: "Añadir frame",
+      addSprite: "Añadir sprite",
       remove: "Quitar",
       activeSpriteBadge: "Activo",
-      spriteSp1PaddingLabel: "A\u00f1adir padding SP1",
+      spriteSp1PaddingLabel: "Añadir padding SP1",
       spriteSp1PaddingTooltip:
-        "A\u00f1ade 7 bytes a cero antes y 8 bytes a cero despu\u00e9s de cada columna del sprite (Utilizado por la librer\u00eda SP1).",
-      spriteUseMaskLabel: "Usar m\u00e1scara",
-      spriteUseMaskTooltip: "Usar sprites con m\u00e1scara.",
+        "Añade 7 bytes a cero antes y 8 bytes a cero después de cada columna del sprite (Utilizado por la librería SP1).",
+      spriteUseMaskLabel: "Usar máscara",
+      spriteUseMaskTooltip: "Usar sprites con máscara.",
       playAnimation: "Reproducir",
       stopAnimation: "Detener",
-      codeGenerationTypeLabel: "Generaci\u00f3n de c\u00f3digo",
+      codeGenerationTypeLabel: "Generación de código",
       codeGenerationTypeAsm: "ASM",
       codeGenerationTypeC: "C",
       codeGenerationTypeReadOnlyHint:
@@ -442,22 +451,23 @@ const messages = {
       useZx0CompressionAsmHint:
         "La compresión ZX0 solo está disponible para targets C (z88dk).",
       create: "Crear",
-      statusSent: "Mensaje enviado a VS Code.",
-      statusDownloaded: "Archivo de sprites descargado correctamente.",
+      statusSent: "Archivos guardados en tu workspace.",
       errorNoSprites:
-        "A\u00f1ade al menos un sprite con un frame antes de generar c\u00f3digo.",
+        "Añade al menos un sprite con un frame antes de generar código.",
       errorDimensionMismatch:
         "Las dimensiones del frame no coinciden con el primer frame de este sprite.",
       errorInvalidCharacters:
         "Solo se permiten 0 y 1. Elimina espacios u otros caracteres.",
       errorUnequalRowLengths: "Todas las filas deben tener la misma longitud.",
+      errorVsCodeRequired:
+        "VS Code es necesario para guardar estos archivos. Abre este comando desde la paleta de comandos de VS Code en lugar de ejecutarlo en un navegador independiente.",
       outputNameLabel: "Nombre",
       outputNamePlaceholder: "sprites",
-      rotationLabel: "Rotaci\u00f3n (grados)",
+      rotationLabel: "Rotación (grados)",
       rotationXLabel: "X",
       rotationYLabel: "Y",
       rotationZLabel: "Z",
-      applyRotationButton: "Aplicar rotaci\u00f3n",
+      applyRotationButton: "Aplicar rotación",
     },
     "extract-map-tileset": {
       title: "Extraer mapa de tileset",
@@ -469,7 +479,7 @@ const messages = {
       mapSourceLabel: "Archivo de datos de tiles (.asm)",
       mapSourceHint:
         "Selecciona el archivo ASM exportado desde extract-tiles con datos y atributos.",
-      browseButton: "Examinar\u2026",
+      browseButton: "Examinar…",
       noFileSelected: "Ningún archivo seleccionado",
       sectionResults: "Resultados",
       tilesUsedLabel: "Tiles usados",
@@ -487,7 +497,9 @@ const messages = {
       useZx0CompressionAsmHint:
         "La compresión ZX0 solo está disponible para targets C (z88dk).",
       create: "Extraer",
-      statusSent: "Mensaje enviado en modo standalone.",
+      statusSent: "Archivos guardados en tu workspace.",
+      errorVsCodeRequired:
+        "VS Code es necesario para guardar estos archivos. Abre este comando desde la paleta de comandos de VS Code en lugar de ejecutarlo en un navegador independiente.",
       errorTileCountExceeds255:
         "El tileset tiene {count} tiles, que supera el máximo de 255 para indexado uint8.",
       errorJsonInvalid: "El archivo de mapa no es un JSON válido.",

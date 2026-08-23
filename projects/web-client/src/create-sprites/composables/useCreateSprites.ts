@@ -3,7 +3,6 @@ import type {
   InitMessage,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
-import JSZip from "jszip";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
 import { createSpritesCodeGenerator } from "src/shared/composables/spritesCodeGenerators/codeGeneratorFactory";
 import type { SpritesCodeGeneratorParams } from "src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy";
@@ -17,7 +16,6 @@ import type {
 } from "src/shared/models/statusMessage";
 import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
-import { downloadBlob } from "../../helpers/html-utils";
 
 export function useCreateSprites() {
   const vscode = createVsCodeBridge();
@@ -154,23 +152,17 @@ export function useCreateSprites() {
     const generator = createSpritesCodeGenerator(codeGenerationType.value);
     const codeFiles = generator.generate(params);
 
-    if (vscode.isAvailable) {
-      const message: WriteFilesMessage = {
-        messageType: "writeFiles",
-        codeFiles,
-      };
-      vscode.postMessage(message);
-      setStatus("success", tp("statusSent"));
-    } else {
-      const zip = new JSZip();
-      for (const file of codeFiles) {
-        const isBinary = file.fileType === "png" || file.fileType === "binary";
-        zip.file(file.fileName, file.content, isBinary ? { base64: true } : undefined);
-      }
-      const blob = await zip.generateAsync({ type: "blob" });
-      downloadBlob(blob, `${params.name}.zip`);
-      setStatus("success", tp("statusDownloaded"));
+    if (!vscode.isAvailable) {
+      setStatus("error", tp("errorVsCodeRequired"));
+      return;
     }
+
+    const message: WriteFilesMessage = {
+      messageType: "writeFiles",
+      codeFiles,
+    };
+    vscode.postMessage(message);
+    setStatus("success", tp("statusSent"));
   }
 
   // ─── VSCode init message ───────────────────────────────────────────────────
