@@ -15,9 +15,51 @@ const ensureDir = (dirPath) => {
   fs.mkdirSync(dirPath, { recursive: true });
 };
 
+// Brief blocking wait without importing timers in the hot path.
+const sleep = (ms) => {
+  const end = Date.now() + ms;
+  while (Date.now() < end) {
+    // intentional spin — the script is short-lived, sync I/O dominates.
+  }
+};
+
+/**
+ * Copies a file, retrying on transient Windows file locks (EPERM/EBUSY).
+ *
+ * When the VS Code extension is active, it holds handles on every file in
+ * `media/`. In Windows + devcontainer setups those handles propagate to the
+ * container filesystem and block `copyFileSync` from overwriting in place.
+ * Unlinking the destination first usually releases the lock; if not, a small
+ * backoff usually wins once VS Code finishes serving the file.
+ */
 const copyFile = (sourceFile, targetFile) => {
   ensureDir(path.dirname(targetFile));
-  fs.copyFileSync(sourceFile, targetFile);
+  const maxAttempts = 4;
+  let lastError = undefined;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      if (fs.existsSync(targetFile)) {
+        try {
+          fs.unlinkSync(targetFile);
+        } catch (unlinkError) {
+          if (unlinkError.code !== 'EPERM' && unlinkError.code !== 'EBUSY') {
+            throw unlinkError;
+          }
+          // Locked; fall through to the copy attempt below, which will
+          // fail with the same error and trigger another retry.
+        }
+      }
+      fs.copyFileSync(sourceFile, targetFile);
+      return;
+    } catch (error) {
+      lastError = error;
+      if ((error.code !== 'EPERM' && error.code !== 'EBUSY') || attempt === maxAttempts) {
+        throw error;
+      }
+      sleep(150 * attempt);
+    }
+  }
+  throw lastError;
 };
 
 const copyDir = (sourceDir, targetDir) => {

@@ -1,6 +1,6 @@
 {
   "files.exclude": {
-    "media": true,
+    "media": false,
   },
   "search.exclude": {
     "media/*": true,
