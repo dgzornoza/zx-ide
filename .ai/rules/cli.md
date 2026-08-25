@@ -29,6 +29,7 @@ Uso: aplicar estas instrucciones cuando trabajes en el proyecto `projects/cli`. 
 
 - Build: `npm run build` (webpack production) per [package.json](package.json).
 - Dev run: `npm run start` (webpack dev then `node --inspect=9229 dist/zx-ide-cli.js`) for debugging.
+- Watch: `npm run watch` keeps the dev bundle rebuilding on every save. Run alongside `npm run watch` in `projects/vscode-extension/` so the extension's `CopyWebpackPlugin` re-copies the CLI bundle whenever the CLI rebuilds.
 - Lint: `npm run lint`.
 
 ## Patterns to follow
