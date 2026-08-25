@@ -23,7 +23,7 @@ npm run build
 Compila en modo watch para actualizar `dist/` en cada cambio.
 
 ```bash
-npm run build:watch
+npm run watch
 ```
 
 Previsualiza el build de producción localmente.
