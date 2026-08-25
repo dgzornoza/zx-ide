@@ -27,7 +27,7 @@
             "esbenp.prettier-vscode",
             "editorconfig.editorconfig",
             "christian-kohler.path-intellisense",
-			"Vue.volar"
+            "Vue.volar"
         ]
     },
     "settings": {
@@ -55,8 +55,12 @@
             "**/node_modules/**": true,
             ".gitattributes": true,
             ".gitignore": true,
-            "*.md": true,
+            "README.md": false,
             "LICENSE": true,
+            "AGENTS.md": true,
+            "CLA.md": true,
+            "CONTRIBUTING.md": true,
+            "NOTICE.md": true,
             "zx-ide.code-workspace": false,
             "assets": true,
             "scripts": false,
