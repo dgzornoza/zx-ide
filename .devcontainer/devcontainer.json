@@ -1,10 +1,11 @@
 {
   "name": "zx-ide extension",
   "image": "dgzornoza/zxide-dev:latest",
+  "containerUser": "vscode",
   "runArgs": [
     "--name=${localWorkspaceFolderBasename}"
   ],
-  "mounts": [
-    "source=F:\\OpenSource\\zx-ide-templates\\templates\\fixed-shoot-em-up,target=/workspaces/debug-app,type=bind"    
+  "mounts": [    
+	"source=D:\\OpenSource\\zx-ide-templates\\templates\\fixed-shoot-em-up,target=/workspaces/debug-app,type=bind"
   ]
 }

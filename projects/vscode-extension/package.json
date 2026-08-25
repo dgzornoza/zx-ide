@@ -63,7 +63,6 @@
     "vscode:prepublish": "npm run vscode-nls-dev -v && npm run package",
     "build-cli": "npm --prefix ../cli run build",
     "build-webview": "npm --prefix ../web-client run build && node ./scripts/sync-web-client.cjs",
-    "watch-webview": "npm --prefix ../web-client run build:watch && node ./scripts/sync-web-client.cjs --watch",
     "watch": "npm run build-webview && npm run build-cli && webpack --watch",
     "package": "npm run build-webview && npm run build-cli && webpack --mode production --devtool hidden-source-map",
     "compile": "webpack",

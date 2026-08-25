@@ -45,7 +45,7 @@ Refers to [Wiki](https://github.com/dgzornoza/zx-ide/wiki) for more information.
 
 ## Workspace (CLI + Extension)
 
-This repository contains two projects: a CLI (`cli`) and a VS Code extension (`vscode-extension`). A multi-root workspace file is included to work with both in a single VS Code window.
+This repository contains three projects: a VS Code extension (`vscode-extension`), a CLI (`cli`) and web-client (`web-client`) . A multi-root workspace file is included to work with both in a single VS Code window.
 
 - Open the workspace: [zx-ide.code-workspace](zx-ide.code-workspace)
 - Folders included: `cli` and `vscode-extension`

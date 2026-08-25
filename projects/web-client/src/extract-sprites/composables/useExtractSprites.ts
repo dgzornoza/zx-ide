@@ -3,8 +3,8 @@ import {
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
-import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
 import { createSpritesCodeGenerator } from "src/shared/composables/spritesCodeGenerators/codeGeneratorFactory";
+import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
 import {
   SpriteDefinition,
   SpriteFlags,
@@ -71,7 +71,7 @@ export function useExtractSprites() {
         ...mapData.sprites.map((sprite) => ({
           ...sprite,
           _id: crypto.randomUUID(),
-        })),
+        }))
       );
       spriteFlags.value = mapData.spriteFlags ?? SpriteFlags.None;
     } catch {
@@ -151,7 +151,7 @@ export function useExtractSprites() {
 
     const fileNameWithoutExtension = currentImageFile.value.name.replace(
       /\.[^.]+$/,
-      "",
+      ""
     );
 
     const generator = createSpritesCodeGenerator(codeGenerationType.value);
@@ -163,8 +163,8 @@ export function useExtractSprites() {
           y: frame.y,
           width: sprite.width,
           height: sprite.height,
-        })),
-      ),
+        }))
+      )
     );
     const codeFiles: FileEntry[] = generator.generate({
       name: fileNameWithoutExtension,
