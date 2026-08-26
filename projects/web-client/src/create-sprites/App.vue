@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BinaryInputPanel from "src/shared/components/BinaryInputPanel.vue";
-import CodeGenerationSelector from "src/shared/components/CodeGenerationSelector.vue";
+import CodeGenerationInfo from "src/shared/components/CodeGenerationInfo.vue";
 import SpritesEditorSection from "src/shared/components/SpritesEditorSection.vue";
 import { ref } from "vue";
 import { useCreateSprites } from "./composables/useCreateSprites";
@@ -11,10 +11,6 @@ const {
   binaryText,
   outputName,
   codeGenerationType,
-  isCodeGenerationTypeReadOnly,
-  useZx0Compression,
-
-  isZx0CompressionReadOnly,
   spriteFlags,
   activeSpriteIndex,
   tp,
@@ -57,18 +53,14 @@ function handleAddFrame(spriteIndex: number) {
         @add="addFrame"
       />
 
-      <!-- Code generation type selector -->
+      <!-- Project type info -->
       <section
         class="w-full border border-[color:var(--border)] bg-[color:var(--card)] p-4"
       >
-        <CodeGenerationSelector
-          v-model:code-generation-type="codeGenerationType"
-          v-model:use-zx0-compression="useZx0Compression"
+        <CodeGenerationInfo
+          :code-generation-type="codeGenerationType"
           translation-namespace="create-sprites"
-          :read-only="isCodeGenerationTypeReadOnly"
-
-          :is-zx0-read-only="isZx0CompressionReadOnly"
-      />
+        />
       </section>
 
       <!-- Sprites collection -->

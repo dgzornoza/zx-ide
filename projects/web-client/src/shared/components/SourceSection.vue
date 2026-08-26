@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import type { CodeGenerationType } from "externalShared/extract-graphics/extract-graphics-dtos";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
-import CodeGenerationSelector from "src/shared/components/CodeGenerationSelector.vue";
+import CodeGenerationInfo from "src/shared/components/CodeGenerationInfo.vue";
 
 const props = defineProps<{
-  readOnly?: boolean;
-  /** When true, the ZX0 checkbox in the embedded CodeGenerationSelector is locked. */
-  isZx0ReadOnly?: boolean;
   translationNamespace: string;
   acceptMapFormats?: string;
   /** When true, hides the .map file input entirely. */
@@ -25,9 +22,6 @@ const codeGenerationType = defineModel<CodeGenerationType>(
   "codeGenerationType",
   { default: "c" },
 );
-const useZx0Compression = defineModel<boolean>("useZx0Compression", {
-  default: true,
-});
 
 const emit = defineEmits<{
   fileSelected: [file: File];
@@ -125,13 +119,10 @@ function onMapFileChange(event: Event) {
         </p>
       </div>
 
-      <!-- Code generation type -->
-      <CodeGenerationSelector
-        v-model:code-generation-type="codeGenerationType"
-        v-model:use-zx0-compression="useZx0Compression"
+      <!-- Project type info -->
+      <CodeGenerationInfo
+        :code-generation-type="codeGenerationType"
         :translation-namespace="translationNamespace"
-        :read-only="readOnly"
-        :is-zx0-read-only="props.isZx0ReadOnly"
       />
     </div>
   </section>

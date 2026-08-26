@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BinaryInputPanel from "src/shared/components/BinaryInputPanel.vue";
-import CodeGenerationSelector from "src/shared/components/CodeGenerationSelector.vue";
+import CodeGenerationInfo from "src/shared/components/CodeGenerationInfo.vue";
 import TilesSection from "./components/TilesSection.vue";
 import { useCreateTiles } from "./composables/useCreateTiles";
 
@@ -10,10 +10,6 @@ const {
   binaryText,
   outputName,
   codeGenerationType,
-  isCodeGenerationTypeReadOnly,
-  useZx0Compression,
-
-  isZx0CompressionReadOnly,
   tp,
   addTile,
   removeTile,
@@ -40,18 +36,14 @@ const {
         @add="addTile"
       />
 
-      <!-- Code generation type selector -->
+      <!-- Project type info -->
       <section
         class="w-full border border-[color:var(--border)] bg-[color:var(--card)] p-4"
       >
-        <CodeGenerationSelector
-          v-model:code-generation-type="codeGenerationType"
-          v-model:use-zx0-compression="useZx0Compression"
+        <CodeGenerationInfo
+          :code-generation-type="codeGenerationType"
           translation-namespace="create-tiles"
-          :read-only="isCodeGenerationTypeReadOnly"
-
-          :is-zx0-read-only="isZx0CompressionReadOnly"
-      />
+        />
       </section>
 
       <!-- Tiles collection -->

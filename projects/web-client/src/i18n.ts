@@ -25,15 +25,11 @@ const messages = {
       mapSourceLabel: "Map file (optional)",
       mapSourceHint:
         "Load a previously saved .cfg file to restore tile configuration.",
-      codeGenerationTypeLabel: "Code generation",
-      codeGenerationTypeAsm: "ASM",
-      codeGenerationTypeC: "C",
-      codeGenerationTypeReadOnlyHint:
-        "Determined by the VS Code project type and cannot be changed here.",
-      useZx0CompressionLabel: "Use ZX0 compression",
-      useZx0CompressionAsmHint:
-        "ZX0 compression is only available for C (z88dk) targets.",
-      useZx0CompressionReadOnlyHint:
+      projectTypeLabel: "Project type",
+      projectTypeAsm: "ASM",
+      projectTypeC: "C",
+      compressionLabel: "Compression",
+      projectTypeReadOnlyHint:
         "Determined by the VS Code project type and cannot be changed here.",
       errorTileCountInvalid: "Tile count must be a non-negative number",
       errorTileWidthInvalid: "Tile width must be greater than zero",
@@ -77,15 +73,11 @@ const messages = {
       mapSourceLabel: "Map file (optional)",
       mapSourceHint:
         "Load a previously saved .cfg file to restore sprite configuration.",
-      codeGenerationTypeLabel: "Code generation",
-      codeGenerationTypeAsm: "ASM",
-      codeGenerationTypeC: "C",
-      codeGenerationTypeReadOnlyHint:
-        "Determined by the VS Code project type and cannot be changed here.",
-      useZx0CompressionLabel: "Use ZX0 compression",
-      useZx0CompressionAsmHint:
-        "ZX0 compression is only available for C (z88dk) targets.",
-      useZx0CompressionReadOnlyHint:
+      projectTypeLabel: "Project type",
+      projectTypeAsm: "ASM",
+      projectTypeC: "C",
+      compressionLabel: "Compression",
+      projectTypeReadOnlyHint:
         "Determined by the VS Code project type and cannot be changed here.",
       spriteSp1PaddingLabel: "Add SP1 padding",
       spriteSp1PaddingTooltip:
@@ -121,15 +113,11 @@ const messages = {
       noTilesYet:
         "No tiles added yet. Enter a binary matrix above and click Add tile.",
       tileRemoveTooltip: "Remove tile",
-      codeGenerationTypeLabel: "Code generation",
-      codeGenerationTypeAsm: "ASM",
-      codeGenerationTypeC: "C",
-      codeGenerationTypeReadOnlyHint:
-        "Determined by the VS Code project type and cannot be changed here.",
-      useZx0CompressionLabel: "Use ZX0 compression",
-      useZx0CompressionAsmHint:
-        "ZX0 compression is only available for C (z88dk) targets.",
-      useZx0CompressionReadOnlyHint:
+      projectTypeLabel: "Project type",
+      projectTypeAsm: "ASM",
+      projectTypeC: "C",
+      compressionLabel: "Compression",
+      projectTypeReadOnlyHint:
         "Determined by the VS Code project type and cannot be changed here.",
       create: "Create",
       statusSent: "Files saved to your workspace.",
@@ -178,15 +166,11 @@ const messages = {
       spriteUseMaskTooltip: "Use a mask for the sprite.",
       playAnimation: "Play",
       stopAnimation: "Stop",
-      codeGenerationTypeLabel: "Code generation",
-      codeGenerationTypeAsm: "ASM",
-      codeGenerationTypeC: "C",
-      codeGenerationTypeReadOnlyHint:
-        "Determined by the VS Code project type and cannot be changed here.",
-      useZx0CompressionLabel: "Use ZX0 compression",
-      useZx0CompressionAsmHint:
-        "ZX0 compression is only available for C (z88dk) targets.",
-      useZx0CompressionReadOnlyHint:
+      projectTypeLabel: "Project type",
+      projectTypeAsm: "ASM",
+      projectTypeC: "C",
+      compressionLabel: "Compression",
+      projectTypeReadOnlyHint:
         "Determined by the VS Code project type and cannot be changed here.",
       create: "Create",
       statusSent: "Files saved to your workspace.",
@@ -226,15 +210,11 @@ const messages = {
       mapHeightLabel: "Map height (tiles)",
       mapBytesLabel: "Map size (bytes)",
       totalBytesLabel: "Total size (bytes)",
-      codeGenerationTypeLabel: "Code generation",
-      codeGenerationTypeAsm: "ASM",
-      codeGenerationTypeC: "C",
-      codeGenerationTypeReadOnlyHint:
-        "Determined by the VS Code project type and cannot be changed here.",
-      useZx0CompressionLabel: "Use ZX0 compression",
-      useZx0CompressionAsmHint:
-        "ZX0 compression is only available for C (z88dk) targets.",
-      useZx0CompressionReadOnlyHint:
+      projectTypeLabel: "Project type",
+      projectTypeAsm: "ASM",
+      projectTypeC: "C",
+      compressionLabel: "Compression",
+      projectTypeReadOnlyHint:
         "Determined by the VS Code project type and cannot be changed here.",
       create: "Extract",
       statusSent: "Files saved to your workspace.",
@@ -295,15 +275,11 @@ const messages = {
       mapSourceLabel: "Archivo .cfg (opcional)",
       mapSourceHint:
         "Carga un archivo .cfg guardado previamente para restaurar la configuración de tiles.",
-      codeGenerationTypeLabel: "Generación de código",
-      codeGenerationTypeAsm: "ASM",
-      codeGenerationTypeC: "C",
-      codeGenerationTypeReadOnlyHint:
-        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
-      useZx0CompressionLabel: "Usar compresión ZX0",
-      useZx0CompressionAsmHint:
-        "La compresión ZX0 solo está disponible para targets C (z88dk).",
-      useZx0CompressionReadOnlyHint:
+      projectTypeLabel: "Tipo de proyecto",
+      projectTypeAsm: "ASM",
+      projectTypeC: "C",
+      compressionLabel: "Compresión",
+      projectTypeReadOnlyHint:
         "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
       errorTileCountInvalid:
         "El número de tiles debe ser un entero no negativo",
@@ -353,15 +329,11 @@ const messages = {
       mapSourceLabel: "Archivo .cfg (opcional)",
       mapSourceHint:
         "Carga un archivo .cfg guardado previamente para restaurar la configuración de sprites.",
-      codeGenerationTypeLabel: "Generación de código",
-      codeGenerationTypeAsm: "ASM",
-      codeGenerationTypeC: "C",
-      codeGenerationTypeReadOnlyHint:
-        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
-      useZx0CompressionLabel: "Usar compresión ZX0",
-      useZx0CompressionAsmHint:
-        "La compresión ZX0 solo está disponible para targets C (z88dk).",
-      useZx0CompressionReadOnlyHint:
+      projectTypeLabel: "Tipo de proyecto",
+      projectTypeAsm: "ASM",
+      projectTypeC: "C",
+      compressionLabel: "Compresión",
+      projectTypeReadOnlyHint:
         "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
       spriteSp1PaddingLabel: "Añadir padding SP1",
       spriteSp1PaddingTooltip:
@@ -399,15 +371,11 @@ const messages = {
       noTilesYet:
         "Aún no se han añadido tiles. Introduce una matriz binaria arriba y haz clic en Añadir tile.",
       tileRemoveTooltip: "Eliminar tile",
-      codeGenerationTypeLabel: "Generación de código",
-      codeGenerationTypeAsm: "ASM",
-      codeGenerationTypeC: "C",
-      codeGenerationTypeReadOnlyHint:
-        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
-      useZx0CompressionLabel: "Usar compresión ZX0",
-      useZx0CompressionAsmHint:
-        "La compresión ZX0 solo está disponible para targets C (z88dk).",
-      useZx0CompressionReadOnlyHint:
+      projectTypeLabel: "Tipo de proyecto",
+      projectTypeAsm: "ASM",
+      projectTypeC: "C",
+      compressionLabel: "Compresión",
+      projectTypeReadOnlyHint:
         "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
       create: "Crear",
       statusSent: "Archivos guardados en tu workspace.",
@@ -456,15 +424,11 @@ const messages = {
       spriteUseMaskTooltip: "Usar sprites con máscara.",
       playAnimation: "Reproducir",
       stopAnimation: "Detener",
-      codeGenerationTypeLabel: "Generación de código",
-      codeGenerationTypeAsm: "ASM",
-      codeGenerationTypeC: "C",
-      codeGenerationTypeReadOnlyHint:
-        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
-      useZx0CompressionLabel: "Usar compresión ZX0",
-      useZx0CompressionAsmHint:
-        "La compresión ZX0 solo está disponible para targets C (z88dk).",
-      useZx0CompressionReadOnlyHint:
+      projectTypeLabel: "Tipo de proyecto",
+      projectTypeAsm: "ASM",
+      projectTypeC: "C",
+      compressionLabel: "Compresión",
+      projectTypeReadOnlyHint:
         "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
       create: "Crear",
       statusSent: "Archivos guardados en tu workspace.",
@@ -504,15 +468,11 @@ const messages = {
       mapHeightLabel: "Alto del mapa (tiles)",
       mapBytesLabel: "Tamaño del mapa (bytes)",
       totalBytesLabel: "Tamaño total (bytes)",
-      codeGenerationTypeLabel: "Generación de código",
-      codeGenerationTypeAsm: "ASM",
-      codeGenerationTypeC: "C",
-      codeGenerationTypeReadOnlyHint:
-        "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
-      useZx0CompressionLabel: "Usar compresión ZX0",
-      useZx0CompressionAsmHint:
-        "La compresión ZX0 solo está disponible para targets C (z88dk).",
-      useZx0CompressionReadOnlyHint:
+      projectTypeLabel: "Tipo de proyecto",
+      projectTypeAsm: "ASM",
+      projectTypeC: "C",
+      compressionLabel: "Compresión",
+      projectTypeReadOnlyHint:
         "Determinado por el tipo de proyecto de VS Code y no se puede modificar aquí.",
       create: "Extraer",
       statusSent: "Archivos guardados en tu workspace.",

@@ -15,10 +15,6 @@ const {
   errors,
   warnings,
   codeGenerationType,
-  isCodeGenerationTypeReadOnly,
-  useZx0Compression,
-
-  isZx0CompressionReadOnly,
   isReady,
   usedTileCount,
   usedTilesByteSize,
@@ -86,16 +82,12 @@ function formatError(error: string): string {
     </header>
 
     <main class="mt-6 flex w-full flex-col gap-6">
-      <!-- Source data section (JSON + ASM inputs + code gen type) -->
+      <!-- Source data section (JSON + ASM inputs + project type info) -->
       <SourceSection
         v-model:source="mapSource"
         v-model:map-source="asmSource"
         v-model:code-generation-type="codeGenerationType"
-        v-model:use-zx0-compression="useZx0Compression"
         translation-namespace="extract-map-tileset"
-        :read-only="isCodeGenerationTypeReadOnly"
-
-        :is-zx0-read-only="isZx0CompressionReadOnly"
         accept-source-formats=".json"
         accept-map-formats=".asm"
         @file-selected="onMapFileSelected"
