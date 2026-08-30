@@ -159,7 +159,7 @@ export function useCreateSprites() {
     }
 
     const message: WriteFilesMessage = {
-      messageType: "writeFiles",
+      messageType: 'writeFilesFromWebview',
       codeFiles,
     };
     vscode.postMessage(message);

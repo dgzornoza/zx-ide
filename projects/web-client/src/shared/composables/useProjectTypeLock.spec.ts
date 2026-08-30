@@ -23,7 +23,7 @@ interface ProjectTypeLock {
 function dispatchInit(projectType: "sjasmplus" | "z88dk") {
   window.dispatchEvent(
     new MessageEvent("message", {
-      data: { messageType: "init", projectType },
+      data: { messageType: "initFromExtension", projectType },
     }),
   );
 }
@@ -79,7 +79,9 @@ describe("useProjectTypeLock", () => {
   it("leaves refs untouched when projectType is undefined", async () => {
     const { lock, wrapper } = setupHarness();
     window.dispatchEvent(
-      new MessageEvent("message", { data: { messageType: "init" } }),
+      new MessageEvent("message", {
+        data: { messageType: "initFromExtension" },
+      }),
     );
     await nextTick();
     await wrapper.vm.$nextTick();
@@ -93,7 +95,7 @@ describe("useProjectTypeLock", () => {
     const { lock, wrapper } = setupHarness();
     window.dispatchEvent(
       new MessageEvent("message", {
-        data: { messageType: "writeFiles", codeFiles: [] },
+        data: { messageType: "writeFilesFromWebview", codeFiles: [] },
       }),
     );
     await nextTick();

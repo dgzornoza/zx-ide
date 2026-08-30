@@ -246,7 +246,7 @@ export function useExtractTiles() {
     }
 
     const message: WriteFilesMessage = {
-      messageType: "writeFiles",
+      messageType: 'writeFilesFromWebview',
       codeFiles,
     };
     vscode.postMessage(message);

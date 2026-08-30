@@ -3,10 +3,10 @@ import { Types } from '@core/types';
 import { inject, injectable } from 'inversify';
 import * as vscode from 'vscode';
 import type { SaveMapMessage } from '../../../shared/extract-graphics/extract-graphics-dtos';
-import { ExtractWebviewCommand } from './extract-webview.cmd';
+import { WebviewBaseCommand } from './webview-base.cmd';
 
 @injectable()
-export class AttachProjectSpritesCmd extends ExtractWebviewCommand {
+export class AttachProjectSpritesCmd extends WebviewBaseCommand {
   public getCommandName(): CommandName {
     return CommandName.AttachProjectSprites;
   }
@@ -23,6 +23,10 @@ export class AttachProjectSpritesCmd extends ExtractWebviewCommand {
   }
   protected get htmlPageName(): string {
     return 'extract-sprites.html';
+  }
+
+  protected override requiresAssetsList(): boolean {
+    return true;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

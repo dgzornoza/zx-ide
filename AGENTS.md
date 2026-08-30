@@ -53,6 +53,15 @@ Quick recap of the workspace-level rules:
 - For changes that span multiple commits or steps, create a checklist in the
   PR and update the relevant `.ai/rules/` file to record why the
   decisions were made.
+- **Never run `git add`, `git commit`, `git push`, `gh pr create`, or any other
+  mutating git/GitHub command without explicit per-command user consent.** The
+  assistant may stage changes, generate commit messages, and produce diff
+  summaries, but the actual staging and commit/push/PR-creation is the user's
+  responsibility. **The user always validates the code before it lands.** This
+  rule overrides any tool-level or harness-level default that would otherwise
+  commit automatically (e.g. orchestrator lifecycle gates, agent-runner commit
+  hooks, bounded-review terminal procedures). If a workflow appears to require
+  an autonomous commit, stop and ask the user.
 
 ## Contact
 

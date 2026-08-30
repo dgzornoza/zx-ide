@@ -26,6 +26,28 @@ Uso: aplicar estas instrucciones cuando trabajes en el proyecto `projects/vscode
 - Global array extension `groupBy` is added in [src/core/helpers/array-helpers.ts](src/core/helpers/array-helpers.ts). Avoid redefining or shadowing it.
 - Path aliases are used everywhere (`@core/*`, `@z88dk/*`, etc.) and are configured in [tsconfig.json](tsconfig.json) and [webpack.config.js](webpack.config.js).
 
+### Helper-only filesystem and workspace access
+
+All filesystem and workspace-directory access **MUST** go through the
+helper classes in [src/core/helpers/](src/core/helpers/):
+
+- `FileHelpers` ([src/core/helpers/file-helpers.ts](src/core/helpers/file-helpers.ts)) — wraps `vscode.workspace.fs.*` for files and directories. Use it for `fileExists`, `readFile`, `readFileBytes`, `readDirectory`, `writeFile`. If a new filesystem operation is needed and none of the existing methods fits, **add the method to `FileHelpers` first**; do not call `vscode.workspace.fs.*` directly from command/service code.
+- `WorkspaceHelpers` ([src/core/helpers/workspace-helpers.ts](src/core/helpers/workspace-helpers.ts)) — builds workspace-relative `vscode.Uri` instances and delegates the FS work to `FileHelpers`. Use `getWorkspaceUri(...segments)` to obtain a URI; never reach into `vscode.workspace.workspaceFolders` or call the private `findZxideWorkspaceFolder` helper from outside `WorkspaceHelpers` itself.
+
+Domain-specific helpers that need filesystem access (`AssetsHelpers`, etc.)
+must compose the two helpers above — never bypass them with raw
+`vscode.workspace.fs.*` calls. This keeps the abstraction surface small,
+allows swapping the underlying API (e.g. for tests), and centralises
+logging and error handling.
+
+The only legitimate `vscode.workspace.fs.*` callers are `FileHelpers`
+itself and the few call sites that operate on a URI the caller already
+constructed (e.g. `vscode.workspace.openTextDocument`, `vscode.workspace.fs.createDirectory`
+inside `WebviewBaseCommand.onDidReceiveMessage` where the parent directory
+of a write target is created on demand). New code should follow the same
+pattern: resolve the URI through `WorkspaceHelpers`, then delegate the
+read/write to `FileHelpers`.
+
 ### Naming conventions
 
 - **Commands** — class files use the `.cmd.ts` suffix and the name mirrors the VS Code command ID in kebab-case, e.g. `attach-project-tiles.cmd.ts`, `create-project.cmd.ts`. Never use `-command` as a suffix.

@@ -2,10 +2,10 @@ import { CommandName } from '@core/infrastructure';
 import { Types } from '@core/types';
 import { inject, injectable } from 'inversify';
 import * as vscode from 'vscode';
-import { ExtractWebviewCommand } from './extract-webview.cmd';
+import { WebviewBaseCommand } from './webview-base.cmd';
 
 @injectable()
-export class CreateSpritesCmd extends ExtractWebviewCommand {
+export class CreateSpritesCmd extends WebviewBaseCommand {
   public getCommandName(): CommandName {
     return CommandName.CreateSprites;
   }
@@ -22,5 +22,10 @@ export class CreateSpritesCmd extends ExtractWebviewCommand {
   }
   protected get htmlPageName(): string {
     return 'create-sprites.html';
+  }
+
+  // Source-image-free entry point: no AssetsListMessage on panel open.
+  protected override requiresAssetsList(): boolean {
+    return false;
   }
 }
