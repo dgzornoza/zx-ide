@@ -2,10 +2,10 @@ import { CommandName } from '@core/infrastructure';
 import { Types } from '@core/types';
 import { inject, injectable } from 'inversify';
 import * as vscode from 'vscode';
-import { ExtractWebviewCommand } from './extract-webview.cmd';
+import { WebviewBaseCommand } from './webview-base.cmd';
 
 @injectable()
-export class AttachProjectMapTilesetCmd extends ExtractWebviewCommand {
+export class AttachProjectMapTilesetCmd extends WebviewBaseCommand {
   public getCommandName(): CommandName {
     return CommandName.AttachProjectMapTileset;
   }
@@ -22,5 +22,11 @@ export class AttachProjectMapTilesetCmd extends ExtractWebviewCommand {
   }
   protected get htmlPageName(): string {
     return 'extract-map-tileset.html';
+  }
+
+  // Explicit `false` gate: this panel uses the legacy SourceSection.vue flow
+  // and must never receive an AssetsListMessage.
+  protected override requiresAssetsList(): boolean {
+    return false;
   }
 }

@@ -2,9 +2,11 @@ import {
   FileEntry,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
+import { basenameFromPath } from "src/helpers/file-utils";
+import { imageBytesToFile } from "src/helpers/image-utils";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
-import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
 import { createTilesCodeGenerator } from "src/shared/composables/tilesCodeGenerators/codeGeneratorFactory";
+import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
 import {
   StatusMessage,
   StatusMessageType,
@@ -45,7 +47,7 @@ export function useExtractTiles() {
   });
 
   /** The last PNG/ZXP File chosen by the user, kept to allow re-extraction on dimension change. */
-  const currentImageFile = ref<File | null>(null);
+  const currentImageFile = ref<File | undefined>(undefined);
 
   const status = ref<StatusMessage | null>(null);
   const {
@@ -157,11 +159,25 @@ export function useExtractTiles() {
   };
 
   /**
-   * Stores the selected file and triggers tile extraction immediately.
+   * Stores the selected image bytes and triggers tile extraction immediately.
+   * The bytes are wrapped in a `File` with a synthetic name so the existing
+   * ZXP / PNG extractors can consume them unchanged. Tiles named by the user
+   * survive the switch because the setter does not touch `state.tiles`.
    */
-  const setSourceFile = async (file: File) => {
-    currentImageFile.value = file;
-    await extractTiles(file);
+  const setSourceImage = async (
+    path: string,
+    bytes: Uint8Array,
+  ): Promise<void> => {
+    try {
+      const basename = basenameFromPath(path);
+      const file = imageBytesToFile(bytes, basename);
+      currentImageFile.value = file;
+      await extractTiles(file);
+      state.source = path;
+    } catch (error) {
+      console.error("Source image load failed:", error);
+      setStatus("error", tp("errorSourceFileLoad"));
+    }
   };
 
   // Re-extract when tileWidth/tileHeight change
@@ -246,7 +262,7 @@ export function useExtractTiles() {
     }
 
     const message: WriteFilesMessage = {
-      messageType: "writeFiles",
+      messageType: "writeFilesFromWebview",
       codeFiles,
     };
     vscode.postMessage(message);
@@ -262,8 +278,9 @@ export function useExtractTiles() {
     isCodeGenerationTypeReadOnly,
     useZx0Compression,
     isZx0CompressionReadOnly,
+    currentImageFile,
     tp,
-    setSourceFile,
+    setSourceImage,
     setMapFile: setCfgFile,
     extractResources,
     toggleTileExclusion,

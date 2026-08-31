@@ -1,3 +1,4 @@
+import { getFileExtension } from "./file-utils";
 export interface ExtractTilesFromFileModel {
   file: File;
   tileWidth: number;
@@ -76,26 +77,29 @@ async function loadImage<T>(
   file: File,
   callback: (img: HTMLImageElement) => Promise<T> | T,
 ): Promise<T> {
-  const url = URL.createObjectURL(file);
+  // VS Code webviews enforce a Content Security Policy that blocks blob: URLs
+  // for img-src. Use a data URL (data:<mime>;base64,...) so the browser can
+  // decode the image without violating the CSP.
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = () =>
+      reject(reader.error ?? new Error("Failed to read image file"));
+    reader.readAsDataURL(file);
+  });
+
   const img = new Image();
-  const cleanup = () => URL.revokeObjectURL(url);
 
   try {
     await new Promise<void>((resolve, reject) => {
       img.onload = () => resolve();
-      img.onerror = () => {
-        cleanup();
-        reject(new Error("Failed to load image file"));
-      };
-      img.src = url;
+      img.onerror = () => reject(new Error("Failed to load image file"));
+      img.src = dataUrl;
     });
 
     const result = await callback(img);
-    cleanup();
-
     return result;
   } catch (err) {
-    cleanup();
     throw err;
   }
 }
@@ -252,7 +256,7 @@ export async function extractSpritesFromFile(
  * @param rect   - The rectangular region to extract.
  */
 export async function extractSpriteFramePreview(
-  file: File | null,
+  file: File | undefined,
   rect: Rect,
 ): Promise<string> {
   if (!file || rect.width <= 0 || rect.height <= 0) return "";
@@ -744,4 +748,20 @@ export function generateTileSheetPng(
         }, "image/png");
       }),
   );
+}
+
+// ─── Image bytes → File ──────────────────────────────────────────────────────────
+
+/**
+ * Wraps image bytes (delivered over the VS Code bridge as a
+ * base64-decoded Uint8Array) in a synthetic File with the given
+ * basename. ZXP payloads are wrapped without an explicit mime type because
+ * the ZXP decoders read the payload as UTF-8 text; PNG files carry image/png
+ * so callers that branch on the file type can detect them.
+ */
+export function imageBytesToFile(bytes: Uint8Array, basename: string): File {
+  if (getFileExtension(basename) === ".zxp") {
+    return new File([bytes as BlobPart], basename);
+  }
+  return new File([bytes as BlobPart], basename, { type: "image/png" });
 }

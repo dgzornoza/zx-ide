@@ -24,9 +24,24 @@ export class WorkspaceHelpers {
     return await FileHelpers.fileExists(fileUri);
   }
 
+  /**
+   * Read a workspace file as utf-8 string.
+   * @param relativePathSegments workspace relative file path segments.
+   * @returns string in utf-8
+   */
   public static async readWorkspaceFile(...relativePathSegments: string[]): Promise<string> {
     const fileUri = await WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
     return await FileHelpers.readFile(fileUri);
+  }
+
+  /**
+   * Reads a workspace file as raw bytes.
+   * @param relativePathSegments workspace relative file path segments.
+   * @returns Uint8Array containing the file bytes content
+   **/
+  public static async readWorkspaceFileBytes(...relativePathSegments: string[]): Promise<Uint8Array> {
+    const fileUri = await WorkspaceHelpers.getWorkspaceUri(...relativePathSegments);
+    return await FileHelpers.readFileBytes(fileUri);
   }
 
   public static async readWorkspaceJsonFile<T>(...relativePathSegments: string[]): Promise<T> {

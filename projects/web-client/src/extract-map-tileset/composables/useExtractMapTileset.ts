@@ -220,7 +220,7 @@ export function useExtractMapTileset() {
     }
 
     const writeMessage: WriteFilesMessage = {
-      messageType: "writeFiles",
+      messageType: 'writeFilesFromWebview',
       codeFiles: files,
     };
     bridge.postMessage(writeMessage);

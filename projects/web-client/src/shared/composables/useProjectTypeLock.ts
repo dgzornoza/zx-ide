@@ -5,9 +5,9 @@
 //
 // Contract:
 // - When `projectType === "sjasmplus"`: forces `codeGenerationType` to "asm"
-//   and `useZx0Compression` to `false`; both controls become read-only.
+//   and `useZx0Compression` to `false`, both controls become read-only.
 // - When `projectType === "z88dk"`: forces `codeGenerationType` to "c" and
-//   keeps `useZx0Compression` at its `true` default; both controls become
+//   keeps `useZx0Compression` at its `true` default, both controls become
 //   read-only (the C target always uses ZX0 compression).
 // - When `projectType` is missing (e.g. standalone browser mode), the refs
 //   stay at their defaults and remain user-editable.
@@ -36,7 +36,7 @@ export function useProjectTypeLock() {
 
   const onWindowMessage = (event: MessageEvent) => {
     const message = event.data as InitMessage | undefined;
-    if (!message || message.messageType !== "init") return;
+    if (message?.messageType !== "initFromExtension") return;
 
     if (message.projectType === "sjasmplus") {
       codeGenerationType.value = "asm";
