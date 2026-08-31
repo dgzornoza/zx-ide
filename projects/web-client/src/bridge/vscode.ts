@@ -3,6 +3,10 @@ export type VscodeBridge = {
   postMessage: (message: unknown) => void;
 };
 
+// `acquireVsCodeApi` can only be called once per webview, calling it again
+// throws. Cache the bridge so every consumer gets the same instance.
+let cachedBridge: VscodeBridge | undefined;
+
 /**
  * Creates a bridge to communicate with the VS Code extension host.
  *
@@ -15,18 +19,22 @@ export type VscodeBridge = {
  * Composables MUST check `isAvailable` before calling `postMessage`.
  */
 export const createVsCodeBridge = (): VscodeBridge => {
+  if (cachedBridge !== undefined) {
+    return cachedBridge;
+  }
   if (
     globalThis.window !== undefined &&
     typeof globalThis.window.acquireVsCodeApi === "function"
   ) {
     const api = globalThis.window.acquireVsCodeApi();
-    return {
+    cachedBridge = {
       isAvailable: true,
       postMessage: api.postMessage.bind(api),
     };
+    return cachedBridge;
   }
 
-  return {
+  cachedBridge = {
     isAvailable: false,
     postMessage: (message: unknown) => {
       throw new Error(
@@ -35,4 +43,5 @@ export const createVsCodeBridge = (): VscodeBridge => {
       );
     },
   };
+  return cachedBridge;
 };

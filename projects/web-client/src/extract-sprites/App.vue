@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import SourceSection from "src/shared/components/SourceSection.vue";
+import AssetsSourceSection from "src/shared/components/AssetsSourceSection.vue";
 import SpritesEditorSection from "src/shared/components/SpritesEditorSection.vue";
+import { useAssetsBridge } from "src/shared/composables/useAssetsBridge";
 import { useExtractSprites } from "./composables/useExtractSprites";
 
 const {
@@ -10,7 +11,7 @@ const {
   spriteFlags,
   currentImageFile,
   tp,
-  setSourceFile,
+  setSourceImage,
   setMapFile,
   addSprite,
   removeSprite,
@@ -18,6 +19,16 @@ const {
   removeSpriteFrame,
   extractResources,
 } = useExtractSprites();
+
+const { assets, missing, requestAssetBytes } = useAssetsBridge();
+
+async function onImageChanged(path: string) {
+  try {
+    await setSourceImage(path, await requestAssetBytes(path));
+  } catch (error) {
+    console.error("Failed to load source image:", error);
+  }
+}
 </script>
 
 <template>
@@ -32,15 +43,12 @@ const {
     </header>
 
     <main class="mt-6 flex w-full flex-col gap-4">
-      <SourceSection
-        v-model:source="state.source"
-        v-model:map-source="state.mapSource"
-        v-model:code-generation-type="codeGenerationType"
+      <AssetsSourceSection
+        v-model="state.source"
+        :assets="assets"
+        :missing="missing"
         translation-namespace="extract-sprites"
-        accept-source-formats=".png,.zxp"
-        accept-map-formats=".cfg"
-        @file-selected="setSourceFile"
-        @map-file-selected="setMapFile"
+        @image-changed="onImageChanged"
       />
 
       <SpritesEditorSection
@@ -73,7 +81,7 @@ const {
         <button
           class="ml-auto inline-flex items-center gap-2 bg-[color:var(--button-bg)] px-5 py-3 text-sm font-semibold text-[color:var(--button-ink)] hover:bg-[color:var(--button-hover)] disabled:cursor-not-allowed disabled:opacity-60"
           type="button"
-          :disabled="!state.source"
+          :disabled="!state.source || missing"
           @click="extractResources"
         >
           {{ tp("create") }}

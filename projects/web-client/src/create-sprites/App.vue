@@ -67,7 +67,7 @@ function handleAddFrame(spriteIndex: number) {
       <SpritesEditorSection
         v-model:sprite-flags="spriteFlags"
         :sprites="state.sprites"
-        :source-image="null"
+        :source-image="undefined"
         :show-frame-coords="false"
         :active-sprite-index="activeSpriteIndex"
         translation-namespace="create-sprites"

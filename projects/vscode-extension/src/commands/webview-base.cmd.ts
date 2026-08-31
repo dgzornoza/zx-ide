@@ -117,7 +117,8 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
     }
     try {
       const pathSegments = FileHelpers.splitRelativePath(request.path);
-      const bytes = await WorkspaceHelpers.readWorkspaceFile('assets', ...pathSegments);
+      const bytes = await WorkspaceHelpers.readWorkspaceFileBytes('assets', ...pathSegments);
+
       this.panel.webview.postMessage({
         messageType: 'readAssetResponseFromExtension',
         path: request.path,

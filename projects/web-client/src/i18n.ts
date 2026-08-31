@@ -2,6 +2,18 @@ import { createI18n } from "vue-i18n";
 
 const messages = {
   en: {
+    assetsSourceSection: {
+      sectionSource: 'Source data',
+      selectImageLabel: 'Source image',
+      selectImageHint: "Pick a PNG or ZX-Paintbrush file from your workspace’s assets folder.",
+      configurationLabel: 'Configuration file',
+      configurationExists: 'Already exists',
+      configurationMissing: 'Not yet created',
+      placeholderPrompt: "Select an image…",
+      listTruncated: 'List capped at 500 entries. Refine your assets folder.',
+      missingAssetsTitle: 'Assets folder missing',
+      missingAssetsHint: 'Create an assets folder at the workspace root and add PNG or .zxp files to it.',
+    },
     "extract-tiles": {
       title: "Extract Tiles",
       subtitle:
@@ -252,6 +264,18 @@ const messages = {
     },
   },
   es: {
+    assetsSourceSection: {
+      sectionSource: 'Datos de origen',
+      selectImageLabel: 'Imagen de origen',
+      selectImageHint: 'Elige un archivo PNG o ZX-Paintbrush desde la carpeta assets de tu workspace.',
+      configurationLabel: 'Archivo de configuración',
+      configurationExists: 'Ya existe',
+      configurationMissing: 'Aún no creado',
+      placeholderPrompt: 'Selecciona una imagen…',
+      listTruncated: 'Lista limitada a 500 entradas. Reduce el contenido de tu carpeta assets.',
+      missingAssetsTitle: 'Carpeta assets ausente',
+      missingAssetsHint: 'Crea una carpeta assets en la raíz del workspace y añade archivos PNG o .zxp.',
+    },
     "extract-tiles": {
       title: "Extracción de tiles",
       subtitle:

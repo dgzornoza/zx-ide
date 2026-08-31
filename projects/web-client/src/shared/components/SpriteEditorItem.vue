@@ -14,7 +14,7 @@ const props = defineProps<{
    * Source image used to extract frame previews. When `null`, the component
    * falls back to the pre-computed bitmap stored on each frame (create-sprites).
    */
-  sourceImage: File | null;
+  sourceImage: File | undefined;
   /**
    * Whether the per-frame X/Y coordinate inputs are rendered. When `false`
    * (create-sprites), the X/Y columns are replaced by empty placeholder

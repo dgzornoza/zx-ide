@@ -15,10 +15,10 @@ const props = withDefaults(
   defineProps<{
     sprites: SpriteDefinition[];
     /**
-     * Source image used to extract frame previews. Pass `null` for the
+     * Source image used to extract frame previews. Pass `undefined` for the
      * create-sprites flow, which uses the bitmap already attached to each frame.
      */
-    sourceImage: File | null;
+    sourceImage: File | undefined;
     /**
      * Whether the per-frame X/Y coordinate inputs are rendered. Defaults to
      * `true`. Pass `false` from create-sprites where coordinates are not used.
@@ -136,9 +136,7 @@ const emit = defineEmits<{
         "
         @remove="emit('remove-sprite', index)"
         @add-frame="emit('add-frame', index)"
-        @remove-frame="
-          (frameIndex) => emit('remove-frame', index, frameIndex)
-        "
+        @remove-frame="(frameIndex) => emit('remove-frame', index, frameIndex)"
       />
     </div>
     <button

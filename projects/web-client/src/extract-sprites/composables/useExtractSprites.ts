@@ -2,6 +2,8 @@ import {
   FileEntry,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
+import { basenameFromPath } from "src/helpers/file-utils";
+import { imageBytesToFile } from "src/helpers/image-utils";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
 import { createSpritesCodeGenerator } from "src/shared/composables/spritesCodeGenerators/codeGeneratorFactory";
 import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
@@ -38,7 +40,7 @@ export function useExtractSprites() {
   });
 
   /** The last source File chosen by the user (PNG or converted-from-ZXP PNG), kept for sprite frame preview extraction. */
-  const currentImageFile = ref<File | null>(null);
+  const currentImageFile = ref<File | undefined>(undefined);
 
   const status = ref<StatusMessage | null>(null);
   const {
@@ -71,7 +73,7 @@ export function useExtractSprites() {
         ...mapData.sprites.map((sprite) => ({
           ...sprite,
           _id: crypto.randomUUID(),
-        }))
+        })),
       );
       spriteFlags.value = mapData.spriteFlags ?? SpriteFlags.None;
     } catch {
@@ -86,17 +88,47 @@ export function useExtractSprites() {
    * `.zxp` files are converted to an in-memory PNG before storing so that
    * the rest of the pipeline (previews, bitmask extraction) works unchanged.
    */
-  const setSourceFile = async (file: File) => {
+  const setSourceImage = async (
+    path: string,
+    bytes: Uint8Array,
+  ): Promise<void> => {
     try {
-      if (file.name.toLowerCase().endsWith(".zxp")) {
-        currentImageFile.value = await convertZxpFileToImageFile(file);
+      const basename = basenameFromPath(path);
+      const zxpFile = imageBytesToFile(bytes, basename);
+      if (zxpFile.type === "") {
+        // ZXP: convert to an in-memory PNG via the existing helper so the
+        // downstream pipeline keeps working with PNGs.
+        currentImageFile.value = await convertZxpFileToImageFile(zxpFile);
       } else {
-        currentImageFile.value = file;
+        currentImageFile.value = zxpFile;
       }
+
+      state.source = path;
+      await extractFromCurrentImage();
     } catch (error) {
-      console.error("Source file load failed:", error);
+      console.error("Source image load failed:", error);
       setStatus("error", tp("errorSourceFileLoad"));
     }
+  };
+
+  /**
+   * Re-runs the bitmask extraction for the currently loaded source image.
+   * Used after `setSourceImage` swaps the file, and exposed for any future
+   * callers (e.g. tile-size changes that need a re-extract).
+   */
+  const extractFromCurrentImage = async (): Promise<void> => {
+    if (!currentImageFile.value) return;
+    await extractSpritesFromFile(
+      currentImageFile.value,
+      state.sprites.map((sprite) =>
+        sprite.frames.map((frame) => ({
+          x: frame.x,
+          y: frame.y,
+          width: sprite.width,
+          height: sprite.height,
+        })),
+      ),
+    );
   };
 
   // ─── Sprite actions ────────────────────────────────────────────────────────
@@ -151,7 +183,7 @@ export function useExtractSprites() {
 
     const fileNameWithoutExtension = currentImageFile.value.name.replace(
       /\.[^.]+$/,
-      ""
+      "",
     );
 
     const generator = createSpritesCodeGenerator(codeGenerationType.value);
@@ -163,8 +195,8 @@ export function useExtractSprites() {
           y: frame.y,
           width: sprite.width,
           height: sprite.height,
-        }))
-      )
+        })),
+      ),
     );
     const codeFiles: FileEntry[] = generator.generate({
       name: fileNameWithoutExtension,
@@ -180,7 +212,7 @@ export function useExtractSprites() {
     }
 
     const message: WriteFilesMessage = {
-      messageType: 'writeFilesFromWebview',
+      messageType: "writeFilesFromWebview",
       codeFiles,
     };
     vscode.postMessage(message);
@@ -203,7 +235,7 @@ export function useExtractSprites() {
     spriteFlags,
     currentImageFile,
     tp,
-    setSourceFile,
+    setSourceImage,
     setMapFile,
     addSprite,
     removeSprite,
