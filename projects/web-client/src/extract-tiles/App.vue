@@ -9,6 +9,7 @@ const {
   state,
   status,
   codeGenerationType,
+  memoryUsage,
   tp,
   setSourceImage,
   setMapFile,
@@ -57,13 +58,9 @@ async function onImageChanged(path: string) {
 
       <ResultsSection
         v-if="state.tiles.count > 0"
-        :total-tiles="state.tiles.count - state.tiles.excludedSet.size"
-        :total-bytes="
-          ((state.tiles.count - state.tiles.excludedSet.size) *
-            state.tiles.tileWidth *
-            state.tiles.tileHeight) /
-          8
-        "
+        :tile-count="memoryUsage.tileCount"
+        :bitmap-bytes="memoryUsage.bitmapBytes"
+        :attribute-bytes="memoryUsage.attributeBytes"
       />
     </main>
 

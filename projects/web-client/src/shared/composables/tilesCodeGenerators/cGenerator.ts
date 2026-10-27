@@ -183,6 +183,8 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
   ): string {
     const id = toCodeIdentifier(baseName);
     const guard = toMacroGuard(baseName);
+    // The .bin is written to the same workspace folder as this .asm file
+    // (src/data/<source-dir>/), so the incbin resolves locally without a path.
     const incbinPath = `${baseName}.bin`;
 
     return [
@@ -191,8 +193,8 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
       `; ${guard}_TOTAL_SIZE: ${sizes.totalSize}`,
       `; Compressed Size: ${sizes.compressedSize} bytes (ZX0 standard)`,
       "",
-      "; incbin path is resolved relative to the Makefile cwd (project root),",
-      "; not relative to this .asm file's location.",
+      "; incbin path is resolved relative to this .asm file's location,",
+      "; because the .bin is written next to it under src/data/<source-dir>/.",
       "SECTION rodata_user",
       "",
       `PUBLIC _${id}_compressed`,

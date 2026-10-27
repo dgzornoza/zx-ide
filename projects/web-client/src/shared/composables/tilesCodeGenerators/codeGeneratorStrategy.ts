@@ -55,16 +55,40 @@ export function calculateTilesDataByteCount(
   params: TilesCodeGeneratorParams,
   includedIndices: number[],
 ): number {
+  return (
+    calculateTilesBitmapByteCount(params, includedIndices) +
+    calculateTilesAttributeByteCount(params, includedIndices)
+  );
+}
+
+/**
+ * Returns bitmap-only data size (in bytes) for included tiles. Each tile
+ * occupies `ceil(tileWidth / 8) * tileHeight` bytes regardless of whether
+ * attributes are present.
+ */
+export function calculateTilesBitmapByteCount(
+  params: TilesCodeGeneratorParams,
+  includedIndices: number[],
+): number {
   const bytesPerTileRow = Math.ceil(params.tiles.tileWidth / 8);
   const bitmapBytesPerTile = bytesPerTileRow * params.tiles.tileHeight;
-  const includedTileCount = includedIndices.length;
-  const bitmapBytes = includedTileCount * bitmapBytesPerTile;
+  return includedIndices.length * bitmapBytesPerTile;
+}
+
+/**
+ * Returns attribute-only data size (in bytes) for included tiles. On the ZX
+ * Spectrum each tile carries exactly one attribute byte, so the result is
+ * either `includedTileCount` or `0` depending on whether the source carried
+ * decoded attributes (ZX-Paintbrush `.zxp` sources only).
+ */
+export function calculateTilesAttributeByteCount(
+  params: TilesCodeGeneratorParams,
+  includedIndices: number[],
+): number {
   const hasAttributes = Boolean(
     params.tiles.attributes && params.tiles.attributes.length > 0,
   );
-  const attributeBytes = hasAttributes ? includedTileCount : 0;
-
-  return bitmapBytes + attributeBytes;
+  return hasAttributes ? includedIndices.length : 0;
 }
 
 /** Creates the `.cfg` {@link GeneratedFile} entry. */

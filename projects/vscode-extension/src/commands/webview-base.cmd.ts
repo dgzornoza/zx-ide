@@ -18,6 +18,24 @@ import {
 } from '../../../shared/extract-graphics/extract-graphics-dtos';
 
 /**
+ * Workspace root folder for a generated file.
+ *
+ * Resource files (`.cfg`, `.png`) live next to the source image under
+ * `assets/`. Code files (`.h`, `.asm`, `.bin`) live under `src/data/'.
+ */
+function resolveCodeFileRoot(fileType: WriteFilesMessage['codeFiles'][number]['fileType']): 'assets' | 'src/data' {
+  switch (fileType) {
+    case 'map':
+    case 'png':
+      return 'assets';
+    case 'c-header':
+    case 'asm':
+    case 'binary':
+      return 'src/data';
+  }
+}
+
+/**
  * Abstract base for all "webview" commands.
  *
  * Handles the common lifecycle: create WebviewPanel → send InitMessage → send
@@ -157,7 +175,8 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
 
     try {
       for (const file of message.codeFiles) {
-        const targetUri = await WorkspaceHelpers.getWorkspaceUri(file.fileName);
+        const rootFolder = resolveCodeFileRoot(file.fileType);
+        const targetUri = await WorkspaceHelpers.getWorkspaceUri(rootFolder, ...FileHelpers.splitRelativePath(file.fileName));
         const targetParentUri = vscode.Uri.joinPath(targetUri, '..');
         await vscode.workspace.fs.createDirectory(targetParentUri);
 

@@ -2,9 +2,13 @@ import {
   FileEntry,
   WriteFilesMessage,
 } from "externalShared/extract-graphics/extract-graphics-dtos";
-import { basenameFromPath } from "src/helpers/file-utils";
+import { basenameFromPath, dirNameOfPath } from "src/helpers/file-utils";
 import { imageBytesToFile } from "src/helpers/image-utils";
 import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import {
+  calculateTilesAttributeByteCount,
+  calculateTilesBitmapByteCount,
+} from "src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy";
 import { createTilesCodeGenerator } from "src/shared/composables/tilesCodeGenerators/codeGeneratorFactory";
 import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
 import {
@@ -12,12 +16,11 @@ import {
   StatusMessageType,
 } from "src/shared/models/statusMessage";
 import { TilesModel } from "src/shared/models/tilesDefinition";
-import { reactive, ref, watch } from "vue";
+import { reactive, ref, watch, computed } from "vue";
 import { createVsCodeBridge } from "../../bridge/vscode";
 import {
   extractTilesFromPng,
   extractTilesFromZxpFile,
-  generateTileSheetPng,
 } from "../../helpers/image-utils";
 
 /**
@@ -217,6 +220,11 @@ export function useExtractTiles() {
   /**
    * Generates all resource files for the current tiles and posts them to
    * the VS Code extension via {@link WriteFilesMessage}.
+   *
+   * Every `fileName` is prefixed with the source's directory (e.g. `hud/`)
+   * so the extension can route resources to `assets/<dir>/<file>` and code
+   * files to `src/data/<dir>/<file>`, mirroring the source folder layout.
+   * A bare filename source produces unprefixed paths.
    */
   const extractResources = async () => {
     if (!currentImageFile.value) {
@@ -229,6 +237,10 @@ export function useExtractTiles() {
       "",
     );
 
+    const sourceDir = dirNameOfPath(state.source);
+    const prefix = sourceDir.length > 0 ? `${sourceDir}/` : "";
+    const join = (fileName: string) => `${prefix}${fileName}`;
+
     const generator = createTilesCodeGenerator(codeGenerationType.value);
     const codeFiles: FileEntry[] = generator.generate({
       name: fileNameWithoutExtension,
@@ -236,25 +248,12 @@ export function useExtractTiles() {
       compressed: useZx0Compression.value,
     });
 
-    const tileSheetBlob = await generateTileSheetPng(
-      state.tiles.previews,
-      state.tiles.columns,
-      state.tiles.tileWidth,
-      state.tiles.tileHeight,
-      state.tiles.excludedSet,
-    );
-    const tileSheetBase64 = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve((reader.result as string).split(",")[1]);
-      reader.onerror = () =>
-        reject(reader.error ?? new Error("Failed to read tile sheet blob"));
-      reader.readAsDataURL(tileSheetBlob);
-    });
-    codeFiles.push({
-      fileType: "png",
-      fileName: `${fileNameWithoutExtension}.png`,
-      content: tileSheetBase64,
-    });
+    // Re-prefix each generated file with the source directory so the
+    // extension can place it under the matching `assets/<dir>/` or
+    // `src/data/<dir>/` folder.
+    for (const file of codeFiles) {
+      file.fileName = join(file.fileName);
+    }
 
     if (!vscode.isAvailable) {
       setStatus("error", tp("errorVsCodeRequired"));
@@ -269,6 +268,37 @@ export function useExtractTiles() {
     setStatus("success", tp("statusSent"));
   };
 
+  // ─── Derived state ───────────────────────────────────────────────────────
+
+  /**
+   * Memory footprint of the included tiles, split between bitmap and
+   * attribute bytes. Sources without decoded attributes (PNG sources) report
+   * zero attribute bytes; ZX-Paintbrush `.zxp` sources report one attribute
+   * byte per included tile.
+   *
+   * Backed by the same helpers the code generators use to compute the
+   * `; Data Size:` comment, so the on-screen total stays in sync with the
+   * generated assembly regardless of `tileWidth`/`tileHeight`/`excludedSet`.
+   */
+  const memoryUsage = computed(() => {
+    const includedTileCount =
+      state.tiles.count - state.tiles.excludedSet.size;
+    const includedIndices = Array.from(
+      { length: state.tiles.count },
+      (_unused, index) => index,
+    ).filter((index) => !state.tiles.excludedSet.has(index));
+    const params = { name: "", tiles: state.tiles };
+
+    return {
+      tileCount: includedTileCount,
+      bitmapBytes: calculateTilesBitmapByteCount(params, includedIndices),
+      attributeBytes: calculateTilesAttributeByteCount(
+        params,
+        includedIndices,
+      ),
+    };
+  });
+
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   return {
@@ -279,6 +309,7 @@ export function useExtractTiles() {
     useZx0Compression,
     isZx0CompressionReadOnly,
     currentImageFile,
+    memoryUsage,
     tp,
     setSourceImage,
     setMapFile: setCfgFile,
