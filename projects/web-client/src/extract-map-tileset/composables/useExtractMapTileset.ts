@@ -3,6 +3,7 @@ import { parseAsmTilesetData } from 'src/extract-map-tileset/composables/asmTile
 import { createMapCodeGenerator } from 'src/extract-map-tileset/composables/codeGenerators/codeGeneratorFactory';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
+import { useWriteFilesResult } from 'src/shared/composables/useWriteFilesResult';
 import { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
 import { computed, ref, watch } from 'vue';
 import { createVsCodeBridge } from '../../bridge/vscode';
@@ -202,13 +203,20 @@ export function useExtractMapTileset() {
       codeFiles: files,
     };
     bridge.postMessage(writeMessage);
-    setStatus('success', tp('statusSent'));
   }
 
   // ─── Watchers ─────────────────────────────────────────────────────────────────
 
   watch([tileIndices, tileInkBitmaps], () => {
     // Canvas re-render is triggered by the component via renderPreview()
+  });
+
+  useWriteFilesResult((result) => {
+    if (result.success) {
+      setStatus('success', tp('statusSent'));
+    } else {
+      setStatus('error', result.error ?? '');
+    }
   });
 
   return {

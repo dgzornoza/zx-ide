@@ -4,6 +4,7 @@ import { imageBytesToFile } from 'src/helpers/image-utils';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { createSpritesCodeGenerator } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorFactory';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
+import { useWriteFilesResult } from 'src/shared/composables/useWriteFilesResult';
 import { SpriteDefinition, SpriteFlags, SpritesMapModel } from 'src/shared/models/spriteDefinition';
 import { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
 import { onMounted, reactive, ref } from 'vue';
@@ -192,13 +193,20 @@ export function useExtractSprites() {
       codeFiles,
     };
     vscode.postMessage(message);
-    setStatus('success', tp('statusSent'));
   };
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   onMounted(() => {
     if (!state.sprites.length) addSprite();
+  });
+
+  useWriteFilesResult((result) => {
+    if (result.success) {
+      setStatus('success', tp('statusSent'));
+    } else {
+      setStatus('error', result.error ?? '');
+    }
   });
 
   return {

@@ -37,6 +37,7 @@ vi.mock('../../bridge/vscode', async (importOriginal) => {
 });
 
 import { mount } from '@vue/test-utils';
+import type { WriteFilesResultMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { i18n } from 'src/i18n';
 import { useExtractTiles } from './useExtractTiles';
 
@@ -58,6 +59,7 @@ interface TilesApi {
   currentImageFile: { value: File | undefined };
   setSourceImage(path: string, bytes: Uint8Array): Promise<void>;
   extractResources(): Promise<void>;
+  status: { value: { type: string; text: string } | null };
   memoryUsage: {
     tileCount: number;
     bitmapBytes: number;
@@ -84,6 +86,10 @@ function setupHarness() {
 interface PostedWriteFilesMessage {
   messageType: string;
   codeFiles: { fileType: string; fileName: string; content: string }[];
+}
+
+function postWriteFilesResult(data: WriteFilesResultMessage) {
+  window.dispatchEvent(new MessageEvent('message', { data }));
 }
 
 function installBridgeMock() {
@@ -189,6 +195,39 @@ describe('useExtractTiles', () => {
     // all carry the `hud/` prefix. No tile-sheet preview is emitted anymore.
     expect(fileNames).toEqual(['hud/hud-tiles.cfg', 'hud/hud-tiles.h', 'hud/hud-tiles.asm', 'hud/hud-tiles.bin']);
     expect(fileTypes).toEqual(['map', 'c-header', 'asm', 'binary']);
+  });
+
+  it('extractResources shows no status until the extension reports the write result', async () => {
+    installBridgeMock();
+    const { api } = setupHarness();
+
+    await api.setSourceImage('hud/hud-tiles.zxp', new Uint8Array([0x01]));
+    await api.extractResources();
+
+    expect(api.status.value).toBeNull();
+  });
+
+  it('extractResources shows success when the extension reports the files were written', async () => {
+    installBridgeMock();
+    const { api } = setupHarness();
+    await api.setSourceImage('hud/hud-tiles.zxp', new Uint8Array([0x01]));
+    await api.extractResources();
+
+    postWriteFilesResult({ messageType: 'writeFilesResultFromExtension', success: true });
+
+    // Vitest does not resolve i18n messages (it returns the key), so only the type is pinned.
+    expect(api.status.value?.type).toBe('success');
+  });
+
+  it('extractResources shows the error when the extension reports the write failed', async () => {
+    installBridgeMock();
+    const { api } = setupHarness();
+    await api.setSourceImage('hud/hud-tiles.zxp', new Uint8Array([0x01]));
+    await api.extractResources();
+
+    postWriteFilesResult({ messageType: 'writeFilesResultFromExtension', success: false, error: 'EACCES: permission denied' });
+
+    expect(api.status.value).toEqual({ type: 'error', text: 'EACCES: permission denied' });
   });
 
   it('extractResources emits unprefixed fileNames when the source has no directory', async () => {

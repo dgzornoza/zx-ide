@@ -1,6 +1,7 @@
 import type { WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
+import { useWriteFilesResult } from 'src/shared/composables/useWriteFilesResult';
 import { createTilesCodeGenerator } from 'src/shared/composables/tilesCodeGenerators/codeGeneratorFactory';
 import type { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
 import type { TilesModel } from 'src/shared/models/tilesDefinition';
@@ -83,8 +84,15 @@ export function useCreateTiles() {
       codeFiles,
     };
     vscode.postMessage(message);
-    setStatus('success', tp('statusSent'));
   }
+
+  useWriteFilesResult((result) => {
+    if (result.success) {
+      setStatus('success', tp('statusSent'));
+    } else {
+      setStatus('error', result.error ?? '');
+    }
+  });
 
   return {
     state,

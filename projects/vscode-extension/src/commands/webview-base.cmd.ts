@@ -187,16 +187,12 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
         await FileHelpers.writeFile(file.content, targetUri, { binary: isBinary });
       }
 
-      this.postToWebview({
-        messageType: 'writeFilesResultFromExtension',
-        success: true,
-        text: vscode.l10n.t('Files written successfully'),
-      });
+      this.postToWebview({ messageType: 'writeFilesResultFromExtension', success: true });
     } catch (error) {
       this.postToWebview({
         messageType: 'writeFilesResultFromExtension',
         success: false,
-        text: String(error),
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   }

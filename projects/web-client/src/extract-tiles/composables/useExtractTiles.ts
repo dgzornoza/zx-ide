@@ -8,6 +8,7 @@ import {
 } from 'src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy';
 import { createTilesCodeGenerator } from 'src/shared/composables/tilesCodeGenerators/codeGeneratorFactory';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
+import { useWriteFilesResult } from 'src/shared/composables/useWriteFilesResult';
 import { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
 import { TilesModel } from 'src/shared/models/tilesDefinition';
 import { reactive, ref, watch, computed } from 'vue';
@@ -234,7 +235,6 @@ export function useExtractTiles() {
       codeFiles,
     };
     vscode.postMessage(message);
-    setStatus('success', tp('statusSent'));
   };
 
   // ─── Derived state ───────────────────────────────────────────────────────
@@ -264,6 +264,14 @@ export function useExtractTiles() {
   });
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
+
+  useWriteFilesResult((result) => {
+    if (result.success) {
+      setStatus('success', tp('statusSent'));
+    } else {
+      setStatus('error', result.error ?? '');
+    }
+  });
 
   return {
     state,

@@ -89,8 +89,8 @@ export interface WriteFilesResultMessage extends VsCodeBridgeMessage {
   messageType: "writeFilesResultFromExtension";
   /** `true` when every file was written. */
   success: boolean;
-  /** Localised message for the user: confirmation or failure reason. */
-  text: string;
+  /** Human-readable failure reason; present iff `success` is `false`. */
+  error?: string;
 }
 
 /**

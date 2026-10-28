@@ -48,6 +48,8 @@ Receive extension messages only through `subscribeToExtensionMessage(messageType
 
 Every page `main.ts` mounts through `mountWebviewApp(App)` (`src/bridge/mount-webview-app.ts`), never `createApp(...).mount(...)` directly: after `mount()` (all `onMounted` hooks have run) it posts `readyFromWebview`, and the extension sends `initFromExtension` and the assets list only after that message.
 
+After posting `writeFilesFromWebview`, never report success right away: register `useWriteFilesResult(onResult)` (`src/shared/composables/useWriteFilesResult.ts`) and set the status banner only when `writeFilesResultFromExtension` arrives (`success`, or `error` with the reason).
+
 ## Vue conventions
 
 - **Always Composition API with `<script setup lang="ts">`.** No Options API.

@@ -1,6 +1,7 @@
 import type { WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
+import { useWriteFilesResult } from 'src/shared/composables/useWriteFilesResult';
 import { createSpritesCodeGenerator } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorFactory';
 import type { SpritesCodeGeneratorParams } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy';
 import { SpriteDefinition, SpriteFlags } from 'src/shared/models/spriteDefinition';
@@ -143,10 +144,17 @@ export function useCreateSprites() {
       codeFiles,
     };
     vscode.postMessage(message);
-    setStatus('success', tp('statusSent'));
   }
 
   // ─── VSCode init message is handled by useProjectTypeLock ───────────────────
+
+  useWriteFilesResult((result) => {
+    if (result.success) {
+      setStatus('success', tp('statusSent'));
+    } else {
+      setStatus('error', result.error ?? '');
+    }
+  });
 
   return {
     state,

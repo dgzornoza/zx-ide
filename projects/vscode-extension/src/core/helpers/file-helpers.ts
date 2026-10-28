@@ -96,17 +96,16 @@ export class FileHelpers {
    * @param options Options for the write operation
    *  option 'binary === true' content` is decoded from base64 and written
    *  as raw bytes, else content is write in utf8
+   * @throws The file system error after logging it, so callers can report the failure
    */
   public static async writeFile(content: string, absolutePath: string | vscode.Uri, options: { binary?: boolean } = {}): Promise<void> {
     const fileUri = absolutePath instanceof vscode.Uri ? absolutePath : vscode.Uri.file(absolutePath);
-    if (!fileUri) {
-      return;
-    }
     try {
       const bytes = options.binary ? Buffer.from(content, 'base64') : Buffer.from(content, 'utf8');
       await vscode.workspace.fs.writeFile(fileUri, bytes);
     } catch (error) {
-      Logger.error(`Error writting file '${absolutePath}': ${error}`);
+      Logger.error(`Error writing file '${absolutePath}': ${error}`);
+      throw error;
     }
   }
 

@@ -42,7 +42,7 @@ Code style rules live in `.ai/rules/gov-typescript-code-style.md`; this skill ad
 
 All filesystem and workspace-directory access **MUST** go through the helper classes in `src/core/helpers/`:
 
-- `FileHelpers` (`src/core/helpers/file-helpers.ts`) wraps `vscode.workspace.fs.*` for files and directories: `fileExists`, `readFile`, `readFileBytes`, `readDirectory`, `writeFile`. If a new filesystem operation is needed and no existing method fits, **add the method to `FileHelpers` first**; never call `vscode.workspace.fs.*` directly from command or service code.
+- `FileHelpers` (`src/core/helpers/file-helpers.ts`) wraps `vscode.workspace.fs.*` for files and directories: `fileExists`, `readFile`, `readFileBytes`, `readDirectory`, `writeFile`. `writeFile` logs and rethrows failures; callers must handle them (`WebviewBaseCommand.writeFiles` answers `writeFilesResultFromExtension` with `success: false` and the error). If a new filesystem operation is needed and no existing method fits, **add the method to `FileHelpers` first**; never call `vscode.workspace.fs.*` directly from command or service code.
 - `WorkspaceHelpers` (`src/core/helpers/workspace-helpers.ts`) builds workspace-relative `vscode.Uri` instances and delegates the filesystem work to `FileHelpers`. Use `getWorkspaceUri(...segments)` to obtain a URI; never reach into `vscode.workspace.workspaceFolders` or call the private `findZxideWorkspaceFolder` helper from outside `WorkspaceHelpers`.
 
 Domain-specific helpers that need filesystem access (`AssetsHelpers`, etc.) compose the two helpers above and never bypass them. This keeps the abstraction surface small, allows swapping the underlying API (for tests) and centralizes logging and error handling.
