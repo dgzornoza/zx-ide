@@ -3,14 +3,13 @@
     "moduleResolution": "node",
     "target": "ES2022",
     "module": "ES2022",
-    "lib": [
-      "ES2022",
-    ],
+    "lib": ["ES2022"],
     "baseUrl": "./",
+    "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "strict": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": true
   }
 }

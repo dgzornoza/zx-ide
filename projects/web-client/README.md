@@ -2,38 +2,36 @@
 
 ## Instalacion
 
-```bash
-npm install
-```
+Ejecuta `pnpm install` una vez desde la raíz del repo (workspace de pnpm).
 
 ## Comandos
 
 Inicia el servidor de desarrollo de Vite con recarga en caliente para trabajar localmente en el web-client.
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Compila el cliente para producción en `dist/`.
 
 ```bash
-npm run build
+pnpm build
 ```
 
 Compila en modo watch para actualizar `dist/` en cada cambio.
 
 ```bash
-npm run watch
+pnpm watch
 ```
 
 Previsualiza el build de producción localmente.
 
 ```bash
-npm run preview
+pnpm preview
 ```
 
 Ejecuta verificación de tipos sin emitir archivos.
 
 ```bash
-npm run typecheck
+pnpm typecheck
 ```

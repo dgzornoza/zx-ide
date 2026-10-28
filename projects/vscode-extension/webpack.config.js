@@ -53,8 +53,8 @@ const extensionConfig = {
       // copy cli node project files + the webview assets that the
       // extension serves through `webview.asWebviewUri(...)`. Both patterns
       // are watched by webpack --watch, so rebuilding `web-client/dist`
-      // (via `npm run watch` in projects/web-client) or `cli/dist`
-      // (via `npm run watch` in projects/cli) re-copies the files into the
+      // (via `pnpm watch` in projects/web-client) or `cli/dist`
+      // (via `pnpm watch` in projects/cli) re-copies the files into the
       // extension and triggers a rebuild without restarting the watch.
       patterns: [
         {

@@ -55,36 +55,33 @@ A multi-root workspace file is included so you can work with all three in a sing
 
 ### Tasks
 
-Each project is a standalone npm package with its own install/build/watch commands. Run them from the project directory or use the `--prefix` flag from the repo root.
+The repo is a [pnpm](https://pnpm.io) workspace (`pnpm-workspace.yaml` at the root; the pnpm version is pinned in the root `package.json` `packageManager` field). Install every project once from the repo root with `pnpm install`. Run project scripts from the project directory (`pnpm <script>`) or from the repo root with `pnpm --filter <package> <script>` (`zx-ide-web-client`, `zx-ide-cli`, `zxide`).
 
 #### Web client (`projects/web-client`)
 
-- Install: `npm install --prefix ./projects/web-client`
-- Build (one-shot): `npm run build --prefix ./projects/web-client`
-- Watch: `npm run watch --prefix ./projects/web-client` — rebuilds `projects/web-client/dist/` on every save.
-- Dev server: `npm run dev --prefix ./projects/web-client` — starts Vite's dev server with HMR; useful for browser-only work, not consumed by the extension.
-- Type check: `npm run typecheck --prefix ./projects/web-client`
-- Tests: `npm run test:watch --prefix ./projects/web-client` (Vitest)
+- Build (one-shot): `pnpm --filter zx-ide-web-client build`
+- Watch: `pnpm --filter zx-ide-web-client watch` — rebuilds `projects/web-client/dist/` on every save.
+- Dev server: `pnpm --filter zx-ide-web-client dev` — starts Vite's dev server with HMR; useful for browser-only work, not consumed by the extension.
+- Type check: `pnpm --filter zx-ide-web-client typecheck`
+- Tests: `pnpm --filter zx-ide-web-client test:watch` (Vitest)
 
 #### CLI (`projects/cli`)
 
-- Install: `npm install --prefix ./projects/cli`
-- Build (production): `npm run build --prefix ./projects/cli`
-- Watch: `npm run watch --prefix ./projects/cli` — rebuilds `projects/cli/dist/zx-ide-cli.js` on every save (dev webpack config, with source maps).
-- Start (debug): `npm run start --prefix ./projects/cli` — webpack dev build + `node --inspect=9229 dist/zx-ide-cli.js` for debugging.
-- Lint: `npm run lint --prefix ./projects/cli`
+- Build (production): `pnpm --filter zx-ide-cli build`
+- Watch: `pnpm --filter zx-ide-cli watch` — rebuilds `projects/cli/dist/zx-ide-cli.js` on every save (dev webpack config, with source maps).
+- Start (debug): `pnpm --filter zx-ide-cli start` — webpack dev build + `node --inspect=9229 dist/zx-ide-cli.js` for debugging.
+- Lint: `pnpm --filter zx-ide-cli lint`
 
 #### Extension (`projects/vscode-extension`)
 
-- Install: `npm install --prefix ./projects/vscode-extension`
-- Compile (one-shot): `npm run compile --prefix ./projects/vscode-extension`
-- Watch: `npm run watch --prefix ./projects/vscode-extension` — runs `build-webview` + `build-cli` (both one-shot) and then `webpack --watch` on `src/`.
-- Package (publish): `npm run package --prefix ./projects/vscode-extension` — production bundle for the marketplace.
-- Test: `npm test --prefix ./projects/vscode-extension`
+- Compile (one-shot): `pnpm --filter zxide compile`
+- Watch: `pnpm --filter zxide watch` — runs `build-webview` + `build-cli` (both one-shot) and then `webpack --watch` on `src/`.
+- Package (publish): `pnpm --filter zxide package` — production bundle for the marketplace.
+- Test: `pnpm --filter zxide test`
 
 ### How the three watches compose
 
-The three `npm run watch` scripts are designed to run in parallel and stay isolated — each watches its own source tree and writes to its own `dist/`. The bridge between them is `CopyWebpackPlugin` in the extension's webpack config:
+The three `pnpm watch` scripts are designed to run in parallel and stay isolated — each watches its own source tree and writes to its own `dist/`. The bridge between them is `CopyWebpackPlugin` in the extension's webpack config:
 
 | Watch | Writes to | Extension picks it up via |
 |---|---|---|
@@ -92,9 +89,9 @@ The three `npm run watch` scripts are designed to run in parallel and stay isola
 | `cli` | `projects/cli/dist/` | `CopyWebpackPlugin` pattern `{ from: '../cli/dist' }` → copies into `projects/vscode-extension/dist/` |
 | `vscode-extension` | `projects/vscode-extension/dist/` (extension.js bundle) | direct webpack output |
 
-In practice: open three terminals, one per project, run `npm run watch` in each. Edits to `web-client/src/` or `cli/src/` propagate to the extension bundle automatically, edits to `extension/src/` only rebuild the extension itself. Reload the webview inside VS Code (or run `Developer: Reload Window`) to see webview-only changes.
+In practice: open three terminals, one per project, run `pnpm watch` in each. Edits to `web-client/src/` or `cli/src/` propagate to the extension bundle automatically, edits to `extension/src/` only rebuild the extension itself. Reload the webview inside VS Code (or run `Developer: Reload Window`) to see webview-only changes.
 
-You don't have to run all three at once — only run the watch scripts for the projects you're actively editing. The extension's `npm run watch` does a one-shot build of `web-client` and `cli` at startup, so it works standalone too.
+You don't have to run all three at once — only run the watch scripts for the projects you're actively editing. The extension's `pnpm watch` does a one-shot build of `web-client` and `cli` at startup, so it works standalone too.
 
 ### Debug
 
@@ -134,19 +131,19 @@ For the same reason, when running from a Windows host, do **not** mount the devc
 
 ## Testing
 
-Test suites are scoped per project. Run them from the project directory or use the `--prefix` flag from the repo root.
+Test suites are scoped per project. Run them from the project directory or use `pnpm --filter <package>` from the repo root.
 
 ### Web client (Vitest)
 
-- Run all tests: `npm test --prefix ./projects/web-client`
-- Watch mode: `npm run test:watch --prefix ./projects/web-client`
-- Type check: `npm run typecheck --prefix ./projects/web-client`
+- Run all tests: `pnpm --filter zx-ide-web-client test`
+- Watch mode: `pnpm --filter zx-ide-web-client test:watch`
+- Type check: `pnpm --filter zx-ide-web-client typecheck`
 
 Test files live in `projects/web-client/src/**/*.spec.ts` and cover the bit-packing primitives, code-generator strategies, validation paths, and the architectural invariant between plain `.asm` and compressed `.bin` outputs.
 
 ### VS Code extension (Mocha)
 
-- Run tests: `npm test --prefix ./projects/vscode-extension`
+- Run tests: `pnpm --filter zxide test`
 
 This boots a VS Code Extension Host and runs the extension's test suite.
 

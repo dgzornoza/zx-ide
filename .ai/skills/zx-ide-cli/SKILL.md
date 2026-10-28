@@ -43,7 +43,8 @@ Code style rules live in `.ai/rules/gov-typescript-code-style.md`; this skill ad
 
 Run every command from `projects/cli/`:
 
-- Build: `npm run build` (webpack production).
-- Dev run: `npm run start` (webpack dev, then `node --inspect=9229 dist/zx-ide-cli.js`) for debugging.
-- Watch: `npm run watch` rebuilds the dev bundle on every save. Run it alongside `npm run watch` in `projects/vscode-extension/` so the extension's `CopyWebpackPlugin` re-copies the CLI bundle whenever the CLI rebuilds.
-- Lint: `npm run lint`.
+- Build: `pnpm build` (webpack production).
+- Dev run: `pnpm start` (webpack dev, then `node --inspect=9229 dist/zx-ide-cli.js`) for debugging.
+- Watch: `pnpm watch` rebuilds the dev bundle on every save. Run it alongside `pnpm watch` in `projects/vscode-extension/` so the extension's `CopyWebpackPlugin` re-copies the CLI bundle whenever the CLI rebuilds.
+- Lint: `pnpm lint`.
+- Format: `pnpm format` (Prettier, writes) / `pnpm format:check`.

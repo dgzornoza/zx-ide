@@ -15,3 +15,10 @@ source: governance
 - **No AI attribution.** Never add `Co-Authored-By` or any other AI-generated trailer to commit messages.
 - **Branch names** are kebab-case and descriptive: `feat/lock-code-gen-selector`.
 - The user reviews and approves; only then does the commit land. No exceptions.
+
+## Pre-commit hook
+
+- `.husky/pre-commit` (repo root) runs `pnpm exec lint-staged` from the root. lint-staged uses the closest `lint-staged` config to each staged file (the `lint-staged` key of each project's `package.json`) and runs its tasks inside that project: `prettier --write` + `eslint --fix` for code, `prettier --write` for JSON/Markdown/CSS. The hook stops with a message if the root `node_modules` is missing: run `pnpm install` first.
+- Hooks are enabled by `git config --local core.hooksPath .husky`, set by the root `prepare` script on `pnpm install`. Do not change `core.hooksPath`.
+- Never bypass the hook (`--no-verify`) or edit it to make a commit pass. Fix the reported lint or format problem instead.
+- Never run `lint-staged` manually (including `--diff`): it stages the files its tasks modify.

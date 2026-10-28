@@ -31,6 +31,7 @@
         ]
     },
     "settings": {
+        "npm.packageManager": "pnpm",
         "eslint.workingDirectories": [
             {
                 "directory": "shared"

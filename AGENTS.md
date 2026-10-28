@@ -27,7 +27,7 @@ If a skill contradicts a rule, the rule wins: fix the contradiction in the skill
 ## Workspace Conventions (summary)
 
 - Monorepo with three projects under `projects/`: `cli` (webpack, Node), `vscode-extension` (webpack, Inversify) and `web-client` (Vite + Vue 3, webview pages). Message DTOs shared between the extension and the web-client live in `projects/shared/`.
-- Each project has its own `package.json`; run every command from that project's folder, never from the repo root.
+- pnpm workspace (`pnpm-workspace.yaml`, pnpm version pinned in the root `package.json` `packageManager`). Run `pnpm install` once from the repo root; run project scripts from the project folder (`pnpm <script>`) or from the root with `pnpm --filter <package> <script>` (`zx-ide-cli`, `zxide`, `zx-ide-web-client`). Never use `npm`/`npx`: use `pnpm`/`pnpm dlx`.
 - Specifications and change proposals live in `openspec/` (`specs/`, `changes/`, `changes/archive/`).
 - Source code, comments and developer-facing strings in English; AI governance files (`AGENTS.md`, `CLAUDE.md`, `.ai/`) in English.
 - Never use `null`; no abbreviations or single-letter names — see `.ai/rules/gov-typescript-code-style.md`.
@@ -37,11 +37,13 @@ If a skill contradicts a rule, the rule wins: fix the contradiction in the skill
 
 ## Build and Check
 
-| Project            | Build           | Check                                         |
-| ------------------ | --------------- | --------------------------------------------- |
-| `cli`              | `npm run build` | `npm run lint`                                |
-| `vscode-extension` | `npm run compile` | `npm run lint`, `npm test`                  |
-| `web-client`       | `npm run build` | `npm run typecheck`, `npm test`               |
+| Project            | Package (`--filter`)  | Build          | Check                                                   |
+| ------------------ | ------------------- | -------------- | ------------------------------------------------------- |
+| `cli`              | `zx-ide-cli`        | `pnpm build`   | `pnpm lint`, `pnpm format:check`                        |
+| `vscode-extension` | `zxide`             | `pnpm compile` | `pnpm lint`, `pnpm format:check`, `pnpm test`           |
+| `web-client`       | `zx-ide-web-client` | `pnpm build`   | `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test` |
+
+From the repo root, `pnpm lint` and `pnpm format:check` run them for every project. Fix formatting with `pnpm format` (Prettier), never by hand. ESLint (flat config, `typescript-eslint`, `eslint-plugin-prettier`; plus `eslint-plugin-vue` in the web-client) and Prettier are configured per project; the pre-commit hook is described in `.ai/rules/gov-git-commit-review.md`.
 
 ## References
 

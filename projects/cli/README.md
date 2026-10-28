@@ -8,5 +8,5 @@ This cli contains all commands needed by zxide vscode extension for management r
 if is modified the cli, you can compile it with the following command:
 
 ```bash
-npm run build
+pnpm build
 ```

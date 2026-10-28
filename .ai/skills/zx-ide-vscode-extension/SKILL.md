@@ -70,8 +70,10 @@ The CLI writes this file (`projects/cli/src/infrastructure.ts`); keep both defin
 
 Run every command from `projects/vscode-extension/`:
 
-- Build/watch: `npm run watch` (also builds the CLI via `npm --prefix ../cli run build`).
-- Compile: `npm run compile` (webpack).
-- Package: `npm run package` builds the CLI, then the webpack production bundle.
-- Tests: `npm test` (`pretest` runs `compile-tests`, `compile` and `lint` first).
-- Lint: `npm run lint`.
+- Build/watch: `pnpm watch` (also builds the CLI via `pnpm --filter zx-ide-cli build`).
+- Compile: `pnpm compile` (webpack).
+- Package: `pnpm package` builds the CLI, then the webpack production bundle.
+- Tests: `pnpm test` (`pretest` runs `compile-tests`, `compile` and `lint` first).
+- Lint: `pnpm lint`.
+- Format: `pnpm format` (Prettier, writes) / `pnpm format:check`.
+- Publishing with `vsce`: always pass `--no-dependencies` (`vsce package --no-dependencies`). webpack already bundles every dependency, and the pnpm `node_modules` layout breaks the npm-based dependency scan of `vsce`.

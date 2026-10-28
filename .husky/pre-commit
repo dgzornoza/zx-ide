@@ -1,0 +1,6 @@
+#!/bin/sh
+if [ ! -d ./node_modules ]; then
+  echo "pre-commit: run 'pnpm install' in the repo root before committing." >&2
+  exit 1
+fi
+pnpm exec lint-staged

@@ -1,0 +1,6 @@
+packages:
+  - projects/cli
+  - projects/vscode-extension
+  - projects/web-client
+allowBuilds:
+  esbuild: true

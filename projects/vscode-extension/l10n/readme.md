@@ -2,4 +2,4 @@
 
 ## Translate command
 
-npx @vscode/l10n-dev export -o ./l10n ./src
+pnpm dlx @vscode/l10n-dev export -o ./l10n ./src

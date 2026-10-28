@@ -85,8 +85,9 @@ Messages exchanged with the extension are defined in the shared DTOs at `project
 
 Run every command from `projects/web-client/`:
 
-- Dev server: `npm run dev` (Vite, standalone browser mode).
-- Build: `npm run build` (production Vite build to `dist/`).
-- Watch: `npm run watch`.
-- Type-check: `npm run typecheck` (`vue-tsc --noEmit`).
-- Tests: `npm test` (`vitest run`), `npm run test:watch`.
+- Dev server: `pnpm dev` (Vite, standalone browser mode).
+- Build: `pnpm build` (production Vite build to `dist/`).
+- Watch: `pnpm watch`.
+- Type-check: `pnpm typecheck` (`vue-tsc --noEmit`).
+- Tests: `pnpm test` (`vitest run`), `pnpm test:watch`.
+- Lint: `pnpm lint` (ESLint with `eslint-plugin-vue`). Format: `pnpm format` / `pnpm format:check` (Prettier).
