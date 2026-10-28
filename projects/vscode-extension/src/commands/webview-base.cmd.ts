@@ -1,5 +1,4 @@
 import { Command } from '@core/abstractions/command';
-import { BindThis } from '@core/decorators/bind-this.decorator';
 import { AssetsHelpers } from '@core/helpers/assets-helpers';
 import { FileHelpers } from '@core/helpers/file-helpers';
 import { WebviewHelpers } from '@core/helpers/webview-helpers';
@@ -15,6 +14,7 @@ import {
   type WebviewToExtensionMessage,
 } from '../../../shared/bridge-messages';
 import type { ReadAssetRequestMessage, SaveMapMessage, WriteFilesMessage } from '../../../shared/extract-graphics/extract-graphics-dtos';
+import { WebviewSession } from './webview-session';
 
 /**
  * Workspace root folder for a generated file.
@@ -47,13 +47,17 @@ function resolveCodeFileRoot(fileType: WriteFilesMessage['codeFiles'][number]['f
  *  - `panelTitle` — already-localised title shown in the tab
  *  - `htmlPageName` — e.g. `"extract-tiles.html"`
  *
+ * Each open panel gets its own `WebviewSession`: replies go to the panel that
+ * sent the request, and the session is released when the panel closes.
+ *
  * Subclasses may override `onSaveMap` when saveMap handling is needed.
  * Subclasses may override `requiresAssetsList()` to opt into the assets
  * directory scan + `AssetsListMessage` post on panel open.
  */
 @injectable()
 export abstract class WebviewBaseCommand extends Command<unknown> {
-  protected panel: vscode.WebviewPanel | undefined;
+  /** Open panels of this command, one session each. */
+  private readonly sessions = new Set<WebviewSession<ExtensionToWebviewMessage>>();
 
   constructor(@inject(Types.ExtensionContext) protected readonly extensionContext: vscode.ExtensionContext) {
     super();
@@ -65,12 +69,24 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
 
   public async execute(..._params: unknown[]): Promise<void> {
     try {
-      this.panel = await this.createWebViewPanel();
+      const panel = await this.createWebViewPanel();
       // The initial messages are sent when the page answers `readyFromWebview`.
-      this._subscriptions.push(this.panel.webview.onDidReceiveMessage(this.onDidReceiveMessage));
+      const session: WebviewSession<ExtensionToWebviewMessage> = new WebviewSession(
+        panel,
+        async (message, messageSession) => {
+          await dispatchMessage(message, this.createMessageHandlers(messageSession));
+        },
+        () => this.sessions.delete(session)
+      );
+      this.sessions.add(session);
     } catch (error) {
       vscode.window.showErrorMessage(vscode.l10n.t('Error opening {0}: {1}', this.panelTitle, String(error)));
     }
+  }
+
+  public override dispose(): void {
+    [...this.sessions].forEach((session) => session.dispose());
+    super.dispose();
   }
 
   /**
@@ -104,53 +120,58 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
     // no-op by default; override in subclasses that need save-map logic
   }
 
-  /** Posts a message of the extension → webview contract to the open panel. */
-  protected postToWebview(message: ExtensionToWebviewMessage): void {
-    void this.panel?.webview.postMessage(message);
+  /** Dispatcher for the webview → extension contract: one handler per message type, replying on `session`. */
+  private createMessageHandlers(session: WebviewSession<ExtensionToWebviewMessage>): MessageHandlers<WebviewToExtensionMessage> {
+    return {
+      readyFromWebview: () => this.postInitialMessages(session),
+      writeFilesFromWebview: (message) => this.writeFiles(session, message),
+      saveMapFromWebview: (message) => this.onSaveMap(message),
+      readAssetRequestFromWebview: (message) => this.handleReadAssetRequest(session, message),
+    };
   }
 
   /** Sends the messages a page needs on start. Runs on every `readyFromWebview`, so a reloaded page is initialised again. */
-  private async postInitialMessages(): Promise<void> {
+  private async postInitialMessages(session: WebviewSession<ExtensionToWebviewMessage>): Promise<void> {
     try {
       const projectType = await FeaturesService.getProjectType();
-      this.postToWebview({ messageType: 'initFromExtension', projectType });
+      session.post({ messageType: 'initFromExtension', projectType });
 
       if (this.requiresAssetsList()) {
-        await this.postAssetsList();
+        await this.postAssetsList(session);
       }
     } catch (error) {
       vscode.window.showErrorMessage(vscode.l10n.t('Error opening {0}: {1}', this.panelTitle, String(error)));
     }
   }
 
-  private async postAssetsList(): Promise<void> {
-    if (!this.panel) {
-      return;
-    }
+  private async postAssetsList(session: WebviewSession<ExtensionToWebviewMessage>): Promise<void> {
     const result = await AssetsHelpers.scanAssetsDirectory();
     if (result.missing) {
       vscode.window.showErrorMessage('Project requires the assets/ directory at the workspace root');
     }
-    this.postToWebview({
+    session.post({
       messageType: 'assetsListFromExtension',
       assets: result.assets,
       ...(result.missing ? { missing: true } : {}),
     });
   }
 
-  private async handleReadAssetRequest(request: ReadAssetRequestMessage): Promise<void> {
+  private async handleReadAssetRequest(
+    session: WebviewSession<ExtensionToWebviewMessage>,
+    request: ReadAssetRequestMessage
+  ): Promise<void> {
     try {
       const pathSegments = FileHelpers.splitRelativePath(request.path);
       const bytes = await WorkspaceHelpers.readWorkspaceFileBytes('assets', ...pathSegments);
 
-      this.postToWebview({
+      session.post({
         messageType: 'readAssetResponseFromExtension',
         path: request.path,
         requestId: request.requestId,
         contentBase64: Buffer.from(bytes).toString('base64'),
       });
     } catch (error) {
-      this.postToWebview({
+      session.post({
         messageType: 'readAssetResponseFromExtension',
         path: request.path,
         requestId: request.requestId,
@@ -159,23 +180,7 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
     }
   }
 
-  /** Single dispatcher for the webview → extension contract: one handler per message type. */
-  private readonly webviewMessageHandlers: MessageHandlers<WebviewToExtensionMessage> = {
-    readyFromWebview: () => this.postInitialMessages(),
-    writeFilesFromWebview: (message) => this.writeFiles(message),
-    saveMapFromWebview: (message) => this.onSaveMap(message),
-    readAssetRequestFromWebview: (message) => this.handleReadAssetRequest(message),
-  };
-
-  @BindThis
-  protected async onDidReceiveMessage(message: unknown): Promise<void> {
-    if (!this.panel) {
-      return;
-    }
-    await dispatchMessage(message, this.webviewMessageHandlers);
-  }
-
-  private async writeFiles(message: WriteFilesMessage): Promise<void> {
+  private async writeFiles(session: WebviewSession<ExtensionToWebviewMessage>, message: WriteFilesMessage): Promise<void> {
     try {
       for (const file of message.codeFiles) {
         const rootFolder = resolveCodeFileRoot(file.fileType);
@@ -187,9 +192,9 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
         await FileHelpers.writeFile(file.content, targetUri, { binary: isBinary });
       }
 
-      this.postToWebview({ messageType: 'writeFilesResultFromExtension', success: true });
+      session.post({ messageType: 'writeFilesResultFromExtension', success: true });
     } catch (error) {
-      this.postToWebview({
+      session.post({
         messageType: 'writeFilesResultFromExtension',
         success: false,
         error: error instanceof Error ? error.message : String(error),
