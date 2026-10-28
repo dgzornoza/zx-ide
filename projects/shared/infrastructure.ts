@@ -17,6 +17,8 @@ export type VsCodeBridgeMessageType =
   | "writeFilesResultFromExtension"
 
   // ─── Webview → Extension ───────────────────────────────────────────────
+  /** Webview is mounted and listening; the extension may send its initial messages. */
+  | "readyFromWebview"
   /** Webview asks the host to write generated source files into the workspace. */
   | "writeFilesFromWebview"
   /** Webview asks the host to save a `.map` / `.cfg` configuration file. */

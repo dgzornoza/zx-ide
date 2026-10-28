@@ -37,9 +37,9 @@ function resolveCodeFileRoot(fileType: WriteFilesMessage['codeFiles'][number]['f
 /**
  * Abstract base for all "webview" commands.
  *
- * Handles the common lifecycle: create WebviewPanel → send InitMessage → send
- * AssetsListMessage (when the subclass opts in) → receive WriteFilesMessage
- * and write files to the workspace.
+ * Handles the common lifecycle: create WebviewPanel → wait for ReadyMessage →
+ * send InitMessage and AssetsListMessage (when the subclass opts in) → receive
+ * WriteFilesMessage and write files to the workspace.
  *
  * Subclasses must implement:
  *  - `getCommandName()` (from Command)
@@ -66,14 +66,8 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
   public async execute(..._params: unknown[]): Promise<void> {
     try {
       this.panel = await this.createWebViewPanel();
+      // The initial messages are sent when the page answers `readyFromWebview`.
       this._subscriptions.push(this.panel.webview.onDidReceiveMessage(this.onDidReceiveMessage));
-
-      const projectType = await FeaturesService.getProjectType();
-      this.postToWebview({ messageType: 'initFromExtension', projectType });
-
-      if (this.requiresAssetsList()) {
-        await this.postAssetsList();
-      }
     } catch (error) {
       vscode.window.showErrorMessage(vscode.l10n.t('Error opening {0}: {1}', this.panelTitle, String(error)));
     }
@@ -115,6 +109,20 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
     void this.panel?.webview.postMessage(message);
   }
 
+  /** Sends the messages a page needs on start. Runs on every `readyFromWebview`, so a reloaded page is initialised again. */
+  private async postInitialMessages(): Promise<void> {
+    try {
+      const projectType = await FeaturesService.getProjectType();
+      this.postToWebview({ messageType: 'initFromExtension', projectType });
+
+      if (this.requiresAssetsList()) {
+        await this.postAssetsList();
+      }
+    } catch (error) {
+      vscode.window.showErrorMessage(vscode.l10n.t('Error opening {0}: {1}', this.panelTitle, String(error)));
+    }
+  }
+
   private async postAssetsList(): Promise<void> {
     if (!this.panel) {
       return;
@@ -153,6 +161,7 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
 
   /** Single dispatcher for the webview → extension contract: one handler per message type. */
   private readonly webviewMessageHandlers: MessageHandlers<WebviewToExtensionMessage> = {
+    readyFromWebview: () => this.postInitialMessages(),
     writeFilesFromWebview: (message) => this.writeFiles(message),
     saveMapFromWebview: (message) => this.onSaveMap(message),
     readAssetRequestFromWebview: (message) => this.handleReadAssetRequest(message),

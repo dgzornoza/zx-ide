@@ -46,6 +46,8 @@ The message contract lives in `projects/shared/bridge-messages.ts` (`ExtensionTo
 
 Receive extension messages only through `subscribeToExtensionMessage(messageType, handler)` from `src/bridge/extension-messages.ts`: it owns the single `window` `message` listener and routes each message by `messageType`. Never add a `window.addEventListener('message', ...)` of your own. Subscribe in `onMounted` and call the returned unsubscribe function in `onBeforeUnmount`.
 
+Every page `main.ts` mounts through `mountWebviewApp(App)` (`src/bridge/mount-webview-app.ts`), never `createApp(...).mount(...)` directly: after `mount()` (all `onMounted` hooks have run) it posts `readyFromWebview`, and the extension sends `initFromExtension` and the assets list only after that message.
+
 ## Vue conventions
 
 - **Always Composition API with `<script setup lang="ts">`.** No Options API.

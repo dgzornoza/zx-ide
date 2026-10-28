@@ -2,6 +2,7 @@ import type {
   AssetsListMessage,
   InitMessage,
   ReadAssetRequestMessage,
+  ReadyMessage,
   ReadAssetResponseMessage,
   SaveMapMessage,
   WriteFilesMessage,
@@ -13,7 +14,7 @@ import type { VsCodeBridgeMessage } from "./infrastructure";
 export type ExtensionToWebviewMessage = InitMessage | AssetsListMessage | ReadAssetResponseMessage | WriteFilesResultMessage;
 
 /** Every message a webview may post to the extension. */
-export type WebviewToExtensionMessage = WriteFilesMessage | SaveMapMessage | ReadAssetRequestMessage;
+export type WebviewToExtensionMessage = ReadyMessage | WriteFilesMessage | SaveMapMessage | ReadAssetRequestMessage;
 
 /** The message of `TMessage` whose discriminator is `TMessageType`. */
 export type MessageOfType<TMessage extends VsCodeBridgeMessage, TMessageType extends TMessage["messageType"]> = Extract<

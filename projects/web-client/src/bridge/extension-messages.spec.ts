@@ -14,6 +14,7 @@ function postFromExtension(data: unknown) {
 describe('dispatchMessage', () => {
   function createHandlers(): MessageHandlers<WebviewToExtensionMessage> {
     return {
+      readyFromWebview: vi.fn(),
       writeFilesFromWebview: vi.fn(),
       saveMapFromWebview: vi.fn(),
       readAssetRequestFromWebview: vi.fn(),

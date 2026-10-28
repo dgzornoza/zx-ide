@@ -75,6 +75,15 @@ export interface WriteFilesMessage extends VsCodeBridgeMessage {
   codeFiles: FileEntry[];
 }
 
+/**
+ * Webview → extension. Posted once the page is mounted and subscribed to
+ * extension messages; the extension sends InitMessage and AssetsListMessage
+ * only after it, so no initial message is lost.
+ */
+export interface ReadyMessage extends VsCodeBridgeMessage {
+  messageType: "readyFromWebview";
+}
+
 /** Extension → webview. Outcome of a WriteFilesMessage. */
 export interface WriteFilesResultMessage extends VsCodeBridgeMessage {
   messageType: "writeFilesResultFromExtension";
