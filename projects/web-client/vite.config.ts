@@ -32,6 +32,7 @@ export default defineConfig({
   resolve: {
     alias: {
       src: path.resolve(__dirname, "src"),
+      externalShared: path.resolve(__dirname, "../shared"),
       // Use the runtime-only build of vue-i18n. The default `vue-i18n.mjs`
       // includes the message compiler, which calls `new Function()` to evaluate
       // compiled locale messages — that violates the strict CSP that VS Code

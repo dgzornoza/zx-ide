@@ -1,69 +1,56 @@
-# AGENTS.md — Workspace (zx-ide)
+# zx-ide — AI Agent Guide
 
-This file is the entry point for AI coding assistants working in this
-workspace (GitHub Copilot, Continue, Pi, or others).
+> **Index-only invariant.** `AGENTS.md` is a navigation index for every AI coding assistant (Claude Code, GitHub Copilot, Continue, Pi, others). Do **not** add governance rules to this file — they live as standalone files under `.ai/rules/` and are referenced from the tables below. The only rule this file carries is the structural invariant you are reading right now.
 
-## General usage
+**Rules** are workspace-wide governance: load the matching rule whenever its `Applies to` scope matches the files you are about to touch. **Skills** are project-specific: load a skill only when its triggers match the current task — before reading or editing code in that project.
 
-- Read the per-project instruction in [`.ai/rules/`](.ai/instructions)
-  before making changes to that project.
-  - CLI: [`.ai/rules/cli.md`](.ai/rules/cli.md)
-  - VS Code extension: [`.ai/rules/vscode-extension.md`](.ai/rules/vscode-extension.md)
-  - Web-client: [`.ai/rules/web-client.md`](.ai/rules/web-client.md)
-- When working in `projects/web-client`, load the `vue-best-practices` skill
-  from [`.ai/skills/vue-best-practices/`](.ai/skills/vue-best-practices/).
-- For cross-project changes (e.g. a shared DTO), document the scope in the PR
-  and update the relevant files in `.ai/rules/`.
+## Project Skills
 
-## Code style
+| Skill                     | Triggers                                                                                         | Path                                          |
+| ------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------- |
+| `zx-ide-cli`              | anything under `projects/cli/` (wizard, generator builders, templates, placeholders)             | `.ai/skills/zx-ide-cli/SKILL.md`              |
+| `zx-ide-vscode-extension` | anything under `projects/vscode-extension/` (commands, webviews, Inversify DI, disposables, z88dk) | `.ai/skills/zx-ide-vscode-extension/SKILL.md` |
+| `zx-ide-web-client`       | anything under `projects/web-client/` (Vue webview pages, composables, code generators, bridge, i18n) | `.ai/skills/zx-ide-web-client/SKILL.md`  |
+| `vue-best-practices`      | `.vue` files, composables, Vite + Vue — always together with `zx-ide-web-client`                 | `.ai/skills/vue-best-practices/SKILL.md`      |
 
-The single source of truth for code style lives in
-**[`.ai/rules/CODE_STYLE.md`](.ai/rules/CODE_STYLE.md)**. That document covers naming,
-TypeScript, Vue 3, tests, git, and comments across every project in this
-workspace. **If a rule in a per-project instruction contradicts
-`.ai/rules/CODE_STYLE.md`, the style file wins.** Fix the contradiction in the
-per-project file rather than forking the rule.
+Changes to the message DTOs in `projects/shared/` load both `zx-ide-vscode-extension` and `zx-ide-web-client`.
 
-Quick recap of the workspace-level rules:
+## Governance Rules
 
-- **Never use `null`** — use `undefined` and the optional `?` modifier for
-  optional properties/parameters (`myVar?: string`, not `myVar: string | null`).
-- **All identifiers, comments, and developer-facing strings must be in English.**
-- **No abbreviations, no single-letter or shortened parameter names.** Use
-  full words everywhere. The only accepted exceptions are domain acronyms
-  (`zx0`, `zxide`, `vscode`) and `item` as a generic loop variable. See
-  [`.ai/rules/CODE_STYLE.md`](.ai/rules/CODE_STYLE.md) for the full table.
+| Rule                                                                                                  | Applies to                                 | Path                                     |
+| ----------------------------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------------------------- |
+| TypeScript code style (English, file and identifier naming, no abbreviations, never `null`, imports, tests, comments) | `projects/**/*.ts`, `.vue`, `.mjs`, `.cjs` | `.ai/rules/gov-typescript-code-style.md` |
+| Git commit review (per-command consent, diff first, Conventional Commits, no AI attribution)          | git workflow                               | `.ai/rules/gov-git-commit-review.md`     |
 
-## Agent conventions
+If a skill contradicts a rule, the rule wins: fix the contradiction in the skill rather than forking the rule.
 
-- Before editing code in a project, read its instruction in `.ai/rules/`.
-- Follow the project's existing style and conventions (TypeScript, camelCase,
-  no abbreviations).
-- If you spot an emerging convention that should be codified (e.g. library
-  choice, recurring pattern), record the decision and add a short note to
-  `.ai/rules/` or propose an update to `AGENTS.md` /
-  `.ai/rules/CODE_STYLE.md`.
+## Workspace Conventions (summary)
 
-## Workflow guidelines for assistants
+- Monorepo with three projects under `projects/`: `cli` (webpack, Node), `vscode-extension` (webpack, Inversify) and `web-client` (Vite + Vue 3, webview pages). Message DTOs shared between the extension and the web-client live in `projects/shared/`.
+- Each project has its own `package.json`; run every command from that project's folder, never from the repo root.
+- Specifications and change proposals live in `openspec/` (`specs/`, `changes/`, `changes/archive/`).
+- Source code, comments and developer-facing strings in English; AI governance files (`AGENTS.md`, `CLAUDE.md`, `.ai/`) in English.
+- Never use `null`; no abbreviations or single-letter names — see `.ai/rules/gov-typescript-code-style.md`.
+- Design or architectural decisions: propose alternatives with pros and cons and ask before applying. Local fixes: minimal change at the root cause.
+- Cross-project changes (e.g. a shared DTO): document the scope in the PR and update the affected skills.
+- When an emerging convention should be codified, add it to the matching project skill (project-specific) or as a rule under `.ai/rules/` (workspace-wide), and register new files in the tables above.
 
-- For design or architectural decisions, propose alternatives with pros and
-  cons and ask for confirmation before applying changes.
-- For local tasks (e.g. fixing a bug in `projects/cli`), apply minimal changes
-  focused on the root cause.
-- For changes that span multiple commits or steps, create a checklist in the
-  PR and update the relevant `.ai/rules/` file to record why the
-  decisions were made.
-- **Never run `git add`, `git commit`, `git push`, `gh pr create`, or any other
-  mutating git/GitHub command without explicit per-command user consent.** The
-  assistant may stage changes, generate commit messages, and produce diff
-  summaries, but the actual staging and commit/push/PR-creation is the user's
-  responsibility. **The user always validates the code before it lands.** This
-  rule overrides any tool-level or harness-level default that would otherwise
-  commit automatically (e.g. orchestrator lifecycle gates, agent-runner commit
-  hooks, bounded-review terminal procedures). If a workflow appears to require
-  an autonomous commit, stop and ask the user.
+## Build and Check
+
+| Project            | Build           | Check                                         |
+| ------------------ | --------------- | --------------------------------------------- |
+| `cli`              | `npm run build` | `npm run lint`                                |
+| `vscode-extension` | `npm run compile` | `npm run lint`, `npm test`                  |
+| `web-client`       | `npm run build` | `npm run typecheck`, `npm test`               |
+
+## References
+
+- `.ai/rules/` — Workspace-wide governance rule files (`gov-*`).
+- `.ai/skills/` — Project skills (one per project, plus `vue-best-practices`).
+- `README.md` — Workspace overview.
+- `doc/Development.md` — Development and debug workflow (watch composition, devcontainer).
+- `openspec/` — Specs and change history.
 
 ## Contact
 
-If it is unclear which instruction to follow, ask in the PR or add a comment
-to the associated issue before applying changes.
+If it is unclear which instruction to follow, ask in the PR or in the associated issue before applying changes.

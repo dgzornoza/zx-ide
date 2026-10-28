@@ -25,12 +25,11 @@
             ],
             "externalShared/*": [
                 "../shared/*"
-            ],
+            ]
         }
     },
     "include": [
         "src/**/*",
-        "index.html",
-        "extract-graphics.html"
+        "*.html"
     ]
 }

@@ -5,16 +5,17 @@ import tseslint from 'typescript-eslint';
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
+  { ignores: ['dist/**', 'out/**', 'media/**', 'node_modules/**', '.vscode-test/**'] },
   { files: ['**/*.{js,mjs,cjs,ts}'] },
-  { languageOptions: { globals: globals.browser } },
+  { languageOptions: { globals: globals.node } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  airbnbTypescript,
   {
+    files: ['**/*.ts'],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        project: './tsconfig.json', // Path to your tsconfig.json file
+        project: './tsconfig.json',
       },
     },
     rules: {

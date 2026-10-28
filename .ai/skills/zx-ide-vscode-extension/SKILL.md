@@ -1,0 +1,77 @@
+---
+name: zx-ide-vscode-extension
+description: "Trigger: any change under projects/vscode-extension (commands, webview panels, Inversify DI, disposables, z88dk/sjasmplus services, workspace file access, package.json contributions, l10n). Architecture, conventions and workflows of the zx-ide VS Code extension."
+metadata:
+  author: "dgonzalez"
+  version: "1.0"
+---
+
+# zx-ide VS Code extension
+
+## Activation Contract
+
+Load when reading or editing anything under `projects/vscode-extension/`, or when changing the message DTOs in `projects/shared/` that the extension exchanges with the web-client.
+
+Code style rules live in `.ai/rules/gov-typescript-code-style.md`; this skill adds the extension-specific architecture and conventions on top of them.
+
+## Big picture
+
+- VS Code extension bundled with webpack (entry `src/extension.ts`). Activation is gated by `workspaceContains:.zxide.json` in `package.json`.
+- Dependency injection is centralized in `src/inversify.config.ts` using Inversify; most classes are `@injectable()` and registered in the container. When you add a new command or service, bind it there.
+- The extension detects the project type by reading `.zxide.json` and sets the VS Code context key `ZxIdeProjectType` in `src/core/services/features.service.ts`. That context drives feature activation.
+
+## Core flows and services
+
+- Commands inherit from the `Command` base, which registers the VS Code command in its constructor (`src/core/abstractions/command.ts`). Creating a command means: define the class → bind it in Inversify → make sure it is resolved in `activate()` (`src/extension.ts`). A command that is bound but never resolved is never registered.
+- Webview commands (`attach-project-tiles`, `attach-project-sprites`, `attach-project-map-tileset`, `create-sprites`) extend `WebviewBaseCommand` (`src/commands/webview-base.cmd.ts`), which owns the panel lifecycle, message routing and workspace file writes. Subclasses only provide the view type, title and HTML page of the web-client entry they host.
+- Messages exchanged with the web-client are typed by the DTOs in `projects/shared/` (`infrastructure.ts`, `extract-graphics/extract-graphics-dtos.ts`). Any new message goes there first, never as an ad-hoc object literal.
+- `CreateProjectCmd` runs the bundled CLI (`zx-ide-cli.js`) in a terminal, writes an output JSON file, then reopens the workspace (`src/commands/create-project.cmd.ts`). The CLI bundle is copied from `../cli/dist` by webpack (`webpack.config.js`).
+- Z88DK projects: after build tasks end, the extension moves `.lis/.sym/.o` files into `bin/` and emits a build report by parsing the `.map` file (`src/z88dk/services/z88dk-project.service.ts`, `src/z88dk/services/z88dk-report.service.ts`).
+- Z88DK asm debugging: when `zxide.z88dk.useAsmDebug` is enabled, breakpoints are remapped from C/ASM sources to the generated `.source.lis` file (`src/z88dk/services/z88dk-asm-breakpoints.service.ts`), using the language strategies in `src/z88dk/services/z88dk-asm-breakpoints-language.strategy.ts`.
+
+## Project conventions
+
+- **Disposables:** every long-lived object extends `Disposable` and pushes its subscriptions into `_subscriptions` (`src/core/abstractions/disposable.ts`). The Inversify `onActivation` hook subscribes disposables automatically. Every event listener you register must end up in `_subscriptions`.
+- **JSONC files:** workspace file edits go through `WorkspaceHelpers.writeWorkspaceJsonFile` to preserve JSONC comments when mutating files like `.vscode/launch.json` (`src/core/helpers/workspace-helpers.ts`).
+- **Array extension:** the global `groupBy` array extension is added in `src/core/helpers/array-helpers.ts`. Do not redefine or shadow it.
+- **Path aliases:** use the aliases (`@core/*`, `@z88dk/*`, etc.) configured in `tsconfig.json` and `webpack.config.js`.
+- **User-visible text:** command titles and configuration descriptions come from `package.nls.json` / `package.nls.es.json`; runtime strings go through `vscode.l10n.t` with entries in `l10n/`.
+- **Output and terminal:** centralized in `OutputChannelService` and `TerminalService` (`src/core/services/output-channel.service.ts`, `src/core/services/terminal.service.ts`). Reuse them for new user-facing output or terminal flows.
+
+### Helper-only filesystem and workspace access
+
+All filesystem and workspace-directory access **MUST** go through the helper classes in `src/core/helpers/`:
+
+- `FileHelpers` (`src/core/helpers/file-helpers.ts`) wraps `vscode.workspace.fs.*` for files and directories: `fileExists`, `readFile`, `readFileBytes`, `readDirectory`, `writeFile`. If a new filesystem operation is needed and no existing method fits, **add the method to `FileHelpers` first**; never call `vscode.workspace.fs.*` directly from command or service code.
+- `WorkspaceHelpers` (`src/core/helpers/workspace-helpers.ts`) builds workspace-relative `vscode.Uri` instances and delegates the filesystem work to `FileHelpers`. Use `getWorkspaceUri(...segments)` to obtain a URI; never reach into `vscode.workspace.workspaceFolders` or call the private `findZxideWorkspaceFolder` helper from outside `WorkspaceHelpers`.
+
+Domain-specific helpers that need filesystem access (`AssetsHelpers`, etc.) compose the two helpers above and never bypass them. This keeps the abstraction surface small, allows swapping the underlying API (for tests) and centralizes logging and error handling.
+
+The only legitimate direct `vscode.workspace.fs.*` callers are `FileHelpers` itself and the few call sites that operate on a URI the caller already built (for example `vscode.workspace.openTextDocument`, or `vscode.workspace.fs.createDirectory` inside `WebviewBaseCommand.onDidReceiveMessage`, which creates the parent directory of a write target on demand).
+
+### File naming
+
+- **Commands:** `.cmd.ts` suffix, and the name mirrors the VS Code command ID in kebab-case (`attach-project-tiles.cmd.ts`, `create-project.cmd.ts`). Base/abstract command classes also use `.cmd.ts` (`webview-base.cmd.ts`). Never use `-command` as a suffix.
+- **Services:** `*.service.ts`. **Helpers:** `*-helpers.ts`. **Decorators:** `*.decorator.ts`. **Strategies:** `*.strategy.ts`. **Models:** `*.model.ts`.
+- Always follow the naming pattern of the existing files in the same folder before inventing a new one.
+
+## `.zxide.json` structure
+
+The `ZxideFile` interface in `src/core/infrastructure.ts` defines the schema of `.zxide.json`:
+
+- `template-version`: version of the template the project was created from.
+- `project.type`: project type (`'sjasmplus'` or `'z88dk'`).
+- `project.assetsGraphicsPaths`: optional array of workspace-relative paths to graphics asset files.
+- `project.graphicsDataFolderPath`: optional folder where generated graphics source files are stored.
+
+The CLI writes this file (`projects/cli/src/infrastructure.ts`); keep both definitions in sync.
+
+## Workflows
+
+Run every command from `projects/vscode-extension/`:
+
+- Build/watch: `npm run watch` (also builds the CLI via `npm --prefix ../cli run build`).
+- Compile: `npm run compile` (webpack).
+- Package: `npm run package` builds the CLI, then the webpack production bundle.
+- Tests: `npm test` (`pretest` runs `compile-tests`, `compile` and `lint` first).
+- Lint: `npm run lint`.
