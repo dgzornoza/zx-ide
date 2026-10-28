@@ -1,11 +1,13 @@
 import { Disposable } from '@core/abstractions/disposable';
 import { FileHelpers } from '@core/helpers/file-helpers';
+import { waitForFileCreation } from '@core/helpers/wait-for-file';
 import * as fs from 'fs';
 import { injectable } from 'inversify';
-import * as path from 'path';
 import * as vscode from 'vscode';
 
 const DEFAULT_TERMINAL_NAME = 'Zx-Ide';
+// The command may run an interactive wizard, so the user gets a generous time to answer it.
+const RESULT_FILE_TIMEOUT_MILLISECONDS = 30 * 60 * 1000;
 
 @injectable()
 export class TerminalService extends Disposable {
@@ -41,32 +43,12 @@ export class TerminalService extends Disposable {
     return Promise.reject(new Error(vscode.l10n.t('Could not select terminal')));
   }
 
-  private waitForResultFileUpdate(outputFilePath: string): Promise<string> {
-    return new Promise<string>((resolve, reject) => {
-      const outputFolder = path.dirname(outputFilePath);
-      const outputFilename = path.basename(outputFilePath);
-      fs.rmSync(outputFilePath, { force: true });
-
-      const watcher = fs.watch(outputFolder, (eventType, filename) => {
-        if (eventType === 'rename' && filename === outputFilename) {
-          watcher.close();
-
-          fs.access(outputFilePath, fs.constants.F_OK, (error) => {
-            if (!error) {
-              FileHelpers.readFile(outputFilePath)
-                .then((content) => {
-                  FileHelpers.clearTempFolder();
-                  resolve(content);
-                })
-                .catch((error) => {
-                  reject(error);
-                });
-            }
-          });
-        }
-      });
-
-      watcher.on('error', reject);
-    });
+  /** Waits (with a timeout) for the command to create `outputFilePath` and returns its content. */
+  private async waitForResultFileUpdate(outputFilePath: string): Promise<string> {
+    fs.rmSync(outputFilePath, { force: true });
+    await waitForFileCreation(outputFilePath, RESULT_FILE_TIMEOUT_MILLISECONDS);
+    const content = await FileHelpers.readFile(outputFilePath);
+    FileHelpers.clearTempFolder();
+    return content;
   }
 }

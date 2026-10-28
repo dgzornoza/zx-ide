@@ -29,8 +29,9 @@ export class FileHelpers {
 
   public static clearTempFolder(): void {
     const tempFolder = FileHelpers.getTempFolder();
-    fs.rm(tempFolder, { recursive: true, force: true }, (err) => {
-      if (err) throw err;
+    fs.rm(tempFolder, { recursive: true, force: true }, (error) => {
+      // Throwing inside the callback would crash the extension host; a leftover temp folder is harmless.
+      if (error) Logger.error(`Error clearing temp folder '${tempFolder}': ${error}`);
     });
   }
 

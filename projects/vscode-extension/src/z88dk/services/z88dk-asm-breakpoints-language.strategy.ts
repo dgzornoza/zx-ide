@@ -1,6 +1,7 @@
 import { FileHelpers } from '@core/helpers/file-helpers';
 import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
 import * as vscode from 'vscode';
+import { findAsmLineInLisFile, isValidLisFileLineForBreakpoint } from './lis-file-lines';
 
 export class BreakpointsLanguageFactory {
   static getInstance(breakpointPath: string): BreakpointsLanguageStrategy | undefined {
@@ -26,13 +27,6 @@ export abstract class BreakpointsLanguageStrategy {
     }
 
     return filePath;
-  }
-
-  protected isValidLisFileLineForBreakpoint(lineText: string): boolean {
-    // valid assembler line contains at least line number, opcode and operands
-    const regex = /\b[0-9a-fA-F]+\b/g;
-    const numberGroups = lineText.match(regex);
-    return (numberGroups && numberGroups.length >= 2) ?? false;
   }
 
   protected createBreakpointFromLineNumber(sourcePath: string, lineNumber: number): vscode.SourceBreakpoint {
@@ -73,13 +67,13 @@ export class BreakpointsCLanguageStrategy extends BreakpointsLanguageStrategy {
 
       // c label in .lis file line is in base 0, so add 1 (label generated (ie: src/main.c:10:)
       const clabelInLisFile = `${breakpointFilePath}:${breakpoint.location.range.start.line + 1}:`;
-      let lineNumber = FileHelpers.getLineNumberOfRegex(lisFileTextLines, new RegExp(clabelInLisFile));
+      const labelLineNumber = FileHelpers.getLineNumberOfRegex(lisFileTextLines, new RegExp(clabelInLisFile));
 
       // find c label in lis file (in lis file only valid c comments are followed by assembler code, so add 1)
-      lineNumber += 1;
+      const lineNumber = labelLineNumber === -1 ? undefined : labelLineNumber + 1;
 
       const mappedBreakpoint: [vscode.SourceBreakpoint, vscode.SourceBreakpoint | undefined] =
-        lineNumber && this.isValidLisFileLineForBreakpoint(lisFileTextLines[lineNumber])
+        lineNumber !== undefined && isValidLisFileLineForBreakpoint(lisFileTextLines[lineNumber])
           ? [breakpoint, this.createBreakpointFromLineNumber(lisFilePath, lineNumber)]
           : [breakpoint, undefined];
 
@@ -106,10 +100,10 @@ export class BreakpointsAsmLanguageStrategy extends BreakpointsLanguageStrategy 
       // get asm code from breakpoint (line is in base 0, so add 1)
       const asmLineText = sourceFileTextLines[breakpoint.location.range.start.line];
 
-      const lineNumber = lisFileTextLines.findIndex((item) => item.includes(asmLineText));
+      const lineNumber = findAsmLineInLisFile(lisFileTextLines, asmLineText);
 
       const mappedBreakpoint: [vscode.SourceBreakpoint, vscode.SourceBreakpoint | undefined] =
-        lineNumber && this.isValidLisFileLineForBreakpoint(lisFileTextLines[lineNumber])
+        lineNumber !== undefined && isValidLisFileLineForBreakpoint(lisFileTextLines[lineNumber])
           ? [breakpoint, this.createBreakpointFromLineNumber(lisFilePath, lineNumber)]
           : [breakpoint, undefined];
 

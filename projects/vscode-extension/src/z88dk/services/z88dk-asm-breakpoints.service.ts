@@ -3,6 +3,7 @@ import { BindThis } from '@core/decorators/bind-this.decorator';
 import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
 import { BUILD_DIRECTORY, SOURCE_FILE_EXTENSIONS } from '@z88dk/infrastructure';
 import { MappedBreakpointsModel } from '@z88dk/models/mapped-breakpoints.model';
+import { OwnBreakpointChanges } from '@z88dk/models/own-breakpoint-changes';
 import { BreakpointsLanguageFactory } from '@z88dk/services/z88dk-asm-breakpoints-language.strategy';
 import { injectable } from 'inversify';
 import * as path from 'node:path';
@@ -18,7 +19,10 @@ import * as vscode from 'vscode';
 @injectable()
 export class Z88dkAsmBreakpointService extends Disposable {
   private lisFilePath?: string;
-  private isUpdatingBreakpoints = false;
+  // breakpoints added/removed by this service; their change events are ignored
+  private readonly ownBreakpointChanges = new OwnBreakpointChanges();
+  // debug listeners, registered only while the service is enabled
+  private debugSubscriptions: vscode.Disposable[] = [];
 
   // dictionary with mapped breakpoints, key is source breakpoint and value is .lis file breakpoint
   private readonly mappedBreakpoints = new MappedBreakpointsModel();
@@ -28,19 +32,28 @@ export class Z88dkAsmBreakpointService extends Disposable {
     super();
   }
 
+  /** Starts listening to debug sessions and breakpoint changes. Calling it again while enabled does nothing. */
   enable(): void {
-    this._subscriptions.push(
+    if (this.debugSubscriptions.length > 0) {
+      return;
+    }
+    this.debugSubscriptions = [
       vscode.debug.onDidStartDebugSession(this.onDidStartDebugSession),
       vscode.debug.onDidTerminateDebugSession(this.onDidTerminateDebugSession),
-      vscode.debug.onDidChangeBreakpoints(this.onBreakpointsChange)
-    );
+      vscode.debug.onDidChangeBreakpoints(this.onBreakpointsChange),
+    ];
   }
 
+  /** Stops listening and forgets the mapped breakpoints. Calling it again while disabled does nothing. */
   disable(): void {
     this.mappedBreakpoints.clear();
+    this.ownBreakpointChanges.clear();
+    this.debugSubscriptions.splice(0).forEach((subscription) => subscription.dispose());
+  }
 
-    this._subscriptions.forEach((subscription) => subscription.dispose());
-    this._subscriptions = [];
+  public override dispose(): void {
+    this.disable();
+    super.dispose();
   }
 
   @BindThis
@@ -62,9 +75,13 @@ export class Z88dkAsmBreakpointService extends Disposable {
 
   @BindThis
   private async onBreakpointsChange(event: vscode.BreakpointsChangeEvent): Promise<void> {
-    if (!this.isDebugging || this.isUpdatingBreakpoints) return;
+    if (!this.isDebugging) return;
 
-    const { added, removed, changed } = event;
+    const added = this.ownBreakpointChanges.takeExternal(event.added);
+    const removed = this.ownBreakpointChanges.takeExternal(event.removed);
+    const { changed } = event;
+    if (added.length === 0 && removed.length === 0) return;
+
     if (added.length > 0) {
       const breakpoints = added.filter((bp) => bp instanceof vscode.SourceBreakpoint);
       await this.mapSourceBreakpointsToLisFileBreakpoints(breakpoints);
@@ -89,26 +106,35 @@ export class Z88dkAsmBreakpointService extends Disposable {
    * @param breakpoints list of source code breakpoints
    */
   private updateMappedBreakpointsInFiles(): void {
-    this.isUpdatingBreakpoints = true;
-
-    for (const [sourceBreakpoint, lisBreakpoint] of this.mappedBreakpoints.mappedBreakpoints) {
-      // valid breakpoint
+    // iterate a copy: invalid and removed entries are deleted from the model while looping
+    for (const [sourceBreakpoint, lisBreakpoint] of [...this.mappedBreakpoints.mappedBreakpoints]) {
+      // valid breakpoint (added once; it stays registered in vscode)
       if (sourceBreakpoint && lisBreakpoint) {
-        vscode.debug.addBreakpoints([lisBreakpoint]);
+        if (!vscode.debug.breakpoints.includes(lisBreakpoint)) {
+          this.changeBreakpoint('add', lisBreakpoint);
+        }
 
         // invalid breakpoint location in source file
       } else if (sourceBreakpoint && !lisBreakpoint) {
-        vscode.debug.removeBreakpoints([sourceBreakpoint]);
+        this.changeBreakpoint('remove', sourceBreakpoint);
         this.mappedBreakpoints.removeMappedBreakpoint(sourceBreakpoint, lisBreakpoint);
 
         // removed breakpoint from source file
       } else if (!sourceBreakpoint && lisBreakpoint) {
-        vscode.debug.removeBreakpoints([lisBreakpoint]);
+        this.changeBreakpoint('remove', lisBreakpoint);
         this.mappedBreakpoints.removeMappedBreakpoint(sourceBreakpoint, lisBreakpoint);
       }
     }
+  }
 
-    this.isUpdatingBreakpoints = false;
+  /** Adds or removes `breakpoint` in vscode, recording it so the resulting change event is ignored. */
+  private changeBreakpoint(action: 'add' | 'remove', breakpoint: vscode.SourceBreakpoint): void {
+    this.ownBreakpointChanges.track([breakpoint]);
+    if (action === 'add') {
+      vscode.debug.addBreakpoints([breakpoint]);
+    } else {
+      vscode.debug.removeBreakpoints([breakpoint]);
+    }
   }
 
   private async getLisFilePath(): Promise<string> {
