@@ -1,15 +1,28 @@
 import * as assert from 'assert';
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
+import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
-// import * as myExtension from '../../extension';
 
-suite('Extension Test Suite', () => {
-  vscode.window.showInformationMessage('Start all tests.');
+interface ExtensionManifest {
+  publisher: string;
+  name: string;
+  contributes: { commands: { command: string }[] };
+}
 
-  test('Sample test', () => {
-    assert.strictEqual(-1, [1, 2, 3].indexOf(5));
-    assert.strictEqual(-1, [1, 2, 3].indexOf(0));
+const extensionRoot = path.resolve(__dirname, '../../../');
+const manifest: ExtensionManifest = JSON.parse(fs.readFileSync(path.join(extensionRoot, 'package.json'), 'utf8'));
+
+suite('Extension activation', () => {
+  test('registers every command contributed in package.json', async () => {
+    const extension = vscode.extensions.getExtension(`${manifest.publisher}.${manifest.name}`);
+    assert.ok(extension, 'extension not found');
+    await extension.activate();
+
+    const registeredCommands = await vscode.commands.getCommands(true);
+    const missingCommands = manifest.contributes.commands
+      .map((contribution) => contribution.command)
+      .filter((command) => !registeredCommands.includes(command));
+
+    assert.deepStrictEqual(missingCommands, []);
   });
 });

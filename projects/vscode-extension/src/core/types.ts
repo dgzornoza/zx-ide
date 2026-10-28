@@ -2,6 +2,7 @@ const Types = {
   ExtensionContext: Symbol.for('ExtensionContext'),
   IStatusBar: Symbol.for('IStatusBar'),
 
+  Command: Symbol.for('Command'),
   CreateProjectCmd: Symbol.for('CreateProjectCmd'),
   OpenHelpCmd: Symbol.for('OpenHelpCmd'),
   AttachProjectTilesCmd: Symbol.for('AttachProjectTilesCmd'),

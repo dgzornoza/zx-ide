@@ -1,10 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { AttachProjectSpritesCmd } from '@commands/attach-project-sprites.cmd';
-import { AttachProjectTilesCmd } from '@commands/attach-project-tiles.cmd';
-import { CreateProjectCmd } from '@commands/create-project.cmd';
-import { CreateSpritesCmd } from '@commands/create-sprites.cmd';
-import { OpenHelpCmd } from '@commands/open-help.cmd';
+import { Command } from '@core/abstractions/command';
 import '@core/helpers/array-helpers';
 import { Logger } from '@core/logger';
 import { FeaturesService } from '@core/services/features.service';
@@ -19,12 +15,8 @@ import { InversifyConfig } from './inversify.config';
 export function activate(context: vscode.ExtensionContext) {
   InversifyConfig.initialize(context);
 
-  // Register commands
-  InversifyConfig.container.get<CreateProjectCmd>(Types.CreateProjectCmd);
-  InversifyConfig.container.get<OpenHelpCmd>(Types.OpenHelpCmd);
-  InversifyConfig.container.get<AttachProjectTilesCmd>(Types.AttachProjectTilesCmd);
-  InversifyConfig.container.get<AttachProjectSpritesCmd>(Types.AttachProjectSpritesCmd);
-  InversifyConfig.container.get<CreateSpritesCmd>(Types.CreateSpritesCmd);
+  // Resolving a command registers it in VS Code (see Command constructor).
+  InversifyConfig.container.getAll<Command<unknown>>(Types.Command);
 
   FeaturesService.getProjectType()
     .then((projectType) => {
@@ -37,7 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
           break;
       }
     })
-    .catch((error: unknown) => Logger.error(`Error activating project services: ${error}`));
+    .catch((error: unknown) => Logger.error(`Error activating project services: ${error instanceof Error ? error.stack : error}`));
 
   //  InversifyConfig.container.get<CreateProjectCmd>('IStatusBar');
 

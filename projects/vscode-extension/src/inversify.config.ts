@@ -5,6 +5,7 @@ import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { CreateSpritesCmd } from '@commands/create-sprites.cmd';
 import { OpenHelpCmd } from '@commands/open-help.cmd';
 import { IStatusBar, StatusBar } from '@components/status-bar.component';
+import { Command } from '@core/abstractions/command';
 import { IDisposable } from '@core/abstractions/disposable';
 import { ConfigurationService } from '@core/services/configuration.service';
 import { OutputChannelService } from '@core/services/output-channel.service';
@@ -23,6 +24,15 @@ import * as vsc from 'vscode';
 export class InversifyConfig {
   private static _extensionContext: vsc.ExtensionContext;
   private static _container: inversify.Container;
+
+  private static readonly commands: [symbol, inversify.interfaces.Newable<Command<unknown>>][] = [
+    [Types.CreateProjectCmd, CreateProjectCmd],
+    [Types.OpenHelpCmd, OpenHelpCmd],
+    [Types.AttachProjectTilesCmd, AttachProjectTilesCmd],
+    [Types.AttachProjectSpritesCmd, AttachProjectSpritesCmd],
+    [Types.AttachProjectMapTilesetCmd, AttachProjectMapTilesetCmd],
+    [Types.CreateSpritesCmd, CreateSpritesCmd],
+  ];
 
   public static get container(): inversify.Container {
     return InversifyConfig._container;
@@ -52,42 +62,11 @@ export class InversifyConfig {
     //   .inSingletonScope()
     //   .onActivation(InversifyConfig._subscribe);
 
-    // Commands
-    InversifyConfig._container
-      .bind<CreateProjectCmd>(Types.CreateProjectCmd)
-      .to(CreateProjectCmd)
-      .inSingletonScope()
-      .onActivation(InversifyConfig._subscribe);
-
-    InversifyConfig._container
-      .bind<OpenHelpCmd>(Types.OpenHelpCmd)
-      .to(OpenHelpCmd)
-      .inSingletonScope()
-      .onActivation(InversifyConfig._subscribe);
-
-    InversifyConfig._container
-      .bind<AttachProjectTilesCmd>(Types.AttachProjectTilesCmd)
-      .to(AttachProjectTilesCmd)
-      .inSingletonScope()
-      .onActivation(InversifyConfig._subscribe);
-
-    InversifyConfig._container
-      .bind<AttachProjectSpritesCmd>(Types.AttachProjectSpritesCmd)
-      .to(AttachProjectSpritesCmd)
-      .inSingletonScope()
-      .onActivation(InversifyConfig._subscribe);
-
-    InversifyConfig._container
-      .bind<AttachProjectMapTilesetCmd>(Types.AttachProjectMapTilesetCmd)
-      .to(AttachProjectMapTilesetCmd)
-      .inSingletonScope()
-      .onActivation(InversifyConfig._subscribe);
-
-    InversifyConfig._container
-      .bind<CreateSpritesCmd>(Types.CreateSpritesCmd)
-      .to(CreateSpritesCmd)
-      .inSingletonScope()
-      .onActivation(InversifyConfig._subscribe);
+    // Commands: every command is also bound to Types.Command so activate() can register all of them.
+    for (const [type, commandClass] of InversifyConfig.commands) {
+      InversifyConfig._container.bind<Command<unknown>>(type).to(commandClass).inSingletonScope().onActivation(InversifyConfig._subscribe);
+      InversifyConfig._container.bind<Command<unknown>>(Types.Command).toService(type);
+    }
 
     // Providers
     // ...
