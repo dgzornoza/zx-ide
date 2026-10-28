@@ -12,11 +12,13 @@
 // - When `projectType` is missing (e.g. standalone browser mode), the refs
 //   stay at their defaults and remain user-editable.
 //
-// Non-init messages are ignored. The window `message` listener is registered
-// in `onMounted` and removed in `onBeforeUnmount`.
+// Non-init messages are ignored. The `initFromExtension` subscription is
+// registered in `onMounted` and removed in `onBeforeUnmount`.
 
 import type { CodeGenerationType, InitMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { onBeforeUnmount, onMounted, ref } from 'vue';
+
+import { subscribeToExtensionMessage } from 'src/bridge/extension-messages';
 
 export interface ProjectTypeLock {
   codeGenerationType: ReturnType<typeof ref<CodeGenerationType>>;
@@ -31,10 +33,7 @@ export function useProjectTypeLock() {
   const useZx0Compression = ref<boolean>(true);
   const isZx0CompressionReadOnly = ref(false);
 
-  const onWindowMessage = (event: MessageEvent) => {
-    const message = event.data as InitMessage | undefined;
-    if (message?.messageType !== 'initFromExtension') return;
-
+  const onInitMessage = (message: InitMessage) => {
     if (message.projectType === 'sjasmplus') {
       codeGenerationType.value = 'asm';
       isCodeGenerationTypeReadOnly.value = true;
@@ -50,12 +49,14 @@ export function useProjectTypeLock() {
     // defaults so standalone / dev-mode keeps working.
   };
 
+  let unsubscribe: (() => void) | undefined;
+
   onMounted(() => {
-    window.addEventListener('message', onWindowMessage);
+    unsubscribe = subscribeToExtensionMessage('initFromExtension', onInitMessage);
   });
 
   onBeforeUnmount(() => {
-    window.removeEventListener('message', onWindowMessage);
+    unsubscribe?.();
   });
 
   return {

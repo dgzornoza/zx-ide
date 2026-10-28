@@ -108,11 +108,9 @@ describe('useAssetsBridge', () => {
     expect(bridge.missing.value).toBe(false);
   });
 
-  it('removes the message listener on unmount and stops observing further messages', async () => {
-    const removeSpy = vi.spyOn(window, 'removeEventListener');
+  it('stops observing extension messages after unmount', async () => {
     const { bridge, wrapper } = setupHarness();
     wrapper.unmount();
-    expect(removeSpy).toHaveBeenCalledWith('message', expect.any(Function));
 
     // After unmount, dispatching a list message must NOT change the captured refs.
     dispatchList({

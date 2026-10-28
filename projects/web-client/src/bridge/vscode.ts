@@ -1,6 +1,8 @@
+import type { WebviewToExtensionMessage } from 'externalShared/bridge-messages';
+
 export type VscodeBridge = {
   isAvailable: boolean;
-  postMessage: (message: unknown) => void;
+  postMessage: (message: WebviewToExtensionMessage) => void;
 };
 
 // `acquireVsCodeApi` can only be called once per webview, calling it again

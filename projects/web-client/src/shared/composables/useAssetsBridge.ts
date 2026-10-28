@@ -15,17 +15,13 @@
 //   carries an `error` field.
 // - A response whose `requestId` does not match any pending request is
 //   ignored (no throw, refs unchanged).
-// - The window `message` listener is registered in `onMounted` and removed
-//   in `onBeforeUnmount`.
+// - The extension-message subscriptions are registered in `onMounted` and
+//   removed in `onBeforeUnmount`.
 
-import type {
-  AssetsEntry,
-  AssetsListMessage,
-  ReadAssetRequestMessage,
-  ReadAssetResponseMessage,
-} from 'externalShared/extract-graphics/extract-graphics-dtos';
+import type { AssetsEntry, ReadAssetRequestMessage, ReadAssetResponseMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { onBeforeUnmount, onMounted, Ref, ref } from 'vue';
 
+import { subscribeToExtensionMessage } from 'src/bridge/extension-messages';
 import { createVsCodeBridge } from 'src/bridge/vscode';
 import { base64ToBytes } from 'src/helpers/binary-utils';
 
@@ -56,20 +52,7 @@ export function useAssetsBridge(vscodeBridge: ReturnType<typeof createVsCodeBrid
     }
   }
 
-  function onWindowMessage(event: MessageEvent) {
-    const data = event.data as AssetsListMessage | ReadAssetResponseMessage | undefined;
-    if (!data || typeof data !== 'object') return;
-
-    if (data.messageType === 'assetsListFromExtension') {
-      assets.value = data.assets;
-      missing.value = data.missing === true;
-      return;
-    }
-
-    if (data.messageType === 'readAssetResponseFromExtension') {
-      decodeResponse(data);
-    }
-  }
+  const unsubscribers: (() => void)[] = [];
 
   function requestAssetBytes(path: string): Promise<Uint8Array> {
     const requestId = globalThis.crypto?.randomUUID?.() ?? `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -87,11 +70,17 @@ export function useAssetsBridge(vscodeBridge: ReturnType<typeof createVsCodeBrid
   }
 
   onMounted(() => {
-    window.addEventListener('message', onWindowMessage);
+    unsubscribers.push(
+      subscribeToExtensionMessage('assetsListFromExtension', (message) => {
+        assets.value = message.assets;
+        missing.value = message.missing === true;
+      }),
+      subscribeToExtensionMessage('readAssetResponseFromExtension', decodeResponse)
+    );
   });
 
   onBeforeUnmount(() => {
-    window.removeEventListener('message', onWindowMessage);
+    unsubscribers.splice(0).forEach((unsubscribe) => unsubscribe());
   });
 
   return { assets, missing, requestAssetBytes };

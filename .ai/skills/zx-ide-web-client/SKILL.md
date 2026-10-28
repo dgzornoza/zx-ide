@@ -40,9 +40,11 @@ Code style rules live in `.ai/rules/gov-typescript-code-style.md`; this skill ad
 
 ## VS Code bridge
 
-`src/bridge/vscode.ts` creates a `VscodeBridge` that wraps `acquireVsCodeApi()`. When running outside VS Code (standalone browser) it falls back to console logging.
+`src/bridge/vscode.ts` creates a `VscodeBridge` that wraps `acquireVsCodeApi()`. Its `postMessage` only accepts a `WebviewToExtensionMessage`. When running outside VS Code (standalone browser) `isAvailable` is `false` and `postMessage` throws.
 
-Messages exchanged with the extension are defined in the shared DTOs at `projects/shared/` (`infrastructure.ts`, `extract-graphics/extract-graphics-dtos.ts`) and imported through the `externalShared/*` alias. Every message carries a `messageType` discriminator. Add new messages to the shared DTOs first, never as ad-hoc object literals, and update the extension side (`WebviewBaseCommand`) in the same change.
+The message contract lives in `projects/shared/bridge-messages.ts` (`ExtensionToWebviewMessage`, `WebviewToExtensionMessage`); the message DTOs live in `projects/shared/extract-graphics/extract-graphics-dtos.ts`. Import them through the `externalShared/*` alias. Every message carries a `messageType` discriminator. Add a new message to the DTOs and to the matching union first, never as an ad-hoc object literal, and add its handler on the extension side (`WebviewBaseCommand`) in the same change.
+
+Receive extension messages only through `subscribeToExtensionMessage(messageType, handler)` from `src/bridge/extension-messages.ts`: it owns the single `window` `message` listener and routes each message by `messageType`. Never add a `window.addEventListener('message', ...)` of your own. Subscribe in `onMounted` and call the returned unsubscribe function in `onBeforeUnmount`.
 
 ## Vue conventions
 

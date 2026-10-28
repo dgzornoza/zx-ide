@@ -13,6 +13,8 @@ export type VsCodeBridgeMessageType =
   | "assetsListFromExtension"
   /** Extension returns the bytes (or an error) requested via readAssetRequestFromWebview. */
   | "readAssetResponseFromExtension"
+  /** Extension reports the outcome of a writeFilesFromWebview request. */
+  | "writeFilesResultFromExtension"
 
   // ─── Webview → Extension ───────────────────────────────────────────────
   /** Webview asks the host to write generated source files into the workspace. */

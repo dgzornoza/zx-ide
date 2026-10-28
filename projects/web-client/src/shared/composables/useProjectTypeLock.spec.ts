@@ -117,11 +117,9 @@ describe('useProjectTypeLock', () => {
     expect(lock.isZx0CompressionReadOnly.value).toBe(false);
   });
 
-  it('removes the message listener on unmount', async () => {
-    const removeSpy = vi.spyOn(window, 'removeEventListener');
+  it('stops observing extension messages after unmount', async () => {
     const { lock, wrapper } = setupHarness();
     wrapper.unmount();
-    expect(removeSpy).toHaveBeenCalledWith('message', expect.any(Function));
 
     // After unmount, dispatching an init must NOT change the captured refs.
     dispatchInit('sjasmplus');

@@ -75,6 +75,15 @@ export interface WriteFilesMessage extends VsCodeBridgeMessage {
   codeFiles: FileEntry[];
 }
 
+/** Extension → webview. Outcome of a WriteFilesMessage. */
+export interface WriteFilesResultMessage extends VsCodeBridgeMessage {
+  messageType: "writeFilesResultFromExtension";
+  /** `true` when every file was written. */
+  success: boolean;
+  /** Localised message for the user: confirmation or failure reason. */
+  text: string;
+}
+
 /**
  * Message sent from the webview to the extension when a .map file is ready
  * to be saved to the workspace. The extension decides the final destination.

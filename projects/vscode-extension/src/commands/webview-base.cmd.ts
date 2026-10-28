@@ -9,13 +9,12 @@ import { Types } from '@core/types';
 import { inject, injectable } from 'inversify';
 import * as vscode from 'vscode';
 import {
-  AssetsListMessage,
-  InitMessage,
-  ReadAssetRequestMessage,
-  ReadAssetResponseMessage,
-  SaveMapMessage,
-  WriteFilesMessage,
-} from '../../../shared/extract-graphics/extract-graphics-dtos';
+  dispatchMessage,
+  type ExtensionToWebviewMessage,
+  type MessageHandlers,
+  type WebviewToExtensionMessage,
+} from '../../../shared/bridge-messages';
+import type { ReadAssetRequestMessage, SaveMapMessage, WriteFilesMessage } from '../../../shared/extract-graphics/extract-graphics-dtos';
 
 /**
  * Workspace root folder for a generated file.
@@ -70,8 +69,7 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
       this._subscriptions.push(this.panel.webview.onDidReceiveMessage(this.onDidReceiveMessage));
 
       const projectType = await FeaturesService.getProjectType();
-      const initMessage: InitMessage = { messageType: 'initFromExtension', projectType };
-      this.panel.webview.postMessage(initMessage);
+      this.postToWebview({ messageType: 'initFromExtension', projectType });
 
       if (this.requiresAssetsList()) {
         await this.postAssetsList();
@@ -112,6 +110,11 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
     // no-op by default; override in subclasses that need save-map logic
   }
 
+  /** Posts a message of the extension → webview contract to the open panel. */
+  protected postToWebview(message: ExtensionToWebviewMessage): void {
+    void this.panel?.webview.postMessage(message);
+  }
+
   private async postAssetsList(): Promise<void> {
     if (!this.panel) {
       return;
@@ -120,58 +123,50 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
     if (result.missing) {
       vscode.window.showErrorMessage('Project requires the assets/ directory at the workspace root');
     }
-    const message: AssetsListMessage = {
+    this.postToWebview({
       messageType: 'assetsListFromExtension',
       assets: result.assets,
       ...(result.missing ? { missing: true } : {}),
-    };
-    this.panel.webview.postMessage(message);
+    });
   }
 
   private async handleReadAssetRequest(request: ReadAssetRequestMessage): Promise<void> {
-    if (!this.panel) {
-      return;
-    }
     try {
       const pathSegments = FileHelpers.splitRelativePath(request.path);
       const bytes = await WorkspaceHelpers.readWorkspaceFileBytes('assets', ...pathSegments);
 
-      this.panel.webview.postMessage({
+      this.postToWebview({
         messageType: 'readAssetResponseFromExtension',
         path: request.path,
         requestId: request.requestId,
         contentBase64: Buffer.from(bytes).toString('base64'),
-      } satisfies ReadAssetResponseMessage);
+      });
     } catch (error) {
-      this.panel.webview.postMessage({
+      this.postToWebview({
         messageType: 'readAssetResponseFromExtension',
         path: request.path,
         requestId: request.requestId,
         error: error instanceof Error ? error.message : String(error),
-      } satisfies ReadAssetResponseMessage);
+      });
     }
   }
 
+  /** Single dispatcher for the webview → extension contract: one handler per message type. */
+  private readonly webviewMessageHandlers: MessageHandlers<WebviewToExtensionMessage> = {
+    writeFilesFromWebview: (message) => this.writeFiles(message),
+    saveMapFromWebview: (message) => this.onSaveMap(message),
+    readAssetRequestFromWebview: (message) => this.handleReadAssetRequest(message),
+  };
+
   @BindThis
-  protected async onDidReceiveMessage(message: WriteFilesMessage | SaveMapMessage | ReadAssetRequestMessage | undefined): Promise<void> {
-    if (!this.panel || !message) {
+  protected async onDidReceiveMessage(message: unknown): Promise<void> {
+    if (!this.panel) {
       return;
     }
+    await dispatchMessage(message, this.webviewMessageHandlers);
+  }
 
-    if (message.messageType === 'saveMapFromWebview') {
-      await this.onSaveMap(message);
-      return;
-    }
-
-    if (message.messageType === 'readAssetRequestFromWebview') {
-      await this.handleReadAssetRequest(message);
-      return;
-    }
-
-    if (message.messageType !== 'writeFilesFromWebview') {
-      return;
-    }
-
+  private async writeFiles(message: WriteFilesMessage): Promise<void> {
     try {
       for (const file of message.codeFiles) {
         const rootFolder = resolveCodeFileRoot(file.fileType);
@@ -183,15 +178,15 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
         await FileHelpers.writeFile(file.content, targetUri, { binary: isBinary });
       }
 
-      this.panel.webview.postMessage({
-        type: 'status',
-        ok: true,
+      this.postToWebview({
+        messageType: 'writeFilesResultFromExtension',
+        success: true,
         text: vscode.l10n.t('Files written successfully'),
       });
     } catch (error) {
-      this.panel.webview.postMessage({
-        type: 'status',
-        ok: false,
+      this.postToWebview({
+        messageType: 'writeFilesResultFromExtension',
+        success: false,
         text: String(error),
       });
     }
