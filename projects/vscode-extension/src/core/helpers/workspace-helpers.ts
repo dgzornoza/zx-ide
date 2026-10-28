@@ -92,7 +92,7 @@ export class WorkspaceHelpers {
   }
 
   // Overload for backward compatibility (old signature)
-  public static async writeWorkspaceJsonFile_Compat(instance: unknown, ...relativePathSegments: string[]): Promise<void> {
+  public static writeWorkspaceJsonFile_Compat(instance: unknown, ...relativePathSegments: string[]): Promise<void> {
     return WorkspaceHelpers.writeWorkspaceJsonFile(instance, relativePathSegments);
   }
 

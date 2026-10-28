@@ -1,4 +1,4 @@
-import { useI18n } from "vue-i18n";
+import { useI18n } from 'vue-i18n';
 
 /**
  * Create translation function with a fixed namespace.
@@ -10,6 +10,5 @@ import { useI18n } from "vue-i18n";
 export function createTranslationPrefixFn(scope: string) {
   const { t } = useI18n();
 
-  return (key: string, params?: Record<string, unknown>) =>
-    t(`${scope}.${key}`, params ?? {});
+  return (key: string, params?: Record<string, unknown>) => t(`${scope}.${key}`, params ?? {});
 }

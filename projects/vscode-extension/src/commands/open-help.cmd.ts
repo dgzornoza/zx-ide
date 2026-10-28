@@ -15,10 +15,9 @@ export class OpenHelpCmd extends Command<unknown> {
     super();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async execute(..._params: unknown[]): Promise<void> {
     const wikiUri = vscode.Uri.parse(WikiUri);
-    vscode.env.openExternal(wikiUri);
+    await vscode.env.openExternal(wikiUri);
 
     // exec('D:/ZxSpectrumDevelop/ZEsarUX_windows-12.0/zesarux.exe -smartload', (err, stdout, stderr) => {
     //   if (err) {

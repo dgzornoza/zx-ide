@@ -1,5 +1,5 @@
-import { SpriteFlags } from "src/shared/models/spriteDefinition";
-import { toCodeIdentifier } from "src/helpers/string-utils";
+import { SpriteFlags } from 'src/shared/models/spriteDefinition';
+import { toCodeIdentifier } from 'src/helpers/string-utils';
 import {
   buildDataSizeComment,
   buildMapFile,
@@ -8,7 +8,7 @@ import {
   generateSpriteAsmBody,
   SpritesCodeGeneratorParams,
   SpritesCodeGeneratorStrategy,
-} from "src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy";
+} from 'src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy';
 
 /**
  * Generates sprites for sjasmplus assembly language.
@@ -21,11 +21,7 @@ export class AsmSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStra
     const hasPadding = (params.spriteFlags & SpriteFlags.Sp1Padding) !== 0;
     const useMask = (params.spriteFlags & SpriteFlags.UseMask) !== 0;
 
-    const dataByteCount = calculateSpritesDataByteCount(
-      params,
-      hasPadding,
-      useMask,
-    );
+    const dataByteCount = calculateSpritesDataByteCount(params, hasPadding, useMask);
     const dataSizeComment = buildDataSizeComment(dataByteCount);
 
     const lines: string[] = [dataSizeComment];
@@ -35,24 +31,15 @@ export class AsmSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStra
       const baseLabel = `${id}_${spriteName}`;
       const frameBitmasks = params.spriteBitmasks[spriteIndex] ?? [];
 
-      lines.push(
-        ...generateSpriteAsmBody(
-          sprite,
-          frameBitmasks,
-          baseLabel,
-          null,
-          hasPadding,
-          useMask,
-        ),
-      );
+      lines.push(...generateSpriteAsmBody(sprite, frameBitmasks, baseLabel, null, hasPadding, useMask));
     });
 
     return [
       buildMapFile(params),
       {
-        fileType: "asm",
+        fileType: 'asm',
         fileName: `${params.name}.asm`,
-        content: lines.join("\n"),
+        content: lines.join('\n'),
       },
     ];
   }

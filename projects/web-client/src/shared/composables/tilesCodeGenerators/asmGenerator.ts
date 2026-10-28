@@ -1,12 +1,6 @@
-import {
-  buildAttributeBytes,
-  buildTilesBinary,
-} from "src/helpers/binary-builder-utils";
-import {
-  formatAttributeBytesAsDefb,
-  formatBytesAsDefb,
-} from "src/helpers/code-generator-utils";
-import { toCodeIdentifier } from "src/helpers/string-utils";
+import { buildAttributeBytes, buildTilesBinary } from 'src/helpers/binary-builder-utils';
+import { formatAttributeBytesAsDefb, formatBytesAsDefb } from 'src/helpers/code-generator-utils';
+import { toCodeIdentifier } from 'src/helpers/string-utils';
 import {
   buildDataSizeComment,
   buildMapFile,
@@ -15,7 +9,7 @@ import {
   GeneratedFile,
   getIncludedTileIndices,
   TilesCodeGeneratorParams,
-} from "src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy";
+} from 'src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy';
 
 /**
  * Generates tiles for a sjasmplus assembly language.
@@ -51,21 +45,21 @@ export class AsmTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
     includedIndices.forEach((_, includedPosition) => {
       const start = includedPosition * tileStride;
       const tileBytes = rawBytes.subarray(start, start + bytesPerTile);
-      lines.push("", ...formatBytesAsDefb(tileBytes));
+      lines.push('', ...formatBytesAsDefb(tileBytes));
     });
 
     if (hasAttributes) {
       const attrBytes = buildAttributeBytes(tiles.attributes!, includedIndices);
-      lines.push("", `${id}_attributes:`, ...formatAttributeBytesAsDefb(attrBytes));
+      lines.push('', `${id}_attributes:`, ...formatAttributeBytesAsDefb(attrBytes));
     }
 
-    lines.push("");
+    lines.push('');
     return [
       buildMapFile(params),
       {
-        fileType: "asm",
+        fileType: 'asm',
         fileName: `${baseName}.asm`,
-        content: lines.join("\n"),
+        content: lines.join('\n'),
       },
     ];
   }

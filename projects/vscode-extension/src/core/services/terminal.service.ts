@@ -41,7 +41,7 @@ export class TerminalService extends Disposable {
     return Promise.reject(new Error(vscode.l10n.t('Could not select terminal')));
   }
 
-  private async waitForResultFileUpdate(outputFilePath: string): Promise<string> {
+  private waitForResultFileUpdate(outputFilePath: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       const outputFolder = path.dirname(outputFilePath);
       const outputFilename = path.basename(outputFilePath);

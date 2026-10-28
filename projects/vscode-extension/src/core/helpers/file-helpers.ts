@@ -21,7 +21,9 @@ export interface WalkedFile {
 export class FileHelpers {
   public static getTempFolder(): string {
     const tempFolder = path.join(os.tmpdir(), 'zxide');
-    fs.existsSync(tempFolder) || fs.mkdirSync(tempFolder);
+    if (!fs.existsSync(tempFolder)) {
+      fs.mkdirSync(tempFolder);
+    }
     return FileHelpers.pathNormalized(tempFolder);
   }
 
@@ -52,7 +54,7 @@ export class FileHelpers {
     try {
       await vscode.workspace.fs.stat(fileUri);
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

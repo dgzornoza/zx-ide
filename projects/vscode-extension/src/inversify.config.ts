@@ -37,7 +37,7 @@ export class InversifyConfig {
     // Extension
     InversifyConfig._container
       .bind<vsc.ExtensionContext>(Types.ExtensionContext)
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
       .toDynamicValue((_context: inversify.interfaces.Context) => {
         return InversifyConfig._extensionContext;
       })

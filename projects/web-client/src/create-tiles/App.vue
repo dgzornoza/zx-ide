@@ -1,76 +1,48 @@
 <script setup lang="ts">
-import BinaryInputPanel from "src/shared/components/BinaryInputPanel.vue";
-import CodeGenerationInfo from "src/shared/components/CodeGenerationInfo.vue";
-import TilesSection from "./components/TilesSection.vue";
-import { useCreateTiles } from "./composables/useCreateTiles";
+import BinaryInputPanel from 'src/shared/components/BinaryInputPanel.vue';
+import CodeGenerationInfo from 'src/shared/components/CodeGenerationInfo.vue';
+import TilesSection from './components/TilesSection.vue';
+import { useCreateTiles } from './composables/useCreateTiles';
 
-const {
-  state,
-  status,
-  binaryText,
-  outputName,
-  codeGenerationType,
-  tp,
-  addTile,
-  removeTile,
-  generateCode,
-} = useCreateTiles();
+const { state, status, binaryText, outputName, codeGenerationType, tp, addTile, removeTile, generateCode } = useCreateTiles();
 </script>
 
 <template>
   <div class="min-h-screen px-6 py-8">
     <header class="w-full">
       <div class="text-2xl font-semibold">
-        {{ tp("title") }}
+        {{ tp('title') }}
       </div>
       <p class="mt-2 max-w-2xl text-sm text-[color:var(--ink-soft)]">
-        {{ tp("subtitle") }}
+        {{ tp('subtitle') }}
       </p>
     </header>
 
     <main class="mt-6 flex w-full flex-col gap-4">
       <!-- Binary input panel with live preview and Add button -->
-      <BinaryInputPanel
-        v-model:binary-text="binaryText"
-        translation-namespace="create-tiles"
-        @add="addTile"
-      />
+      <BinaryInputPanel v-model:binary-text="binaryText" translation-namespace="create-tiles" @add="addTile" />
 
       <!-- Project type info -->
-      <section
-        class="w-full border border-[color:var(--border)] bg-[color:var(--card)] p-4"
-      >
-        <CodeGenerationInfo
-          :code-generation-type="codeGenerationType"
-          translation-namespace="create-tiles"
-        />
+      <section class="w-full border border-[color:var(--border)] bg-[color:var(--card)] p-4">
+        <CodeGenerationInfo :code-generation-type="codeGenerationType" translation-namespace="create-tiles" />
       </section>
 
       <!-- Tiles collection -->
-      <TilesSection
-        :previews="state.tiles.previews"
-        @remove-tile="removeTile"
-      />
+      <TilesSection :previews="state.tiles.previews" @remove-tile="removeTile" />
     </main>
 
     <footer class="mt-6 w-full">
-      <div
-        class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"
-      >
+      <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div
           v-if="status"
           class="text-xs font-semibold"
-          :class="
-            status.type === 'success'
-              ? 'text-[color:var(--success-ink)]'
-              : 'text-[color:var(--error-ink)]'
-          "
+          :class="status.type === 'success' ? 'text-[color:var(--success-ink)]' : 'text-[color:var(--error-ink)]'"
         >
           {{ status.text }}
         </div>
         <div class="ml-auto flex items-center gap-3">
           <label for="output-name" class="text-xs font-semibold">
-            {{ tp("outputNameLabel") }}
+            {{ tp('outputNameLabel') }}
           </label>
           <input
             id="output-name"
@@ -85,7 +57,7 @@ const {
             :disabled="state.tiles.previews.length === 0"
             @click="generateCode"
           >
-            {{ tp("create") }}
+            {{ tp('create') }}
           </button>
         </div>
       </div>

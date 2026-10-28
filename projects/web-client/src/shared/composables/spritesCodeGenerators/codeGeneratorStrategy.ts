@@ -1,13 +1,7 @@
-import { FileEntry } from "externalShared/extract-graphics/extract-graphics-dtos";
-import {
-  buildColumnBytes,
-  buildPaddingBytes,
-} from "src/helpers/binary-builder-utils";
-import { formatBytesAsDefb } from "src/helpers/code-generator-utils";
-import {
-  SpriteDefinition,
-  SpritesMapModel,
-} from "src/shared/models/spriteDefinition";
+import { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { buildColumnBytes, buildPaddingBytes } from 'src/helpers/binary-builder-utils';
+import { formatBytesAsDefb } from 'src/helpers/code-generator-utils';
+import { SpriteDefinition, SpritesMapModel } from 'src/shared/models/spriteDefinition';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -58,17 +52,15 @@ export interface SpritesCodeGeneratorStrategy {
 // ─── Common Helpers ──────────────────────────────────────────────────────────
 
 /** Creates the `.cfg` {@link GeneratedFile} entry for sprites. */
-export function buildMapFile(
-  params: SpritesCodeGeneratorParams,
-): GeneratedFile {
+export function buildMapFile(params: SpritesCodeGeneratorParams): GeneratedFile {
   const spritesMap: SpritesMapModel = {
-    type: "sprites",
+    type: 'sprites',
     ...(params.spriteFlags ? { spriteFlags: params.spriteFlags } : {}),
     sprites: params.sprites.map(({ _id: _omit, ...rest }) => rest),
   };
 
   return {
-    fileType: "map",
+    fileType: 'map',
     fileName: `${params.name}.cfg`,
     content: JSON.stringify(spritesMap, null, 2),
   };
@@ -95,7 +87,7 @@ export function generateSpriteAsmBody(
   baseLabel: string,
   publicLabel: string | null,
   hasPadding: boolean,
-  useMask: boolean,
+  useMask: boolean
 ): string[] {
   const lines: string[] = [];
 
@@ -106,9 +98,9 @@ export function generateSpriteAsmBody(
       for (let col = 1; col <= columns; col++) {
         lines.push(`PUBLIC ${publicLabel}_col_${col}`);
       }
-      lines.push("");
+      lines.push('');
     } else {
-      lines.push(`PUBLIC ${publicLabel}`, "");
+      lines.push(`PUBLIC ${publicLabel}`, '');
     }
   }
 
@@ -118,34 +110,26 @@ export function generateSpriteAsmBody(
     // multi-sprite set, not just the first one. Compute padding bytes once,
     // then format as text.
     const paddingBytes = buildPaddingBytes(PADDING_ROWS_ABOVE, 8, useMask);
-    lines.push(...formatBytesAsDefb(paddingBytes, 16, useMask), "");
+    lines.push(...formatBytesAsDefb(paddingBytes, 16, useMask), '');
   }
 
   sprite.frames.forEach((_, frameIndex) => {
-    const frameLabel =
-      frameIndex === 0 ? baseLabel : `${baseLabel}_f${frameIndex + 1}`;
+    const frameLabel = frameIndex === 0 ? baseLabel : `${baseLabel}_f${frameIndex + 1}`;
     const bitmask = frameBitmasks[frameIndex] ?? [];
 
     for (let col = 0; col < columns; col++) {
-      const colLabel =
-        columns > 1 ? `${frameLabel}_col_${col + 1}` : frameLabel;
+      const colLabel = columns > 1 ? `${frameLabel}_col_${col + 1}` : frameLabel;
 
       lines.push(`${colLabel}:`);
 
       // Compute column bytes once, then format. The single source of truth
       // for bit-packing is `binary-builder-utils.ts`.
-      const colBytes = buildColumnBytes(
-        bitmask,
-        sprite.width,
-        sprite.height,
-        col,
-        useMask,
-      );
+      const colBytes = buildColumnBytes(bitmask, sprite.width, sprite.height, col, useMask);
       lines.push(...formatBytesAsDefb(colBytes, 16, useMask));
 
       if (hasPadding) {
         const padBytes = buildPaddingBytes(PADDING_ROWS_BELOW, 8, useMask);
-        lines.push("", ...formatBytesAsDefb(padBytes, 16, useMask), "");
+        lines.push('', ...formatBytesAsDefb(padBytes, 16, useMask), '');
       }
     }
   });
@@ -154,11 +138,7 @@ export function generateSpriteAsmBody(
 }
 
 /** Returns total binary data size (in bytes) for sprites output. */
-export function calculateSpritesDataByteCount(
-  params: SpritesCodeGeneratorParams,
-  hasPadding: boolean,
-  useMask: boolean,
-): number {
+export function calculateSpritesDataByteCount(params: SpritesCodeGeneratorParams, hasPadding: boolean, useMask: boolean): number {
   return params.sprites.reduce((totalBytes, sprite) => {
     const frameCount = sprite.frames.length;
     const columns = Math.ceil(sprite.width / 8);
@@ -168,20 +148,14 @@ export function calculateSpritesDataByteCount(
     const frameDataBytes = sprite.height * bytesPerColRow;
 
     // Top padding is only 7 rows for the very first column of the entire sprite
-    const topPaddingBytes = hasPadding
-      ? PADDING_ROWS_ABOVE * bytesPerColRow
-      : 0;
+    const topPaddingBytes = hasPadding ? PADDING_ROWS_ABOVE * bytesPerColRow : 0;
 
     // Bottom padding is 8 rows per column per frame
-    const bottomPaddingBytes = hasPadding
-      ? PADDING_ROWS_BELOW * bytesPerColRow
-      : 0;
+    const bottomPaddingBytes = hasPadding ? PADDING_ROWS_BELOW * bytesPerColRow : 0;
 
     const singleFrameColBytes = frameDataBytes + bottomPaddingBytes;
 
-    return (
-      totalBytes + topPaddingBytes + frameCount * columns * singleFrameColBytes
-    );
+    return totalBytes + topPaddingBytes + frameCount * columns * singleFrameColBytes;
   }, 0);
 }
 

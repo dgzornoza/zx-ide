@@ -29,7 +29,6 @@ export class AttachProjectTilesCmd extends WebviewBaseCommand {
     return true;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async onSaveMap(_message: SaveMapMessage): Promise<void> {
     // TODO: implement save map logic
   }

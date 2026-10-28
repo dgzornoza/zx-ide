@@ -23,11 +23,11 @@ import type {
   AssetsListMessage,
   ReadAssetRequestMessage,
   ReadAssetResponseMessage,
-} from "externalShared/extract-graphics/extract-graphics-dtos";
-import { onBeforeUnmount, onMounted, Ref, ref } from "vue";
+} from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { onBeforeUnmount, onMounted, Ref, ref } from 'vue';
 
-import { createVsCodeBridge } from "src/bridge/vscode";
-import { base64ToBytes } from "src/helpers/binary-utils";
+import { createVsCodeBridge } from 'src/bridge/vscode';
+import { base64ToBytes } from 'src/helpers/binary-utils';
 
 interface PendingRequest {
   resolve: (bytes: Uint8Array) => void;
@@ -40,9 +40,7 @@ export interface AssetsBridge {
   requestAssetBytes(path: string): Promise<Uint8Array>;
 }
 
-export function useAssetsBridge(
-  vscodeBridge: ReturnType<typeof createVsCodeBridge> = createVsCodeBridge(),
-): AssetsBridge {
+export function useAssetsBridge(vscodeBridge: ReturnType<typeof createVsCodeBridge> = createVsCodeBridge()): AssetsBridge {
   const assets = ref<AssetsEntry[]>([]);
   const missing = ref<boolean>(false);
   const pendingRequests = new Map<string, PendingRequest>();
@@ -54,36 +52,31 @@ export function useAssetsBridge(
     if (response.error) {
       pending.reject(new Error(response.error));
     } else {
-      pending.resolve(base64ToBytes(response.contentBase64 ?? ""));
+      pending.resolve(base64ToBytes(response.contentBase64 ?? ''));
     }
   }
 
   function onWindowMessage(event: MessageEvent) {
-    const data = event.data as
-      | AssetsListMessage
-      | ReadAssetResponseMessage
-      | undefined;
-    if (!data || typeof data !== "object") return;
+    const data = event.data as AssetsListMessage | ReadAssetResponseMessage | undefined;
+    if (!data || typeof data !== 'object') return;
 
-    if (data.messageType === "assetsListFromExtension") {
+    if (data.messageType === 'assetsListFromExtension') {
       assets.value = data.assets;
       missing.value = data.missing === true;
       return;
     }
 
-    if (data.messageType === "readAssetResponseFromExtension") {
+    if (data.messageType === 'readAssetResponseFromExtension') {
       decodeResponse(data);
     }
   }
 
   function requestAssetBytes(path: string): Promise<Uint8Array> {
-    const requestId =
-      globalThis.crypto?.randomUUID?.() ??
-      `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const requestId = globalThis.crypto?.randomUUID?.() ?? `req-${Date.now()}-${Math.random().toString(16).slice(2)}`;
     return new Promise<Uint8Array>((resolve, reject) => {
       pendingRequests.set(requestId, { resolve, reject });
       const message: ReadAssetRequestMessage = {
-        messageType: "readAssetRequestFromWebview",
+        messageType: 'readAssetRequestFromWebview',
         path,
         requestId,
       };
@@ -94,11 +87,11 @@ export function useAssetsBridge(
   }
 
   onMounted(() => {
-    window.addEventListener("message", onWindowMessage);
+    window.addEventListener('message', onWindowMessage);
   });
 
   onBeforeUnmount(() => {
-    window.removeEventListener("message", onWindowMessage);
+    window.removeEventListener('message', onWindowMessage);
   });
 
   return { assets, missing, requestAssetBytes };

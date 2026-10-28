@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/naming-convention */
-
 const Types = {
   ExtensionContext: Symbol.for('ExtensionContext'),
   IStatusBar: Symbol.for('IStatusBar'),

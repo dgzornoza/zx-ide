@@ -20,7 +20,6 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       'require-await': 'error',
-      'no-return-await': 'error',
     },
   },
   {

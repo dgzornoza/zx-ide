@@ -1,4 +1,4 @@
-import type { ZxpColorAttribute } from "src/helpers/image-utils";
+import type { ZxpColorAttribute } from 'src/helpers/image-utils';
 
 /**
  * Serialisable tiles map model (persisted to `.cfg` file).
@@ -6,7 +6,7 @@ import type { ZxpColorAttribute } from "src/helpers/image-utils";
  * `excluded` is optional for backward-compatibility (absent = no exclusions).
  */
 export interface TilesMapModel {
-  type: "tiles";
+  type: 'tiles';
   tileWidth: number;
   tileHeight: number;
   /** Indices of tiles excluded from code generation output. */

@@ -1,5 +1,5 @@
-import { FileEntry } from "externalShared/extract-graphics/extract-graphics-dtos";
-import { TilesMapModel, TilesModel } from "src/shared/models/tilesDefinition";
+import { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { TilesMapModel, TilesModel } from 'src/shared/models/tilesDefinition';
 
 // --- Public types -----------------------------------------------------------
 
@@ -32,7 +32,7 @@ export interface CodeGeneratorStrategy {
 function buildTilesMap(params: TilesCodeGeneratorParams): TilesMapModel {
   const { tiles } = params;
   return {
-    type: "tiles",
+    type: 'tiles',
     tileWidth: tiles.tileWidth,
     tileHeight: tiles.tileHeight,
     excluded: tiles.excluded ? [...tiles.excluded] : [],
@@ -40,25 +40,15 @@ function buildTilesMap(params: TilesCodeGeneratorParams): TilesMapModel {
 }
 
 /** Returns tile indices excluding those in `tiles.excludedSet`. */
-export function getIncludedTileIndices(
-  params: TilesCodeGeneratorParams,
-): number[] {
+export function getIncludedTileIndices(params: TilesCodeGeneratorParams): number[] {
   const { tiles } = params;
   const excludedSet = tiles.excludedSet ?? new Set<number>();
-  return Array.from({ length: tiles.count }, (_, i) => i).filter(
-    (i) => !excludedSet.has(i),
-  );
+  return Array.from({ length: tiles.count }, (_, i) => i).filter((i) => !excludedSet.has(i));
 }
 
 /** Returns total binary data size (in bytes) for included tiles. */
-export function calculateTilesDataByteCount(
-  params: TilesCodeGeneratorParams,
-  includedIndices: number[],
-): number {
-  return (
-    calculateTilesBitmapByteCount(params, includedIndices) +
-    calculateTilesAttributeByteCount(params, includedIndices)
-  );
+export function calculateTilesDataByteCount(params: TilesCodeGeneratorParams, includedIndices: number[]): number {
+  return calculateTilesBitmapByteCount(params, includedIndices) + calculateTilesAttributeByteCount(params, includedIndices);
 }
 
 /**
@@ -66,10 +56,7 @@ export function calculateTilesDataByteCount(
  * occupies `ceil(tileWidth / 8) * tileHeight` bytes regardless of whether
  * attributes are present.
  */
-export function calculateTilesBitmapByteCount(
-  params: TilesCodeGeneratorParams,
-  includedIndices: number[],
-): number {
+export function calculateTilesBitmapByteCount(params: TilesCodeGeneratorParams, includedIndices: number[]): number {
   const bytesPerTileRow = Math.ceil(params.tiles.tileWidth / 8);
   const bitmapBytesPerTile = bytesPerTileRow * params.tiles.tileHeight;
   return includedIndices.length * bitmapBytesPerTile;
@@ -81,20 +68,15 @@ export function calculateTilesBitmapByteCount(
  * either `includedTileCount` or `0` depending on whether the source carried
  * decoded attributes (ZX-Paintbrush `.zxp` sources only).
  */
-export function calculateTilesAttributeByteCount(
-  params: TilesCodeGeneratorParams,
-  includedIndices: number[],
-): number {
-  const hasAttributes = Boolean(
-    params.tiles.attributes && params.tiles.attributes.length > 0,
-  );
+export function calculateTilesAttributeByteCount(params: TilesCodeGeneratorParams, includedIndices: number[]): number {
+  const hasAttributes = Boolean(params.tiles.attributes && params.tiles.attributes.length > 0);
   return hasAttributes ? includedIndices.length : 0;
 }
 
 /** Creates the `.cfg` {@link GeneratedFile} entry. */
 export function buildMapFile(params: TilesCodeGeneratorParams): GeneratedFile {
   return {
-    fileType: "map",
+    fileType: 'map',
     fileName: `${params.name}.cfg`,
     content: JSON.stringify(buildTilesMap(params), null, 2),
   };

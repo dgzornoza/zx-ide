@@ -1,5 +1,9 @@
 # Ignore artifacts:
 build
+dist
+out
+media
+.vscode-test
 coverage
 
 # Ignore all HTML files:

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { extractSpriteFramePreview } from "src/helpers/image-utils";
-import { createTranslationPrefixFn } from "src/helpers/vue-utils";
-import { SpriteDefinition } from "src/shared/models/spriteDefinition";
-import SpriteAnimationPanel from "src/shared/components/SpriteAnimationPanel.vue";
-import SpriteFrameThumbnail from "src/shared/components/SpriteFrameThumbnail.vue";
-import { useSpriteAnimation } from "src/shared/composables/useSpriteAnimation";
-import { onBeforeUnmount, ref, watch } from "vue";
+import { extractSpriteFramePreview } from 'src/helpers/image-utils';
+import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
+import { SpriteDefinition } from 'src/shared/models/spriteDefinition';
+import SpriteAnimationPanel from 'src/shared/components/SpriteAnimationPanel.vue';
+import SpriteFrameThumbnail from 'src/shared/components/SpriteFrameThumbnail.vue';
+import { useSpriteAnimation } from 'src/shared/composables/useSpriteAnimation';
+import { onBeforeUnmount, ref, watch } from 'vue';
 
 const props = defineProps<{
   sprite: SpriteDefinition;
@@ -29,8 +29,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   remove: [];
-  "add-frame": [];
-  "remove-frame": [frameIndex: number];
+  'add-frame': [];
+  'remove-frame': [frameIndex: number];
 }>();
 
 const tp = createTranslationPrefixFn(props.translationNamespace);
@@ -57,13 +57,11 @@ const updatePreviews = async () => {
           y: frame.y,
           width: props.sprite.width,
           height: props.sprite.height,
-        }),
-      ),
+        })
+      )
     );
   } else {
-    framePreviews.value = frames.map(
-      (frame) => frame.bitmap?.preview ?? "",
-    );
+    framePreviews.value = frames.map((frame) => frame.bitmap?.preview ?? '');
   }
 
   if (currentFrameIndex.value >= frames.length) {
@@ -84,14 +82,12 @@ watch(
     frames: props.sprite.frames,
   }),
   scheduleUpdatePreviews,
-  { deep: true, immediate: true },
+  { deep: true, immediate: true }
 );
 
 // ─── Animation ────────────────────────────────────────────────────────────────
 
-const { currentFrameIndex, isPlaying, play, stop } = useSpriteAnimation(
-  () => props.sprite.frames.length,
-);
+const { currentFrameIndex, isPlaying, play, stop } = useSpriteAnimation(() => props.sprite.frames.length);
 
 onBeforeUnmount(() => {
   if (updateTimer !== null) clearTimeout(updateTimer);
@@ -101,37 +97,28 @@ onBeforeUnmount(() => {
 <template>
   <div
     class="border bg-[color:var(--surface)] p-3 overflow-x-auto"
-    :class="
-      isActive
-        ? 'border-[color:var(--button-bg)]'
-        : 'border-[color:var(--border)]'
-    "
+    :class="isActive ? 'border-[color:var(--button-bg)]' : 'border-[color:var(--border)]'"
   >
     <!--
       Single 5-column grid: col1=name/label | col2=width/x | col3=height/y | col4=remove | col5=anim/thumb
       This guarantees Width and X share col2, Height and Y share col3 → identical widths.
     -->
-    <div
-      class="grid items-end gap-x-4 gap-y-3"
-      style="grid-template-columns: 1.4fr 0.2fr 0.2fr auto 10rem"
-    >
+    <div class="grid items-end gap-x-4 gap-y-3" style="grid-template-columns: 1.4fr 0.2fr 0.2fr auto 10rem">
       <!-- ── Header row ── -->
 
       <!-- col1: Name + optional active badge -->
       <div class="flex flex-col gap-1">
         <div class="flex items-center gap-2">
-          <label
-            :for="`sprite-name-${spriteIndex}`"
-            class="text-xs font-semibold"
-            >{{ tp("spriteNameLabel") }}</label
-          >
+          <label :for="`sprite-name-${spriteIndex}`" class="text-xs font-semibold">{{ tp('spriteNameLabel') }}</label>
           <span
             v-if="isActive"
             class="bg-[color:var(--button-bg)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[color:var(--button-ink)]"
           >
-            {{ tp("activeSpriteBadge") }}
+            {{ tp('activeSpriteBadge') }}
           </span>
         </div>
+        <!-- The sprite is edited in place on the parent's reactive state; replacing it with update events is tracked in odd/tasks/clean-architecture-refactor.md (S8). -->
+        <!-- eslint-disable vue/no-mutating-props -->
         <input
           :id="`sprite-name-${spriteIndex}`"
           v-model="sprite.name"
@@ -143,11 +130,7 @@ onBeforeUnmount(() => {
 
       <!-- col2: Width -->
       <div class="flex flex-col gap-1">
-        <label
-          :for="`sprite-width-${spriteIndex}`"
-          class="text-xs font-semibold"
-          >{{ tp("spriteWidthLabel") }}</label
-        >
+        <label :for="`sprite-width-${spriteIndex}`" class="text-xs font-semibold">{{ tp('spriteWidthLabel') }}</label>
         <input
           :id="`sprite-width-${spriteIndex}`"
           v-model.number="sprite.width"
@@ -160,11 +143,7 @@ onBeforeUnmount(() => {
 
       <!-- col3: Height -->
       <div class="flex flex-col gap-1">
-        <label
-          :for="`sprite-height-${spriteIndex}`"
-          class="text-xs font-semibold"
-          >{{ tp("spriteHeightLabel") }}</label
-        >
+        <label :for="`sprite-height-${spriteIndex}`" class="text-xs font-semibold">{{ tp('spriteHeightLabel') }}</label>
         <input
           :id="`sprite-height-${spriteIndex}`"
           v-model.number="sprite.height"
@@ -173,6 +152,7 @@ onBeforeUnmount(() => {
           type="number"
           min="1"
         />
+        <!-- eslint-enable vue/no-mutating-props -->
       </div>
 
       <!-- col4: Remove sprite -->
@@ -181,7 +161,7 @@ onBeforeUnmount(() => {
         type="button"
         @click="emit('remove')"
       >
-        {{ tp("remove") }}
+        {{ tp('remove') }}
       </button>
 
       <!-- col5: Animation panel -->
@@ -197,24 +177,15 @@ onBeforeUnmount(() => {
       />
 
       <!-- ── Frame rows ── -->
-      <template
-        v-for="(frame, frameIndex) in sprite.frames"
-        :key="`sprite-${spriteIndex}-frame-${frameIndex}`"
-      >
+      <template v-for="(frame, frameIndex) in sprite.frames" :key="`sprite-${spriteIndex}-frame-${frameIndex}`">
         <!-- col1: Frame label -->
-        <div
-          class="self-start pr-2 text-right text-xs font-bold text-[color:var(--ink-soft)]"
-        >
-          {{ tp("frameLabel") }} {{ frameIndex + 1 }}
+        <div class="self-start pr-2 text-right text-xs font-bold text-[color:var(--ink-soft)]">
+          {{ tp('frameLabel') }} {{ frameIndex + 1 }}
         </div>
 
         <!-- col2: X (or empty placeholder when showFrameCoords=false) -->
         <div v-if="showFrameCoords" class="flex flex-col gap-1">
-          <label
-            :for="`frame-x-${spriteIndex}-${frameIndex}`"
-            class="text-xs font-semibold"
-            >{{ tp("xLabel") }}</label
-          >
+          <label :for="`frame-x-${spriteIndex}-${frameIndex}`" class="text-xs font-semibold">{{ tp('xLabel') }}</label>
           <input
             :id="`frame-x-${spriteIndex}-${frameIndex}`"
             v-model.number="frame.x"
@@ -228,11 +199,7 @@ onBeforeUnmount(() => {
 
         <!-- col3: Y (or empty placeholder when showFrameCoords=false) -->
         <div v-if="showFrameCoords" class="flex flex-col gap-1">
-          <label
-            :for="`frame-y-${spriteIndex}-${frameIndex}`"
-            class="text-xs font-semibold"
-            >{{ tp("yLabel") }}</label
-          >
+          <label :for="`frame-y-${spriteIndex}-${frameIndex}`" class="text-xs font-semibold">{{ tp('yLabel') }}</label>
           <input
             :id="`frame-y-${spriteIndex}-${frameIndex}`"
             v-model.number="frame.y"
@@ -250,7 +217,7 @@ onBeforeUnmount(() => {
           type="button"
           @click="emit('remove-frame', frameIndex)"
         >
-          {{ tp("remove") }}
+          {{ tp('remove') }}
         </button>
 
         <!-- col5: Frame thumbnail -->
@@ -267,7 +234,7 @@ onBeforeUnmount(() => {
         type="button"
         @click="emit('add-frame')"
       >
-        {{ tp("addFrame") }}
+        {{ tp('addFrame') }}
       </button>
     </div>
   </div>

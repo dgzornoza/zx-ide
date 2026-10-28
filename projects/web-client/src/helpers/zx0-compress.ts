@@ -50,12 +50,7 @@ function offsetCeiling(index: number, offsetLimit: number): number {
   return Math.max(INITIAL_OFFSET, Math.min(index, offsetLimit));
 }
 
-function optimize(
-  inputData: Uint8Array,
-  inputSize: number,
-  skip: number,
-  offsetLimit: number,
-): OptimizeNode | null {
+function optimize(inputData: Uint8Array, inputSize: number, skip: number, offsetLimit: number): OptimizeNode | null {
   if (inputSize === 0) return null;
 
   const maxOffsetStart = offsetCeiling(inputSize - 1, offsetLimit);
@@ -68,12 +63,7 @@ function optimize(
 
   if (inputSize > 2) bestLength[2] = 2;
 
-  function allocate(
-    bits: number,
-    index: number,
-    offset: number,
-    chain: OptimizeNode | null,
-  ): OptimizeNode {
+  function allocate(bits: number, index: number, offset: number, chain: OptimizeNode | null): OptimizeNode {
     return { bits, index, offset, chain };
   }
 
@@ -97,14 +87,10 @@ function optimize(
         matchLength[offset]++;
         if (matchLength[offset] > 1) {
           if (bestLengthSize < matchLength[offset]) {
-            let bits =
-              optimal[index - bestLength[bestLengthSize]]!.bits +
-              eliasGammaBits(bestLength[bestLengthSize] - 1);
+            let bits = optimal[index - bestLength[bestLengthSize]]!.bits + eliasGammaBits(bestLength[bestLengthSize] - 1);
             do {
               bestLengthSize++;
-              const bits2 =
-                optimal[index - bestLengthSize]!.bits +
-                eliasGammaBits(bestLengthSize - 1);
+              const bits2 = optimal[index - bestLengthSize]!.bits + eliasGammaBits(bestLengthSize - 1);
               if (bits2 <= bits) {
                 bestLength[bestLengthSize] = bestLengthSize;
                 bits = bits2;
@@ -114,11 +100,7 @@ function optimize(
             } while (bestLengthSize < matchLength[offset]);
           }
           const length = bestLength[matchLength[offset]];
-          const bits =
-            optimal[index - length]!.bits +
-            8 +
-            eliasGammaBits(Math.trunc((offset - 1) / 128) + 1) +
-            eliasGammaBits(length - 1);
+          const bits = optimal[index - length]!.bits + 8 + eliasGammaBits(Math.trunc((offset - 1) / 128) + 1) + eliasGammaBits(length - 1);
           if (!lastMatch[offset] || lastMatch[offset]!.index !== index || lastMatch[offset]!.bits > bits) {
             lastMatch[offset] = allocate(bits, index, offset, optimal[index - length]);
             if (!optimal[index] || optimal[index]!.bits > bits) {
@@ -148,7 +130,7 @@ function compressForward(
   inputData: Uint8Array,
   skip: number,
   classicMode: boolean,
-  quickMode: boolean,
+  quickMode: boolean
 ): { data: Uint8Array; delta: number } {
   const inputSize = inputData.length;
   const offsetLimit = quickMode ? MAX_OFFSET_ZX7 : MAX_OFFSET_ZX0;
@@ -256,10 +238,7 @@ function compressForward(
     } else {
       // copy from new offset
       writeBit(1);
-      writeInterlacedEliasGamma(
-        Math.trunc((opt.offset - 1) / 128) + 1,
-        invertMode,
-      );
+      writeInterlacedEliasGamma(Math.trunc((opt.offset - 1) / 128) + 1, invertMode);
 
       // Offset LSB — inverted (0 → 127) for forward mode.
       const offsetLSB = (opt.offset - 1) % 128;
@@ -287,7 +266,7 @@ function compressBlock(
   skip: number,
   backwardsMode: boolean,
   classicMode: boolean,
-  quickMode: boolean,
+  quickMode: boolean
 ): { data: Uint8Array; delta: number } {
   if (backwardsMode) {
     const reversed = new Uint8Array(inputData);
@@ -301,10 +280,7 @@ function compressBlock(
 
 // ─── Decompression (V2 standard format) ────────────────────────────────────
 
-function decompressForward(
-  inputData: Uint8Array,
-  classicMode: boolean,
-): Uint8Array {
+function decompressForward(inputData: Uint8Array, classicMode: boolean): Uint8Array {
   const inputSize = inputData.length;
   const output: number[] = [];
 
@@ -316,7 +292,7 @@ function decompressForward(
   let lastOffset = INITIAL_OFFSET;
 
   function readByte(): number {
-    if (inputIndex >= inputSize) throw new Error("Truncated input");
+    if (inputIndex >= inputSize) throw new Error('Truncated input');
     lastByte = inputData[inputIndex++];
     return lastByte;
   }
@@ -365,7 +341,7 @@ function decompressForward(
   // State machine mirroring dzx0.c's gotos:
   //   0 = COPY_LITERALS, 1 = COPY_FROM_LAST_OFFSET, 2 = COPY_FROM_NEW_OFFSET
   let stateId = 0;
-  // eslint-disable-next-line no-constant-condition
+
   while (true) {
     if (stateId === 0) {
       // COPY_LITERALS
@@ -387,11 +363,7 @@ function decompressForward(
   return new Uint8Array(output);
 }
 
-function decompressBlock(
-  inputData: Uint8Array,
-  backwardsMode: boolean,
-  classicMode: boolean,
-): Uint8Array {
+function decompressBlock(inputData: Uint8Array, backwardsMode: boolean, classicMode: boolean): Uint8Array {
   if (backwardsMode) {
     const reversed = new Uint8Array(inputData);
     reverse(reversed, 0, reversed.length - 1);
@@ -436,10 +408,7 @@ export interface CompressionResult {
  *   compressor (32 KB window, slower).
  * @returns Compressed payload + delta hint for in-place decompression.
  */
-export function compress(
-  inputData: Uint8Array,
-  options: { quick?: boolean } = {},
-): CompressionResult {
+export function compress(inputData: Uint8Array, options: { quick?: boolean } = {}): CompressionResult {
   const data = inputData instanceof Uint8Array ? inputData : Uint8Array.from(inputData);
   if (data.length === 0) return { data: new Uint8Array(0), delta: 0 };
   return compressBlock(data, 0, false, false, options.quick ?? true);

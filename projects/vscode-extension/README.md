@@ -3,8 +3,8 @@
 ```
 ███████╗██╗  ██╗     ██╗██████╗ ███████╗
 ╚══███╔╝╚██╗██╔╝     ██║██╔══██╗██╔════╝
-  ███╔╝  ╚███╔╝█████╗██║██║  ██║█████╗  
- ███╔╝   ██╔██╗╚════╝██║██║  ██║██╔══╝  
+  ███╔╝  ╚███╔╝█████╗██║██║  ██║█████╗
+ ███╔╝   ██╔██╗╚════╝██║██║  ██║██╔══╝
 ███████╗██╔╝ ██╗     ██║██████╔╝███████╗
 ╚══════╝╚═╝  ╚═╝     ╚═╝╚═════╝ ╚══════╝
 ```
@@ -38,10 +38,10 @@ Currently the following types of projects are allowed:
 - Wait for install container and recomended extensions (First time it may take a few minutes)
 - Press (F5) to Start Debugging or (Ctrl + Shift + B) to execute build task.
 - All ready to develop your project
-  
+
 ![create_project](https://github.com/user-attachments/assets/bdb55874-e5a3-4355-b035-bbf6336e807a)
 
-> **Remarks:** *If the path project folder is changed after the container is created, the container must be deleted so that it can be recreated with the new path, otherwise it will give an error indicating that the container already exists.*
+> **Remarks:** _If the path project folder is changed after the container is created, the container must be deleted so that it can be recreated with the new path, otherwise it will give an error indicating that the container already exists._
 
 ## Clean containers
 

@@ -17,12 +17,7 @@
  *
  * Pixels whose source falls outside the original bounds are set to false.
  */
-export function rotateBinaryGrid(
-  bitmap: boolean[][],
-  degX: number,
-  degY: number,
-  degZ: number,
-): boolean[][] {
+export function rotateBinaryGrid(bitmap: boolean[][], degX: number, degY: number, degZ: number): boolean[][] {
   const height = bitmap.length;
   const width = bitmap[0].length;
 
@@ -50,9 +45,7 @@ export function rotateBinaryGrid(
   // det = cos(ay)*cos(ax); ≈ 0 means the grid is seen edge-on → return blank.
   const det = m00 * m11 - m01 * m10;
   if (Math.abs(det) < 1e-6) {
-    return Array.from({ length: height }, () =>
-      Array<boolean>(width).fill(false),
-    );
+    return Array.from({ length: height }, () => Array<boolean>(width).fill(false));
   }
 
   const cx = width / 2;
@@ -68,7 +61,7 @@ export function rotateBinaryGrid(
       const py = dy - cy + 0.5;
 
       // Solve the 2×2 system for the source coordinates.
-      const sx = ( m11 * px - m01 * py) / det + cx - 0.5;
+      const sx = (m11 * px - m01 * py) / det + cx - 0.5;
       const sy = (-m10 * px + m00 * py) / det + cy - 0.5;
 
       const srcX = Math.round(sx);
@@ -85,4 +78,3 @@ export function rotateBinaryGrid(
 
   return result;
 }
-

@@ -1,5 +1,5 @@
-import type { FileEntry } from "externalShared/extract-graphics/extract-graphics-dtos";
-import type { MapTilesetMetadata } from "../../models/mapTilesetDefinition";
+import type { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import type { MapTilesetMetadata } from '../../models/mapTilesetDefinition';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
@@ -30,18 +30,12 @@ export interface CodeGeneratorStrategy {
 
 // ─── Common Helpers ──────────────────────────────────────────────────────────
 
-export function buildHeader(
-  name: string,
-  mapWidth: number,
-  mapHeight: number,
-): string {
+export function buildHeader(name: string, mapWidth: number, mapHeight: number): string {
   return `; Map: ${name}  (${mapWidth} x ${mapHeight} tiles)`;
 }
 
 /** Returns total binary data size (in bytes) for map tile indices. */
-export function calculateMapDataByteCount(
-  params: MapCodeGeneratorParams,
-): number {
+export function calculateMapDataByteCount(params: MapCodeGeneratorParams): number {
   const { mapWidth, mapHeight } = params.metadata;
   return mapWidth * mapHeight;
 }

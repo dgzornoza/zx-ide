@@ -1,4 +1,4 @@
-import { onBeforeUnmount, ref, watch } from "vue";
+import { onBeforeUnmount, ref, watch } from 'vue';
 
 const ANIMATION_FPS = 8;
 

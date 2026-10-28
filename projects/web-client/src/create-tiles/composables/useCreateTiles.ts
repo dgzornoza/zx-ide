@@ -1,20 +1,15 @@
-import type {
-  WriteFilesMessage,
-} from "externalShared/extract-graphics/extract-graphics-dtos";
-import { createTranslationPrefixFn } from "src/helpers/vue-utils";
-import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
-import { createTilesCodeGenerator } from "src/shared/composables/tilesCodeGenerators/codeGeneratorFactory";
-import type {
-  StatusMessage,
-  StatusMessageType,
-} from "src/shared/models/statusMessage";
-import type { TilesModel } from "src/shared/models/tilesDefinition";
-import { reactive, ref } from "vue";
-import { createVsCodeBridge } from "../../bridge/vscode";
+import type { WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
+import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
+import { createTilesCodeGenerator } from 'src/shared/composables/tilesCodeGenerators/codeGeneratorFactory';
+import type { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
+import type { TilesModel } from 'src/shared/models/tilesDefinition';
+import { reactive, ref } from 'vue';
+import { createVsCodeBridge } from '../../bridge/vscode';
 
 export function useCreateTiles() {
   const vscode = createVsCodeBridge();
-  const tp = createTranslationPrefixFn("create-tiles");
+  const tp = createTranslationPrefixFn('create-tiles');
 
   const state = reactive({
     tiles: {
@@ -26,25 +21,15 @@ export function useCreateTiles() {
   });
 
   const status = ref<StatusMessage | null>(null);
-  const {
-    codeGenerationType,
-    isCodeGenerationTypeReadOnly,
-    useZx0Compression,
-    isZx0CompressionReadOnly,
-  } = useProjectTypeLock();
-  const binaryText = ref("");
-  const outputName = ref("tiles");
+  const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
+  const binaryText = ref('');
+  const outputName = ref('tiles');
 
   const setStatus = (type: StatusMessageType, text: string) => {
     status.value = { type, text };
   };
 
-  function addTile(
-    inkBitmap: boolean[],
-    width: number,
-    height: number,
-    preview: string,
-  ) {
+  function addTile(inkBitmap: boolean[], width: number, height: number, preview: string) {
     if (state.tiles.tileWidth === 0) {
       state.tiles.tileWidth = width;
       state.tiles.tileHeight = height;
@@ -65,12 +50,12 @@ export function useCreateTiles() {
   async function generateCode() {
     const count = state.tiles.previews.length;
     if (count === 0) {
-      setStatus("error", tp("errorNoTiles"));
+      setStatus('error', tp('errorNoTiles'));
       return;
     }
 
     const tilesModel: TilesModel = {
-      type: "tiles",
+      type: 'tiles',
       tileWidth: state.tiles.tileWidth,
       tileHeight: state.tiles.tileHeight,
       count,
@@ -83,13 +68,13 @@ export function useCreateTiles() {
 
     const generator = createTilesCodeGenerator(codeGenerationType.value);
     const codeFiles = generator.generate({
-      name: outputName.value.trim() || "tiles",
+      name: outputName.value.trim() || 'tiles',
       tiles: tilesModel,
       compressed: useZx0Compression.value,
     });
 
     if (!vscode.isAvailable) {
-      setStatus("error", tp("errorVsCodeRequired"));
+      setStatus('error', tp('errorVsCodeRequired'));
       return;
     }
 
@@ -98,7 +83,7 @@ export function useCreateTiles() {
       codeFiles,
     };
     vscode.postMessage(message);
-    setStatus("success", tp("statusSent"));
+    setStatus('success', tp('statusSent'));
   }
 
   return {

@@ -1,4 +1,4 @@
-export type StatusMessageType = "success" | "error";
+export type StatusMessageType = 'success' | 'error';
 
 export interface StatusMessage {
   type: StatusMessageType;

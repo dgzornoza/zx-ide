@@ -6,7 +6,7 @@
  * can pass either a directory entry or a bare file name without branching.
  */
 export function basenameFromPath(path: string): string {
-  return path.split("/").at(-1) ?? path;
+  return path.split('/').at(-1) ?? path;
 }
 
 /**
@@ -17,8 +17,8 @@ export function basenameFromPath(path: string): string {
  */
 export function getFileExtension(path: string): string {
   const basename = basenameFromPath(path);
-  const dotIndex = basename.lastIndexOf(".");
-  return dotIndex >= 0 ? basename.slice(dotIndex).toLowerCase() : "";
+  const dotIndex = basename.lastIndexOf('.');
+  return dotIndex >= 0 ? basename.slice(dotIndex).toLowerCase() : '';
 }
 
 /**
@@ -33,6 +33,6 @@ export function getFileExtension(path: string): string {
  *   dirNameOfPath("a/b/c.png")        === "a/b"
  */
 export function dirNameOfPath(path: string): string {
-  const slashIndex = path.lastIndexOf("/");
-  return slashIndex >= 0 ? path.slice(0, slashIndex) : "";
+  const slashIndex = path.lastIndexOf('/');
+  return slashIndex >= 0 ? path.slice(0, slashIndex) : '';
 }

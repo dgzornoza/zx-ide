@@ -17,10 +17,7 @@
   --button-hover: var(--vscode-button-hoverBackground, #1177bb);
   --button-secondary-bg: var(--vscode-button-secondaryBackground, #3a3d41);
   --button-secondary-ink: var(--vscode-button-secondaryForeground, #ffffff);
-  --button-secondary-hover: var(
-    --vscode-button-secondaryHoverBackground,
-    #45494e
-  );
+  --button-secondary-hover: var(--vscode-button-secondaryHoverBackground, #45494e);
   --danger-bg: var(--vscode-inputValidation-errorBackground, #5a1d0f);
   --danger-ink: var(--vscode-inputValidation-errorForeground, #ffffff);
   --success-ink: var(--vscode-testing-iconPassed, #73c991);
@@ -34,7 +31,7 @@
 
 body {
   margin: 0;
-  font-family: var(--vscode-font-family, "Segoe UI", sans-serif);
+  font-family: var(--vscode-font-family, 'Segoe UI', sans-serif);
   color: var(--ink);
   background: var(--paper);
 }

@@ -17,6 +17,12 @@ export default tseslint.config(
     },
   },
   {
+    files: ['**/*.{ts,vue}'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+    },
+  },
+  {
     files: ['*.config.{ts,cjs,mjs}', '**/*.cjs'],
     languageOptions: { globals: globals.node },
   },

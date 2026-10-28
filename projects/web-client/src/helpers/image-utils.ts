@@ -1,4 +1,4 @@
-import { getFileExtension } from "./file-utils";
+import { getFileExtension } from './file-utils';
 export interface ExtractTilesFromFileModel {
   file: File;
   tileWidth: number;
@@ -73,49 +73,37 @@ export interface ExtractTilesFromZxpFileResult extends ExtractTilesFromFileResul
  * @param callback - Function to invoke with the loaded HTMLImageElement.
  *                   Can be async; cleanup is called after it resolves.
  */
-async function loadImage<T>(
-  file: File,
-  callback: (img: HTMLImageElement) => Promise<T> | T,
-): Promise<T> {
+async function loadImage<T>(file: File, callback: (img: HTMLImageElement) => Promise<T> | T): Promise<T> {
   // VS Code webviews enforce a Content Security Policy that blocks blob: URLs
   // for img-src. Use a data URL (data:<mime>;base64,...) so the browser can
   // decode the image without violating the CSP.
   const dataUrl = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () =>
-      reject(reader.error ?? new Error("Failed to read image file"));
+    reader.onerror = () => reject(reader.error ?? new Error('Failed to read image file'));
     reader.readAsDataURL(file);
   });
 
   const img = new Image();
 
-  try {
-    await new Promise<void>((resolve, reject) => {
-      img.onload = () => resolve();
-      img.onerror = () => reject(new Error("Failed to load image file"));
-      img.src = dataUrl;
-    });
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error('Failed to load image file'));
+    img.src = dataUrl;
+  });
 
-    const result = await callback(img);
-    return result;
-  } catch (err) {
-    throw err;
-  }
+  return await callback(img);
 }
 
 /**
  * Creates an offscreen canvas of the given dimensions and returns it
  * together with its 2D rendering context.
  */
-function createCanvas(
-  width: number,
-  height: number,
-): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
-  const canvas = document.createElement("canvas");
+function createCanvas(width: number, height: number): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
+  const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
-  const ctx = canvas.getContext("2d")!;
+  const ctx = canvas.getContext('2d')!;
   return { canvas, ctx };
 }
 
@@ -124,22 +112,9 @@ function createCanvas(
  * offscreen canvas sized `sw × sh` and returns that canvas.
  * The caller can then call `canvas.toDataURL()` or `ctx.getImageData()`.
  */
-function drawRegionToCanvas(
-  img: HTMLImageElement,
-  rect: Rect,
-): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
+function drawRegionToCanvas(img: HTMLImageElement, rect: Rect): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } {
   const { canvas, ctx } = createCanvas(rect.width, rect.height);
-  ctx.drawImage(
-    img,
-    rect.x,
-    rect.y,
-    rect.width,
-    rect.height,
-    0,
-    0,
-    rect.width,
-    rect.height,
-  );
+  ctx.drawImage(img, rect.x, rect.y, rect.width, rect.height, 0, 0, rect.width, rect.height);
   return { canvas, ctx };
 }
 
@@ -151,11 +126,7 @@ function drawRegionToCanvas(
  * @param tileHeight The height of the tile in pixels.
  * @returns A boolean array representing the bitmask (true = white/1).
  */
-function getInkBitmap(
-  ctx: CanvasRenderingContext2D,
-  tileWidth: number,
-  tileHeight: number,
-) {
+function getInkBitmap(ctx: CanvasRenderingContext2D, tileWidth: number, tileHeight: number) {
   const imageData = ctx.getImageData(0, 0, tileWidth, tileHeight);
 
   const inkBitmap: boolean[] = [];
@@ -179,9 +150,7 @@ function getInkBitmap(
  * Loads a PNG File, slices it into tiles of (tileWidth × tileHeight) pixels,
  * generates a base64 data-URL preview for each tile, and returns the results.
  */
-export async function extractTilesFromPng(
-  params: ExtractTilesFromFileModel,
-): Promise<ExtractTilesFromFileResult> {
+export async function extractTilesFromPng(params: ExtractTilesFromFileModel): Promise<ExtractTilesFromFileResult> {
   return loadImage(params.file, (img) => {
     const tileWidth = Math.max(1, Math.floor(params.tileWidth));
     const tileHeight = Math.max(1, Math.floor(params.tileHeight));
@@ -201,7 +170,7 @@ export async function extractTilesFromPng(
           width: tileWidth,
           height: tileHeight,
         });
-        previews.push(canvas.toDataURL("image/png"));
+        previews.push(canvas.toDataURL('image/png'));
 
         // Extract per-pixel bitmask (true = white/1, false = black/transparent/0)
         const inkBitmap: boolean[] = getInkBitmap(ctx, tileWidth, tileHeight);
@@ -226,10 +195,7 @@ export async function extractTilesFromPng(
  * @returns Three-dimensional boolean array `[spriteIndex][frameIndex][pixelIndex]`
  *          in row-major order.
  */
-export async function extractSpritesFromFile(
-  file: File,
-  requests: Rect[][],
-): Promise<boolean[][][]> {
+export async function extractSpritesFromFile(file: File, requests: Rect[][]): Promise<boolean[][][]> {
   return loadImage(file, (img) => {
     const result: boolean[][][] = requests.map((spriteRequests) =>
       spriteRequests.map((sprite) => {
@@ -239,7 +205,7 @@ export async function extractSpritesFromFile(
 
         // Extract per-pixel bitmask (true = white/1, false = black/transparent/0)
         return getInkBitmap(ctx, sprite.width, sprite.height);
-      }),
+      })
     );
     return result;
   });
@@ -255,14 +221,11 @@ export async function extractSpritesFromFile(
  * @param file   - The source PNG File (same image used for tile extraction).
  * @param rect   - The rectangular region to extract.
  */
-export async function extractSpriteFramePreview(
-  file: File | undefined,
-  rect: Rect,
-): Promise<string> {
-  if (!file || rect.width <= 0 || rect.height <= 0) return "";
+export async function extractSpriteFramePreview(file: File | undefined, rect: Rect): Promise<string> {
+  if (!file || rect.width <= 0 || rect.height <= 0) return '';
   return loadImage(file, (img) => {
     const { canvas } = drawRegionToCanvas(img, rect);
-    return canvas.toDataURL("image/png");
+    return canvas.toDataURL('image/png');
   });
 }
 
@@ -272,31 +235,13 @@ export async function extractSpriteFramePreview(
  * ZX Spectrum colour palette — normal intensity.
  * Index corresponds to colour number (0 = black … 7 = white).
  */
-const ZX_COLORS_NORMAL: readonly string[] = [
-  "#000000",
-  "#0000D7",
-  "#D70000",
-  "#D700D7",
-  "#00D700",
-  "#00D7D7",
-  "#D7D700",
-  "#D7D7D7",
-];
+const ZX_COLORS_NORMAL: readonly string[] = ['#000000', '#0000D7', '#D70000', '#D700D7', '#00D700', '#00D7D7', '#D7D700', '#D7D7D7'];
 
 /**
  * ZX Spectrum colour palette — bright intensity.
  * Index corresponds to colour number (0 = black … 7 = white).
  */
-const ZX_COLORS_BRIGHT: readonly string[] = [
-  "#000000",
-  "#0000FF",
-  "#FF0000",
-  "#FF00FF",
-  "#00FF00",
-  "#00FFFF",
-  "#FFFF00",
-  "#FFFFFF",
-];
+const ZX_COLORS_BRIGHT: readonly string[] = ['#000000', '#0000FF', '#FF0000', '#FF00FF', '#00FF00', '#00FFFF', '#FFFF00', '#FFFFFF'];
 
 /**
  * Parses a ZX-Paintbrush `.zxp` text file, extracts all 8×8 tiles in
@@ -310,16 +255,9 @@ const ZX_COLORS_BRIGHT: readonly string[] = [
  *
  * @param file - The `.zxp` text file to parse.
  */
-export async function extractTilesFromZxpFile(
-  file: File,
-): Promise<ExtractTilesFromZxpFileResult> {
+export async function extractTilesFromZxpFile(file: File): Promise<ExtractTilesFromZxpFileResult> {
   const text = await file.text();
-  const {
-    pixels,
-    attributes: parsedAttributes,
-    tilesPerRow,
-    tileRows,
-  } = parseZxpFile(text);
+  const { pixels, attributes: parsedAttributes, tilesPerRow, tileRows } = parseZxpFile(text);
 
   const count = tilesPerRow * tileRows;
   const previews: string[] = [];
@@ -338,16 +276,14 @@ export async function extractTilesFromZxpFile(
       };
 
       const canvas = renderZxpTileToCanvas(pixels, tileCol, tileRow, attribute);
-      previews.push(canvas.toDataURL("image/png"));
+      previews.push(canvas.toDataURL('image/png'));
 
       const baseRow = tileRow * 8;
       const baseCol = tileCol * 8;
       const inkBitmap: boolean[] = [];
       for (let pixelRow = 0; pixelRow < 8; pixelRow++) {
         for (let pixelCol = 0; pixelCol < 8; pixelCol++) {
-          inkBitmap.push(
-            pixels[baseRow + pixelRow]?.[baseCol + pixelCol] ?? false,
-          );
+          inkBitmap.push(pixels[baseRow + pixelRow]?.[baseCol + pixelCol] ?? false);
         }
       }
 
@@ -382,7 +318,7 @@ export async function convertZxpFileToImageFile(file: File): Promise<File> {
   const { pixels, attributes, tilesPerRow, tileRows } = parseZxpFile(text);
 
   if (tilesPerRow === 0 || tileRows === 0) {
-    throw new Error("Invalid or empty .zxp file");
+    throw new Error('Invalid or empty .zxp file');
   }
 
   const canvas = renderZxpToCanvas(pixels, attributes, tilesPerRow, tileRows);
@@ -390,12 +326,12 @@ export async function convertZxpFileToImageFile(file: File): Promise<File> {
   return new Promise<File>((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (!blob) {
-        reject(new Error("Failed to convert .zxp file to PNG"));
+        reject(new Error('Failed to convert .zxp file to PNG'));
         return;
       }
-      const pngName = file.name.replace(/\.zxp$/i, ".png");
-      resolve(new File([blob], pngName, { type: "image/png" }));
-    }, "image/png");
+      const pngName = file.name.replace(/\.zxp$/i, '.png');
+      resolve(new File([blob], pngName, { type: 'image/png' }));
+    }, 'image/png');
   });
 }
 
@@ -423,7 +359,7 @@ function parseZxpFile(text: string): {
 
   for (const line of lines) {
     if (/^[01]+$/.test(line)) {
-      pixels.push(Array.from(line, (character) => character === "1"));
+      pixels.push(Array.from(line, (character) => character === '1'));
     } else if (/^(?:[0-9A-Fa-f]{2}\s*)+$/.test(line)) {
       for (const hex of line.split(/\s+/).filter(Boolean)) {
         const byte = Number.parseInt(hex, 16);
@@ -454,12 +390,7 @@ function parseZxpFile(text: string): {
  * @param attribute - Decoded ZX Spectrum colour attribute for this tile.
  * @returns A 8×8 offscreen canvas with the tile rendered in Spectrum colours.
  */
-function renderZxpTileToCanvas(
-  pixels: boolean[][],
-  tileCol: number,
-  tileRow: number,
-  attribute: ZxpColorAttribute,
-): HTMLCanvasElement {
+function renderZxpTileToCanvas(pixels: boolean[][], tileCol: number, tileRow: number, attribute: ZxpColorAttribute): HTMLCanvasElement {
   const { canvas, ctx } = createCanvas(8, 8);
 
   const palette = attribute.bright ? ZX_COLORS_BRIGHT : ZX_COLORS_NORMAL;
@@ -489,12 +420,7 @@ function renderZxpTileToCanvas(
  * @param tileRows    - Number of tile rows.
  * @returns Canvas sized `(tilesPerRow * 8) × (tileRows * 8)` with all tiles rendered.
  */
-function renderZxpToCanvas(
-  pixels: boolean[][],
-  attributes: ZxpColorAttribute[],
-  tilesPerRow: number,
-  tileRows: number,
-): HTMLCanvasElement {
+function renderZxpToCanvas(pixels: boolean[][], attributes: ZxpColorAttribute[], tilesPerRow: number, tileRows: number): HTMLCanvasElement {
   const { canvas, ctx } = createCanvas(tilesPerRow * 8, tileRows * 8);
   for (let tileRow = 0; tileRow < tileRows; tileRow++) {
     for (let tileCol = 0; tileCol < tilesPerRow; tileCol++) {
@@ -505,12 +431,7 @@ function renderZxpToCanvas(
         paper: 7,
         ink: 0,
       };
-      const tileCanvas = renderZxpTileToCanvas(
-        pixels,
-        tileCol,
-        tileRow,
-        attribute,
-      );
+      const tileCanvas = renderZxpTileToCanvas(pixels, tileCol, tileRow, attribute);
       ctx.drawImage(tileCanvas, tileCol * 8, tileRow * 8);
     }
   }
@@ -547,9 +468,9 @@ export function renderTilesetMapPreview(
   canvas: HTMLCanvasElement,
   tileIndices: number[],
   options: TileMapRenderOptions,
-  bitmap: ImageBitmap | null,
+  bitmap: ImageBitmap | null
 ): void {
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
   if (!ctx) {
     return;
   }
@@ -561,12 +482,12 @@ export function renderTilesetMapPreview(
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   if (!bitmap) {
-    ctx.fillStyle = "#333";
+    ctx.fillStyle = '#333';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#aaa";
-    ctx.font = "12px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("No tileset image", canvas.width / 2, canvas.height / 2);
+    ctx.fillStyle = '#aaa';
+    ctx.font = '12px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('No tileset image', canvas.width / 2, canvas.height / 2);
     return;
   }
 
@@ -588,7 +509,7 @@ export function renderTilesetMapPreview(
         col * tileWidth,
         row * tileHeight,
         tileWidth,
-        tileHeight,
+        tileHeight
       );
     }
   }
@@ -605,9 +526,9 @@ export function renderTilesetMapPreviewFromTileData(
   tileIndices: number[],
   options: TileMapRenderOptions,
   tileInkBitmaps: boolean[][],
-  attributeBytes: number[] = [],
+  attributeBytes: number[] = []
 ): void {
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
   if (!ctx) {
     return;
   }
@@ -616,14 +537,12 @@ export function renderTilesetMapPreviewFromTileData(
 
   canvas.width = mapWidth * tileWidth;
   canvas.height = mapHeight * tileHeight;
-  ctx.fillStyle = "#000";
+  ctx.fillStyle = '#000';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  const resolveTileColors = (
-    attributeByte: number | undefined,
-  ): { paperColor: string; inkColor: string } => {
+  const resolveTileColors = (attributeByte: number | undefined): { paperColor: string; inkColor: string } => {
     if (attributeByte === undefined) {
-      return { paperColor: "#000000", inkColor: "#FFFFFF" };
+      return { paperColor: '#000000', inkColor: '#FFFFFF' };
     }
 
     const bright = (attributeByte & 0x40) !== 0;
@@ -631,18 +550,12 @@ export function renderTilesetMapPreviewFromTileData(
     const ink = attributeByte & 0x07;
     const palette = bright ? ZX_COLORS_BRIGHT : ZX_COLORS_NORMAL;
     return {
-      paperColor: palette[paper] ?? "#000000",
-      inkColor: palette[ink] ?? "#FFFFFF",
+      paperColor: palette[paper] ?? '#000000',
+      inkColor: palette[ink] ?? '#FFFFFF',
     };
   };
 
-  const drawTileBitmap = (
-    bitmap: boolean[],
-    xOffset: number,
-    yOffset: number,
-    paperColor: string,
-    inkColor: string,
-  ) => {
+  const drawTileBitmap = (bitmap: boolean[], xOffset: number, yOffset: number, paperColor: string, inkColor: string) => {
     for (let pixelRow = 0; pixelRow < tileHeight; pixelRow++) {
       for (let pixelColumn = 0; pixelColumn < tileWidth; pixelColumn++) {
         const pixelIndex = pixelRow * tileWidth + pixelColumn;
@@ -694,7 +607,7 @@ export function generateTileSheetPng(
   columns: number,
   tileWidth: number,
   tileHeight: number,
-  excludedSet: Set<number>,
+  excludedSet: Set<number>
 ): Promise<Blob> {
   const count = previews.length;
   const cols = Math.max(1, columns);
@@ -717,7 +630,7 @@ export function generateTileSheetPng(
           const margin = 2; // pixels of margin from the tile edges for the cross lines
 
           ctx.save();
-          ctx.strokeStyle = "red";
+          ctx.strokeStyle = 'red';
           ctx.lineWidth = 1;
 
           ctx.beginPath();
@@ -734,19 +647,17 @@ export function generateTileSheetPng(
       img.src = dataUrl;
     });
 
-  return Promise.all(
-    previews.map((dataUrl, index) => drawTile(index, dataUrl)),
-  ).then(
+  return Promise.all(previews.map((dataUrl, index) => drawTile(index, dataUrl))).then(
     () =>
       new Promise<Blob>((resolve, reject) => {
         canvas.toBlob((blob) => {
           if (blob) {
             resolve(blob);
           } else {
-            reject(new Error("Failed to generate tile sheet PNG blob"));
+            reject(new Error('Failed to generate tile sheet PNG blob'));
           }
-        }, "image/png");
-      }),
+        }, 'image/png');
+      })
   );
 }
 
@@ -760,8 +671,8 @@ export function generateTileSheetPng(
  * so callers that branch on the file type can detect them.
  */
 export function imageBytesToFile(bytes: Uint8Array, basename: string): File {
-  if (getFileExtension(basename) === ".zxp") {
+  if (getFileExtension(basename) === '.zxp') {
     return new File([bytes as BlobPart], basename);
   }
-  return new File([bytes as BlobPart], basename, { type: "image/png" });
+  return new File([bytes as BlobPart], basename, { type: 'image/png' });
 }

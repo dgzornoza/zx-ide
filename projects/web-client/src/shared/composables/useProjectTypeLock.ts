@@ -15,11 +15,8 @@
 // Non-init messages are ignored. The window `message` listener is registered
 // in `onMounted` and removed in `onBeforeUnmount`.
 
-import type {
-  CodeGenerationType,
-  InitMessage,
-} from "externalShared/extract-graphics/extract-graphics-dtos";
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import type { CodeGenerationType, InitMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 
 export interface ProjectTypeLock {
   codeGenerationType: ReturnType<typeof ref<CodeGenerationType>>;
@@ -29,22 +26,22 @@ export interface ProjectTypeLock {
 }
 
 export function useProjectTypeLock() {
-  const codeGenerationType = ref<CodeGenerationType>("c");
+  const codeGenerationType = ref<CodeGenerationType>('c');
   const isCodeGenerationTypeReadOnly = ref(false);
   const useZx0Compression = ref<boolean>(true);
   const isZx0CompressionReadOnly = ref(false);
 
   const onWindowMessage = (event: MessageEvent) => {
     const message = event.data as InitMessage | undefined;
-    if (message?.messageType !== "initFromExtension") return;
+    if (message?.messageType !== 'initFromExtension') return;
 
-    if (message.projectType === "sjasmplus") {
-      codeGenerationType.value = "asm";
+    if (message.projectType === 'sjasmplus') {
+      codeGenerationType.value = 'asm';
       isCodeGenerationTypeReadOnly.value = true;
       useZx0Compression.value = false;
       isZx0CompressionReadOnly.value = true;
-    } else if (message.projectType === "z88dk") {
-      codeGenerationType.value = "c";
+    } else if (message.projectType === 'z88dk') {
+      codeGenerationType.value = 'c';
       isCodeGenerationTypeReadOnly.value = true;
       useZx0Compression.value = true;
       isZx0CompressionReadOnly.value = true;
@@ -54,11 +51,11 @@ export function useProjectTypeLock() {
   };
 
   onMounted(() => {
-    window.addEventListener("message", onWindowMessage);
+    window.addEventListener('message', onWindowMessage);
   });
 
   onBeforeUnmount(() => {
-    window.removeEventListener("message", onWindowMessage);
+    window.removeEventListener('message', onWindowMessage);
   });
 
   return {

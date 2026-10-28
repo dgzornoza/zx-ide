@@ -8,7 +8,7 @@
 // numeric byte sequences. The text-side generators (`code-generator-utils.ts`)
 // and the binary-side generators share the same row-packing logic.
 
-import type { ZxpColorAttribute } from "src/helpers/image-utils";
+import type { ZxpColorAttribute } from 'src/helpers/image-utils';
 
 /**
  * Packs one row of boolean ink values into a byte array
@@ -18,11 +18,7 @@ import type { ZxpColorAttribute } from "src/helpers/image-utils";
  * bitmapRowToBytes([true, true, false, false, true, true, false, false], 0, 8);
  * // → Uint8Array([0b11001100])  →  [204]
  */
-export function bitmapRowToBytes(
-  inkBitmap: boolean[],
-  rowOffset: number,
-  width: number,
-): Uint8Array {
+export function bitmapRowToBytes(inkBitmap: boolean[], rowOffset: number, width: number): Uint8Array {
   const bytesPerRow = Math.ceil(width / 8);
   const bytes = new Uint8Array(bytesPerRow);
 
@@ -44,11 +40,7 @@ export function bitmapRowToBytes(
  *
  * No mask plane is emitted.
  */
-export function bitmapToBytes(
-  inkBitmap: boolean[],
-  width: number,
-  height: number,
-): Uint8Array {
+export function bitmapToBytes(inkBitmap: boolean[], width: number, height: number): Uint8Array {
   const bytesPerRow = Math.ceil(width / 8);
   const out = new Uint8Array(bytesPerRow * height);
 
@@ -63,12 +55,7 @@ export function bitmapToBytes(
 /**
  * Converts a single 8-pixel column of a row-major ink bitmap into one byte.
  */
-export function columnBitmapToByte(
-  inkBitmap: boolean[],
-  width: number,
-  row: number,
-  colIndex: number,
-): number {
+export function columnBitmapToByte(inkBitmap: boolean[], width: number, row: number, colIndex: number): number {
   const bytes = bitmapRowToBytes(inkBitmap, row * width, width);
   return bytes[colIndex] ?? 0;
 }
@@ -77,12 +64,7 @@ export function columnBitmapToByte(
  * Builds the binary payload for a single tile: the pixel bitmap followed,
  * if `attributes` is provided, by the corresponding attribute byte.
  */
-export function tileToBytes(
-  inkBitmap: boolean[],
-  width: number,
-  height: number,
-  attribute?: ZxpColorAttribute,
-): Uint8Array {
+export function tileToBytes(inkBitmap: boolean[], width: number, height: number, attribute?: ZxpColorAttribute): Uint8Array {
   const bitmap = bitmapToBytes(inkBitmap, width, height);
   if (!attribute) return bitmap;
 
@@ -96,12 +78,7 @@ export function tileToBytes(
  * ZX Spectrum attribute byte layout (see {@link attributeToByte} for details).
  */
 export function attributeToByte(attribute: ZxpColorAttribute): number {
-  return (
-    (attribute.flash ? 0x80 : 0) |
-    (attribute.bright ? 0x40 : 0) |
-    ((attribute.paper & 0x07) << 3) |
-    (attribute.ink & 0x07)
-  );
+  return (attribute.flash ? 0x80 : 0) | (attribute.bright ? 0x40 : 0) | ((attribute.paper & 0x07) << 3) | (attribute.ink & 0x07);
 }
 
 /**
@@ -122,8 +99,7 @@ export function buildTilesBinary(params: {
   attributes?: ZxpColorAttribute[];
   includedIndices: number[];
 }): Uint8Array {
-  const { inkBitmaps, tileWidth, tileHeight, attributes, includedIndices } =
-    params;
+  const { inkBitmaps, tileWidth, tileHeight, attributes, includedIndices } = params;
 
   const bytesPerTile = Math.ceil(tileWidth / 8) * tileHeight;
   const hasAttributes = Boolean(attributes && attributes.length > 0);
@@ -233,11 +209,7 @@ export function buildSpritesBinary(params: {
  * Builds `count` rows of zero bytes (or `$FF,$00` pairs when `useMask`),
  * each row spanning `width` pixels (i.e. `ceil(width / 8)` bytes).
  */
-export function buildPaddingBytes(
-  count: number,
-  width: number,
-  useMask: boolean,
-): Uint8Array {
+export function buildPaddingBytes(count: number, width: number, useMask: boolean): Uint8Array {
   const bytesPerRow = Math.ceil(width / 8);
   const rowSize = bytesPerRow * (useMask ? 2 : 1);
   const out = new Uint8Array(count * rowSize);
@@ -261,13 +233,7 @@ export function buildPaddingBytes(
  * so the compressed payload is byte-for-byte compatible with the
  * uncompressed `defb` output.
  */
-export function buildColumnBytes(
-  inkBitmap: boolean[],
-  width: number,
-  height: number,
-  colIndex: number,
-  useMask: boolean,
-): Uint8Array {
+export function buildColumnBytes(inkBitmap: boolean[], width: number, height: number, colIndex: number, useMask: boolean): Uint8Array {
   const out = new Uint8Array(height * (useMask ? 2 : 1));
   let writeOffset = 0;
   for (let row = 0; row < height; row++) {
@@ -285,10 +251,7 @@ export function buildColumnBytes(
  * Tiles not in `includedIndices` are skipped. Missing or undefined
  * attributes fall back to ZX Spectrum defaults (paper=7, ink=0).
  */
-export function buildAttributeBytes(
-  attributes: ZxpColorAttribute[],
-  includedIndices: number[],
-): Uint8Array {
+export function buildAttributeBytes(attributes: ZxpColorAttribute[], includedIndices: number[]): Uint8Array {
   const out = new Uint8Array(includedIndices.length);
   for (let i = 0; i < includedIndices.length; i++) {
     const attr = attributes[includedIndices[i]] ?? {

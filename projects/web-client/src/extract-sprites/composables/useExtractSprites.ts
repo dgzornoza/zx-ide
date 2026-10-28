@@ -1,27 +1,14 @@
-import {
-  FileEntry,
-  WriteFilesMessage,
-} from "externalShared/extract-graphics/extract-graphics-dtos";
-import { basenameFromPath } from "src/helpers/file-utils";
-import { imageBytesToFile } from "src/helpers/image-utils";
-import { createTranslationPrefixFn } from "src/helpers/vue-utils";
-import { createSpritesCodeGenerator } from "src/shared/composables/spritesCodeGenerators/codeGeneratorFactory";
-import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
-import {
-  SpriteDefinition,
-  SpriteFlags,
-  SpritesMapModel,
-} from "src/shared/models/spriteDefinition";
-import {
-  StatusMessage,
-  StatusMessageType,
-} from "src/shared/models/statusMessage";
-import { onMounted, reactive, ref } from "vue";
-import { createVsCodeBridge } from "../../bridge/vscode";
-import {
-  convertZxpFileToImageFile,
-  extractSpritesFromFile,
-} from "../../helpers/image-utils";
+import { FileEntry, WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { basenameFromPath } from 'src/helpers/file-utils';
+import { imageBytesToFile } from 'src/helpers/image-utils';
+import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
+import { createSpritesCodeGenerator } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorFactory';
+import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
+import { SpriteDefinition, SpriteFlags, SpritesMapModel } from 'src/shared/models/spriteDefinition';
+import { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
+import { onMounted, reactive, ref } from 'vue';
+import { createVsCodeBridge } from '../../bridge/vscode';
+import { convertZxpFileToImageFile, extractSpritesFromFile } from '../../helpers/image-utils';
 
 /**
  * Composable that manages the full state and business logic for the
@@ -31,11 +18,11 @@ export function useExtractSprites() {
   const vscode = createVsCodeBridge();
 
   /** Namespaced translation helper for the extract-sprites scope. */
-  const tp = createTranslationPrefixFn("extract-sprites");
+  const tp = createTranslationPrefixFn('extract-sprites');
 
   const state = reactive({
-    source: "",
-    mapSource: "",
+    source: '',
+    mapSource: '',
     sprites: [] as SpriteDefinition[],
   });
 
@@ -43,12 +30,7 @@ export function useExtractSprites() {
   const currentImageFile = ref<File | undefined>(undefined);
 
   const status = ref<StatusMessage | null>(null);
-  const {
-    codeGenerationType,
-    isCodeGenerationTypeReadOnly,
-    useZx0Compression,
-    isZx0CompressionReadOnly,
-  } = useProjectTypeLock();
+  const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
   const spriteFlags = ref<number>(SpriteFlags.None);
 
   // ─── Load map ──────────────────────────────────────────────────────────────
@@ -61,8 +43,8 @@ export function useExtractSprites() {
       const text = await file.text();
       const mapData = JSON.parse(text) as SpritesMapModel;
 
-      if (mapData.type !== "sprites") {
-        setStatus("error", tp("errorMapLoadFailed"));
+      if (mapData.type !== 'sprites') {
+        setStatus('error', tp('errorMapLoadFailed'));
         return;
       }
 
@@ -73,11 +55,11 @@ export function useExtractSprites() {
         ...mapData.sprites.map((sprite) => ({
           ...sprite,
           _id: crypto.randomUUID(),
-        })),
+        }))
       );
       spriteFlags.value = mapData.spriteFlags ?? SpriteFlags.None;
     } catch {
-      setStatus("error", tp("errorMapLoadFailed"));
+      setStatus('error', tp('errorMapLoadFailed'));
     }
   };
 
@@ -88,14 +70,11 @@ export function useExtractSprites() {
    * `.zxp` files are converted to an in-memory PNG before storing so that
    * the rest of the pipeline (previews, bitmask extraction) works unchanged.
    */
-  const setSourceImage = async (
-    path: string,
-    bytes: Uint8Array,
-  ): Promise<void> => {
+  const setSourceImage = async (path: string, bytes: Uint8Array): Promise<void> => {
     try {
       const basename = basenameFromPath(path);
       const zxpFile = imageBytesToFile(bytes, basename);
-      if (zxpFile.type === "") {
+      if (zxpFile.type === '') {
         // ZXP: convert to an in-memory PNG via the existing helper so the
         // downstream pipeline keeps working with PNGs.
         currentImageFile.value = await convertZxpFileToImageFile(zxpFile);
@@ -106,8 +85,8 @@ export function useExtractSprites() {
       state.source = path;
       await extractFromCurrentImage();
     } catch (error) {
-      console.error("Source image load failed:", error);
-      setStatus("error", tp("errorSourceFileLoad"));
+      console.error('Source image load failed:', error);
+      setStatus('error', tp('errorSourceFileLoad'));
     }
   };
 
@@ -126,8 +105,8 @@ export function useExtractSprites() {
           y: frame.y,
           width: sprite.width,
           height: sprite.height,
-        })),
-      ),
+        }))
+      )
     );
   };
 
@@ -136,7 +115,7 @@ export function useExtractSprites() {
   /** Returns a new sprite definition initialised with default values and one empty frame. */
   const createSprite = (): SpriteDefinition => ({
     _id: crypto.randomUUID(),
-    name: "",
+    name: '',
     width: 8,
     height: 8,
     frames: [{ x: 0, y: 0 }],
@@ -177,14 +156,11 @@ export function useExtractSprites() {
    */
   const extractResources = async () => {
     if (!currentImageFile.value) {
-      setStatus("error", tp("errorNoSourceFile"));
+      setStatus('error', tp('errorNoSourceFile'));
       return;
     }
 
-    const fileNameWithoutExtension = currentImageFile.value.name.replace(
-      /\.[^.]+$/,
-      "",
-    );
+    const fileNameWithoutExtension = currentImageFile.value.name.replace(/\.[^.]+$/, '');
 
     const generator = createSpritesCodeGenerator(codeGenerationType.value);
     const spriteBitmasks = await extractSpritesFromFile(
@@ -195,8 +171,8 @@ export function useExtractSprites() {
           y: frame.y,
           width: sprite.width,
           height: sprite.height,
-        })),
-      ),
+        }))
+      )
     );
     const codeFiles: FileEntry[] = generator.generate({
       name: fileNameWithoutExtension,
@@ -207,16 +183,16 @@ export function useExtractSprites() {
     });
 
     if (!vscode.isAvailable) {
-      setStatus("error", tp("errorVsCodeRequired"));
+      setStatus('error', tp('errorVsCodeRequired'));
       return;
     }
 
     const message: WriteFilesMessage = {
-      messageType: "writeFilesFromWebview",
+      messageType: 'writeFilesFromWebview',
       codeFiles,
     };
     vscode.postMessage(message);
-    setStatus("success", tp("statusSent"));
+    setStatus('success', tp('statusSent'));
   };
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────

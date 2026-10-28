@@ -1,7 +1,7 @@
-import { buildSpritesBinary } from "src/helpers/binary-builder-utils";
-import { bytesToBase64 } from "src/helpers/binary-utils";
-import { toCodeIdentifier, toMacroGuard } from "src/helpers/string-utils";
-import { compress as compressZx0 } from "src/helpers/zx0-compress";
+import { buildSpritesBinary } from 'src/helpers/binary-builder-utils';
+import { bytesToBase64 } from 'src/helpers/binary-utils';
+import { toCodeIdentifier, toMacroGuard } from 'src/helpers/string-utils';
+import { compress as compressZx0 } from 'src/helpers/zx0-compress';
 import {
   buildDataSizeComment,
   buildMapFile,
@@ -10,8 +10,8 @@ import {
   generateSpriteAsmBody,
   SpritesCodeGeneratorParams,
   SpritesCodeGeneratorStrategy,
-} from "src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy";
-import { SpriteFlags } from "src/shared/models/spriteDefinition";
+} from 'src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy';
+import { SpriteFlags } from 'src/shared/models/spriteDefinition';
 
 /**
  * Generates sprites for Z88DK C language.
@@ -40,21 +40,19 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
     return [
       buildMapFile(params),
       {
-        fileType: "c-header",
+        fileType: 'c-header',
         fileName: `${params.name}.h`,
         content: headerContent,
       },
       {
-        fileType: "asm",
+        fileType: 'asm',
         fileName: `${params.name}.asm`,
         content: asmContent,
       },
     ];
   }
 
-  private generateCompressed(
-    params: SpritesCodeGeneratorParams,
-  ): GeneratedFile[] {
+  private generateCompressed(params: SpritesCodeGeneratorParams): GeneratedFile[] {
     const hasPadding = (params.spriteFlags & SpriteFlags.Sp1Padding) !== 0;
     const useMask = (params.spriteFlags & SpriteFlags.UseMask) !== 0;
 
@@ -71,21 +69,14 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
 
     const compressedBytes = compressZx0(rawBytes).data;
 
-    const totalSize = calculateSpritesDataByteCount(
-      params,
-      hasPadding,
-      useMask,
-    );
+    const totalSize = calculateSpritesDataByteCount(params, hasPadding, useMask);
     const spriteCount = params.sprites.length;
-    const frameCount = params.sprites.reduce(
-      (sum, sprite) => sum + sprite.frames.length,
-      0,
-    );
+    const frameCount = params.sprites.reduce((sum, sprite) => sum + sprite.frames.length, 0);
 
     return [
       buildMapFile(params),
       {
-        fileType: "c-header",
+        fileType: 'c-header',
         fileName: `${params.name}.h`,
         content: this.generateCompressedHeaderFile(params.name, {
           spriteCount,
@@ -94,7 +85,7 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
         }),
       },
       {
-        fileType: "asm",
+        fileType: 'asm',
         fileName: `${params.name}.asm`,
         content: this.generateCompressedAsmFile(params.name, {
           spriteCount,
@@ -104,7 +95,7 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
         }),
       },
       {
-        fileType: "binary",
+        fileType: 'binary',
         fileName: `${params.name}.bin`,
         content: bytesToBase64(compressedBytes),
       },
@@ -118,9 +109,9 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
     const lines: string[] = [
       `#ifndef __DATA_${guard}_H__`,
       `#define __DATA_${guard}_H__`,
-      "",
-      "#include <stdint.h>",
-      "",
+      '',
+      '#include <stdint.h>',
+      '',
       ...params.sprites.flatMap((sprite) => {
         const spriteName = `${id}_${toCodeIdentifier(sprite.name)}`;
         const columns = Math.ceil(sprite.width / 8);
@@ -134,18 +125,15 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
           return [`extern const uint8_t ${spriteName}[];`];
         }
       }),
-      "",
+      '',
       `#endif // __DATA_${guard}_H__`,
-      "",
+      '',
     ];
 
-    return lines.join("\n");
+    return lines.join('\n');
   }
 
-  private generateCompressedHeaderFile(
-    baseName: string,
-    sizes: { spriteCount: number; frameCount: number; totalSize: number },
-  ): string {
+  private generateCompressedHeaderFile(baseName: string, sizes: { spriteCount: number; frameCount: number; totalSize: number }): string {
     const id = toCodeIdentifier(baseName);
     const guard = toMacroGuard(baseName);
     const { spriteCount, frameCount, totalSize } = sizes;
@@ -153,18 +141,18 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
     return [
       `#ifndef __DATA_${guard}_H__`,
       `#define __DATA_${guard}_H__`,
-      "",
-      "#include <stdint.h>",
-      "",
+      '',
+      '#include <stdint.h>',
+      '',
       `#define ${guard}_SPRITES_COUNT      ${spriteCount}u`,
       `#define ${guard}_FRAMES_COUNT       ${frameCount}u`,
       `#define ${guard}_TOTAL_SIZE         ${totalSize}u`,
-      "",
+      '',
       `extern const uint8_t ${id}_compressed[];`,
-      "",
+      '',
       `#endif // __DATA_${guard}_H__`,
-      "",
-    ].join("\n");
+      '',
+    ].join('\n');
   }
 
   private generateCompressedAsmFile(
@@ -174,7 +162,7 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
       frameCount: number;
       totalSize: number;
       compressedSize: number;
-    },
+    }
   ): string {
     const id = toCodeIdentifier(baseName);
     const guard = toMacroGuard(baseName);
@@ -185,53 +173,35 @@ export class CSpritesCodeGeneratorStrategy implements SpritesCodeGeneratorStrate
       `; ${guard}_FRAMES_COUNT: ${sizes.frameCount}`,
       `; ${guard}_TOTAL_SIZE: ${sizes.totalSize}`,
       `; Compressed Size: ${sizes.compressedSize} bytes (ZX0 standard)`,
-      "",
-      "; incbin path is resolved relative to the Makefile cwd (project root),",
+      '',
+      '; incbin path is resolved relative to the Makefile cwd (project root),',
       "; not relative to this .asm file's location.",
-      "SECTION rodata_user",
-      "",
+      'SECTION rodata_user',
+      '',
       `PUBLIC _${id}_compressed`,
       `_${id}_compressed:`,
       `    incbin "${incbinPath}"`,
-      "",
-    ].join("\n");
+      '',
+    ].join('\n');
   }
 
   private generatePlainAsmFile(params: SpritesCodeGeneratorParams): string {
     const id = toCodeIdentifier(params.name);
     const hasPadding = (params.spriteFlags & SpriteFlags.Sp1Padding) !== 0;
     const useMask = (params.spriteFlags & SpriteFlags.UseMask) !== 0;
-    const dataByteCount = calculateSpritesDataByteCount(
-      params,
-      hasPadding,
-      useMask,
-    );
+    const dataByteCount = calculateSpritesDataByteCount(params, hasPadding, useMask);
     const dataSizeComment = buildDataSizeComment(dataByteCount);
 
-    const lines: string[] = [
-      dataSizeComment,
-      "; Read-Only Data Section for User Module",
-      "SECTION rodata_user",
-      "",
-    ];
+    const lines: string[] = [dataSizeComment, '; Read-Only Data Section for User Module', 'SECTION rodata_user', ''];
 
     params.sprites.forEach((sprite, spriteIndex) => {
       const spriteName = toCodeIdentifier(sprite.name);
       const baseLabel = `_${id}_${spriteName}`;
       const frameBitmasks = params.spriteBitmasks[spriteIndex] ?? [];
 
-      lines.push(
-        ...generateSpriteAsmBody(
-          sprite,
-          frameBitmasks,
-          baseLabel,
-          baseLabel,
-          hasPadding,
-          useMask,
-        ),
-      );
+      lines.push(...generateSpriteAsmBody(sprite, frameBitmasks, baseLabel, baseLabel, hasPadding, useMask));
     });
 
-    return lines.join("\n");
+    return lines.join('\n');
   }
 }

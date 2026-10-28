@@ -91,7 +91,7 @@ export class Z88dkReportService extends Disposable {
     const outputFilename = await this.getOutputFilename();
     const mapFileContent = await WorkspaceHelpers.readWorkspaceFile(`${BUILD_DIRECTORY}`, `${outputFilename}.map`);
 
-    var result: ReportData | undefined;
+    let result: ReportData | undefined;
     if (mapFileContent) {
       const symbols = this.parseSymbolsFromContent(mapFileContent);
 
@@ -148,7 +148,7 @@ export class Z88dkReportService extends Disposable {
   }
 
   private writeFormattedOuputLine(outputChannel: vscode.OutputChannel, description: string, value: number | undefined): void {
-    let formattedValue = value || value == 0 ? `${value} (0x${value.toString(16).toUpperCase()}) bytes` : 'N/A';
+    const formattedValue = value || value == 0 ? `${value} (0x${value.toString(16).toUpperCase()}) bytes` : 'N/A';
     const padding = ' '.repeat(50 - description.length);
     outputChannel.appendLine(`${description}${padding}${formattedValue}`);
   }

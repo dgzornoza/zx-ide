@@ -17,11 +17,7 @@ export abstract class Command<TParams> extends Disposable {
     super();
     this._isEnabled = true;
 
-    this._subscriptions.push(
-      vscode.commands.registerCommand(this.getCommandName(), () => {
-        this.execute();
-      })
-    );
+    this._subscriptions.push(vscode.commands.registerCommand(this.getCommandName(), () => this.execute()));
   }
 
   public abstract execute(...params: TParams[]): void | Promise<void>;

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import BinaryInputPanel from "src/shared/components/BinaryInputPanel.vue";
-import CodeGenerationInfo from "src/shared/components/CodeGenerationInfo.vue";
-import SpritesEditorSection from "src/shared/components/SpritesEditorSection.vue";
-import { ref } from "vue";
-import { useCreateSprites } from "./composables/useCreateSprites";
+import BinaryInputPanel from 'src/shared/components/BinaryInputPanel.vue';
+import CodeGenerationInfo from 'src/shared/components/CodeGenerationInfo.vue';
+import SpritesEditorSection from 'src/shared/components/SpritesEditorSection.vue';
+import { ref } from 'vue';
+import { useCreateSprites } from './composables/useCreateSprites';
 
 const {
   state,
@@ -23,9 +23,7 @@ const {
 } = useCreateSprites();
 
 /** Template ref to the BinaryInputPanel so we can focus its textarea when the user clicks "Add frame" on a sprite card. */
-const binaryInputPanel = ref<InstanceType<typeof BinaryInputPanel> | null>(
-  null,
-);
+const binaryInputPanel = ref<InstanceType<typeof BinaryInputPanel> | null>(null);
 
 function handleAddFrame(spriteIndex: number) {
   addSpriteFrame(spriteIndex);
@@ -37,30 +35,20 @@ function handleAddFrame(spriteIndex: number) {
   <div class="min-h-screen px-6 py-8">
     <header class="w-full">
       <div class="text-2xl font-semibold">
-        {{ tp("title") }}
+        {{ tp('title') }}
       </div>
       <p class="mt-2 max-w-2xl text-sm text-[color:var(--ink-soft)]">
-        {{ tp("subtitle") }}
+        {{ tp('subtitle') }}
       </p>
     </header>
 
     <main class="mt-6 flex w-full flex-col gap-4">
       <!-- Binary input panel: each "Add" click adds a frame to the active sprite -->
-      <BinaryInputPanel
-        ref="binaryInputPanel"
-        v-model:binary-text="binaryText"
-        translation-namespace="create-sprites"
-        @add="addFrame"
-      />
+      <BinaryInputPanel ref="binaryInputPanel" v-model:binary-text="binaryText" translation-namespace="create-sprites" @add="addFrame" />
 
       <!-- Project type info -->
-      <section
-        class="w-full border border-[color:var(--border)] bg-[color:var(--card)] p-4"
-      >
-        <CodeGenerationInfo
-          :code-generation-type="codeGenerationType"
-          translation-namespace="create-sprites"
-        />
+      <section class="w-full border border-[color:var(--border)] bg-[color:var(--card)] p-4">
+        <CodeGenerationInfo :code-generation-type="codeGenerationType" translation-namespace="create-sprites" />
       </section>
 
       <!-- Sprites collection -->
@@ -79,23 +67,17 @@ function handleAddFrame(spriteIndex: number) {
     </main>
 
     <footer class="mt-6 w-full">
-      <div
-        class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center"
-      >
+      <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
         <div
           v-if="status"
           class="text-xs font-semibold"
-          :class="
-            status.type === 'success'
-              ? 'text-[color:var(--success-ink)]'
-              : 'text-[color:var(--error-ink)]'
-          "
+          :class="status.type === 'success' ? 'text-[color:var(--success-ink)]' : 'text-[color:var(--error-ink)]'"
         >
           {{ status.text }}
         </div>
         <div class="ml-auto flex items-center gap-3">
           <label for="output-name" class="text-xs font-semibold">
-            {{ tp("outputNameLabel") }}
+            {{ tp('outputNameLabel') }}
           </label>
           <input
             id="output-name"
@@ -110,7 +92,7 @@ function handleAddFrame(spriteIndex: number) {
             :disabled="state.sprites.length === 0"
             @click="generateCode"
           >
-            {{ tp("create") }}
+            {{ tp('create') }}
           </button>
         </div>
       </div>

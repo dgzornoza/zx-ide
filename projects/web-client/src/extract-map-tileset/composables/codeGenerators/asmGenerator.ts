@@ -5,10 +5,10 @@ import {
   CodeGeneratorStrategy,
   GeneratedFile,
   MapCodeGeneratorParams,
-} from "src/extract-map-tileset/composables/codeGenerators/codeGeneratorStrategy";
-import { buildMapIndicesBinary } from "src/helpers/binary-builder-utils";
-import { formatIndicesAsDefb } from "src/helpers/code-generator-utils";
-import { toCodeIdentifier, toMacroGuard } from "src/helpers/string-utils";
+} from 'src/extract-map-tileset/composables/codeGenerators/codeGeneratorStrategy';
+import { buildMapIndicesBinary } from 'src/helpers/binary-builder-utils';
+import { formatIndicesAsDefb } from 'src/helpers/code-generator-utils';
+import { toCodeIdentifier, toMacroGuard } from 'src/helpers/string-utils';
 
 /**
  * ASM code generator for maps.
@@ -41,12 +41,12 @@ export class AsmMapCodeGenerator implements CodeGeneratorStrategy {
       header,
       `${identifier}:`,
       ...rows,
-      "",
-    ].join("\n");
+      '',
+    ].join('\n');
 
     return [
       {
-        fileType: "asm",
+        fileType: 'asm',
         fileName: `${name}.asm`,
         content,
       },

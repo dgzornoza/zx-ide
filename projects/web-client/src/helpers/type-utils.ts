@@ -7,10 +7,7 @@ export class TypeEnumHelpers {
    * @param value - Valor combinado de flags (bitmask).
    * @returns `true` si el flag está presente, `false` si no.
    */
-  public static hasFlag<T extends Record<string, number>>(
-    flag: T[keyof T],
-    value?: number,
-  ): boolean {
+  public static hasFlag<T extends Record<string, number>>(flag: T[keyof T], value?: number): boolean {
     return value != null && (value & flag) === flag;
   }
 
@@ -23,11 +20,7 @@ export class TypeEnumHelpers {
    * @param active - `true` para activar el flag, `false` para desactivarlo.
    * @returns Nuevo valor de bitmask con el flag actualizado.
    */
-  public static setFlag<T extends Record<string, number>>(
-    flag: T[keyof T],
-    currentValue: number,
-    active: boolean,
-  ): number {
+  public static setFlag<T extends Record<string, number>>(flag: T[keyof T], currentValue: number, active: boolean): number {
     return active ? currentValue | flag : currentValue & ~flag;
   }
 }

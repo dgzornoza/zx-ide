@@ -6,6 +6,7 @@ import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { CreateSpritesCmd } from '@commands/create-sprites.cmd';
 import { OpenHelpCmd } from '@commands/open-help.cmd';
 import '@core/helpers/array-helpers';
+import { Logger } from '@core/logger';
 import { FeaturesService } from '@core/services/features.service';
 import { Types } from '@core/types';
 import { SjasmPlusProjectService } from '@sjasmplus/services/sjasmplus-project.service';
@@ -25,16 +26,18 @@ export function activate(context: vscode.ExtensionContext) {
   InversifyConfig.container.get<AttachProjectSpritesCmd>(Types.AttachProjectSpritesCmd);
   InversifyConfig.container.get<CreateSpritesCmd>(Types.CreateSpritesCmd);
 
-  FeaturesService.getProjectType().then((projectType) => {
-    switch (projectType) {
-      case 'z88dk':
-        InversifyConfig.container.get<Z88dkProjectService>(Types.Z88dkProjectService);
-        break;
-      case 'sjasmplus':
-        InversifyConfig.container.get<SjasmPlusProjectService>(Types.SjasmPlusProjectService);
-        break;
-    }
-  });
+  FeaturesService.getProjectType()
+    .then((projectType) => {
+      switch (projectType) {
+        case 'z88dk':
+          InversifyConfig.container.get<Z88dkProjectService>(Types.Z88dkProjectService);
+          break;
+        case 'sjasmplus':
+          InversifyConfig.container.get<SjasmPlusProjectService>(Types.SjasmPlusProjectService);
+          break;
+      }
+    })
+    .catch((error: unknown) => Logger.error(`Error activating project services: ${error}`));
 
   //  InversifyConfig.container.get<CreateProjectCmd>('IStatusBar');
 

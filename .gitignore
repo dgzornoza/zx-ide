@@ -132,3 +132,4 @@ projects/vscode-extension/media/
 # Local Pi runtime state
 .atl/
 .pi/
+.husky/

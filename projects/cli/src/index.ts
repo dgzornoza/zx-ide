@@ -5,26 +5,29 @@ import { FileHelpers } from './helpers/file.helpers';
 import { NewProjectGenerator } from './new-project/new-project-generator';
 import { NewProjectWizard } from './new-project/new-project-wizard';
 import { NewProjectModel } from './new-project/new-project.models';
-var pjson = require('../package.json');
-
-// @ts-ignore
 import { default as standard } from 'figlet/importable-fonts/Standard';
+import packageJson from '../package.json';
 
 class Main {
   private _program!: Command;
 
   constructor() {
-    this.setCurrentLanguage().then(async () => {
-      this._program = this.setupCommander();
+    this.setCurrentLanguage()
+      .then(async () => {
+        this._program = this.setupCommander();
 
-      await this.init();
-    });
+        await this.init();
+      })
+      .catch((error: unknown) => {
+        console.error(error);
+        process.exitCode = 1;
+      });
   }
 
   async init() {
     this.showTitle();
 
-    var options = this._program.opts();
+    const options = this._program.opts();
     const ranWithArgs = options.projectType && options.targetPath && options.projectName;
 
     let newProjectModel: NewProjectModel;
@@ -49,7 +52,7 @@ class Main {
   }
 
   async setCurrentLanguage(): Promise<void> {
-    const language = await osLocale();
+    await osLocale();
     // TODO: 05/11/2024 - Implement language support
     //console.log(`Current language is: ${language}`);
   }
@@ -63,7 +66,7 @@ class Main {
     const program = new Command();
 
     program
-      .version(pjson.version)
+      .version(packageJson.version)
       .option('-o, --output <path>', 'Set script output result path')
       .option('-t, --project-type <PROYECT>', 'Set project type (sjasmplus, z88dk)')
       .option('-p, --project-path <PATH>', 'Set target directory')

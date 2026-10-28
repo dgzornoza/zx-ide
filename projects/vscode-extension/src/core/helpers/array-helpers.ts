@@ -1,3 +1,5 @@
+// Global declaration merging: the interface is consumed through Array.prototype, not referenced by name.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Array<T> {
   groupBy<K>(key: (item: T) => K): Record<string, T[]>;
 }

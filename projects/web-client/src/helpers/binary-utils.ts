@@ -13,7 +13,7 @@
  */
 export function bytesToBase64(bytes: Uint8Array | number[]): string {
   const arr = bytes instanceof Uint8Array ? bytes : Uint8Array.from(bytes);
-  let binary = "";
+  let binary = '';
   const chunkSize = 0x8000; // 32 KiB chunks keep `apply` happy on large inputs
   for (let offset = 0; offset < arr.length; offset += chunkSize) {
     const chunk = arr.subarray(offset, offset + chunkSize);

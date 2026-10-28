@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
-import type { MapTilesetMetadata } from "../models/mapTilesetDefinition";
+import { onMounted, ref, watch } from 'vue';
+import type { MapTilesetMetadata } from '../models/mapTilesetDefinition';
 
 const props = defineProps<{
   metadata?: MapTilesetMetadata;
@@ -19,14 +19,10 @@ function triggerRender(): void {
   }
 }
 
-watch(
-  () => [props.tileIndices, props.metadata, props.previewRefreshKey] as const,
-  triggerRender,
-  {
-    deep: true,
-    flush: "post",
-  },
-);
+watch(() => [props.tileIndices, props.metadata, props.previewRefreshKey] as const, triggerRender, {
+  deep: true,
+  flush: 'post',
+});
 
 onMounted(triggerRender);
 </script>
@@ -38,11 +34,7 @@ onMounted(triggerRender);
       <canvas
         ref="canvasRef"
         class="border border-[color:var(--separator)] bg-black"
-        style="
-          image-rendering: pixelated;
-          image-rendering: -moz-crisp-edges;
-          max-width: 100%;
-        "
+        style="image-rendering: pixelated; image-rendering: -moz-crisp-edges; max-width: 100%"
       />
     </div>
   </div>

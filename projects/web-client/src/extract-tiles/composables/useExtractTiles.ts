@@ -1,27 +1,18 @@
-import {
-  FileEntry,
-  WriteFilesMessage,
-} from "externalShared/extract-graphics/extract-graphics-dtos";
-import { basenameFromPath, dirNameOfPath } from "src/helpers/file-utils";
-import { imageBytesToFile } from "src/helpers/image-utils";
-import { createTranslationPrefixFn } from "src/helpers/vue-utils";
+import { FileEntry, WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { basenameFromPath, dirNameOfPath } from 'src/helpers/file-utils';
+import { imageBytesToFile } from 'src/helpers/image-utils';
+import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import {
   calculateTilesAttributeByteCount,
   calculateTilesBitmapByteCount,
-} from "src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy";
-import { createTilesCodeGenerator } from "src/shared/composables/tilesCodeGenerators/codeGeneratorFactory";
-import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
-import {
-  StatusMessage,
-  StatusMessageType,
-} from "src/shared/models/statusMessage";
-import { TilesModel } from "src/shared/models/tilesDefinition";
-import { reactive, ref, watch, computed } from "vue";
-import { createVsCodeBridge } from "../../bridge/vscode";
-import {
-  extractTilesFromPng,
-  extractTilesFromZxpFile,
-} from "../../helpers/image-utils";
+} from 'src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy';
+import { createTilesCodeGenerator } from 'src/shared/composables/tilesCodeGenerators/codeGeneratorFactory';
+import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
+import { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
+import { TilesModel } from 'src/shared/models/tilesDefinition';
+import { reactive, ref, watch, computed } from 'vue';
+import { createVsCodeBridge } from '../../bridge/vscode';
+import { extractTilesFromPng, extractTilesFromZxpFile } from '../../helpers/image-utils';
 
 /**
  * Composable that manages the full state and business logic for the
@@ -31,13 +22,13 @@ export function useExtractTiles() {
   const vscode = createVsCodeBridge();
 
   /** Namespaced translation helper for the extract-tiles scope. */
-  const tp = createTranslationPrefixFn("extract-tiles");
+  const tp = createTranslationPrefixFn('extract-tiles');
 
   const state = reactive({
-    source: "",
-    mapSource: "",
+    source: '',
+    mapSource: '',
     tiles: {
-      type: "tiles" as const,
+      type: 'tiles' as const,
       count: 0,
       columns: 0,
       tileWidth: 8,
@@ -53,12 +44,7 @@ export function useExtractTiles() {
   const currentImageFile = ref<File | undefined>(undefined);
 
   const status = ref<StatusMessage | null>(null);
-  const {
-    codeGenerationType,
-    isCodeGenerationTypeReadOnly,
-    useZx0Compression,
-    isZx0CompressionReadOnly,
-  } = useProjectTypeLock();
+  const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
 
   /**
    * Removes out-of-range indices from the excluded set when tile count shrinks.
@@ -86,8 +72,8 @@ export function useExtractTiles() {
       const text = await file.text();
       const mapData = JSON.parse(text);
 
-      if (mapData.type === "sprites") {
-        setStatus("error", tp("errorMapLoadFailed"));
+      if (mapData.type === 'sprites') {
+        setStatus('error', tp('errorMapLoadFailed'));
         return;
       }
 
@@ -95,9 +81,7 @@ export function useExtractTiles() {
       state.tiles.tileWidth = mapData.tileWidth ?? state.tiles.tileWidth;
       state.tiles.tileHeight = mapData.tileHeight ?? state.tiles.tileHeight;
 
-      const loadedExcluded: number[] = Array.isArray(mapData.excluded)
-        ? mapData.excluded
-        : [];
+      const loadedExcluded: number[] = Array.isArray(mapData.excluded) ? mapData.excluded : [];
       state.tiles.excluded = [...loadedExcluded];
       state.tiles.excludedSet = new Set(loadedExcluded);
 
@@ -105,7 +89,7 @@ export function useExtractTiles() {
         await extractTiles(currentImageFile.value);
       }
     } catch {
-      setStatus("error", tp("errorMapLoadFailed"));
+      setStatus('error', tp('errorMapLoadFailed'));
     }
   };
 
@@ -121,14 +105,8 @@ export function useExtractTiles() {
    */
   const extractTiles = async (file: File): Promise<void> => {
     try {
-      if (file.name.toLowerCase().endsWith(".zxp")) {
-        const {
-          count,
-          previews,
-          inkBitmaps: bitmasks,
-          attributes,
-          columns,
-        } = await extractTilesFromZxpFile(file);
+      if (file.name.toLowerCase().endsWith('.zxp')) {
+        const { count, previews, inkBitmaps: bitmasks, attributes, columns } = await extractTilesFromZxpFile(file);
         state.tiles.tileWidth = 8;
         state.tiles.tileHeight = 8;
         state.tiles.count = count;
@@ -156,8 +134,8 @@ export function useExtractTiles() {
         syncTileArrays(count);
       }
     } catch (error) {
-      console.error("Tile extraction failed:", error);
-      setStatus("error", tp("errorTileExtractionFailed"));
+      console.error('Tile extraction failed:', error);
+      setStatus('error', tp('errorTileExtractionFailed'));
     }
   };
 
@@ -167,10 +145,7 @@ export function useExtractTiles() {
    * ZXP / PNG extractors can consume them unchanged. Tiles named by the user
    * survive the switch because the setter does not touch `state.tiles`.
    */
-  const setSourceImage = async (
-    path: string,
-    bytes: Uint8Array,
-  ): Promise<void> => {
+  const setSourceImage = async (path: string, bytes: Uint8Array): Promise<void> => {
     try {
       const basename = basenameFromPath(path);
       const file = imageBytesToFile(bytes, basename);
@@ -178,20 +153,17 @@ export function useExtractTiles() {
       await extractTiles(file);
       state.source = path;
     } catch (error) {
-      console.error("Source image load failed:", error);
-      setStatus("error", tp("errorSourceFileLoad"));
+      console.error('Source image load failed:', error);
+      setStatus('error', tp('errorSourceFileLoad'));
     }
   };
 
   // Re-extract when tileWidth/tileHeight change
-  watch(
-    [() => state.tiles.tileWidth, () => state.tiles.tileHeight],
-    async () => {
-      if (currentImageFile.value) {
-        await extractTiles(currentImageFile.value);
-      }
-    },
-  );
+  watch([() => state.tiles.tileWidth, () => state.tiles.tileHeight], async () => {
+    if (currentImageFile.value) {
+      await extractTiles(currentImageFile.value);
+    }
+  });
 
   // ─── Status ────────────────────────────────────────────────────────────────
 
@@ -228,17 +200,14 @@ export function useExtractTiles() {
    */
   const extractResources = async () => {
     if (!currentImageFile.value) {
-      setStatus("error", tp("errorNoSourceFile"));
+      setStatus('error', tp('errorNoSourceFile'));
       return;
     }
 
-    const fileNameWithoutExtension = currentImageFile.value.name.replace(
-      /\.[^.]+$/,
-      "",
-    );
+    const fileNameWithoutExtension = currentImageFile.value.name.replace(/\.[^.]+$/, '');
 
     const sourceDir = dirNameOfPath(state.source);
-    const prefix = sourceDir.length > 0 ? `${sourceDir}/` : "";
+    const prefix = sourceDir.length > 0 ? `${sourceDir}/` : '';
     const join = (fileName: string) => `${prefix}${fileName}`;
 
     const generator = createTilesCodeGenerator(codeGenerationType.value);
@@ -256,16 +225,16 @@ export function useExtractTiles() {
     }
 
     if (!vscode.isAvailable) {
-      setStatus("error", tp("errorVsCodeRequired"));
+      setStatus('error', tp('errorVsCodeRequired'));
       return;
     }
 
     const message: WriteFilesMessage = {
-      messageType: "writeFilesFromWebview",
+      messageType: 'writeFilesFromWebview',
       codeFiles,
     };
     vscode.postMessage(message);
-    setStatus("success", tp("statusSent"));
+    setStatus('success', tp('statusSent'));
   };
 
   // ─── Derived state ───────────────────────────────────────────────────────
@@ -281,21 +250,16 @@ export function useExtractTiles() {
    * generated assembly regardless of `tileWidth`/`tileHeight`/`excludedSet`.
    */
   const memoryUsage = computed(() => {
-    const includedTileCount =
-      state.tiles.count - state.tiles.excludedSet.size;
-    const includedIndices = Array.from(
-      { length: state.tiles.count },
-      (_unused, index) => index,
-    ).filter((index) => !state.tiles.excludedSet.has(index));
-    const params = { name: "", tiles: state.tiles };
+    const includedTileCount = state.tiles.count - state.tiles.excludedSet.size;
+    const includedIndices = Array.from({ length: state.tiles.count }, (_unused, index) => index).filter(
+      (index) => !state.tiles.excludedSet.has(index)
+    );
+    const params = { name: '', tiles: state.tiles };
 
     return {
       tileCount: includedTileCount,
       bitmapBytes: calculateTilesBitmapByteCount(params, includedIndices),
-      attributeBytes: calculateTilesAttributeByteCount(
-        params,
-        includedIndices,
-      ),
+      attributeBytes: calculateTilesAttributeByteCount(params, includedIndices),
     };
   });
 

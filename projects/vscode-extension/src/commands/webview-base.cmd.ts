@@ -108,7 +108,6 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
     return panel;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async onSaveMap(_message: SaveMapMessage): Promise<void> {
     // no-op by default; override in subclasses that need save-map logic
   }

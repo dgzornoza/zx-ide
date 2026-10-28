@@ -1,16 +1,10 @@
 export const ZX_ZXIDE_CLI_VERSION = '1.4.0';
 
 export type ProjectReplacementConstants =
-  | '{ZX-IDE_PROJECT_NAME}'
-  | '{ZX-IDE_PROJECT_INCLUDES}'
-  | '{ZX-IDE_PROJECT_MACHINE}'
-  | '{ZX-IDE_PROJECT_OUTPUT_FILE}';
+  '{ZX-IDE_PROJECT_NAME}' | '{ZX-IDE_PROJECT_INCLUDES}' | '{ZX-IDE_PROJECT_MACHINE}' | '{ZX-IDE_PROJECT_OUTPUT_FILE}';
 export type ProjectType = 'sjasmplus' | 'z88dk';
 export type ProjectConfigurationType =
-  | 'z88dk_sdcc_classic_lib'
-  | 'z88dk_sdcc_new_lib'
-  | 'z88dk_sccz80_classic_lib'
-  | 'z88dk_sccz80_new_lib';
+  'z88dk_sdcc_classic_lib' | 'z88dk_sdcc_new_lib' | 'z88dk_sccz80_classic_lib' | 'z88dk_sccz80_new_lib';
 export type MachineType = 'zxspectrum';
 
 /** Modelo para definir la estructura del archivo zxide */
@@ -39,6 +33,6 @@ export interface ITasksJsonFile {
       kind: string;
       isDefault: boolean;
     };
-    problemMatcher: any[];
+    problemMatcher: unknown[];
   }[];
 }

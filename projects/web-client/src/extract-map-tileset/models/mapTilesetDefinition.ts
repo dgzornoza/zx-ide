@@ -1,4 +1,4 @@
-import type { CodeGenerationType } from "externalShared/extract-graphics/extract-graphics-dtos";
+import type { CodeGenerationType } from 'externalShared/extract-graphics/extract-graphics-dtos';
 
 /** Normalized map metadata used for code generation and preview rendering. */
 export interface MapTilesetMetadata {

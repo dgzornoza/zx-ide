@@ -52,11 +52,11 @@ export class Z88dkAsmBreakpointService extends Disposable {
 
     const sourceBreakpoints = vscode.debug.breakpoints.filter((item) => item instanceof vscode.SourceBreakpoint);
     await this.mapSourceBreakpointsToLisFileBreakpoints(sourceBreakpoints);
-    await this.updateMappedBreakpointsInFiles();
+    this.updateMappedBreakpointsInFiles();
   }
 
   @BindThis
-  private async onDidTerminateDebugSession(_event: vscode.DebugSession): Promise<void> {
+  private onDidTerminateDebugSession(_event: vscode.DebugSession): void {
     this.isDebugging = false;
   }
 
@@ -88,7 +88,7 @@ export class Z88dkAsmBreakpointService extends Disposable {
    * - if not has source mapped breakpoint, remove from lis file and remove from mapped breakpoints (removed breakpoint from source file)
    * @param breakpoints list of source code breakpoints
    */
-  private async updateMappedBreakpointsInFiles(): Promise<void> {
+  private updateMappedBreakpointsInFiles(): void {
     this.isUpdatingBreakpoints = true;
 
     for (const [sourceBreakpoint, lisBreakpoint] of this.mappedBreakpoints.mappedBreakpoints) {
@@ -140,7 +140,7 @@ export class Z88dkAsmBreakpointService extends Disposable {
       .groupBy((item) => item.location.uri.fsPath);
 
     for (const breakpointsPath in groupedBreakpoints) {
-      if (!groupedBreakpoints.hasOwnProperty(breakpointsPath)) continue;
+      if (!Object.hasOwn(groupedBreakpoints, breakpointsPath)) continue;
 
       const languageStrategy = BreakpointsLanguageFactory.getInstance(breakpointsPath);
       if (languageStrategy) {

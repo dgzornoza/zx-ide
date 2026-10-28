@@ -1,19 +1,14 @@
-import type {
-  WriteFilesMessage,
-} from "externalShared/extract-graphics/extract-graphics-dtos";
-import { parseAsmTilesetData } from "src/extract-map-tileset/composables/asmTilesetParser";
-import { createMapCodeGenerator } from "src/extract-map-tileset/composables/codeGenerators/codeGeneratorFactory";
-import { createTranslationPrefixFn } from "src/helpers/vue-utils";
-import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
-import {
-  StatusMessage,
-  StatusMessageType,
-} from "src/shared/models/statusMessage";
-import { computed, ref, watch } from "vue";
-import { createVsCodeBridge } from "../../bridge/vscode";
-import { renderTilesetMapPreviewFromTileData } from "../../helpers/image-utils";
-import type { MapTilesetMetadata } from "../models/mapTilesetDefinition";
-import { parseAndValidateTiledJson } from "./tiledJsonValidation";
+import type { WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { parseAsmTilesetData } from 'src/extract-map-tileset/composables/asmTilesetParser';
+import { createMapCodeGenerator } from 'src/extract-map-tileset/composables/codeGenerators/codeGeneratorFactory';
+import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
+import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
+import { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
+import { computed, ref, watch } from 'vue';
+import { createVsCodeBridge } from '../../bridge/vscode';
+import { renderTilesetMapPreviewFromTileData } from '../../helpers/image-utils';
+import type { MapTilesetMetadata } from '../models/mapTilesetDefinition';
+import { parseAndValidateTiledJson } from './tiledJsonValidation';
 
 function normalizeGids(rawGids: number[]): number[] {
   const normalised: number[] = [];
@@ -23,7 +18,7 @@ function normalizeGids(rawGids: number[]): number[] {
     const localIndex = safeGid;
 
     if (localIndex < 0 || localIndex > 255) {
-      throw new Error("errorGidOutOfRange");
+      throw new Error('errorGidOutOfRange');
     }
 
     normalised.push(localIndex);
@@ -33,32 +28,27 @@ function normalizeGids(rawGids: number[]): number[] {
 }
 
 function toUserErrorKey(error: unknown): string {
-  if (error instanceof Error && error.message.trim() !== "") {
+  if (error instanceof Error && error.message.trim() !== '') {
     return error.message;
   }
-  return "errorJsonInvalid";
+  return 'errorJsonInvalid';
 }
 
 export function useExtractMapTileset() {
   // ─── State ───────────────────────────────────────────────────────────────────
 
-  const tp = createTranslationPrefixFn("extract-map-tileset");
+  const tp = createTranslationPrefixFn('extract-map-tileset');
 
-  const mapSource = ref("");
-  const asmSource = ref("");
+  const mapSource = ref('');
+  const asmSource = ref('');
   const metadata = ref<MapTilesetMetadata>();
   const tileIndices = ref<number[]>([]);
-  const asmRawContent = ref("");
+  const asmRawContent = ref('');
   const tileInkBitmaps = ref<boolean[][]>([]);
   const tileAttributeBytes = ref<number[]>([]);
   const errors = ref<string[]>([]);
   const warnings = ref<string[]>([]);
-  const {
-    codeGenerationType,
-    isCodeGenerationTypeReadOnly,
-    useZx0Compression,
-    isZx0CompressionReadOnly,
-  } = useProjectTypeLock();
+  const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
   const statusMessage = ref<StatusMessage | null>(null);
   /**
    * Forces the map preview canvas to rerender when incremented.
@@ -76,9 +66,9 @@ export function useExtractMapTileset() {
       errors.value.length === 0 &&
       metadata.value !== undefined &&
       tileIndices.value.length > 0 &&
-      mapSource.value !== "" &&
-      asmSource.value !== "" &&
-      tileInkBitmaps.value.length > 0,
+      mapSource.value !== '' &&
+      asmSource.value !== '' &&
+      tileInkBitmaps.value.length > 0
   );
 
   const usedTileCount = computed(() => {
@@ -94,9 +84,7 @@ export function useExtractMapTileset() {
     return usedTileCount.value * Math.ceil(tileWidth / 8) * tileHeight;
   });
 
-  const totalByteSize = computed(
-    () => usedTilesByteSize.value + mapByteSize.value,
-  );
+  const totalByteSize = computed(() => usedTilesByteSize.value + mapByteSize.value);
 
   // ─── Bridge ──────────────────────────────────────────────────────────────────
 
@@ -110,15 +98,11 @@ export function useExtractMapTileset() {
   }
 
   function tryDecodeAsmData(): void {
-    if (!metadata.value || asmRawContent.value.trim() === "") {
+    if (!metadata.value || asmRawContent.value.trim() === '') {
       return;
     }
 
-    const parsed = parseAsmTilesetData(
-      asmRawContent.value,
-      metadata.value.tileWidth,
-      metadata.value.tileHeight,
-    );
+    const parsed = parseAsmTilesetData(asmRawContent.value, metadata.value.tileWidth, metadata.value.tileHeight);
 
     validateMapVsTileset(parsed.tileCount);
     tileInkBitmaps.value = parsed.tileInkBitmaps;
@@ -140,10 +124,10 @@ export function useExtractMapTileset() {
 
     try {
       if (/\.(tmx|xml)$/i.test(file.name)) {
-        throw new Error("errorJsonRequired");
+        throw new Error('errorJsonRequired');
       }
       if (!/\.json$/i.test(file.name)) {
-        throw new Error("errorJsonUnsupportedFormat");
+        throw new Error('errorJsonUnsupportedFormat');
       }
 
       const content = await file.text();
@@ -170,7 +154,7 @@ export function useExtractMapTileset() {
 
     try {
       if (!/\.asm$/i.test(file.name)) {
-        throw new Error("errorAsmUnsupportedFormat");
+        throw new Error('errorAsmUnsupportedFormat');
       }
 
       asmRawContent.value = await file.text();
@@ -186,13 +170,7 @@ export function useExtractMapTileset() {
     if (!metadata.value) {
       return;
     }
-    renderTilesetMapPreviewFromTileData(
-      canvas,
-      tileIndices.value,
-      metadata.value,
-      tileInkBitmaps.value,
-      tileAttributeBytes.value,
-    );
+    renderTilesetMapPreviewFromTileData(canvas, tileIndices.value, metadata.value, tileInkBitmaps.value, tileAttributeBytes.value);
   }
 
   // ─── Extraction ───────────────────────────────────────────────────────────────
@@ -215,7 +193,7 @@ export function useExtractMapTileset() {
     });
 
     if (!bridge.isAvailable) {
-      setStatus("error", tp("errorVsCodeRequired"));
+      setStatus('error', tp('errorVsCodeRequired'));
       return;
     }
 
@@ -224,7 +202,7 @@ export function useExtractMapTileset() {
       codeFiles: files,
     };
     bridge.postMessage(writeMessage);
-    setStatus("success", tp("statusSent"));
+    setStatus('success', tp('statusSent'));
   }
 
   // ─── Watchers ─────────────────────────────────────────────────────────────────

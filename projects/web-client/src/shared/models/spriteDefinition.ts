@@ -1,4 +1,4 @@
-import { TypeEnumFlagValue } from "src/helpers/type-utils";
+import { TypeEnumFlagValue } from 'src/helpers/type-utils';
 
 /**
  * Bit-flag options that can be combined with the bitwise OR operator.
@@ -61,11 +61,11 @@ export interface SpriteFrame {
  * Serialisable sprites map model (persisted to `.cfg` file).
  */
 export interface SpritesMapModel {
-  type: "sprites";
+  type: 'sprites';
   /**
    * Numeric combination of {@link SpriteFlags} bits.
    * Omitted (or `0`) means no flags are set.
    */
   spriteFlags?: number;
-  sprites: Omit<SpriteDefinition, "_id">[];
+  sprites: Omit<SpriteDefinition, '_id'>[];
 }

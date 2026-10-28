@@ -1,38 +1,25 @@
-import type {
-  WriteFilesMessage,
-} from "externalShared/extract-graphics/extract-graphics-dtos";
-import { createTranslationPrefixFn } from "src/helpers/vue-utils";
-import { useProjectTypeLock } from "src/shared/composables/useProjectTypeLock";
-import { createSpritesCodeGenerator } from "src/shared/composables/spritesCodeGenerators/codeGeneratorFactory";
-import type { SpritesCodeGeneratorParams } from "src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy";
-import {
-  SpriteDefinition,
-  SpriteFlags,
-} from "src/shared/models/spriteDefinition";
-import type {
-  StatusMessage,
-  StatusMessageType,
-} from "src/shared/models/statusMessage";
-import { reactive, ref } from "vue";
-import { createVsCodeBridge } from "../../bridge/vscode";
+import type { WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
+import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
+import { createSpritesCodeGenerator } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorFactory';
+import type { SpritesCodeGeneratorParams } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy';
+import { SpriteDefinition, SpriteFlags } from 'src/shared/models/spriteDefinition';
+import type { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
+import { reactive, ref } from 'vue';
+import { createVsCodeBridge } from '../../bridge/vscode';
 
 export function useCreateSprites() {
   const vscode = createVsCodeBridge();
-  const tp = createTranslationPrefixFn("create-sprites");
+  const tp = createTranslationPrefixFn('create-sprites');
 
   const state = reactive({
     sprites: [] as SpriteDefinition[],
   });
 
   const status = ref<StatusMessage | null>(null);
-  const {
-    codeGenerationType,
-    isCodeGenerationTypeReadOnly,
-    useZx0Compression,
-    isZx0CompressionReadOnly,
-  } = useProjectTypeLock();
-  const binaryText = ref("");
-  const outputName = ref("sprites");
+  const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
+  const binaryText = ref('');
+  const outputName = ref('sprites');
   /** Combined sprite flags (SP1 padding, Use mask) forwarded to the generator. */
   const spriteFlags = ref<number>(SpriteFlags.None);
   /** Index of the sprite that receives the next "Add" from the BinaryInputPanel. */
@@ -47,7 +34,7 @@ export function useCreateSprites() {
   function addSprite() {
     const newSprite: SpriteDefinition = {
       _id: crypto.randomUUID(),
-      name: "",
+      name: '',
       width: 0,
       height: 0,
       frames: [],
@@ -89,12 +76,7 @@ export function useCreateSprites() {
    * Auto-creates a sprite if none exists yet.
    * Rejects frames whose dimensions don't match the first frame of the sprite.
    */
-  function addFrame(
-    inkBitmap: boolean[],
-    width: number,
-    height: number,
-    preview: string,
-  ): void {
+  function addFrame(inkBitmap: boolean[], width: number, height: number, preview: string): void {
     // Auto-create a sprite if there is none
     if (state.sprites.length === 0 || activeSpriteIndex.value < 0) {
       addSprite();
@@ -107,7 +89,7 @@ export function useCreateSprites() {
     // On the first frame, adopt the bitmap dimensions as the sprite size.
     if (sprite.frames.length > 0) {
       if (sprite.width !== width || sprite.height !== height) {
-        setStatus("error", tp("errorDimensionMismatch"));
+        setStatus('error', tp('errorDimensionMismatch'));
         return;
       }
     } else {
@@ -117,7 +99,7 @@ export function useCreateSprites() {
 
     sprite.frames.push({ x: 0, y: 0, bitmap: { inkBitmap, preview } });
     // Clear the binary input so the next frame starts from a clean slate.
-    binaryText.value = "";
+    binaryText.value = '';
     status.value = null;
   }
 
@@ -127,7 +109,7 @@ export function useCreateSprites() {
     const sprites = state.sprites.filter((s) => s.frames.length > 0);
 
     if (sprites.length === 0) {
-      setStatus("error", tp("errorNoSprites"));
+      setStatus('error', tp('errorNoSprites'));
       return;
     }
 
@@ -135,18 +117,16 @@ export function useCreateSprites() {
     // because the pixel data lives in spriteBitmasks, which we derive from
     // the per-frame bitmap attached by addFrame().
     const params: SpritesCodeGeneratorParams = {
-      name: outputName.value.trim() || "sprites",
+      name: outputName.value.trim() || 'sprites',
       sprites: sprites.map((sprite) => ({
         _id: sprite._id,
-        name: sprite.name || sprite._id || "",
+        name: sprite.name || sprite._id || '',
         width: sprite.width,
         height: sprite.height,
         frames: sprite.frames.map(() => ({ x: 0, y: 0 })),
       })),
       spriteFlags: spriteFlags.value,
-      spriteBitmasks: sprites.map((sprite) =>
-        sprite.frames.map((frame) => frame.bitmap?.inkBitmap ?? []),
-      ),
+      spriteBitmasks: sprites.map((sprite) => sprite.frames.map((frame) => frame.bitmap?.inkBitmap ?? [])),
       compressed: useZx0Compression.value,
     };
 
@@ -154,7 +134,7 @@ export function useCreateSprites() {
     const codeFiles = generator.generate(params);
 
     if (!vscode.isAvailable) {
-      setStatus("error", tp("errorVsCodeRequired"));
+      setStatus('error', tp('errorVsCodeRequired'));
       return;
     }
 
@@ -163,7 +143,7 @@ export function useCreateSprites() {
       codeFiles,
     };
     vscode.postMessage(message);
-    setStatus("success", tp("statusSent"));
+    setStatus('success', tp('statusSent'));
   }
 
   // ─── VSCode init message is handled by useProjectTypeLock ───────────────────

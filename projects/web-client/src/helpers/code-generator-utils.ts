@@ -14,7 +14,7 @@
 
 /** Formats a single byte as a `$XX` hex string. */
 function toHexByte(value: number): string {
-  return `$${value.toString(16).padStart(2, "0").toUpperCase()}`;
+  return `$${value.toString(16).padStart(2, '0').toUpperCase()}`;
 }
 
 /**
@@ -38,11 +38,7 @@ function toHexByte(value: number): string {
  * @param useMask   - When `true`, treats input as (mask, data) pairs and
  *                    emits both per logical byte. Defaults to `false`.
  */
-export function formatBytesAsDefb(
-  bytes: Uint8Array,
-  perLine?: number,
-  useMask = false,
-): string[] {
+export function formatBytesAsDefb(bytes: Uint8Array, perLine?: number, useMask = false): string[] {
   const entries: string[] = [];
 
   if (useMask) {
@@ -61,7 +57,7 @@ export function formatBytesAsDefb(
   const stride = perLine ?? (useMask ? 16 : 8);
   const lines: string[] = [];
   for (let i = 0; i < entries.length; i += stride) {
-    lines.push(`    defb ${entries.slice(i, i + stride).join(",")}`);
+    lines.push(`    defb ${entries.slice(i, i + stride).join(',')}`);
   }
   return lines;
 }
@@ -72,10 +68,7 @@ export function formatBytesAsDefb(
  * @param attrBytes - Bytes from {@link buildAttributeBytes}.
  * @param perLine   - Bytes per line. Defaults to 8.
  */
-export function formatAttributeBytesAsDefb(
-  attrBytes: Uint8Array,
-  perLine = 8,
-): string[] {
+export function formatAttributeBytesAsDefb(attrBytes: Uint8Array, perLine = 8): string[] {
   const entries: string[] = [];
   for (const element of attrBytes) {
     entries.push(toHexByte(element ?? 0));
@@ -83,7 +76,7 @@ export function formatAttributeBytesAsDefb(
 
   const lines: string[] = [];
   for (let offset = 0; offset < entries.length; offset += perLine) {
-    lines.push(`    defb ${entries.slice(offset, offset + perLine).join(",")}`);
+    lines.push(`    defb ${entries.slice(offset, offset + perLine).join(',')}`);
   }
   return lines;
 }
@@ -102,10 +95,7 @@ export function formatAttributeBytesAsDefb(
  * @param indices  - Flat row-major array of tile indices.
  * @param rowWidth - Number of indices per row (= map width in tiles).
  */
-export function formatIndicesAsDefb(
-  indices: Uint8Array | number[],
-  rowWidth: number,
-): string[] {
+export function formatIndicesAsDefb(indices: Uint8Array | number[], rowWidth: number): string[] {
   const rowCount = Math.floor(indices.length / rowWidth);
   const lines: string[] = [];
   for (let row = 0; row < rowCount; row++) {
@@ -113,7 +103,7 @@ export function formatIndicesAsDefb(
     for (let col = 0; col < rowWidth; col++) {
       rowValues.push(String(indices[row * rowWidth + col] ?? 0));
     }
-    lines.push(`    defb ${rowValues.join(",")}`);
+    lines.push(`    defb ${rowValues.join(',')}`);
   }
   return lines;
 }

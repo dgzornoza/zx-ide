@@ -5,12 +5,12 @@ import {
   CodeGeneratorStrategy,
   GeneratedFile,
   MapCodeGeneratorParams,
-} from "src/extract-map-tileset/composables/codeGenerators/codeGeneratorStrategy";
-import { buildMapIndicesBinary } from "src/helpers/binary-builder-utils";
-import { bytesToBase64 } from "src/helpers/binary-utils";
-import { formatIndicesAsDefb } from "src/helpers/code-generator-utils";
-import { toCodeIdentifier, toMacroGuard } from "src/helpers/string-utils";
-import { compress as compressZx0 } from "src/helpers/zx0-compress";
+} from 'src/extract-map-tileset/composables/codeGenerators/codeGeneratorStrategy';
+import { buildMapIndicesBinary } from 'src/helpers/binary-builder-utils';
+import { bytesToBase64 } from 'src/helpers/binary-utils';
+import { formatIndicesAsDefb } from 'src/helpers/code-generator-utils';
+import { toCodeIdentifier, toMacroGuard } from 'src/helpers/string-utils';
+import { compress as compressZx0 } from 'src/helpers/zx0-compress';
 
 /**
  * C code generator for maps.
@@ -53,19 +53,19 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy {
     const headerContent = [
       `#ifndef __DATA_${macroGuard}_H__`,
       `#define __DATA_${macroGuard}_H__`,
-      "",
-      "#include <stdint.h>",
-      "",
+      '',
+      '#include <stdint.h>',
+      '',
       `// ${header.slice(2)}`,
       `#define ${macroGuard}_WIDTH  ${mapWidth}`,
       `#define ${macroGuard}_HEIGHT ${mapHeight}`,
       `#define ${macroGuard}_SIZE   ${mapWidth * mapHeight}`,
       `#define ${macroGuard}_TILES_COUNT ${tileCount}`,
       `extern uint8_t ${identifier}[${mapHeight}][${mapWidth}];`,
-      "",
+      '',
       `#endif // __DATA_${macroGuard}_H__`,
-      "",
-    ].join("\n");
+      '',
+    ].join('\n');
 
     const asmContent = [
       `; ${macroGuard}_WIDTH: ${mapWidth}`,
@@ -73,23 +73,23 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy {
       `; ${macroGuard}_SIZE: ${mapWidth * mapHeight}`,
       `; ${macroGuard}_TILES_COUNT: ${tileCount}`,
       dataSizeComment,
-      "SECTION rodata_user",
+      'SECTION rodata_user',
       `PUBLIC _${identifier}`,
-      "",
+      '',
       header,
       `_${identifier}:`,
       ...rows,
-      "",
-    ].join("\n");
+      '',
+    ].join('\n');
 
     return [
       {
-        fileType: "c-header",
+        fileType: 'c-header',
         fileName: `${name}.h`,
         content: headerContent,
       },
       {
-        fileType: "asm",
+        fileType: 'asm',
         fileName: `${name}.asm`,
         content: asmContent,
       },
@@ -109,19 +109,19 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy {
     const headerContent = [
       `#ifndef __DATA_${macroGuard}_H__`,
       `#define __DATA_${macroGuard}_H__`,
-      "",
-      "#include <stdint.h>",
-      "",
+      '',
+      '#include <stdint.h>',
+      '',
       `#define ${macroGuard}_WIDTH       ${mapWidth}u`,
       `#define ${macroGuard}_HEIGHT      ${mapHeight}u`,
       `#define ${macroGuard}_TOTAL_SIZE  (${macroGuard}_WIDTH * ${macroGuard}_HEIGHT)`,
       `#define ${macroGuard}_TILES_COUNT ${tileCount}u`,
-      "",
+      '',
       `extern const uint8_t ${identifier}_compressed[];`,
-      "",
+      '',
       `#endif // __DATA_${macroGuard}_H__`,
-      "",
-    ].join("\n");
+      '',
+    ].join('\n');
 
     const asmContent = [
       `; ${macroGuard}_WIDTH: ${mapWidth}`,
@@ -129,30 +129,30 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy {
       `; ${macroGuard}_TOTAL_SIZE: ${totalSize}`,
       `; ${macroGuard}_TILES_COUNT: ${tileCount}`,
       `; Compressed Size: ${compressedBytes.length} bytes (ZX0 standard)`,
-      "; incbin path is resolved relative to the Makefile cwd (project root),",
+      '; incbin path is resolved relative to the Makefile cwd (project root),',
       "; not relative to this .asm file's location.",
-      "",
-      "SECTION rodata_user",
-      "",
+      '',
+      'SECTION rodata_user',
+      '',
       `PUBLIC _${identifier}_compressed`,
       `_${identifier}_compressed:`,
       `    incbin "${name}.bin"`,
-      "",
-    ].join("\n");
+      '',
+    ].join('\n');
 
     return [
       {
-        fileType: "c-header",
+        fileType: 'c-header',
         fileName: `${name}.h`,
         content: headerContent,
       },
       {
-        fileType: "asm",
+        fileType: 'asm',
         fileName: `${name}.asm`,
         content: asmContent,
       },
       {
-        fileType: "binary",
+        fileType: 'binary',
         fileName: `${name}.bin`,
         content: bytesToBase64(compressedBytes),
       },

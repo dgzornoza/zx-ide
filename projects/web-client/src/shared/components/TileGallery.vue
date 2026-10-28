@@ -15,12 +15,7 @@ const emit = defineEmits<{
 
 <template>
   <div v-if="previews.length > 0" class="mt-4 flex flex-wrap gap-2">
-    <div
-      v-for="(preview, index) in previews"
-      :key="`tile-${index}`"
-      class="relative"
-      style="width: 40px; height: 40px"
-    >
+    <div v-for="(preview, index) in previews" :key="`tile-${index}`" class="relative" style="width: 40px; height: 40px">
       <img
         v-if="preview"
         :src="preview"
@@ -36,10 +31,7 @@ const emit = defineEmits<{
         style="width: 40px; height: 40px"
       />
       <!-- Exclusion overlay icon -->
-      <div
-        v-if="excludedIndices?.has(index)"
-        class="pointer-events-none absolute inset-0 flex items-center justify-center"
-      >
+      <div v-if="excludedIndices?.has(index)" class="pointer-events-none absolute inset-0 flex items-center justify-center">
         <span class="text-lg font-bold text-[color:var(--error-ink)]">✕</span>
       </div>
       <!-- Action button -->
@@ -50,15 +42,11 @@ const emit = defineEmits<{
             ? 'border-[color:var(--error-ink)] bg-[color:var(--card)] text-[color:var(--error-ink)]'
             : 'border-[color:var(--border)] bg-[color:var(--card)] text-[color:var(--ink-soft)] hover:border-[color:var(--error-ink)] hover:text-[color:var(--error-ink)]'
         "
-        :title="
-          excludedIndices?.has(index)
-            ? (undoTooltip ?? actionTooltip)
-            : actionTooltip
-        "
+        :title="excludedIndices?.has(index) ? (undoTooltip ?? actionTooltip) : actionTooltip"
         type="button"
         @click="emit('tileAction', index)"
       >
-        {{ excludedIndices?.has(index) ? "+" : "−" }}
+        {{ excludedIndices?.has(index) ? '+' : '−' }}
       </button>
     </div>
   </div>

@@ -20,7 +20,6 @@ export class CreateProjectCmd extends Command<unknown> {
     super();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public async execute(..._params: unknown[]): Promise<void> {
     const outputFile = path.join(FileHelpers.getTempFolder(), 'output.txt');
 

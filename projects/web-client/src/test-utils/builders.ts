@@ -11,27 +11,24 @@
 // Per-test variations go through `Partial<Model>` overrides. Do not bloat
 // the defaults with rare fields — keep them in the call sites instead.
 
-import type { TilesModel } from "src/shared/models/tilesDefinition";
-import type { SpriteDefinition } from "src/shared/models/spriteDefinition";
-import type { MapTilesetMetadata } from "src/extract-map-tileset/models/mapTilesetDefinition";
+import type { TilesModel } from 'src/shared/models/tilesDefinition';
+import type { SpriteDefinition } from 'src/shared/models/spriteDefinition';
+import type { MapTilesetMetadata } from 'src/extract-map-tileset/models/mapTilesetDefinition';
 
 const ALL_INK_8x8: boolean[] = new Array(64).fill(true);
-const ALTERNATING_8x8: boolean[] = Array.from(
-  { length: 64 },
-  (_, i): boolean => i % 2 === 1,
-);
+const ALTERNATING_8x8: boolean[] = Array.from({ length: 64 }, (_, i): boolean => i % 2 === 1);
 
 /** Builds a {@link TilesModel} matching the most common 2-tile 8x8 fixture. */
 export function makeTilesModel(overrides: Partial<TilesModel> = {}): TilesModel {
   return {
-    type: "tiles",
+    type: 'tiles',
     tileWidth: 8,
     tileHeight: 8,
     count: 2,
     columns: 2,
     excluded: [],
     excludedSet: new Set<number>(),
-    previews: ["", ""],
+    previews: ['', ''],
     inkBitmaps: [ALL_INK_8x8, ALTERNATING_8x8],
     attributes: [
       { flash: false, bright: false, paper: 0, ink: 7 },
@@ -42,12 +39,10 @@ export function makeTilesModel(overrides: Partial<TilesModel> = {}): TilesModel 
 }
 
 /** Builds a {@link SpriteDefinition} matching the most common 8x8 sprite fixture. */
-export function makeSpriteModel(
-  overrides: Partial<SpriteDefinition> = {},
-): SpriteDefinition {
+export function makeSpriteModel(overrides: Partial<SpriteDefinition> = {}): SpriteDefinition {
   return {
-    _id: "1",
-    name: "player",
+    _id: '1',
+    name: 'player',
     width: 8,
     height: 8,
     frames: [{ x: 0, y: 0 }],
@@ -56,18 +51,16 @@ export function makeSpriteModel(
 }
 
 /** Builds a {@link MapTilesetMetadata} matching the most common 4x2 map fixture. */
-export function makeMapModel(
-  overrides: Partial<MapTilesetMetadata> = {},
-): MapTilesetMetadata {
+export function makeMapModel(overrides: Partial<MapTilesetMetadata> = {}): MapTilesetMetadata {
   return {
     mapWidth: 4,
     mapHeight: 2,
     tileWidth: 8,
     tileHeight: 8,
-    tilesetName: "hud-tiles",
+    tilesetName: 'hud-tiles',
     tileCount: 64,
     columns: 16,
-    sourceImage: "hud-tiles.png",
+    sourceImage: 'hud-tiles.png',
     ...overrides,
   };
 }

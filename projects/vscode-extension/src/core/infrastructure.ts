@@ -21,10 +21,7 @@ export interface ExtensionConfigurationModel {
 }
 
 export type ProjectConfigurationType =
-  | 'z88dk_sdcc_classic_lib'
-  | 'z88dk_sdcc_new_lib'
-  | 'z88dk_sccz80_classic_lib'
-  | 'z88dk_sccz80_new_lib';
+  'z88dk_sdcc_classic_lib' | 'z88dk_sdcc_new_lib' | 'z88dk_sccz80_classic_lib' | 'z88dk_sccz80_new_lib';
 export type MachineType = 'zxspectrum';
 
 export interface ZxideFile {

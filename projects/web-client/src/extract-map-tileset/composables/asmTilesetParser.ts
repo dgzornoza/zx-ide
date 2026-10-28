@@ -19,16 +19,16 @@ export interface ParsedAsmTileset {
  * Supports hexadecimal (`$ff`) and decimal (`255`) byte literals.
  */
 function parseDefbBytes(line: string): number[] {
-  const noCommentLine = line.split(";")[0] ?? "";
+  const noCommentLine = line.split(';')[0] ?? '';
   const defbRegex = /\bdefb\b(.*)$/i;
   const match = defbRegex.exec(noCommentLine);
   if (!match) {
     return [];
   }
 
-  const payload = match[1] ?? "";
+  const payload = match[1] ?? '';
   const tokens = payload
-    .split(",")
+    .split(',')
     .map((token) => token.trim())
     .filter((token) => token.length > 0);
 
@@ -44,7 +44,7 @@ function parseDefbBytes(line: string): number[] {
       continue;
     }
 
-    throw new Error("errorAsmInvalidToken");
+    throw new Error('errorAsmInvalidToken');
   }
 
   return bytes;
@@ -54,11 +54,7 @@ function parseDefbBytes(line: string): number[] {
  * Decodes tile bytes into a flattened boolean bitmap.
  * Bits are read from most-significant to least-significant bit per byte.
  */
-function decodeTileBitmap(
-  tileBytes: number[],
-  tileWidth: number,
-  tileHeight: number,
-): boolean[] {
+function decodeTileBitmap(tileBytes: number[], tileWidth: number, tileHeight: number): boolean[] {
   const bytesPerRow = Math.ceil(tileWidth / 8);
   const bitmap: boolean[] = [];
 
@@ -85,14 +81,10 @@ function decodeTileBitmap(
  *
  * Throws localized error keys when parsing fails.
  */
-export function parseAsmTilesetData(
-  content: string,
-  tileWidth: number,
-  tileHeight: number,
-): ParsedAsmTileset {
+export function parseAsmTilesetData(content: string, tileWidth: number, tileHeight: number): ParsedAsmTileset {
   const bytesPerTile = Math.ceil(tileWidth / 8) * tileHeight;
   if (bytesPerTile <= 0) {
-    throw new Error("errorAsmInvalidTileDimensions");
+    throw new Error('errorAsmInvalidTileDimensions');
   }
 
   const tileBytes: number[] = [];
@@ -122,11 +114,11 @@ export function parseAsmTilesetData(
   }
 
   if (tileBytes.length === 0) {
-    throw new Error("errorAsmMissingTileData");
+    throw new Error('errorAsmMissingTileData');
   }
 
   if (tileBytes.length % bytesPerTile !== 0) {
-    throw new Error("errorAsmInvalidByteCount");
+    throw new Error('errorAsmInvalidByteCount');
   }
 
   const tileCount = tileBytes.length / bytesPerTile;

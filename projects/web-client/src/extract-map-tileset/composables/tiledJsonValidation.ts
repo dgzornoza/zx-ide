@@ -6,12 +6,7 @@
  * UI-friendly format. It ensures all required fields are present, checks for valid dimensions,
  * and normalizes the tile data array to match the expected map size.
  */
-import type {
-  MapTilesetMetadata,
-  TiledJsonLayer,
-  TiledJsonMapSource,
-  TiledJsonTileset,
-} from "../models/mapTilesetDefinition";
+import type { MapTilesetMetadata, TiledJsonLayer, TiledJsonMapSource, TiledJsonTileset } from '../models/mapTilesetDefinition';
 
 export interface ParsedTiledJsonMap {
   metadata: MapTilesetMetadata;
@@ -22,28 +17,20 @@ export interface ParsedTiledJsonMap {
  * Returns true if the value is a non-null object (record).
  */
 function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null;
+  return typeof value === 'object' && value !== null;
 }
 
-function readNumber(
-  record: Record<string, unknown>,
-  key: string,
-  errorKey: string,
-): number {
+function readNumber(record: Record<string, unknown>, key: string, errorKey: string): number {
   const value = record[key];
-  if (typeof value !== "number" || !Number.isFinite(value)) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
     throw new TypeError(`${errorKey}:${key}`);
   }
   return value;
 }
 
-function readString(
-  record: Record<string, unknown>,
-  key: string,
-  errorKey: string,
-): string {
+function readString(record: Record<string, unknown>, key: string, errorKey: string): string {
   const value = record[key];
-  if (typeof value !== "string" || value.trim() === "") {
+  if (typeof value !== 'string' || value.trim() === '') {
     throw new TypeError(`${errorKey}:${key}`);
   }
   return value;
@@ -51,23 +38,23 @@ function readString(
 
 function parseTileset(value: unknown): TiledJsonTileset {
   if (!isRecord(value)) {
-    throw new Error("errorJsonMissingField:tileset");
+    throw new Error('errorJsonMissingField:tileset');
   }
 
-  const tileCount = readNumber(value, "tileCount", "errorJsonMissingField");
+  const tileCount = readNumber(value, 'tileCount', 'errorJsonMissingField');
   if (tileCount <= 0) {
-    throw new Error("errorJsonMissingField:tileset.tileCount");
+    throw new Error('errorJsonMissingField:tileset.tileCount');
   }
   if (tileCount > 255) {
     throw new Error(`errorTileCountExceeds255:${tileCount}`);
   }
 
   return {
-    image: readString(value, "image", "errorJsonMissingField"),
-    tileWidth: readNumber(value, "tileWidth", "errorJsonMissingField"),
-    tileHeight: readNumber(value, "tileHeight", "errorJsonMissingField"),
+    image: readString(value, 'image', 'errorJsonMissingField'),
+    tileWidth: readNumber(value, 'tileWidth', 'errorJsonMissingField'),
+    tileHeight: readNumber(value, 'tileHeight', 'errorJsonMissingField'),
     tileCount,
-    columns: readNumber(value, "columns", "errorJsonMissingField"),
+    columns: readNumber(value, 'columns', 'errorJsonMissingField'),
   };
 }
 
@@ -77,14 +64,14 @@ function parseLayer(value: unknown, index: number): TiledJsonLayer {
   }
 
   const data = value.data;
-  if (!Array.isArray(data) || !data.every((item) => typeof item === "number")) {
-    throw new Error("errorLayerDataInvalid");
+  if (!Array.isArray(data) || !data.every((item) => typeof item === 'number')) {
+    throw new Error('errorLayerDataInvalid');
   }
 
   return {
-    name: readString(value, "name", "errorJsonMissingField"),
-    width: readNumber(value, "width", "errorJsonMissingField"),
-    height: readNumber(value, "height", "errorJsonMissingField"),
+    name: readString(value, 'name', 'errorJsonMissingField'),
+    width: readNumber(value, 'width', 'errorJsonMissingField'),
+    height: readNumber(value, 'height', 'errorJsonMissingField'),
     data,
   };
 }
@@ -107,35 +94,33 @@ export function parseAndValidateTiledJson(content: string): ParsedTiledJsonMap {
   try {
     parsedValue = JSON.parse(content);
   } catch {
-    throw new Error("errorJsonInvalid");
+    throw new Error('errorJsonInvalid');
   }
 
   if (!isRecord(parsedValue)) {
-    throw new Error("errorJsonInvalid");
+    throw new Error('errorJsonInvalid');
   }
 
   // Validate exporter version
-  const EXPECTED_EXPORTER_VERSION = "1.0.0";
+  const EXPECTED_EXPORTER_VERSION = '1.0.0';
   if (parsedValue.exporterVersion !== EXPECTED_EXPORTER_VERSION) {
-    throw new Error("errorExporterVersionMismatch");
+    throw new Error('errorExporterVersionMismatch');
   }
 
   const tileset = parseTileset(parsedValue.tileset);
   const layersValue = parsedValue.layers;
   if (!Array.isArray(layersValue) || layersValue.length === 0) {
-    throw new Error("errorNoLayers");
+    throw new Error('errorNoLayers');
   }
 
   const layer = parseLayer(layersValue[0], 0);
   if (layer.width <= 0 || layer.height <= 0) {
-    throw new Error("errorJsonInvalidDimensions");
+    throw new Error('errorJsonInvalidDimensions');
   }
 
   const expectedEntries = layer.width * layer.height;
   if (layer.data.length > expectedEntries) {
-    throw new Error(
-      `errorLayerDataLengthMismatch:${expectedEntries}:${layer.data.length}`,
-    );
+    throw new Error(`errorLayerDataLengthMismatch:${expectedEntries}:${layer.data.length}`);
   }
   const normalisedData = [...layer.data];
   if (normalisedData.length < expectedEntries) {
@@ -147,7 +132,7 @@ export function parseAndValidateTiledJson(content: string): ParsedTiledJsonMap {
     }
     for (let index = 0; index < normalisedData.length; index++) {
       const currentValue = normalisedData[index];
-      if (typeof currentValue !== "number" || Number.isNaN(currentValue)) {
+      if (typeof currentValue !== 'number' || Number.isNaN(currentValue)) {
         normalisedData[index] = 0;
       }
     }
@@ -165,9 +150,9 @@ export function parseAndValidateTiledJson(content: string): ParsedTiledJsonMap {
     tileHeight: source.tileset.tileHeight,
     tilesetName:
       source.tileset.image
-        .split("/")
+        .split('/')
         .at(-1)
-        ?.replace(/\.[^.]+$/, "") ?? "tileset",
+        ?.replace(/\.[^.]+$/, '') ?? 'tileset',
     tileCount: source.tileset.tileCount,
     columns: source.tileset.columns,
     sourceImage: source.tileset.image,
