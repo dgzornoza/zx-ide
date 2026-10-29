@@ -327,6 +327,9 @@ importers:
       vite:
         specifier: ^5.4.10
         version: 5.4.21(@types/node@18.19.130)(terser@5.51.2)
+      vitest:
+        specifier: ^2.1.9
+        version: 2.1.9(@types/node@18.19.130)(jsdom@25.0.1(supports-color@8.1.1))(supports-color@8.1.1)(terser@5.51.2)
       vscode-nls-dev:
         specifier: ^4.0.4
         version: 4.0.4

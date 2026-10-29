@@ -1,4 +1,5 @@
 import { Command } from '@core/abstractions/command';
+import { routeGeneratedFile, splitWorkspaceRelativePath } from '@core/domain/generated-file-routing';
 import { AssetsHelpers } from '@core/helpers/assets-helpers';
 import { FileHelpers } from '@core/helpers/file-helpers';
 import { WebviewHelpers } from '@core/helpers/webview-helpers';
@@ -15,24 +16,6 @@ import {
 } from '../../../shared/bridge-messages';
 import type { ReadAssetRequestMessage, SaveMapMessage, WriteFilesMessage } from '../../../shared/extract-graphics/extract-graphics-dtos';
 import { WebviewSession } from './webview-session';
-
-/**
- * Workspace root folder for a generated file.
- *
- * Resource files (`.cfg`, `.png`) live next to the source image under
- * `assets/`. Code files (`.h`, `.asm`, `.bin`) live under `src/data/'.
- */
-function resolveCodeFileRoot(fileType: WriteFilesMessage['codeFiles'][number]['fileType']): 'assets' | 'src/data' {
-  switch (fileType) {
-    case 'map':
-    case 'png':
-      return 'assets';
-    case 'c-header':
-    case 'asm':
-    case 'binary':
-      return 'src/data';
-  }
-}
 
 /**
  * Abstract base for all "webview" commands.
@@ -161,7 +144,7 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
     request: ReadAssetRequestMessage
   ): Promise<void> {
     try {
-      const pathSegments = FileHelpers.splitRelativePath(request.path);
+      const pathSegments = splitWorkspaceRelativePath(request.path);
       const bytes = await WorkspaceHelpers.readWorkspaceFileBytes('assets', ...pathSegments);
 
       session.post({
@@ -183,13 +166,12 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
   private async writeFiles(session: WebviewSession<ExtensionToWebviewMessage>, message: WriteFilesMessage): Promise<void> {
     try {
       for (const file of message.codeFiles) {
-        const rootFolder = resolveCodeFileRoot(file.fileType);
-        const targetUri = await WorkspaceHelpers.getWorkspaceUri(rootFolder, ...FileHelpers.splitRelativePath(file.fileName));
+        const target = routeGeneratedFile(file);
+        const targetUri = await WorkspaceHelpers.getWorkspaceUri(target.rootFolder, ...target.pathSegments);
         const targetParentUri = vscode.Uri.joinPath(targetUri, '..');
         await vscode.workspace.fs.createDirectory(targetParentUri);
 
-        const isBinary = file.fileType === 'png' || file.fileType === 'binary';
-        await FileHelpers.writeFile(file.content, targetUri, { binary: isBinary });
+        await FileHelpers.writeFile(file.content, targetUri, { binary: target.isBinary });
       }
 
       session.post({ messageType: 'writeFilesResultFromExtension', success: true });

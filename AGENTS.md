@@ -40,7 +40,7 @@ If a skill contradicts a rule, the rule wins: fix the contradiction in the skill
 | Project            | Package (`--filter`)  | Build          | Check                                                   |
 | ------------------ | ------------------- | -------------- | ------------------------------------------------------- |
 | `cli`              | `zx-ide-cli`        | `pnpm build`   | `pnpm lint`, `pnpm format:check`, `pnpm test`           |
-| `vscode-extension` | `zxide`             | `pnpm compile` | `pnpm lint`, `pnpm format:check`, `pnpm test`           |
+| `vscode-extension` | `zxide`             | `pnpm compile` | `pnpm lint`, `pnpm format:check`, `pnpm test:unit`, `pnpm test` |
 | `web-client`       | `zx-ide-web-client` | `pnpm build`   | `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test` |
 
 From the repo root, `pnpm lint` and `pnpm format:check` run them for every project. Fix formatting with `pnpm format` (Prettier), never by hand. ESLint (flat config, `typescript-eslint`, `eslint-plugin-prettier`; plus `eslint-plugin-vue` in the web-client) and Prettier are configured per project; the pre-commit hook is described in `.ai/rules/gov-git-commit-review.md`.

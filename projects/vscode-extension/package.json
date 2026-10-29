@@ -70,6 +70,7 @@
     "watch-tests": "tsc -p tsconfig.test.json -w",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "test": "node ./out/test/runTest.js",
+    "test:unit": "vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
@@ -112,6 +113,7 @@
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.72.1",
     "vite": "^5.4.10",
+    "vitest": "^2.1.9",
     "vscode-nls-dev": "^4.0.4",
     "vue": "^3.5.12",
     "webpack": "^5.96.1",

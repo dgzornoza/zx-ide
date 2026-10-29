@@ -1,7 +1,8 @@
 import { Disposable } from '@core/abstractions/disposable';
 import { BindThis } from '@core/decorators/bind-this.decorator';
 import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
-import { BUILD_DIRECTORY, SOURCE_FILE_EXTENSIONS } from '@z88dk/infrastructure';
+import { getMappedBreakpointAction, isBreakpointSourceFile } from '@z88dk/domain/breakpoint-mapping';
+import { BUILD_DIRECTORY } from '@z88dk/infrastructure';
 import { MappedBreakpointsModel } from '@z88dk/models/mapped-breakpoints.model';
 import { OwnBreakpointChanges } from '@z88dk/models/own-breakpoint-changes';
 import { BreakpointsLanguageFactory } from '@z88dk/services/z88dk-asm-breakpoints-language.strategy';
@@ -99,29 +100,22 @@ export class Z88dkAsmBreakpointService extends Disposable {
     this.updateMappedBreakpointsInFiles();
   }
 
-  /**
-   * update mapped breakpoints in files:
-   * - if has source and lis mapped breakpoint, add source breakpoint to lis file. (valid breakpoint)
-   * - if not has lis mapped breakpoint, remove from source file and remove from mapped breakpoints (invalid breakpoint location in source file)
-   * - if not has source mapped breakpoint, remove from lis file and remove from mapped breakpoints (removed breakpoint from source file)
-   * @param breakpoints list of source code breakpoints
-   */
+  /** Applies each mapped breakpoint pair to vscode (see `getMappedBreakpointAction`). */
   private updateMappedBreakpointsInFiles(): void {
     // iterate a copy: invalid and removed entries are deleted from the model while looping
     for (const [sourceBreakpoint, lisBreakpoint] of [...this.mappedBreakpoints.mappedBreakpoints]) {
-      // valid breakpoint (added once; it stays registered in vscode)
-      if (sourceBreakpoint && lisBreakpoint) {
-        if (!vscode.debug.breakpoints.includes(lisBreakpoint)) {
-          this.changeBreakpoint('add', lisBreakpoint);
-        }
+      const action = getMappedBreakpointAction({
+        hasSourceBreakpoint: sourceBreakpoint !== undefined,
+        hasLisBreakpoint: lisBreakpoint !== undefined,
+        isLisBreakpointRegistered: lisBreakpoint !== undefined && vscode.debug.breakpoints.includes(lisBreakpoint),
+      });
 
-        // invalid breakpoint location in source file
-      } else if (sourceBreakpoint && !lisBreakpoint) {
+      if (action === 'add-lis-breakpoint' && lisBreakpoint) {
+        this.changeBreakpoint('add', lisBreakpoint);
+      } else if (action === 'remove-source-breakpoint' && sourceBreakpoint) {
         this.changeBreakpoint('remove', sourceBreakpoint);
         this.mappedBreakpoints.removeMappedBreakpoint(sourceBreakpoint, lisBreakpoint);
-
-        // removed breakpoint from source file
-      } else if (!sourceBreakpoint && lisBreakpoint) {
+      } else if (action === 'remove-lis-breakpoint' && lisBreakpoint) {
         this.changeBreakpoint('remove', lisBreakpoint);
         this.mappedBreakpoints.removeMappedBreakpoint(sourceBreakpoint, lisBreakpoint);
       }
@@ -147,14 +141,6 @@ export class Z88dkAsmBreakpointService extends Disposable {
     return this.lisFilePath;
   }
 
-  private isBreakpointInSourceFile(breakpoint: vscode.SourceBreakpoint): boolean {
-    return SOURCE_FILE_EXTENSIONS.includes(this.getBreakpointFileExtension(breakpoint));
-  }
-
-  private getBreakpointFileExtension(breakpoint: vscode.SourceBreakpoint): string {
-    return breakpoint.location.uri.fsPath.split('.').pop() || '';
-  }
-
   /**
    * Function to map source breakpoints to .lis file breakpoints, if breakpoint is invalid, mapped to undefined.
    * @param breakpoints List of source breakpoints
@@ -163,7 +149,7 @@ export class Z88dkAsmBreakpointService extends Disposable {
     const lisFilePath = await this.getLisFilePath();
 
     const groupedBreakpoints = breakpoints
-      .filter((item) => this.isBreakpointInSourceFile(item))
+      .filter((item) => isBreakpointSourceFile(item.location.uri.fsPath))
       .groupBy((item) => item.location.uri.fsPath);
 
     for (const breakpointsPath in groupedBreakpoints) {

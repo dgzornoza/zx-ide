@@ -2,7 +2,7 @@ import * as assert from 'assert';
 import * as vscode from 'vscode';
 
 import { OwnBreakpointChanges } from '../../z88dk/models/own-breakpoint-changes';
-import { findAsmLineInLisFile, isValidLisFileLineForBreakpoint } from '../../z88dk/services/lis-file-lines';
+import { findAsmLineInLisFile, isValidLisFileLineForBreakpoint } from '../../z88dk/domain/lis-file-lines';
 import { isZ88dkMakeTask } from '../../z88dk/z88dk-task';
 
 function createBreakpoint(line: number): vscode.SourceBreakpoint {

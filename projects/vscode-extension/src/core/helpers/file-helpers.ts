@@ -137,17 +137,6 @@ export class FileHelpers {
     return -1;
   }
 
-  /**
-   * Split a workspace-relative path safely in segments.
-   * Remove empty segments and discard '.' and '..'
-   */
-  public static splitRelativePath(input: string): string[] {
-    // Normalise backslashes, drop leading separators, then split.
-    const normalised = input.replace(/\\/g, '/').replace(/^\/+/, '');
-    const segments = normalised.split('/').filter((segment) => segment.length > 0 && segment !== '.' && segment !== '..');
-    return segments;
-  }
-
   private static pathNormalized(fpath: string): string {
     return fpath.replace(/\\/g, '/');
   }
