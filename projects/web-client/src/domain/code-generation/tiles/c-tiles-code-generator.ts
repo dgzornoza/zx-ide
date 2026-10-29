@@ -1,17 +1,16 @@
 import { buildAttributeBytes, buildTilesBinary } from 'src/helpers/binary-builder-utils';
 import { bytesToBase64 } from 'src/helpers/binary-utils';
-import { formatAttributeBytesAsDefb, formatBytesAsDefb } from 'src/helpers/code-generator-utils';
+import { formatAttributeBytesAsDefb, formatBytesAsDefb } from 'src/domain/code-generation/code-formatting';
 import { toCodeIdentifier, toMacroGuard } from 'src/helpers/string-utils';
 import { compress as compressZx0 } from 'src/helpers/zx0-compress';
+import { buildDataSizeComment } from 'src/domain/code-generation/code-formatting';
+import { CodeGeneratorStrategy, GeneratedFile } from 'src/domain/code-generation/code-generator-strategy';
 import {
-  buildDataSizeComment,
   buildMapFile,
   calculateTilesDataByteCount,
-  CodeGeneratorStrategy,
-  GeneratedFile,
   getIncludedTileIndices,
   TilesCodeGeneratorParams,
-} from 'src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy';
+} from 'src/domain/code-generation/tiles/tiles-code-generation';
 
 /**
  * Generates tiles for a z88dk C language.
@@ -24,7 +23,7 @@ import {
  *     with one `incbin "<name>.bin"`, and `.bin` with raw uncompressed
  *     bytes (base64-encoded for transport
  */
-export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
+export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesCodeGeneratorParams> {
   generate(params: TilesCodeGeneratorParams): GeneratedFile[] {
     if (params.compressed) {
       return this.generateCompressed(params);

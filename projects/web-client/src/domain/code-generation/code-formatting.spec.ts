@@ -7,7 +7,18 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { formatAttributeBytesAsDefb, formatBytesAsDefb, formatIndicesAsDefb } from './code-generator-utils';
+import {
+  buildDataSizeComment,
+  formatAttributeBytesAsDefb,
+  formatBytesAsDefb,
+  formatIndicesAsDefb,
+} from 'src/domain/code-generation/code-formatting';
+
+describe('buildDataSizeComment', () => {
+  it('formats the data size comment', () => {
+    expect(buildDataSizeComment(18)).toBe('; Data Size: 18 bytes');
+  });
+});
 
 describe('formatBytesAsDefb', () => {
   it('returns an empty array for an empty input', () => {

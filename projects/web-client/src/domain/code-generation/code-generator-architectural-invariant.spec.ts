@@ -15,9 +15,9 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { CTilesCodeGeneratorStrategy } from 'src/shared/composables/tilesCodeGenerators/cGenerator';
-import { CSpritesCodeGeneratorStrategy } from 'src/shared/composables/spritesCodeGenerators/cGenerator';
-import { CMapCodeGenerator } from 'src/extract-map-tileset/composables/codeGenerators/cGenerator';
+import { CTilesCodeGeneratorStrategy } from 'src/domain/code-generation/tiles/c-tiles-code-generator';
+import { CSpritesCodeGeneratorStrategy } from 'src/domain/code-generation/sprites/c-sprites-code-generator';
+import { CMapCodeGenerator } from 'src/domain/code-generation/map-tileset/c-map-tileset-code-generator';
 import { buildMapIndicesBinary, buildSpritesBinary, buildTilesBinary } from 'src/helpers/binary-builder-utils';
 import { base64ToBytes } from 'src/helpers/binary-utils';
 import { decompress } from 'src/helpers/zx0-compress';

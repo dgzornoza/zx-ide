@@ -1,13 +1,12 @@
+import { buildDataSizeComment } from 'src/domain/code-generation/code-formatting';
+import { CodeGeneratorStrategy, GeneratedFile } from 'src/domain/code-generation/code-generator-strategy';
 import {
-  buildDataSizeComment,
   buildHeader,
   calculateMapDataByteCount,
-  CodeGeneratorStrategy,
-  GeneratedFile,
   MapCodeGeneratorParams,
-} from 'src/extract-map-tileset/composables/codeGenerators/codeGeneratorStrategy';
+} from 'src/domain/code-generation/map-tileset/map-tileset-code-generation';
 import { buildMapIndicesBinary } from 'src/helpers/binary-builder-utils';
-import { formatIndicesAsDefb } from 'src/helpers/code-generator-utils';
+import { formatIndicesAsDefb } from 'src/domain/code-generation/code-formatting';
 import { toCodeIdentifier, toMacroGuard } from 'src/helpers/string-utils';
 
 /**
@@ -18,7 +17,7 @@ import { toCodeIdentifier, toMacroGuard } from 'src/helpers/string-utils';
  * an identifier label derived from the map name, and `defb` lines that
  * represent tile indices per row.
  */
-export class AsmMapCodeGenerator implements CodeGeneratorStrategy {
+export class AsmMapCodeGenerator implements CodeGeneratorStrategy<MapCodeGeneratorParams> {
   generate(params: MapCodeGeneratorParams): GeneratedFile[] {
     const { name, metadata, tileIndices } = params;
     const { mapWidth, mapHeight, tileCount } = metadata;

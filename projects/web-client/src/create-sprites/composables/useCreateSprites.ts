@@ -1,8 +1,8 @@
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
 import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
-import { createSpritesCodeGenerator } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorFactory';
-import type { SpritesCodeGeneratorParams } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy';
+import { createSpritesCodeGenerator } from 'src/domain/code-generation/sprites/sprites-code-generator-factory';
+import type { SpritesCodeGeneratorParams } from 'src/domain/code-generation/sprites/sprites-code-generation';
 import { SpriteChanges, SpriteDefinition, SpriteFlags, SpriteFrameChanges } from 'src/shared/models/spriteDefinition';
 import { reactive, ref } from 'vue';
 

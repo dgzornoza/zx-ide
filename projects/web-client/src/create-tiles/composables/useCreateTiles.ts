@@ -1,7 +1,7 @@
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
 import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
-import { createTilesCodeGenerator } from 'src/shared/composables/tilesCodeGenerators/codeGeneratorFactory';
+import { createTilesCodeGenerator } from 'src/domain/code-generation/tiles/tiles-code-generator-factory';
 import type { TilesModel } from 'src/shared/models/tilesDefinition';
 import { reactive, ref } from 'vue';
 

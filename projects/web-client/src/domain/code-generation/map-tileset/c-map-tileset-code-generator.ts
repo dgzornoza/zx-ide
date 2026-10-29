@@ -1,14 +1,13 @@
+import { buildDataSizeComment } from 'src/domain/code-generation/code-formatting';
+import { CodeGeneratorStrategy, GeneratedFile } from 'src/domain/code-generation/code-generator-strategy';
 import {
-  buildDataSizeComment,
   buildHeader,
   calculateMapDataByteCount,
-  CodeGeneratorStrategy,
-  GeneratedFile,
   MapCodeGeneratorParams,
-} from 'src/extract-map-tileset/composables/codeGenerators/codeGeneratorStrategy';
+} from 'src/domain/code-generation/map-tileset/map-tileset-code-generation';
 import { buildMapIndicesBinary } from 'src/helpers/binary-builder-utils';
 import { bytesToBase64 } from 'src/helpers/binary-utils';
-import { formatIndicesAsDefb } from 'src/helpers/code-generator-utils';
+import { formatIndicesAsDefb } from 'src/domain/code-generation/code-formatting';
 import { toCodeIdentifier, toMacroGuard } from 'src/helpers/string-utils';
 import { compress as compressZx0 } from 'src/helpers/zx0-compress';
 
@@ -26,7 +25,7 @@ import { compress as compressZx0 } from 'src/helpers/zx0-compress';
  *     with one `incbin "<name>.bin"`, and `.bin` with raw uncompressed
  *     bytes (base64-encoded for transport.
  */
-export class CMapCodeGenerator implements CodeGeneratorStrategy {
+export class CMapCodeGenerator implements CodeGeneratorStrategy<MapCodeGeneratorParams> {
   generate(params: MapCodeGeneratorParams): GeneratedFile[] {
     if (params.compressed) {
       return this.generateCompressed(params);

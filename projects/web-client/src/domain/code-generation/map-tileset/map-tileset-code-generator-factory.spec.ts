@@ -6,9 +6,9 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { AsmMapCodeGenerator } from 'src/extract-map-tileset/composables/codeGenerators/asmGenerator';
-import { CMapCodeGenerator } from 'src/extract-map-tileset/composables/codeGenerators/cGenerator';
-import { createMapCodeGenerator } from 'src/extract-map-tileset/composables/codeGenerators/codeGeneratorFactory';
+import { AsmMapCodeGenerator } from 'src/domain/code-generation/map-tileset/asm-map-tileset-code-generator';
+import { CMapCodeGenerator } from 'src/domain/code-generation/map-tileset/c-map-tileset-code-generator';
+import { createMapCodeGenerator } from 'src/domain/code-generation/map-tileset/map-tileset-code-generator-factory';
 import type { CodeGenerationType } from 'externalShared/extract-graphics/extract-graphics-dtos';
 
 describe('createMapCodeGenerator', () => {

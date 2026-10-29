@@ -5,7 +5,7 @@
 // in a `.bin` file.
 //
 // Keep this module pure: no DOM, no Vue, no `defb` formatting — only
-// numeric byte sequences. The text-side generators (`code-generator-utils.ts`)
+// numeric byte sequences. The text-side generators (`src/domain/code-generation/code-formatting.ts`)
 // and the binary-side generators share the same row-packing logic.
 
 import type { ZxpColorAttribute } from 'src/helpers/image-utils';

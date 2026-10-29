@@ -1,10 +1,7 @@
-import { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import type { GeneratedFile } from 'src/domain/code-generation/code-generator-strategy';
 import { TilesMapModel, TilesModel } from 'src/shared/models/tilesDefinition';
 
 // --- Public types -----------------------------------------------------------
-
-/** Generated file entry for generators */
-export type GeneratedFile = FileEntry;
 
 /** Parameters for tile code-generation strategies. */
 export interface TilesCodeGeneratorParams {
@@ -17,13 +14,6 @@ export interface TilesCodeGeneratorParams {
    * compressed blob instead of per-tile labels.
    */
   compressed?: boolean;
-}
-
-// --- Strategy interface -----------------------------------------------------
-
-/** Strategy that produces all output files from tile data. */
-export interface CodeGeneratorStrategy {
-  generate(params: TilesCodeGeneratorParams): GeneratedFile[];
 }
 
 // --- Common Helpers ---------------------------------------------------------
@@ -80,8 +70,4 @@ export function buildMapFile(params: TilesCodeGeneratorParams): GeneratedFile {
     fileName: `${params.name}.cfg`,
     content: JSON.stringify(buildTilesMap(params), null, 2),
   };
-}
-
-export function buildDataSizeComment(dataByteCount: number): string {
-  return `; Data Size: ${dataByteCount} bytes`;
 }

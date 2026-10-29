@@ -2,7 +2,7 @@ import { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos
 import { basenameFromPath } from 'src/helpers/file-utils';
 import { imageBytesToFile } from 'src/helpers/image-utils';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
-import { createSpritesCodeGenerator } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorFactory';
+import { createSpritesCodeGenerator } from 'src/domain/code-generation/sprites/sprites-code-generator-factory';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
 import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
 import { SpriteChanges, SpriteDefinition, SpriteFlags, SpriteFrameChanges, SpritesMapModel } from 'src/shared/models/spriteDefinition';

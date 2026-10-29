@@ -1,9 +1,9 @@
 // ─── Unit tests for the tiles code-generator strategy helpers ─────────────
 //
 // Covers the small exported helpers in
-// `src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy.ts`:
+// `src/domain/code-generation/tiles/tiles-code-generation.ts`:
 // `getIncludedTileIndices`, `calculateTilesDataByteCount`, `buildMapFile`,
-// and `buildDataSizeComment`.
+//.
 //
 // These are pure functions with no DOM / no Vue, so they're the safest
 // place to lock in the per-tile bookkeeping (exclusions, byte accounting,
@@ -13,12 +13,11 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  buildDataSizeComment,
   buildMapFile,
   calculateTilesDataByteCount,
   getIncludedTileIndices,
   TilesCodeGeneratorParams,
-} from 'src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy';
+} from 'src/domain/code-generation/tiles/tiles-code-generation';
 import { makeTilesModel } from 'src/test-utils/builders';
 
 /** Minimal valid {@link TilesCodeGeneratorParams} fixture for the tests. */
@@ -123,11 +122,5 @@ describe('buildMapFile', () => {
       tileHeight: 8,
       excluded: [],
     });
-  });
-});
-
-describe('buildDataSizeComment', () => {
-  it('formats the byte count with the documented prefix', () => {
-    expect(buildDataSizeComment(18)).toBe('; Data Size: 18 bytes');
   });
 });

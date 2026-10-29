@@ -10,6 +10,13 @@
 //
 // Avoid re-introducing bitmap / attribute packing here.
 
+// ─── Comments ─────────────────────────────────────────────────────────────────
+
+/** Formats the `; Data Size:` comment emitted at the top of every data file. */
+export function buildDataSizeComment(dataByteCount: number): string {
+  return `; Data Size: ${dataByteCount} bytes`;
+}
+
 // ─── defb line generators ─────────────────────────────────────────────────────
 
 /** Formats a single byte as a `$XX` hex string. */

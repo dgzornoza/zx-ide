@@ -7,9 +7,9 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { AsmTilesCodeGeneratorStrategy } from 'src/shared/composables/tilesCodeGenerators/asmGenerator';
-import { CTilesCodeGeneratorStrategy } from 'src/shared/composables/tilesCodeGenerators/cGenerator';
-import { createTilesCodeGenerator } from 'src/shared/composables/tilesCodeGenerators/codeGeneratorFactory';
+import { AsmTilesCodeGeneratorStrategy } from 'src/domain/code-generation/tiles/asm-tiles-code-generator';
+import { CTilesCodeGeneratorStrategy } from 'src/domain/code-generation/tiles/c-tiles-code-generator';
+import { createTilesCodeGenerator } from 'src/domain/code-generation/tiles/tiles-code-generator-factory';
 import type { CodeGenerationType } from 'externalShared/extract-graphics/extract-graphics-dtos';
 
 describe('createTilesCodeGenerator', () => {

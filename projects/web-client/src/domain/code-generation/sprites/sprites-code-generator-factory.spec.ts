@@ -6,9 +6,9 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { AsmSpritesCodeGeneratorStrategy } from 'src/shared/composables/spritesCodeGenerators/asmGenerator';
-import { CSpritesCodeGeneratorStrategy } from 'src/shared/composables/spritesCodeGenerators/cGenerator';
-import { createSpritesCodeGenerator } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorFactory';
+import { AsmSpritesCodeGeneratorStrategy } from 'src/domain/code-generation/sprites/asm-sprites-code-generator';
+import { CSpritesCodeGeneratorStrategy } from 'src/domain/code-generation/sprites/c-sprites-code-generator';
+import { createSpritesCodeGenerator } from 'src/domain/code-generation/sprites/sprites-code-generator-factory';
 import type { CodeGenerationType } from 'externalShared/extract-graphics/extract-graphics-dtos';
 
 describe('createSpritesCodeGenerator', () => {

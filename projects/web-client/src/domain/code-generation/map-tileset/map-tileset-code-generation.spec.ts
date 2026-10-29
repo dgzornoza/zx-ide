@@ -1,8 +1,8 @@
 // ─── Unit tests for the map tileset code-generator strategy helpers ───────
 //
 // Covers the three exported helpers in
-// `src/extract-map-tileset/composables/codeGenerators/codeGeneratorStrategy.ts`:
-// `buildHeader`, `calculateMapDataByteCount`, and `buildDataSizeComment`.
+// `src/domain/code-generation/map-tileset/map-tileset-code-generation.ts`:
+// `buildHeader`, `calculateMapDataByteCount`.
 //
 // These are tiny pure helpers, but pinning their output keeps the file-
 // header text and the byte-counting formula stable across future
@@ -11,11 +11,10 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  buildDataSizeComment,
   buildHeader,
   calculateMapDataByteCount,
   MapCodeGeneratorParams,
-} from 'src/extract-map-tileset/composables/codeGenerators/codeGeneratorStrategy';
+} from 'src/domain/code-generation/map-tileset/map-tileset-code-generation';
 
 function makeParams(overrides: Partial<MapCodeGeneratorParams> = {}): MapCodeGeneratorParams {
   return {
@@ -47,11 +46,5 @@ describe('buildHeader', () => {
 describe('calculateMapDataByteCount', () => {
   it('returns width × height from the metadata', () => {
     expect(calculateMapDataByteCount(makeParams())).toBe(8);
-  });
-});
-
-describe('buildDataSizeComment', () => {
-  it('formats the byte count with the documented prefix', () => {
-    expect(buildDataSizeComment(8)).toBe('; Data Size: 8 bytes');
   });
 });

@@ -3,7 +3,7 @@
 // These tests pin the exact output text of the C/ASM generators (plain mode)
 // to a known-good fixture. They guard against regressions in the
 // bytes-first refactor that consolidated bit-packing into
-// `binary-builder-utils.ts` and left `code-generator-utils.ts` as a pure
+// `binary-builder-utils.ts` and left `code-formatting.ts` as a pure
 // text formatter.
 //
 // Trailing newline handling is preserved as-is from the existing
@@ -12,12 +12,12 @@
 
 import { describe, expect, it } from 'vitest';
 
-import { CTilesCodeGeneratorStrategy } from 'src/shared/composables/tilesCodeGenerators/cGenerator';
-import { AsmTilesCodeGeneratorStrategy } from 'src/shared/composables/tilesCodeGenerators/asmGenerator';
-import { CSpritesCodeGeneratorStrategy } from 'src/shared/composables/spritesCodeGenerators/cGenerator';
-import { AsmSpritesCodeGeneratorStrategy } from 'src/shared/composables/spritesCodeGenerators/asmGenerator';
-import { CMapCodeGenerator } from 'src/extract-map-tileset/composables/codeGenerators/cGenerator';
-import { AsmMapCodeGenerator } from 'src/extract-map-tileset/composables/codeGenerators/asmGenerator';
+import { CTilesCodeGeneratorStrategy } from 'src/domain/code-generation/tiles/c-tiles-code-generator';
+import { AsmTilesCodeGeneratorStrategy } from 'src/domain/code-generation/tiles/asm-tiles-code-generator';
+import { CSpritesCodeGeneratorStrategy } from 'src/domain/code-generation/sprites/c-sprites-code-generator';
+import { AsmSpritesCodeGeneratorStrategy } from 'src/domain/code-generation/sprites/asm-sprites-code-generator';
+import { CMapCodeGenerator } from 'src/domain/code-generation/map-tileset/c-map-tileset-code-generator';
+import { AsmMapCodeGenerator } from 'src/domain/code-generation/map-tileset/asm-map-tileset-code-generator';
 
 /** Joins an array of {@link FileEntry} into a { fileName → content } map. */
 function filesByName(entries: Array<{ fileName: string; content: string }>): Record<string, string> {

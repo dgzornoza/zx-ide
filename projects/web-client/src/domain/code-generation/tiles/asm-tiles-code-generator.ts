@@ -1,15 +1,14 @@
 import { buildAttributeBytes, buildTilesBinary } from 'src/helpers/binary-builder-utils';
-import { formatAttributeBytesAsDefb, formatBytesAsDefb } from 'src/helpers/code-generator-utils';
+import { formatAttributeBytesAsDefb, formatBytesAsDefb } from 'src/domain/code-generation/code-formatting';
 import { toCodeIdentifier } from 'src/helpers/string-utils';
+import { buildDataSizeComment } from 'src/domain/code-generation/code-formatting';
+import { CodeGeneratorStrategy, GeneratedFile } from 'src/domain/code-generation/code-generator-strategy';
 import {
-  buildDataSizeComment,
   buildMapFile,
   calculateTilesDataByteCount,
-  CodeGeneratorStrategy,
-  GeneratedFile,
   getIncludedTileIndices,
   TilesCodeGeneratorParams,
-} from 'src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy';
+} from 'src/domain/code-generation/tiles/tiles-code-generation';
 
 /**
  * Generates tiles for a sjasmplus assembly language.
@@ -19,7 +18,7 @@ import {
  * pure-ASM sjasmplus target. Produces a `.cfg` file and a single
  * sjasmplus assembly file (`.asm`).
  */
-export class AsmTilesCodeGeneratorStrategy implements CodeGeneratorStrategy {
+export class AsmTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesCodeGeneratorParams> {
   generate(params: TilesCodeGeneratorParams): GeneratedFile[] {
     const { name: baseName, tiles } = params;
     const id = toCodeIdentifier(baseName);

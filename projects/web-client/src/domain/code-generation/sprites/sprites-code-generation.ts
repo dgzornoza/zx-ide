@@ -1,15 +1,12 @@
-import { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import type { GeneratedFile } from 'src/domain/code-generation/code-generator-strategy';
 import { buildColumnBytes, buildPaddingBytes } from 'src/helpers/binary-builder-utils';
-import { formatBytesAsDefb } from 'src/helpers/code-generator-utils';
+import { formatBytesAsDefb } from 'src/domain/code-generation/code-formatting';
 import { SpriteDefinition, SpritesMapModel } from 'src/shared/models/spriteDefinition';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
 
 const PADDING_ROWS_ABOVE = 7;
 const PADDING_ROWS_BELOW = 8;
-
-/** Generated file entry for generators */
-export type GeneratedFile = FileEntry;
 
 /** Parameters for sprite code-generation strategies. */
 export interface SpritesCodeGeneratorParams {
@@ -38,15 +35,6 @@ export interface SpritesCodeGeneratorParams {
    * compressed blob instead of per-frame / per-column labels.
    */
   compressed?: boolean;
-}
-
-// ─── Strategy interface ───────────────────────────────────────────────────────
-
-/**
- * Strategy that produces all output files (map + source) from sprite data.
- */
-export interface SpritesCodeGeneratorStrategy {
-  generate(params: SpritesCodeGeneratorParams): GeneratedFile[];
 }
 
 // ─── Common Helpers ──────────────────────────────────────────────────────────
@@ -157,8 +145,4 @@ export function calculateSpritesDataByteCount(params: SpritesCodeGeneratorParams
 
     return totalBytes + topPaddingBytes + frameCount * columns * singleFrameColBytes;
   }, 0);
-}
-
-export function buildDataSizeComment(dataByteCount: number): string {
-  return `; Data Size: ${dataByteCount} bytes`;
 }

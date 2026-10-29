@@ -2,11 +2,8 @@ import { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos
 import { basenameFromPath, dirNameOfPath } from 'src/helpers/file-utils';
 import { imageBytesToFile } from 'src/helpers/image-utils';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
-import {
-  calculateTilesAttributeByteCount,
-  calculateTilesBitmapByteCount,
-} from 'src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy';
-import { createTilesCodeGenerator } from 'src/shared/composables/tilesCodeGenerators/codeGeneratorFactory';
+import { calculateTilesAttributeByteCount, calculateTilesBitmapByteCount } from 'src/domain/code-generation/tiles/tiles-code-generation';
+import { createTilesCodeGenerator } from 'src/domain/code-generation/tiles/tiles-code-generator-factory';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
 import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
 import { TilesModel } from 'src/shared/models/tilesDefinition';

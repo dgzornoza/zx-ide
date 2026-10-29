@@ -1,10 +1,6 @@
-import type { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos';
-import type { MapTilesetMetadata } from '../../models/mapTilesetDefinition';
+import type { MapTilesetMetadata } from 'src/extract-map-tileset/models/mapTilesetDefinition';
 
 // ─── Public types ─────────────────────────────────────────────────────────────
-
-/** Generated file entry — alias for FileEntry to match existing pattern. */
-export type GeneratedFile = FileEntry;
 
 /** Parameters for map tileset code-generation strategies. */
 export interface MapCodeGeneratorParams {
@@ -21,13 +17,6 @@ export interface MapCodeGeneratorParams {
   compressed?: boolean;
 }
 
-// ─── Strategy interface ───────────────────────────────────────────────────────
-
-/** Strategy that produces all output files from map index data. */
-export interface CodeGeneratorStrategy {
-  generate(params: MapCodeGeneratorParams): GeneratedFile[];
-}
-
 // ─── Common Helpers ──────────────────────────────────────────────────────────
 
 export function buildHeader(name: string, mapWidth: number, mapHeight: number): string {
@@ -38,8 +27,4 @@ export function buildHeader(name: string, mapWidth: number, mapHeight: number): 
 export function calculateMapDataByteCount(params: MapCodeGeneratorParams): number {
   const { mapWidth, mapHeight } = params.metadata;
   return mapWidth * mapHeight;
-}
-
-export function buildDataSizeComment(dataByteCount: number): string {
-  return `; Data Size: ${dataByteCount} bytes`;
 }

@@ -1,9 +1,9 @@
 // ─── Unit tests for the sprites code-generator strategy helpers ───────────
 //
 // Covers the four exported helpers in
-// `src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy.ts`:
+// `src/domain/code-generation/sprites/sprites-code-generation.ts`:
 // `buildMapFile`, `generateSpriteAsmBody`, `calculateSpritesDataByteCount`,
-// and `buildDataSizeComment`.
+//.
 //
 // The most important behavioural quirk pinned here is the per-sprite top
 // padding: with the SP1 padding flag enabled, the 7-row rotation-guard
@@ -15,12 +15,11 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  buildDataSizeComment,
   buildMapFile,
   calculateSpritesDataByteCount,
   generateSpriteAsmBody,
   SpritesCodeGeneratorParams,
-} from 'src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy';
+} from 'src/domain/code-generation/sprites/sprites-code-generation';
 import type { SpriteDefinition, SpriteFrame } from 'src/shared/models/spriteDefinition';
 
 /** 8-pixel-wide all-ink (`true`) or all-paper (`false`) row-major bitmap. */
@@ -264,11 +263,5 @@ describe('generateSpriteAsmBody', () => {
     expect(lines).toContain('_a:');
     // …but no PUBLIC directive should be emitted.
     expect(lines.some((line) => line.startsWith('PUBLIC '))).toBe(false);
-  });
-});
-
-describe('buildDataSizeComment', () => {
-  it('formats the byte count with the documented prefix', () => {
-    expect(buildDataSizeComment(23)).toBe('; Data Size: 23 bytes');
   });
 });

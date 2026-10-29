@@ -1,5 +1,5 @@
 import { parseAsmTilesetData } from 'src/extract-map-tileset/composables/asmTilesetParser';
-import { createMapCodeGenerator } from 'src/extract-map-tileset/composables/codeGenerators/codeGeneratorFactory';
+import { createMapCodeGenerator } from 'src/domain/code-generation/map-tileset/map-tileset-code-generator-factory';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
 import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
