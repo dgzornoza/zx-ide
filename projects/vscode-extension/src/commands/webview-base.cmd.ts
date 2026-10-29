@@ -14,7 +14,7 @@ import {
   type MessageHandlers,
   type WebviewToExtensionMessage,
 } from '../../../shared/bridge-messages';
-import type { ReadAssetRequestMessage, SaveMapMessage, WriteFilesMessage } from '../../../shared/extract-graphics/extract-graphics-dtos';
+import type { ReadAssetRequestMessage, WriteFilesMessage } from '../../../shared/extract-graphics/extract-graphics-dtos';
 import { WebviewSession } from './webview-session';
 
 /**
@@ -33,7 +33,6 @@ import { WebviewSession } from './webview-session';
  * Each open panel gets its own `WebviewSession`: replies go to the panel that
  * sent the request, and the session is released when the panel closes.
  *
- * Subclasses may override `onSaveMap` when saveMap handling is needed.
  * Subclasses may override `requiresAssetsList()` to opt into the assets
  * directory scan + `AssetsListMessage` post on panel open.
  */
@@ -99,16 +98,11 @@ export abstract class WebviewBaseCommand extends Command<unknown> {
     return panel;
   }
 
-  protected async onSaveMap(_message: SaveMapMessage): Promise<void> {
-    // no-op by default; override in subclasses that need save-map logic
-  }
-
   /** Dispatcher for the webview → extension contract: one handler per message type, replying on `session`. */
   private createMessageHandlers(session: WebviewSession<ExtensionToWebviewMessage>): MessageHandlers<WebviewToExtensionMessage> {
     return {
       readyFromWebview: () => this.postInitialMessages(session),
       writeFilesFromWebview: (message) => this.writeFiles(session, message),
-      saveMapFromWebview: (message) => this.onSaveMap(message),
       readAssetRequestFromWebview: (message) => this.handleReadAssetRequest(session, message),
     };
   }

@@ -93,18 +93,6 @@ export interface WriteFilesResultMessage extends VsCodeBridgeMessage {
   error?: string;
 }
 
-/**
- * Message sent from the webview to the extension when a .map file is ready
- * to be saved to the workspace. The extension decides the final destination.
- */
-export interface SaveMapMessage extends VsCodeBridgeMessage {
-  messageType: 'saveMapFromWebview';
-  /** Suggested filename, e.g. "player.map" (no path). */
-  fileName: string;
-  /** JSON serialised TileMapFile content. */
-  content: string;
-}
-
 /** Code generation target language. */
 export type CodeGenerationType = "asm" | "c";
 

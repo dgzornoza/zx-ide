@@ -21,8 +21,6 @@ export type VsCodeBridgeMessageType =
   | "readyFromWebview"
   /** Webview asks the host to write generated source files into the workspace. */
   | "writeFilesFromWebview"
-  /** Webview asks the host to save a `.map` / `.cfg` configuration file. */
-  | "saveMapFromWebview"
   /** Webview asks the host for the bytes of one image under `<workspace>/assets/`. */
   | "readAssetRequestFromWebview";
 

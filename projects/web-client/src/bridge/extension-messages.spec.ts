@@ -16,7 +16,6 @@ describe('dispatchMessage', () => {
     return {
       readyFromWebview: vi.fn(),
       writeFilesFromWebview: vi.fn(),
-      saveMapFromWebview: vi.fn(),
       readAssetRequestFromWebview: vi.fn(),
     };
   }
@@ -30,22 +29,27 @@ describe('dispatchMessage', () => {
     expect(handled).toBe(true);
     expect(handlers.readAssetRequestFromWebview).toHaveBeenCalledWith(message);
     expect(handlers.writeFilesFromWebview).not.toHaveBeenCalled();
-    expect(handlers.saveMapFromWebview).not.toHaveBeenCalled();
   });
 
-  it.each([undefined, 'text', 42, {}, { messageType: 7 }, { messageType: 'unknownFromWebview' }, { messageType: 'toString' }])(
-    'ignores %j',
-    async (message) => {
-      const handlers = createHandlers();
+  it.each([
+    undefined,
+    'text',
+    42,
+    {},
+    { messageType: 7 },
+    { messageType: 'unknownFromWebview' },
+    { messageType: 'toString' },
+    // removed: no webview sends it, .cfg files are written through writeFilesFromWebview
+    { messageType: 'saveMapFromWebview', fileName: 'player.cfg', content: '{}' },
+  ])('ignores %j', async (message) => {
+    const handlers = createHandlers();
 
-      const handled = await dispatchMessage(message, handlers);
+    const handled = await dispatchMessage(message, handlers);
 
-      expect(handled).toBe(false);
-      expect(handlers.readAssetRequestFromWebview).not.toHaveBeenCalled();
-      expect(handlers.writeFilesFromWebview).not.toHaveBeenCalled();
-      expect(handlers.saveMapFromWebview).not.toHaveBeenCalled();
-    }
-  );
+    expect(handled).toBe(false);
+    expect(handlers.readAssetRequestFromWebview).not.toHaveBeenCalled();
+    expect(handlers.writeFilesFromWebview).not.toHaveBeenCalled();
+  });
 });
 
 describe('subscribeToExtensionMessage', () => {

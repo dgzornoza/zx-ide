@@ -4,7 +4,6 @@ import type {
   ReadAssetRequestMessage,
   ReadyMessage,
   ReadAssetResponseMessage,
-  SaveMapMessage,
   WriteFilesMessage,
   WriteFilesResultMessage,
 } from "./extract-graphics/extract-graphics-dtos";
@@ -14,7 +13,7 @@ import type { VsCodeBridgeMessage } from "./infrastructure";
 export type ExtensionToWebviewMessage = InitMessage | AssetsListMessage | ReadAssetResponseMessage | WriteFilesResultMessage;
 
 /** Every message a webview may post to the extension. */
-export type WebviewToExtensionMessage = ReadyMessage | WriteFilesMessage | SaveMapMessage | ReadAssetRequestMessage;
+export type WebviewToExtensionMessage = ReadyMessage | WriteFilesMessage | ReadAssetRequestMessage;
 
 /** The message of `TMessage` whose discriminator is `TMessageType`. */
 export type MessageOfType<TMessage extends VsCodeBridgeMessage, TMessageType extends TMessage["messageType"]> = Extract<
