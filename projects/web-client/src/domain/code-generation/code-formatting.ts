@@ -1,4 +1,4 @@
-// ─── Text formatters for ZX Spectrum code-generation output ─────────────────
+// Text formatters for ZX Spectrum code-generation output
 //
 // These functions take **already-computed byte arrays** and format them as
 // `defb` directives. All bit-packing logic lives in `binary-builder-utils.ts`
@@ -10,14 +10,10 @@
 //
 // Avoid re-introducing bitmap / attribute packing here.
 
-// ─── Comments ─────────────────────────────────────────────────────────────────
-
 /** Formats the `; Data Size:` comment emitted at the top of every data file. */
 export function buildDataSizeComment(dataByteCount: number): string {
   return `; Data Size: ${dataByteCount} bytes`;
 }
-
-// ─── defb line generators ─────────────────────────────────────────────────────
 
 /** Formats a single byte as a `$XX` hex string. */
 function toHexByte(value: number): string {

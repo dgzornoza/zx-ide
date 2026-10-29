@@ -30,7 +30,7 @@ export class AsmSpritesCodeGeneratorStrategy implements CodeGeneratorStrategy<Sp
       const baseLabel = `${id}_${spriteName}`;
       const frameBitmasks = params.spriteBitmasks[spriteIndex] ?? [];
 
-      lines.push(...generateSpriteAsmBody(sprite, frameBitmasks, baseLabel, null, hasPadding, useMask));
+      lines.push(...generateSpriteAsmBody(sprite, frameBitmasks, baseLabel, undefined, hasPadding, useMask));
     });
 
     return [

@@ -1,4 +1,4 @@
-// ─── String transformation utilities ───────────────────────────────────────
+// String transformation utilities
 //
 // Unit tests for the two identifier helpers that feed the C/ASM generators.
 // These run as pure string transformations and have no dependencies.

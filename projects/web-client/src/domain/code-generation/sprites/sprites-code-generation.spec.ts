@@ -222,7 +222,7 @@ describe('generateSpriteAsmBody', () => {
       sprite,
       [flatBitmap(8, 8, false), flatBitmap(8, 8, false), flatBitmap(8, 8, false)],
       '_player',
-      null,
+      undefined,
       false,
       false
     );
@@ -233,7 +233,7 @@ describe('generateSpriteAsmBody', () => {
   });
 
   it('emits the 7-row top padding BEFORE the frame label and 8-row bottom padding AFTER', () => {
-    const lines = generateSpriteAsmBody(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, false)], '_a', null, true, false);
+    const lines = generateSpriteAsmBody(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, false)], '_a', undefined, true, false);
 
     const labelIndex = lines.indexOf('_a:');
     const firstDefb = lines.indexOf('    defb $00,$00,$00,$00,$00,$00,$00');
@@ -250,14 +250,14 @@ describe('generateSpriteAsmBody', () => {
   });
 
   it('interleaves mask/data bytes in the padding lines when useMask is on', () => {
-    const lines = generateSpriteAsmBody(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, false)], '_a', null, true, true);
+    const lines = generateSpriteAsmBody(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, false)], '_a', undefined, true, true);
 
     // 7 rows × (mask=$FF, data=$00) pairs, all on a single defb line.
     expect(lines).toContain('    defb $FF,$00,$FF,$00,$FF,$00,$FF,$00,$FF,$00,$FF,$00,$FF,$00');
   });
 
-  it('omits the PUBLIC directives when publicLabel is null', () => {
-    const lines = generateSpriteAsmBody(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, true)], '_a', null, false, false);
+  it('omits the PUBLIC directives when publicLabel is undefined', () => {
+    const lines = generateSpriteAsmBody(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, true)], '_a', undefined, false, false);
 
     // The label still appears…
     expect(lines).toContain('_a:');

@@ -6,7 +6,6 @@
  * alone — no need to look up the message interface to know who sends it.
  */
 export type VsCodeBridgeMessageType =
-  // ─── Extension → Webview ───────────────────────────────────────────────
   /** Extension sends the VS Code project type on webview boot. */
   | "initFromExtension"
   /** Extension sends the workspace assets listing once per panel open. */
@@ -16,7 +15,6 @@ export type VsCodeBridgeMessageType =
   /** Extension reports the outcome of a writeFilesFromWebview request. */
   | "writeFilesResultFromExtension"
 
-  // ─── Webview → Extension ───────────────────────────────────────────────
   /** Webview is mounted and listening; the extension may send its initial messages. */
   | "readyFromWebview"
   /** Webview asks the host to write generated source files into the workspace. */

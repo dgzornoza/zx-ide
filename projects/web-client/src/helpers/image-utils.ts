@@ -215,7 +215,7 @@ export async function extractSpritesFromFile(file: File, requests: Rect[][]): Pr
  * Extracts a single rectangular region from a PNG File and returns it as a
  * base64 PNG data-URL, suitable for use as a sprite-frame thumbnail.
  *
- * Returns `""` when the source file is `null` or the dimensions are invalid
+ * Returns `""` when the source file is `undefined` or the dimensions are invalid
  * (zero or negative), so callers can render a placeholder instead.
  *
  * @param file   - The source PNG File (same image used for tile extraction).

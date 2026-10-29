@@ -22,8 +22,6 @@ export function useCreateSprites() {
   /** Index of the sprite that receives the next "Add" from the BinaryInputPanel. */
   const activeSpriteIndex = ref(-1);
 
-  // ─── Sprite actions ────────────────────────────────────────────────────────
-
   function addSprite() {
     const newSprite: SpriteDefinition = {
       _id: crypto.randomUUID(),
@@ -110,8 +108,6 @@ export function useCreateSprites() {
     clearStatus();
   }
 
-  // ─── Code generation ───────────────────────────────────────────────────────
-
   async function generateCode() {
     const sprites = state.sprites.filter((s) => s.frames.length > 0);
 
@@ -142,8 +138,6 @@ export function useCreateSprites() {
 
     writeFiles(codeFiles);
   }
-
-  // ─── VSCode init message is handled by useProjectTypeLock ───────────────────
 
   return {
     state,

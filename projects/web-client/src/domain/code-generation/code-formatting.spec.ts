@@ -1,4 +1,4 @@
-// ─── Text formatters for ZX Spectrum code-generation output ─────────────────
+// Text formatters for ZX Spectrum code-generation output
 //
 // Unit tests for the three `defb`-formatting helpers. These run as pure text
 // transformations over pre-computed byte arrays; no bit-packing happens here.

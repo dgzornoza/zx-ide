@@ -1,4 +1,4 @@
-// ─── Unit tests for the map tileset code-generator factory ────────────────
+// Unit tests for the map tileset code-generator factory
 //
 // Same dispatch contract as the tiles/sprites factories, but for the map
 // tileset strategies. Pins the C/ASM mapping and the `undefined` fallback

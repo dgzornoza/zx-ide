@@ -25,7 +25,7 @@ interface OptimizeNode {
   bits: number;
   index: number;
   offset: number;
-  chain: OptimizeNode | null;
+  chain: OptimizeNode | undefined;
 }
 
 // ─── Compression (V2 standard format) ──────────────────────────────────────
@@ -50,24 +50,24 @@ function offsetCeiling(index: number, offsetLimit: number): number {
   return Math.max(INITIAL_OFFSET, Math.min(index, offsetLimit));
 }
 
-function optimize(inputData: Uint8Array, inputSize: number, skip: number, offsetLimit: number): OptimizeNode | null {
-  if (inputSize === 0) return null;
+function optimize(inputData: Uint8Array, inputSize: number, skip: number, offsetLimit: number): OptimizeNode | undefined {
+  if (inputSize === 0) return undefined;
 
   const maxOffsetStart = offsetCeiling(inputSize - 1, offsetLimit);
 
-  const lastLiteral: (OptimizeNode | null)[] = new Array(maxOffsetStart + 1).fill(null);
-  const lastMatch: (OptimizeNode | null)[] = new Array(maxOffsetStart + 1).fill(null);
-  const optimal: (OptimizeNode | null)[] = new Array(inputSize).fill(null);
+  const lastLiteral: (OptimizeNode | undefined)[] = new Array(maxOffsetStart + 1).fill(undefined);
+  const lastMatch: (OptimizeNode | undefined)[] = new Array(maxOffsetStart + 1).fill(undefined);
+  const optimal: (OptimizeNode | undefined)[] = new Array(inputSize).fill(undefined);
   const matchLength = new Int32Array(maxOffsetStart + 1);
   const bestLength = new Int32Array(inputSize);
 
   if (inputSize > 2) bestLength[2] = 2;
 
-  function allocate(bits: number, index: number, offset: number, chain: OptimizeNode | null): OptimizeNode {
+  function allocate(bits: number, index: number, offset: number, chain: OptimizeNode | undefined): OptimizeNode {
     return { bits, index, offset, chain };
   }
 
-  lastMatch[INITIAL_OFFSET] = allocate(-1, skip - 1, INITIAL_OFFSET, null);
+  lastMatch[INITIAL_OFFSET] = allocate(-1, skip - 1, INITIAL_OFFSET, undefined);
 
   for (let index = skip; index < inputSize; index++) {
     let bestLengthSize = 2;
@@ -145,9 +145,9 @@ function compressForward(
   const outputData = new Uint8Array(outputSize);
 
   // Un-reverse the chain so we walk it forward when emitting.
-  let prev: OptimizeNode | null = null;
-  let cur: OptimizeNode | null = optimalBlock;
-  while (cur !== null) {
+  let prev: OptimizeNode | undefined;
+  let cur: OptimizeNode | undefined = optimalBlock;
+  while (cur !== undefined) {
     const next = cur.chain;
     cur.chain = prev;
     prev = cur;
@@ -215,10 +215,10 @@ function compressForward(
     writeBit(1);
   }
 
-  let node: OptimizeNode | null = prev;
-  while (node !== null) {
+  let node: OptimizeNode | undefined = prev;
+  while (node !== undefined) {
     const opt = node.chain;
-    if (opt === null) break;
+    if (opt === undefined) break;
 
     const length = opt.index - node.index;
 

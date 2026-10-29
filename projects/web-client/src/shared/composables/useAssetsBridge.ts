@@ -1,4 +1,4 @@
-// ─── useAssetsBridge ────────────────────────────────────────────────────────
+// useAssetsBridge
 //
 // Bridges the VS Code extension's `AssetsListMessage` (which carries the
 // discovered asset entries under `<workspace>/assets/`) into the webview's

@@ -1,4 +1,4 @@
-// ─── Unit tests for useExtractSprites ───────────────────────────────────────
+// Unit tests for useExtractSprites
 //
 // Pins the `setSourceImage(path, bytes)` contract: state.source is the basename
 // of the path, currentImageFile is a File with that basename, extractSpritesFromFile

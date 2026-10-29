@@ -1,4 +1,4 @@
-// ─── Binary helpers ─────────────────────────────────────────────────────────
+// Binary helpers
 //
 // Unit tests for the base64 byte contracts used to ship raw `.bin` payloads
 // across the webview ↔ extension boundary, plus the small `readBytesFromFile`

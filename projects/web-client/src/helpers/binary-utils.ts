@@ -1,5 +1,3 @@
-// ─── Binary helpers ────────────────────────────────────────────────────────────
-
 /**
  * Converts a `Uint8Array` (or `number[]`) to a base64-encoded string suitable
  * for embedding in JSON / DTO transport.

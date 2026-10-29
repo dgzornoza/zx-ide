@@ -1,4 +1,4 @@
-// ─── useProjectTypeLock ────────────────────────────────────────────────────
+// useProjectTypeLock
 //
 // Bridges the VS Code extension's `InitMessage` (which carries the project's
 // `projectType` from `.zxide.json`) into the webview's code-generation state.

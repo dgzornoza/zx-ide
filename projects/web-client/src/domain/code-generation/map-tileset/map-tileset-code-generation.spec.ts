@@ -1,4 +1,4 @@
-// ─── Unit tests for the map tileset code-generator strategy helpers ───────
+// Unit tests for the map tileset code-generator strategy helpers
 //
 // Covers the three exported helpers in
 // `src/domain/code-generation/map-tileset/map-tileset-code-generation.ts`:

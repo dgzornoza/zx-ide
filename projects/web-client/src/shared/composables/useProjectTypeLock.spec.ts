@@ -1,4 +1,4 @@
-// ─── Unit tests for useProjectTypeLock ─────────────────────────────────────
+// Unit tests for useProjectTypeLock
 //
 // Pins the lifecycle behaviour of `useProjectTypeLock`: an InitMessage from
 // the VS Code bridge must force the local code-generation refs to match the

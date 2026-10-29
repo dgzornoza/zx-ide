@@ -1,8 +1,6 @@
 import type { GeneratedFile } from 'src/domain/code-generation/code-generator-strategy';
 import { TilesMapModel, TilesModel } from 'src/shared/models/tilesDefinition';
 
-// --- Public types -----------------------------------------------------------
-
 /** Parameters for tile code-generation strategies. */
 export interface TilesCodeGeneratorParams {
   /** Filename without extension (e.g. `"mainTiles"`). */
@@ -15,8 +13,6 @@ export interface TilesCodeGeneratorParams {
    */
   compressed?: boolean;
 }
-
-// --- Common Helpers ---------------------------------------------------------
 
 /** Builds the serialisable `.cfg` model from tiles params. */
 function buildTilesMap(params: TilesCodeGeneratorParams): TilesMapModel {

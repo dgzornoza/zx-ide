@@ -5,7 +5,7 @@ const ANIMATION_FPS = 8;
 export function useSpriteAnimation(frameCount: () => number) {
   const currentFrameIndex = ref(0);
   const isPlaying = ref(false);
-  let intervalId: ReturnType<typeof setInterval> | null = null;
+  let intervalId: ReturnType<typeof setInterval> | undefined;
 
   const play = () => {
     if (isPlaying.value || frameCount() <= 1) return;
@@ -17,9 +17,9 @@ export function useSpriteAnimation(frameCount: () => number) {
 
   const stop = () => {
     isPlaying.value = false;
-    if (intervalId !== null) {
+    if (intervalId !== undefined) {
       clearInterval(intervalId);
-      intervalId = null;
+      intervalId = undefined;
     }
   };
 

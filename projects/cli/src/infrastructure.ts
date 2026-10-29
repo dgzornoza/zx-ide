@@ -4,12 +4,12 @@ export const ZX_IDE_TEMPLATE_VERSION = '1.0.0';
 
 export type ProjectReplacementConstants =
   '{ZX-IDE_PROJECT_NAME}' | '{ZX-IDE_PROJECT_INCLUDES}' | '{ZX-IDE_PROJECT_MACHINE}' | '{ZX-IDE_PROJECT_OUTPUT_FILE}';
-/** modelo para definir la estructura del archivo settings.json de vscode */
+/** Shape of the VS Code `settings.json` file. */
 export interface ISettingsJsonFile {
   'C_Cpp.default.includePath': string[];
 }
 
-/** Modelo para definir la estructura del archivo tasks.json de vscode */
+/** Shape of the VS Code `tasks.json` file. */
 export interface ITasksJsonFile {
   version: string;
   tasks: {

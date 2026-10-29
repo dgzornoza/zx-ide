@@ -1,4 +1,4 @@
-// ─── Unit tests for AssetsSourceSection ────────────────────────────────────
+// Unit tests for AssetsSourceSection
 //
 // Pins the rendered-output contract of `AssetsSourceSection.vue`: one option per
 // entry plus a placeholder; select disabled on missing-directory; banner

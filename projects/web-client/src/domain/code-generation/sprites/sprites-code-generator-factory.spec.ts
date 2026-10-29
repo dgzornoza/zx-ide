@@ -1,4 +1,4 @@
-// ─── Unit tests for the sprites code-generator factory ────────────────────
+// Unit tests for the sprites code-generator factory
 //
 // Same dispatch contract as the tiles factory, but for the sprite
 // strategies. Pins the C/ASM mapping and the `undefined` fallback for

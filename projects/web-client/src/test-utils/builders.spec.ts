@@ -1,4 +1,4 @@
-// ─── Shared test fixture builders ──────────────────────────────────────────
+// Shared test fixture builders
 //
 // These tests pin the defaults of the test fixture builders. The defaults
 // are tuned to match the most common inline literals used across the

@@ -1,4 +1,4 @@
-// ─── useGeneratedFilesWriter ────────────────────────────────────────────────
+// useGeneratedFilesWriter
 //
 // Sends generated files to the extension and owns the page status banner.
 // `writeFiles` posts a `writeFilesFromWebview` request; the banner shows

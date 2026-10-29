@@ -1,4 +1,4 @@
-// ─── Shared test fixture builders ──────────────────────────────────────────
+// Shared test fixture builders
 //
 // These factories produce model instances that match the inline literals
 // the existing generator specs use, so refactoring those specs to the

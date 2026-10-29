@@ -1,7 +1,5 @@
 import type { MapTilesetMetadata } from 'src/extract-map-tileset/models/mapTilesetDefinition';
 
-// ─── Public types ─────────────────────────────────────────────────────────────
-
 /** Parameters for map tileset code-generation strategies. */
 export interface MapCodeGeneratorParams {
   /** Filename without extension (e.g. `"playerMap"`). */
@@ -16,8 +14,6 @@ export interface MapCodeGeneratorParams {
    */
   compressed?: boolean;
 }
-
-// ─── Common Helpers ──────────────────────────────────────────────────────────
 
 export function buildHeader(name: string, mapWidth: number, mapHeight: number): string {
   return `; Map: ${name}  (${mapWidth} x ${mapHeight} tiles)`;

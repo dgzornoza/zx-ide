@@ -12,7 +12,7 @@ const props = defineProps<{
   sprite: SpriteDefinition;
   spriteIndex: number;
   /**
-   * Source image used to extract frame previews. When `null`, the component
+   * Source image used to extract frame previews. When `undefined`, the component
    * falls back to the pre-computed bitmap stored on each frame (create-sprites).
    */
   sourceImage: File | undefined;
@@ -58,7 +58,7 @@ const tp = createTranslationPrefixFn(props.translationNamespace);
 // ─── Frame preview thumbnails ─────────────────────────────────────────────
 
 const framePreviews = ref<string[]>([]);
-let updateTimer: ReturnType<typeof setTimeout> | null = null;
+let updateTimer: ReturnType<typeof setTimeout> | undefined;
 
 /**
  * Rebuilds the previews array. When a source image is available, the preview
@@ -90,7 +90,7 @@ const updatePreviews = async () => {
 };
 
 const scheduleUpdatePreviews = () => {
-  if (updateTimer !== null) clearTimeout(updateTimer);
+  if (updateTimer !== undefined) clearTimeout(updateTimer);
   updateTimer = setTimeout(updatePreviews, 150);
 };
 
@@ -110,7 +110,7 @@ watch(
 const { currentFrameIndex, isPlaying, play, stop } = useSpriteAnimation(() => props.sprite.frames.length);
 
 onBeforeUnmount(() => {
-  if (updateTimer !== null) clearTimeout(updateTimer);
+  if (updateTimer !== undefined) clearTimeout(updateTimer);
 });
 </script>
 

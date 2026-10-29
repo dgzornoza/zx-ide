@@ -1,4 +1,4 @@
-// ─── Unit tests for the tiles code-generator factory ──────────────────────
+// Unit tests for the tiles code-generator factory
 //
 // Pins the dispatch behaviour of `createTilesCodeGenerator`: each supported
 // `CodeGenerationType` value must map to the matching concrete strategy

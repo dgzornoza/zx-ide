@@ -45,7 +45,6 @@ function filesByName(entries: Array<{ fileName: string; content: string }>): Rec
   return map;
 }
 
-// ─── Tiles ──────────────────────────────────────────────────────────────────
 //
 // The invariant holds with attributes too: `buildTilesBinary` now emits
 // bitmaps contiguously followed by all attribute bytes, matching the plain
@@ -81,8 +80,6 @@ describe('CTilesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin', () 
   });
 });
 
-// ─── Sprites ────────────────────────────────────────────────────────────────
-
 describe('CSpritesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin', () => {
   it('produces byte-identical payloads across plain .asm, compressed .bin and buildSpritesBinary', () => {
     const sprite = makeSpriteModel();
@@ -113,8 +110,6 @@ describe('CSpritesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin', (
     expect(asmBytes).toEqual(binBytes);
   });
 });
-
-// ─── Map ────────────────────────────────────────────────────────────────────
 
 describe('CMapCodeGenerator: plain defb ≡ ZX0-decompressed bin', () => {
   it('produces byte-identical payloads across plain .asm, compressed .bin and buildMapIndicesBinary', () => {

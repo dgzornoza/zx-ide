@@ -1,4 +1,4 @@
-// ─── Unit tests for the tiles code-generator strategy helpers ─────────────
+// Unit tests for the tiles code-generator strategy helpers
 //
 // Covers the small exported helpers in
 // `src/domain/code-generation/tiles/tiles-code-generation.ts`:

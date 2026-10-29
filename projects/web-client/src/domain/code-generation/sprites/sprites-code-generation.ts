@@ -3,8 +3,6 @@ import { buildColumnBytes, buildPaddingBytes } from 'src/helpers/binary-builder-
 import { formatBytesAsDefb } from 'src/domain/code-generation/code-formatting';
 import { SpriteDefinition, SpritesMapModel } from 'src/shared/models/spriteDefinition';
 
-// ─── Public types ─────────────────────────────────────────────────────────────
-
 const PADDING_ROWS_ABOVE = 7;
 const PADDING_ROWS_BELOW = 8;
 
@@ -36,8 +34,6 @@ export interface SpritesCodeGeneratorParams {
    */
   compressed?: boolean;
 }
-
-// ─── Common Helpers ──────────────────────────────────────────────────────────
 
 /** Creates the `.cfg` {@link GeneratedFile} entry for sprites. */
 export function buildMapFile(params: SpritesCodeGeneratorParams): GeneratedFile {
@@ -73,7 +69,7 @@ export function generateSpriteAsmBody(
   sprite: SpriteDefinition,
   frameBitmasks: boolean[][],
   baseLabel: string,
-  publicLabel: string | null,
+  publicLabel: string | undefined,
   hasPadding: boolean,
   useMask: boolean
 ): string[] {
@@ -81,7 +77,7 @@ export function generateSpriteAsmBody(
 
   const columns = Math.ceil(sprite.width / 8);
 
-  if (publicLabel !== null) {
+  if (publicLabel !== undefined) {
     if (columns > 1) {
       for (let col = 1; col <= columns; col++) {
         lines.push(`PUBLIC ${publicLabel}_col_${col}`);

@@ -1,5 +1,3 @@
-// ─── File / path utilities ───────────────────────────────────────────────────
-
 /**
  * Returns the basename (last path segment) of a forward-slash separated path.
  * If the path has no separators the input is returned unchanged so callers
