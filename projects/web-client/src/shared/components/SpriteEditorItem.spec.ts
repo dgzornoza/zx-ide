@@ -49,4 +49,37 @@ describe('SpriteEditorItem', () => {
     ]);
     expect(sprite).toEqual(createSprite());
   });
+
+  it('emits only integer sizes of at least 1', async () => {
+    const wrapper = mountItem(createSprite());
+
+    await wrapper.find('#sprite-width-0').setValue('0');
+    await wrapper.find('#sprite-width-0').setValue('8.6');
+    await wrapper.find('#sprite-height-0').setValue('-4');
+
+    expect(wrapper.emitted('update-sprite')).toEqual([[{ width: 1 }], [{ width: 9 }], [{ height: 1 }]]);
+  });
+
+  it('emits only integer frame coordinates of at least 0', async () => {
+    const wrapper = mountItem(createSprite());
+
+    await wrapper.find('#frame-x-0-0').setValue('-3');
+    await wrapper.find('#frame-y-0-0').setValue('2.4');
+
+    expect(wrapper.emitted('update-frame')).toEqual([
+      [0, { x: 0 }],
+      [0, { y: 2 }],
+    ]);
+  });
+
+  it('keeps the last valid size when the field is emptied and shows it again when the field is left', async () => {
+    const wrapper = mountItem(createSprite());
+    const widthInput = wrapper.find('#sprite-width-0');
+
+    await widthInput.setValue('');
+    expect(wrapper.emitted('update-sprite')).toBeUndefined();
+
+    await widthInput.trigger('change');
+    expect((widthInput.element as HTMLInputElement).value).toBe('8');
+  });
 });

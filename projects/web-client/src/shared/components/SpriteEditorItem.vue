@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { extractSpriteFramePreview } from 'src/helpers/image-utils';
+import { parseIntegerInput, showInputValue } from 'src/helpers/integer-input';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { SpriteChanges, SpriteDefinition, SpriteFrameChanges } from 'src/shared/models/spriteDefinition';
 import SpriteAnimationPanel from 'src/shared/components/SpriteAnimationPanel.vue';
@@ -38,14 +39,18 @@ const emit = defineEmits<{
 // ─── Field edits ──────────────────────────────────────────────────────────
 //
 // The sprite belongs to the page state: edits are emitted, never written to
-// the prop. Numeric fields follow `v-model.number` parsing and ignore input
-// that is not a number yet (an empty field while typing).
+// the prop. Numeric fields emit integers only (sizes at least 1, coordinates
+// at least 0) and ignore text that is not a number yet (an empty field while
+// typing); leaving the field shows the stored value again.
+
+const SIZE_MINIMUM = 1;
+const COORDINATE_MINIMUM = 0;
 
 const inputText = (event: Event) => (event.target as HTMLInputElement).value;
 
-const emitNumber = (event: Event, emitValue: (value: number) => void) => {
-  const value = Number.parseFloat(inputText(event));
-  if (!Number.isNaN(value)) emitValue(value);
+const emitInteger = (event: Event, minimum: number, emitValue: (value: number) => void) => {
+  const value = parseIntegerInput(inputText(event), minimum);
+  if (value !== undefined) emitValue(value);
 };
 
 const tp = createTranslationPrefixFn(props.translationNamespace);
@@ -152,7 +157,8 @@ onBeforeUnmount(() => {
           placeholder="width"
           type="number"
           min="1"
-          @input="emitNumber($event, (width) => emit('update-sprite', { width }))"
+          @input="emitInteger($event, SIZE_MINIMUM, (width) => emit('update-sprite', { width }))"
+          @change="showInputValue($event, sprite.width)"
         />
       </div>
 
@@ -166,7 +172,8 @@ onBeforeUnmount(() => {
           placeholder="height"
           type="number"
           min="1"
-          @input="emitNumber($event, (height) => emit('update-sprite', { height }))"
+          @input="emitInteger($event, SIZE_MINIMUM, (height) => emit('update-sprite', { height }))"
+          @change="showInputValue($event, sprite.height)"
         />
       </div>
 
@@ -208,7 +215,8 @@ onBeforeUnmount(() => {
             placeholder="x"
             type="number"
             min="0"
-            @input="emitNumber($event, (x) => emit('update-frame', frameIndex, { x }))"
+            @input="emitInteger($event, COORDINATE_MINIMUM, (x) => emit('update-frame', frameIndex, { x }))"
+            @change="showInputValue($event, frame.x)"
           />
         </div>
         <div v-else />
@@ -223,7 +231,8 @@ onBeforeUnmount(() => {
             placeholder="y"
             type="number"
             min="0"
-            @input="emitNumber($event, (y) => emit('update-frame', frameIndex, { y }))"
+            @input="emitInteger($event, COORDINATE_MINIMUM, (y) => emit('update-frame', frameIndex, { y }))"
+            @change="showInputValue($event, frame.y)"
           />
         </div>
         <div v-else />
