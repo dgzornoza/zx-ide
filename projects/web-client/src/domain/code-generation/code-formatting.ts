@@ -45,11 +45,11 @@ export function formatBytesAsDefb(bytes: Uint8Array, perLine?: number, useMask =
   const entries: string[] = [];
 
   if (useMask) {
-    // Input is (mask, data) interleaved. `bytes[i]` is always in-bounds
-    // here (the loop condition is `i < bytes.length`); only `bytes[i + 1]`
+    // Input is (mask, data) interleaved. `bytes[byteIndex]` is always in-bounds
+    // here (the loop condition is `byteIndex < bytes.length`); only `bytes[byteIndex + 1]`
     // can be undefined when the input has an odd length.
-    for (let i = 0; i < bytes.length; i += 2) {
-      entries.push(toHexByte(bytes[i]), toHexByte(bytes[i + 1] ?? 0));
+    for (let byteIndex = 0; byteIndex < bytes.length; byteIndex += 2) {
+      entries.push(toHexByte(bytes[byteIndex]), toHexByte(bytes[byteIndex + 1] ?? 0));
     }
   } else {
     for (const element of bytes) {
@@ -59,8 +59,8 @@ export function formatBytesAsDefb(bytes: Uint8Array, perLine?: number, useMask =
 
   const stride = perLine ?? (useMask ? 16 : 8);
   const lines: string[] = [];
-  for (let i = 0; i < entries.length; i += stride) {
-    lines.push(`    defb ${entries.slice(i, i + stride).join(',')}`);
+  for (let entryIndex = 0; entryIndex < entries.length; entryIndex += stride) {
+    lines.push(`    defb ${entries.slice(entryIndex, entryIndex + stride).join(',')}`);
   }
   return lines;
 }
@@ -68,12 +68,12 @@ export function formatBytesAsDefb(bytes: Uint8Array, perLine?: number, useMask =
 /**
  * Formats a pre-computed attribute byte array as `defb` lines.
  *
- * @param attrBytes - Bytes from {@link buildAttributeBytes}.
+ * @param attributeBytes - Bytes from {@link buildAttributeBytes}.
  * @param perLine   - Bytes per line. Defaults to 8.
  */
-export function formatAttributeBytesAsDefb(attrBytes: Uint8Array, perLine = 8): string[] {
+export function formatAttributeBytesAsDefb(attributeBytes: Uint8Array, perLine = 8): string[] {
   const entries: string[] = [];
-  for (const element of attrBytes) {
+  for (const element of attributeBytes) {
     entries.push(toHexByte(element ?? 0));
   }
 
@@ -103,8 +103,8 @@ export function formatIndicesAsDefb(indices: Uint8Array | number[], rowWidth: nu
   const lines: string[] = [];
   for (let row = 0; row < rowCount; row++) {
     const rowValues: string[] = [];
-    for (let col = 0; col < rowWidth; col++) {
-      rowValues.push(String(indices[row * rowWidth + col] ?? 0));
+    for (let column = 0; column < rowWidth; column++) {
+      rowValues.push(String(indices[row * rowWidth + column] ?? 0));
     }
     lines.push(`    defb ${rowValues.join(',')}`);
   }

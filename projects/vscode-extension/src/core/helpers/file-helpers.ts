@@ -20,18 +20,18 @@ export interface WalkedFile {
 
 export class FileHelpers {
   public static getTempFolder(): string {
-    const tempFolder = path.join(os.tmpdir(), 'zxide');
-    if (!fs.existsSync(tempFolder)) {
-      fs.mkdirSync(tempFolder);
+    const temporaryFolder = path.join(os.tmpdir(), 'zxide');
+    if (!fs.existsSync(temporaryFolder)) {
+      fs.mkdirSync(temporaryFolder);
     }
-    return FileHelpers.pathNormalized(tempFolder);
+    return FileHelpers.pathNormalized(temporaryFolder);
   }
 
   public static clearTempFolder(): void {
-    const tempFolder = FileHelpers.getTempFolder();
-    fs.rm(tempFolder, { recursive: true, force: true }, (error) => {
+    const temporaryFolder = FileHelpers.getTempFolder();
+    fs.rm(temporaryFolder, { recursive: true, force: true }, (error) => {
       // Throwing inside the callback would crash the extension host; a leftover temp folder is harmless.
-      if (error) Logger.error(`Error clearing temp folder '${tempFolder}': ${error}`);
+      if (error) Logger.error(`Error clearing temp folder '${temporaryFolder}': ${error}`);
     });
   }
 
@@ -129,16 +129,16 @@ export class FileHelpers {
   }
 
   public static getLineNumberOfRegex(textLines: string[], regex: RegExp): number {
-    for (let i = 0; i < textLines.length; i++) {
-      if (regex.test(textLines[i].trim())) {
-        return i;
+    for (let lineIndex = 0; lineIndex < textLines.length; lineIndex++) {
+      if (regex.test(textLines[lineIndex].trim())) {
+        return lineIndex;
       }
     }
     return -1;
   }
 
-  private static pathNormalized(fpath: string): string {
-    return fpath.replace(/\\/g, '/');
+  private static pathNormalized(filePath: string): string {
+    return filePath.replace(/\\/g, '/');
   }
 
   private static getNewLineSeparator(content: string): string {
@@ -187,15 +187,15 @@ export class FileHelpers {
     }
 
     const normalised = extensions.map((extension) => {
-      const lower = extension.toLowerCase();
-      return lower.startsWith('.') ? lower : `.${lower}`;
+      const lowercaseExtension = extension.toLowerCase();
+      return lowercaseExtension.startsWith('.') ? lowercaseExtension : `.${lowercaseExtension}`;
     });
 
     return (entryName: string) => {
-      const lower = entryName.toLowerCase();
+      const lowercaseEntryName = entryName.toLowerCase();
 
       for (const extension of normalised) {
-        if (lower.endsWith(extension)) {
+        if (lowercaseEntryName.endsWith(extension)) {
           return true;
         }
       }

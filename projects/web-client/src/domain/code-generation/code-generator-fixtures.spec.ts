@@ -22,7 +22,7 @@ import { AsmMapCodeGenerator } from 'src/domain/code-generation/map-tileset/asm-
 /** Joins an array of {@link FileEntry} into a { fileName → content } map. */
 function filesByName(entries: Array<{ fileName: string; content: string }>): Record<string, string> {
   const map: Record<string, string> = {};
-  for (const e of entries) map[e.fileName] = e.content;
+  for (const entry of entries) map[entry.fileName] = entry.content;
   return map;
 }
 
@@ -39,7 +39,7 @@ describe('CTilesCodeGeneratorStrategy (plain mode)', () => {
       excluded: [],
       excludedSet: new Set<number>(),
       previews: ['', ''],
-      inkBitmaps: [new Array(64).fill(true), Array.from({ length: 64 }, (_, i) => i % 2)],
+      inkBitmaps: [new Array(64).fill(true), Array.from({ length: 64 }, (_, pixelIndex) => pixelIndex % 2)],
       attributes: [
         { flash: false, bright: false, paper: 0, ink: 7 },
         { flash: false, bright: true, paper: 1, ink: 6 },
@@ -102,7 +102,7 @@ describe('AsmTilesCodeGeneratorStrategy', () => {
       excluded: [],
       excludedSet: new Set<number>(),
       previews: ['', ''],
-      inkBitmaps: [new Array(64).fill(true), Array.from({ length: 64 }, (_, i) => i % 2)],
+      inkBitmaps: [new Array(64).fill(true), Array.from({ length: 64 }, (_, pixelIndex) => pixelIndex % 2)],
       attributes: [
         { flash: false, bright: false, paper: 0, ink: 7 },
         { flash: false, bright: true, paper: 1, ink: 6 },
@@ -428,7 +428,7 @@ describe('CTilesCodeGeneratorStrategy (plain mode)', () => {
       excluded: [0],
       excludedSet: new Set<number>([0]),
       previews: ['', ''],
-      inkBitmaps: [new Array(64).fill(true), Array.from({ length: 64 }, (_, i) => i % 2)],
+      inkBitmaps: [new Array(64).fill(true), Array.from({ length: 64 }, (_, pixelIndex) => pixelIndex % 2)],
     };
 
     const files = filesByName(new CTilesCodeGeneratorStrategy().generate({ name: 'hud_tiles', tiles }));

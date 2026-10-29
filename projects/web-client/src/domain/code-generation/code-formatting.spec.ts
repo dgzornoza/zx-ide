@@ -32,7 +32,7 @@ describe('formatBytesAsDefb', () => {
   });
 
   it('wraps to a second line when input exceeds the default per-line stride', () => {
-    const nine = Uint8Array.from({ length: 9 }, (_, i) => i);
+    const nine = Uint8Array.from({ length: 9 }, (_, byteIndex) => byteIndex);
     expect(formatBytesAsDefb(nine)).toEqual(['    defb $00,$01,$02,$03,$04,$05,$06,$07', '    defb $08']);
   });
 
@@ -53,7 +53,7 @@ describe('formatBytesAsDefb', () => {
   });
 
   it('honours a custom per-line override', () => {
-    const eight = Uint8Array.from({ length: 8 }, (_, i) => i);
+    const eight = Uint8Array.from({ length: 8 }, (_, byteIndex) => byteIndex);
     expect(formatBytesAsDefb(eight, 4)).toEqual(['    defb $00,$01,$02,$03', '    defb $04,$05,$06,$07']);
   });
 });
@@ -64,12 +64,12 @@ describe('formatAttributeBytesAsDefb', () => {
   });
 
   it('packs eight attribute bytes into a single line by default', () => {
-    const eight = Uint8Array.from({ length: 8 }, (_, i) => i);
+    const eight = Uint8Array.from({ length: 8 }, (_, byteIndex) => byteIndex);
     expect(formatAttributeBytesAsDefb(eight)).toEqual(['    defb $00,$01,$02,$03,$04,$05,$06,$07']);
   });
 
   it('wraps to exactly two lines of eight entries each for sixteen bytes', () => {
-    const sixteen = Uint8Array.from({ length: 16 }, (_, i) => i);
+    const sixteen = Uint8Array.from({ length: 16 }, (_, byteIndex) => byteIndex);
     expect(formatAttributeBytesAsDefb(sixteen)).toEqual([
       '    defb $00,$01,$02,$03,$04,$05,$06,$07',
       '    defb $08,$09,$0A,$0B,$0C,$0D,$0E,$0F',
@@ -77,7 +77,7 @@ describe('formatAttributeBytesAsDefb', () => {
   });
 
   it('honours a custom per-line override', () => {
-    const eight = Uint8Array.from({ length: 8 }, (_, i) => i);
+    const eight = Uint8Array.from({ length: 8 }, (_, byteIndex) => byteIndex);
     expect(formatAttributeBytesAsDefb(eight, 4)).toEqual(['    defb $00,$01,$02,$03', '    defb $04,$05,$06,$07']);
   });
 });

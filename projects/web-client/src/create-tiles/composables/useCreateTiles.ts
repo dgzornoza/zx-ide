@@ -6,7 +6,7 @@ import type { TilesModel } from 'src/shared/models/tilesDefinition';
 import { reactive, ref } from 'vue';
 
 export function useCreateTiles() {
-  const tp = createTranslationPrefixFn('create-tiles');
+  const translate = createTranslationPrefixFn('create-tiles');
 
   const state = reactive({
     tiles: {
@@ -17,7 +17,7 @@ export function useCreateTiles() {
     },
   });
 
-  const { status, setStatus, writeFiles } = useGeneratedFilesWriter(tp);
+  const { status, setStatus, writeFiles } = useGeneratedFilesWriter(translate);
   const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
   const binaryText = ref('');
   const outputName = ref('tiles');
@@ -43,7 +43,7 @@ export function useCreateTiles() {
   async function generateCode() {
     const count = state.tiles.previews.length;
     if (count === 0) {
-      setStatus('error', tp('errorNoTiles'));
+      setStatus('error', translate('errorNoTiles'));
       return;
     }
 
@@ -78,7 +78,7 @@ export function useCreateTiles() {
     isCodeGenerationTypeReadOnly,
     useZx0Compression,
     isZx0CompressionReadOnly,
-    tp,
+    translate,
     addTile,
     removeTile,
     generateCode,

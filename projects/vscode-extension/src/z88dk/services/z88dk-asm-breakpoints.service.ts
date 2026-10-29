@@ -85,11 +85,11 @@ export class Z88dkAsmBreakpointService extends Disposable {
     if (added.length === 0 && removed.length === 0 && changed.length === 0) return;
 
     if (added.length > 0) {
-      const breakpoints = added.filter((bp) => bp instanceof vscode.SourceBreakpoint);
+      const breakpoints = added.filter((breakpoint) => breakpoint instanceof vscode.SourceBreakpoint);
       await this.mapSourceBreakpointsToLisFileBreakpoints(breakpoints);
     }
     if (removed.length > 0) {
-      const breakpoints = removed.filter((bp) => bp instanceof vscode.SourceBreakpoint);
+      const breakpoints = removed.filter((breakpoint) => breakpoint instanceof vscode.SourceBreakpoint);
       // only remove source breakpoints (lis breakpoints will be removed on updateMappedBreakpointsInFiles)
       this.mappedBreakpoints.removeSourceBreakpoints(breakpoints);
     }

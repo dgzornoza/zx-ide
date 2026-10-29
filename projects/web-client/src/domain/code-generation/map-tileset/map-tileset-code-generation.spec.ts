@@ -13,10 +13,10 @@ import { describe, expect, it } from 'vitest';
 import {
   buildHeader,
   calculateMapDataByteCount,
-  MapCodeGeneratorParams,
+  MapCodeGeneratorParameters,
 } from 'src/domain/code-generation/map-tileset/map-tileset-code-generation';
 
-function makeParams(overrides: Partial<MapCodeGeneratorParams> = {}): MapCodeGeneratorParams {
+function makeParameters(overrides: Partial<MapCodeGeneratorParameters> = {}): MapCodeGeneratorParameters {
   return {
     name: 'hud_map',
     tileIndices: [1, 2, 3, 4, 5, 6, 7, 8],
@@ -45,6 +45,6 @@ describe('buildHeader', () => {
 
 describe('calculateMapDataByteCount', () => {
   it('returns width × height from the metadata', () => {
-    expect(calculateMapDataByteCount(makeParams())).toBe(8);
+    expect(calculateMapDataByteCount(makeParameters())).toBe(8);
   });
 });

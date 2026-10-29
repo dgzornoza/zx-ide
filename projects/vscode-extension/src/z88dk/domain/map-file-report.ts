@@ -53,10 +53,10 @@ export function parseMapFileSymbols(mapFileContent: string): MapFileSymbolValues
   for (const line of mapFileContent.split(/\r?\n/)) {
     const match = mapFileRegexp.exec(line);
     const name = match?.groups?.name;
-    const hex = match?.groups?.hex;
+    const hexadecimalValue = match?.groups?.hex;
 
-    if (name !== undefined && hex !== undefined && knownSymbols.includes(name)) {
-      symbols[name as MapFileSymbols] = parseInt(hex, 16);
+    if (name !== undefined && hexadecimalValue !== undefined && knownSymbols.includes(name)) {
+      symbols[name as MapFileSymbols] = parseInt(hexadecimalValue, 16);
     }
   }
 

@@ -2,9 +2,9 @@ import { describe, expect, it } from 'vitest';
 
 import { compress, decompress, MAX_OFFSET_ZX0, MAX_OFFSET_ZX7 } from './zx0-compress';
 
-function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+function bytesEqual(actual: Uint8Array, expected: Uint8Array): boolean {
+  if (actual.length !== expected.length) return false;
+  for (let index = 0; index < actual.length; index++) if (actual[index] !== expected[index]) return false;
   return true;
 }
 
@@ -21,23 +21,23 @@ describe('zx0-compress', () => {
     it('round-trips a single byte', () => {
       const original = new Uint8Array([0x42]);
       const { data } = compress(original);
-      const out = decompress(data);
-      expect(bytesEqual(out, original)).toBe(true);
+      const decompressed = decompress(data);
+      expect(bytesEqual(decompressed, original)).toBe(true);
     });
 
     it('round-trips a short buffer of distinct bytes', () => {
-      const original = Uint8Array.from({ length: 32 }, (_, i) => i);
+      const original = Uint8Array.from({ length: 32 }, (_, index) => index);
       const { data } = compress(original);
-      const out = decompress(data);
-      expect(bytesEqual(out, original)).toBe(true);
+      const decompressed = decompress(data);
+      expect(bytesEqual(decompressed, original)).toBe(true);
     });
 
     it('round-trips a highly compressible repeating pattern', () => {
       const original = new Uint8Array(256).fill(0xaa);
       const { data } = compress(original);
       expect(data.length).toBeLessThan(original.length);
-      const out = decompress(data);
-      expect(bytesEqual(out, original)).toBe(true);
+      const decompressed = decompress(data);
+      expect(bytesEqual(decompressed, original)).toBe(true);
     });
 
     it('round-trips a pseudo-random payload', () => {
@@ -49,8 +49,8 @@ describe('zx0-compress', () => {
       };
       const original = Uint8Array.from({ length: 1024 }, rand);
       const { data } = compress(original);
-      const out = decompress(data);
-      expect(bytesEqual(out, original)).toBe(true);
+      const decompressed = decompress(data);
+      expect(bytesEqual(decompressed, original)).toBe(true);
     });
 
     it('round-trips a large pseudo-random payload', () => {
@@ -61,30 +61,30 @@ describe('zx0-compress', () => {
       };
       const original = Uint8Array.from({ length: 4096 }, rand);
       const { data } = compress(original);
-      const out = decompress(data);
-      expect(bytesEqual(out, original)).toBe(true);
+      const decompressed = decompress(data);
+      expect(bytesEqual(decompressed, original)).toBe(true);
     });
 
     it('round-trips a pattern with repeated substrings (back-references)', () => {
       const pattern = 'the quick brown fox jumps over the lazy dog ';
       const original = new Uint8Array(pattern.length * 16);
-      for (let i = 0; i < 16; i++) {
-        for (let j = 0; j < pattern.length; j++) {
-          original[i * pattern.length + j] = pattern.charCodeAt(j);
+      for (let repetition = 0; repetition < 16; repetition++) {
+        for (let characterIndex = 0; characterIndex < pattern.length; characterIndex++) {
+          original[repetition * pattern.length + characterIndex] = pattern.charCodeAt(characterIndex);
         }
       }
       const { data } = compress(original);
       // Strong compression expected — pattern repeats 16 times.
       expect(data.length).toBeLessThan(original.length / 4);
-      const out = decompress(data);
-      expect(bytesEqual(out, original)).toBe(true);
+      const decompressed = decompress(data);
+      expect(bytesEqual(decompressed, original)).toBe(true);
     });
 
     it('respects the quick-mode sliding window', () => {
-      const original = Uint8Array.from({ length: MAX_OFFSET_ZX7 * 2 }, (_, i) => i & 0xff);
+      const original = Uint8Array.from({ length: MAX_OFFSET_ZX7 * 2 }, (_, index) => index & 0xff);
       const { data } = compress(original, { quick: true });
-      const out = decompress(data);
-      expect(bytesEqual(out, original)).toBe(true);
+      const decompressed = decompress(data);
+      expect(bytesEqual(decompressed, original)).toBe(true);
     });
 
     it('returns a non-zero delta for forward compression', () => {
@@ -100,14 +100,14 @@ describe('zx0-compress', () => {
       // even when the back-reference distance exceeds the quick-mode
       // 2176-byte window.
       const half = new Uint8Array(2048);
-      for (let i = 0; i < half.length; i++) half[i] = (i * 31 + 7) & 0xff;
+      for (let index = 0; index < half.length; index++) half[index] = (index * 31 + 7) & 0xff;
       const original = new Uint8Array(half.length * 2);
       original.set(half, 0);
       original.set(half, half.length);
 
       const { data } = compress(original, { quick: false });
-      const out = decompress(data);
-      expect(bytesEqual(out, original)).toBe(true);
+      const decompressed = decompress(data);
+      expect(bytesEqual(decompressed, original)).toBe(true);
     });
   });
 
@@ -121,8 +121,8 @@ describe('zx0-compress', () => {
     it('rejects non-Uint8Array input gracefully', () => {
       // Number[] → auto-converted by `compress` via Uint8Array.from.
       const result = compress([1, 2, 3, 4] as unknown as Uint8Array);
-      const out = decompress(result.data);
-      expect(bytesEqual(out, new Uint8Array([1, 2, 3, 4]))).toBe(true);
+      const decompressed = decompress(result.data);
+      expect(bytesEqual(decompressed, new Uint8Array([1, 2, 3, 4]))).toBe(true);
     });
   });
 

@@ -14,7 +14,7 @@ const {
   codeGenerationType,
   spriteFlags,
   activeSpriteIndex,
-  tp,
+  translate,
   addSprite,
   removeSprite,
   updateSprite,
@@ -38,10 +38,10 @@ function handleAddFrame(spriteIndex: number) {
   <div class="min-h-screen px-6 py-8">
     <header class="w-full">
       <div class="text-2xl font-semibold">
-        {{ tp('title') }}
+        {{ translate('title') }}
       </div>
       <p class="mt-2 max-w-2xl text-sm text-[color:var(--ink-soft)]">
-        {{ tp('subtitle') }}
+        {{ translate('subtitle') }}
       </p>
     </header>
 
@@ -76,14 +76,14 @@ function handleAddFrame(spriteIndex: number) {
         <StatusBanner :status="status" />
         <div class="ml-auto flex items-center gap-3">
           <label for="output-name" class="text-xs font-semibold">
-            {{ tp('outputNameLabel') }}
+            {{ translate('outputNameLabel') }}
           </label>
           <input
             id="output-name"
             v-model="outputName"
             type="text"
             class="w-36 border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-sm text-[color:var(--input-ink)] focus:outline-none"
-            :placeholder="tp('outputNamePlaceholder')"
+            :placeholder="translate('outputNamePlaceholder')"
           />
           <button
             class="inline-flex items-center gap-2 bg-[color:var(--button-bg)] px-5 py-3 text-sm font-semibold text-[color:var(--button-ink)] hover:bg-[color:var(--button-hover)] disabled:cursor-not-allowed disabled:opacity-60"
@@ -91,7 +91,7 @@ function handleAddFrame(spriteIndex: number) {
             :disabled="state.sprites.length === 0"
             @click="generateCode"
           >
-            {{ tp('create') }}
+            {{ translate('create') }}
           </button>
         </div>
       </div>

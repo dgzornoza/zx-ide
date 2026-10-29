@@ -15,13 +15,13 @@ import { Z88dkAsmBreakpointService } from '@z88dk/services/z88dk-asm-breakpoints
 import { Z88dkProjectService } from '@z88dk/services/z88dk-project.service';
 import { Z88dkReportService } from '@z88dk/services/z88dk-report.service';
 import * as inversify from 'inversify';
-import * as vsc from 'vscode';
+import * as vscode from 'vscode';
 
 /** Class for configure IOC + DI from inversify library
  * https://github.com/inversify/InversifyJS
  */
 export class InversifyConfig {
-  private static _extensionContext: vsc.ExtensionContext;
+  private static _extensionContext: vscode.ExtensionContext;
   private static _container: inversify.Container;
 
   private static readonly commands: [symbol, inversify.interfaces.Newable<Command<unknown>>][] = [
@@ -37,7 +37,7 @@ export class InversifyConfig {
     return InversifyConfig._container;
   }
 
-  public static initialize(extensionContext: vsc.ExtensionContext): void {
+  public static initialize(extensionContext: vscode.ExtensionContext): void {
     InversifyConfig._extensionContext = extensionContext;
     InversifyConfig._container = new inversify.Container();
 
@@ -45,7 +45,7 @@ export class InversifyConfig {
 
     // Extension
     InversifyConfig._container
-      .bind<vsc.ExtensionContext>(Types.ExtensionContext)
+      .bind<vscode.ExtensionContext>(Types.ExtensionContext)
 
       .toDynamicValue((_context: inversify.interfaces.Context) => {
         return InversifyConfig._extensionContext;
@@ -107,7 +107,7 @@ export class InversifyConfig {
       .onActivation(InversifyConfig._subscribe);
   }
 
-  private static _subscribe<T extends IDisposable>(_: inversify.interfaces.Context, injectable: T): T {
+  private static _subscribe<T extends IDisposable>(_context: inversify.interfaces.Context, injectable: T): T {
     // Add to a list of disposables which are disposed when this extension is deactivated.
     InversifyConfig._extensionContext.subscriptions.push(injectable);
 

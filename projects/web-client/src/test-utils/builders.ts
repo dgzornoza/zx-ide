@@ -16,7 +16,7 @@ import type { SpriteDefinition } from 'src/shared/models/spriteDefinition';
 import type { MapTilesetMetadata } from 'src/extract-map-tileset/models/mapTilesetDefinition';
 
 const ALL_INK_8x8: boolean[] = new Array(64).fill(true);
-const ALTERNATING_8x8: boolean[] = Array.from({ length: 64 }, (_, i): boolean => i % 2 === 1);
+const ALTERNATING_8x8: boolean[] = Array.from({ length: 64 }, (_, pixelIndex): boolean => pixelIndex % 2 === 1);
 
 /** Builds a {@link TilesModel} matching the most common 2-tile 8x8 fixture. */
 export function makeTilesModel(overrides: Partial<TilesModel> = {}): TilesModel {

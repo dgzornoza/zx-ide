@@ -18,7 +18,7 @@ import {
   buildMapFile,
   calculateSpritesDataByteCount,
   generateSpriteAsmBody,
-  SpritesCodeGeneratorParams,
+  SpritesCodeGeneratorParameters,
 } from 'src/domain/code-generation/sprites/sprites-code-generation';
 import type { SpriteDefinition, SpriteFrame } from 'src/shared/models/spriteDefinition';
 
@@ -32,12 +32,12 @@ function singleFrameSprite(name: string, width: number, height: number): SpriteD
   return { name, width, height, frames: [{ x: 0, y: 0 }] satisfies SpriteFrame[] };
 }
 
-/** Minimal params with one sprite and the supplied flags. */
-function makeParams(
+/** Minimal parameters with one sprite and the supplied flags. */
+function makeParameters(
   sprite: SpriteDefinition,
   spriteBitmasks: boolean[][],
-  overrides: Partial<SpritesCodeGeneratorParams> = {}
-): SpritesCodeGeneratorParams {
+  overrides: Partial<SpritesCodeGeneratorParameters> = {}
+): SpritesCodeGeneratorParameters {
   return {
     name: 'player',
     spriteFlags: 0,
@@ -49,23 +49,23 @@ function makeParams(
 
 describe('calculateSpritesDataByteCount', () => {
   it('counts only the bitmap bytes when neither padding nor mask is enabled', () => {
-    const params = makeParams(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, true)]);
+    const parameters = makeParameters(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, true)]);
 
-    expect(calculateSpritesDataByteCount(params, false, false)).toBe(8);
+    expect(calculateSpritesDataByteCount(parameters, false, false)).toBe(8);
   });
 
   it('adds 7 top + 8 bottom padding rows when SP1 padding is on', () => {
     // 7 (top) + 8 (frame) + 8 (bottom) = 23 bytes for a single 8x8 frame.
-    const params = makeParams(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, false)]);
+    const parameters = makeParameters(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, false)]);
 
-    expect(calculateSpritesDataByteCount(params, true, false)).toBe(23);
+    expect(calculateSpritesDataByteCount(parameters, true, false)).toBe(23);
   });
 
   it('doubles the byte count when the mask plane is also enabled', () => {
     // Each logical byte becomes (mask, data) = 23 × 2 = 46.
-    const params = makeParams(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, false)]);
+    const parameters = makeParameters(singleFrameSprite('a', 8, 8), [flatBitmap(8, 8, false)]);
 
-    expect(calculateSpritesDataByteCount(params, true, true)).toBe(46);
+    expect(calculateSpritesDataByteCount(parameters, true, true)).toBe(46);
   });
 
   it('applies the 7-row top padding PER sprite, not just once globally', () => {
@@ -73,26 +73,26 @@ describe('calculateSpritesDataByteCount', () => {
     // its own 7-row top padding block. A naive refactor that lifts the
     // padding outside the per-sprite loop would compute 23 + 16 = 39
     // instead of the correct 23 + 23 = 46.
-    const params: SpritesCodeGeneratorParams = {
+    const parameters: SpritesCodeGeneratorParameters = {
       name: 'player',
       spriteFlags: 1,
       sprites: [singleFrameSprite('a', 8, 8), singleFrameSprite('b', 8, 8)],
       spriteBitmasks: [[flatBitmap(8, 8, false)], [flatBitmap(8, 8, false)]],
     };
 
-    expect(calculateSpritesDataByteCount(params, true, false)).toBe(46);
+    expect(calculateSpritesDataByteCount(parameters, true, false)).toBe(46);
   });
 
   it('emits two columns × one frame with per-column bottom padding for 16x8', () => {
     // 7 (top) + 2 × (8 frame + 8 bottom) = 7 + 32 = 39 bytes.
-    const params = makeParams(singleFrameSprite('a', 16, 8), [flatBitmap(16, 8, false)]);
+    const parameters = makeParameters(singleFrameSprite('a', 16, 8), [flatBitmap(16, 8, false)]);
 
-    expect(calculateSpritesDataByteCount(params, true, false)).toBe(39);
+    expect(calculateSpritesDataByteCount(parameters, true, false)).toBe(39);
   });
 
   it("counts each frame's bitmap bytes without padding", () => {
     // 3 frames × 8 bytes = 24.
-    const params = makeParams(
+    const parameters = makeParameters(
       {
         name: 'a',
         width: 8,
@@ -106,12 +106,12 @@ describe('calculateSpritesDataByteCount', () => {
       [flatBitmap(8, 8, false), flatBitmap(8, 8, false), flatBitmap(8, 8, false)]
     );
 
-    expect(calculateSpritesDataByteCount(params, false, false)).toBe(24);
+    expect(calculateSpritesDataByteCount(parameters, false, false)).toBe(24);
   });
 
   it('adds one top padding block plus per-frame bottom padding for 3 frames', () => {
     // 7 (top) + 3 × (8 frame + 8 bottom) = 7 + 48 = 55 bytes.
-    const params = makeParams(
+    const parameters = makeParameters(
       {
         name: 'a',
         width: 8,
@@ -125,7 +125,7 @@ describe('calculateSpritesDataByteCount', () => {
       [flatBitmap(8, 8, false), flatBitmap(8, 8, false), flatBitmap(8, 8, false)]
     );
 
-    expect(calculateSpritesDataByteCount(params, true, false)).toBe(55);
+    expect(calculateSpritesDataByteCount(parameters, true, false)).toBe(55);
   });
 });
 
@@ -138,14 +138,14 @@ describe('buildMapFile (sprites)', () => {
       height: 8,
       frames: [{ x: 0, y: 0 }],
     };
-    const params: SpritesCodeGeneratorParams = {
+    const parameters: SpritesCodeGeneratorParameters = {
       name: 'player',
       spriteFlags: 0,
       sprites: [sprite],
       spriteBitmasks: [[flatBitmap(8, 8, false)]],
     };
 
-    const file = buildMapFile(params);
+    const file = buildMapFile(parameters);
 
     expect(file.fileType).toBe('map');
     expect(file.fileName).toBe('player.cfg');
@@ -161,14 +161,14 @@ describe('buildMapFile (sprites)', () => {
   });
 
   it('includes the spriteFlags value when non-zero', () => {
-    const params: SpritesCodeGeneratorParams = {
+    const parameters: SpritesCodeGeneratorParameters = {
       name: 'player',
       spriteFlags: 1,
       sprites: [singleFrameSprite('a', 8, 8)],
       spriteBitmasks: [[flatBitmap(8, 8, false)]],
     };
 
-    const parsed = JSON.parse(buildMapFile(params).content);
+    const parsed = JSON.parse(buildMapFile(parameters).content);
     expect(parsed.spriteFlags).toBe(1);
   });
 });

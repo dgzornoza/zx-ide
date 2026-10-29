@@ -5,7 +5,7 @@ import { injectable } from 'inversify';
 import * as vscode from 'vscode';
 
 const Z88DK_CONFIGURATION_SECTION = 'zxide.z88dk';
-const configKey = nameofFactory<ExtensionConfigurationModel>();
+const configurationKey = nameofFactory<ExtensionConfigurationModel>();
 
 @injectable()
 export class ConfigurationService extends Disposable {
@@ -17,10 +17,10 @@ export class ConfigurationService extends Disposable {
    * Get the complete configuration model
    */
   getZ88dkConfiguration(): ExtensionConfigurationModel {
-    const config = vscode.workspace.getConfiguration(Z88DK_CONFIGURATION_SECTION);
+    const configuration = vscode.workspace.getConfiguration(Z88DK_CONFIGURATION_SECTION);
 
     return {
-      useAsmDebug: config.get<boolean>(configKey('useAsmDebug'), false),
+      useAsmDebug: configuration.get<boolean>(configurationKey('useAsmDebug'), false),
     };
   }
 
@@ -29,7 +29,7 @@ export class ConfigurationService extends Disposable {
    * @param callback - Function to call when configuration changes
    * @returns Disposable to stop watching
    */
-  onConfigurationChanged(callback: (config: ExtensionConfigurationModel) => void): vscode.Disposable {
+  onConfigurationChanged(callback: (configuration: ExtensionConfigurationModel) => void): vscode.Disposable {
     return vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration(Z88DK_CONFIGURATION_SECTION)) {
         callback(this.getZ88dkConfiguration());

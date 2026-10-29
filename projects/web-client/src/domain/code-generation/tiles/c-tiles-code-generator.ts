@@ -9,7 +9,7 @@ import {
   buildMapFile,
   calculateTilesDataByteCount,
   getIncludedTileIndices,
-  TilesCodeGeneratorParams,
+  TilesCodeGeneratorParameters,
 } from 'src/domain/code-generation/tiles/tiles-code-generation';
 
 /**
@@ -23,44 +23,44 @@ import {
  *     with one `incbin "<name>.bin"`, and `.bin` with raw uncompressed
  *     bytes (base64-encoded for transport
  */
-export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesCodeGeneratorParams> {
-  generate(params: TilesCodeGeneratorParams): GeneratedFile[] {
-    if (params.compressed) {
-      return this.generateCompressed(params);
+export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesCodeGeneratorParameters> {
+  generate(parameters: TilesCodeGeneratorParameters): GeneratedFile[] {
+    if (parameters.compressed) {
+      return this.generateCompressed(parameters);
     }
-    return this.generatePlain(params);
+    return this.generatePlain(parameters);
   }
 
-  private generatePlain(params: TilesCodeGeneratorParams): GeneratedFile[] {
-    const includedIndices = getIncludedTileIndices(params);
-    const hasAttributes = (params.tiles.attributes?.length ?? 0) > 0;
-    const headerContent = this.generatePlainHeaderFile(params.name, hasAttributes);
-    const asmContent = this.generatePlainAsmFile(params, includedIndices);
+  private generatePlain(parameters: TilesCodeGeneratorParameters): GeneratedFile[] {
+    const includedIndices = getIncludedTileIndices(parameters);
+    const hasAttributes = (parameters.tiles.attributes?.length ?? 0) > 0;
+    const headerContent = this.generatePlainHeaderFile(parameters.name, hasAttributes);
+    const asmContent = this.generatePlainAsmFile(parameters, includedIndices);
 
     return [
-      buildMapFile(params),
+      buildMapFile(parameters),
       {
         fileType: 'c-header',
-        fileName: `${params.name}.h`,
+        fileName: `${parameters.name}.h`,
         content: headerContent,
       },
       {
         fileType: 'asm',
-        fileName: `${params.name}.asm`,
+        fileName: `${parameters.name}.asm`,
         content: asmContent,
       },
     ];
   }
 
-  private generateCompressed(params: TilesCodeGeneratorParams): GeneratedFile[] {
-    const includedIndices = getIncludedTileIndices(params);
-    const hasAttributes = (params.tiles.attributes?.length ?? 0) > 0;
+  private generateCompressed(parameters: TilesCodeGeneratorParameters): GeneratedFile[] {
+    const includedIndices = getIncludedTileIndices(parameters);
+    const hasAttributes = (parameters.tiles.attributes?.length ?? 0) > 0;
 
     const rawBytes = buildTilesBinary({
-      inkBitmaps: params.tiles.inkBitmaps,
-      tileWidth: params.tiles.tileWidth,
-      tileHeight: params.tiles.tileHeight,
-      attributes: params.tiles.attributes,
+      inkBitmaps: parameters.tiles.inkBitmaps,
+      tileWidth: parameters.tiles.tileWidth,
+      tileHeight: parameters.tiles.tileHeight,
+      attributes: parameters.tiles.attributes,
       includedIndices,
     });
 
@@ -69,36 +69,36 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesC
     // by the VS Code extension as-is.
     const compressedBytes = compressZx0(rawBytes).data;
 
-    const perTileBytes = Math.ceil(params.tiles.tileWidth / 8) * params.tiles.tileHeight;
+    const perTileBytes = Math.ceil(parameters.tiles.tileWidth / 8) * parameters.tiles.tileHeight;
     const tileCount = includedIndices.length;
     const pixmapSize = tileCount * perTileBytes;
-    const attrsSize = hasAttributes ? tileCount : 0;
-    const totalSize = pixmapSize + attrsSize;
+    const attributesSize = hasAttributes ? tileCount : 0;
+    const totalSize = pixmapSize + attributesSize;
 
     return [
-      buildMapFile(params),
+      buildMapFile(parameters),
       {
         fileType: 'c-header',
-        fileName: `${params.name}.h`,
-        content: this.generateCompressedHeaderFile(params.name, {
+        fileName: `${parameters.name}.h`,
+        content: this.generateCompressedHeaderFile(parameters.name, {
           tileCount,
           perTileBytes,
-          attrsSize,
+          attributesSize,
         }),
       },
       {
         fileType: 'asm',
-        fileName: `${params.name}.asm`,
-        content: this.generateCompressedAsmFile(params.name, {
+        fileName: `${parameters.name}.asm`,
+        content: this.generateCompressedAsmFile(parameters.name, {
           pixmapSize,
-          attrsSize,
+          attributesSize,
           totalSize,
           compressedSize: compressedBytes.length,
         }),
       },
       {
         fileType: 'binary',
-        fileName: `${params.name}.bin`,
+        fileName: `${parameters.name}.bin`,
         content: bytesToBase64(compressedBytes),
       },
     ];
@@ -131,12 +131,12 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesC
     sizes: {
       tileCount: number;
       perTileBytes: number;
-      attrsSize: number;
+      attributesSize: number;
     }
   ): string {
     const id = toCodeIdentifier(baseName);
     const guard = toMacroGuard(baseName);
-    const { tileCount, perTileBytes, attrsSize } = sizes;
+    const { tileCount, perTileBytes, attributesSize } = sizes;
 
     return [
       `#ifndef __DATA_${guard}_H__`,
@@ -146,7 +146,7 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesC
       '',
       `#define ${guard}_TILES_COUNT ${tileCount}u`,
       `#define ${guard}_PIXMAP_SIZE (${guard}_TILES_COUNT * ${perTileBytes}u)`,
-      `#define ${guard}_ATTRS_SIZE  ${attrsSize}u`,
+      `#define ${guard}_ATTRS_SIZE  ${attributesSize}u`,
       `#define ${guard}_TOTAL_SIZE  (${guard}_PIXMAP_SIZE + ${guard}_ATTRS_SIZE)`,
       '',
       `extern const uint8_t ${id}_compressed[];`,
@@ -160,7 +160,7 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesC
     baseName: string,
     sizes: {
       pixmapSize: number;
-      attrsSize: number;
+      attributesSize: number;
       totalSize: number;
       compressedSize: number;
     }
@@ -173,7 +173,7 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesC
 
     return [
       `; ${guard}_PIXMAP_SIZE: ${sizes.pixmapSize}`,
-      `; ${guard}_ATTRS_SIZE: ${sizes.attrsSize}`,
+      `; ${guard}_ATTRS_SIZE: ${sizes.attributesSize}`,
       `; ${guard}_TOTAL_SIZE: ${sizes.totalSize}`,
       `; Compressed Size: ${sizes.compressedSize} bytes (ZX0 standard)`,
       '',
@@ -188,11 +188,11 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesC
     ].join('\n');
   }
 
-  private generatePlainAsmFile(params: TilesCodeGeneratorParams, includedIndices: number[]): string {
-    const { name, tiles } = params;
+  private generatePlainAsmFile(parameters: TilesCodeGeneratorParameters, includedIndices: number[]): string {
+    const { name, tiles } = parameters;
     const id = toCodeIdentifier(name);
     const hasAttributes = (tiles.attributes?.length ?? 0) > 0;
-    const dataByteCount = calculateTilesDataByteCount(params, includedIndices);
+    const dataByteCount = calculateTilesDataByteCount(parameters, includedIndices);
     const dataSizeComment = buildDataSizeComment(dataByteCount);
 
     // `buildTilesBinary` produces canonical bytes in contiguous layout
@@ -225,8 +225,8 @@ export class CTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesC
     });
 
     if (hasAttributes) {
-      const attrBytes = buildAttributeBytes(tiles.attributes!, includedIndices);
-      lines.push('', `PUBLIC _${id}_attributes`, `_${id}_attributes:`, ...formatAttributeBytesAsDefb(attrBytes));
+      const attributeBytes = buildAttributeBytes(tiles.attributes!, includedIndices);
+      lines.push('', `PUBLIC _${id}_attributes`, `_${id}_attributes:`, ...formatAttributeBytesAsDefb(attributeBytes));
     }
 
     lines.push('');

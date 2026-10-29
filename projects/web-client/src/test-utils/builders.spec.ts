@@ -24,7 +24,7 @@ describe('makeTilesModel', () => {
       excluded: [],
       excludedSet: new Set<number>(),
       previews: ['', ''],
-      inkBitmaps: [new Array(64).fill(true), Array.from({ length: 64 }, (_, i): boolean => i % 2 === 1)],
+      inkBitmaps: [new Array(64).fill(true), Array.from({ length: 64 }, (_, pixelIndex): boolean => pixelIndex % 2 === 1)],
       attributes: [
         { flash: false, bright: false, paper: 0, ink: 7 },
         { flash: false, bright: true, paper: 1, ink: 6 },

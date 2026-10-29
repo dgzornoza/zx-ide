@@ -16,16 +16,16 @@ import {
   buildMapFile,
   calculateTilesDataByteCount,
   getIncludedTileIndices,
-  TilesCodeGeneratorParams,
+  TilesCodeGeneratorParameters,
 } from 'src/domain/code-generation/tiles/tiles-code-generation';
 import { makeTilesModel } from 'src/test-utils/builders';
 
-/** Minimal valid {@link TilesCodeGeneratorParams} fixture for the tests. */
-function makeParams(
-  overrides: Omit<Partial<TilesCodeGeneratorParams>, 'tiles'> & {
-    tiles?: Partial<TilesCodeGeneratorParams['tiles']>;
+/** Minimal valid {@link TilesCodeGeneratorParameters} fixture for the tests. */
+function makeParameters(
+  overrides: Omit<Partial<TilesCodeGeneratorParameters>, 'tiles'> & {
+    tiles?: Partial<TilesCodeGeneratorParameters['tiles']>;
   } = {}
-): TilesCodeGeneratorParams {
+): TilesCodeGeneratorParameters {
   const { tiles, ...rest } = overrides;
   return {
     name: 'hud_tiles',
@@ -41,32 +41,32 @@ describe('getIncludedTileIndices', () => {
     // assignment to `undefined` so the runtime `??` fallback is the path
     // actually exercised (the builder's default would otherwise ship a
     // non-undefined empty Set and shadow the fallback).
-    const params = makeParams({ tiles: { count: 3 } });
-    (params.tiles as { excludedSet?: Set<number> }).excludedSet = undefined;
+    const parameters = makeParameters({ tiles: { count: 3 } });
+    (parameters.tiles as { excludedSet?: Set<number> }).excludedSet = undefined;
 
-    expect(getIncludedTileIndices(params)).toEqual([0, 1, 2]);
+    expect(getIncludedTileIndices(parameters)).toEqual([0, 1, 2]);
   });
 
   it('drops indices present in excludedSet', () => {
-    const params = makeParams({
+    const parameters = makeParameters({
       tiles: { count: 3, excludedSet: new Set([1]) },
     });
 
-    expect(getIncludedTileIndices(params)).toEqual([0, 2]);
+    expect(getIncludedTileIndices(parameters)).toEqual([0, 2]);
   });
 
   it('returns an empty array when every index is excluded', () => {
-    const params = makeParams({
+    const parameters = makeParameters({
       tiles: { count: 3, excludedSet: new Set([0, 1, 2]) },
     });
 
-    expect(getIncludedTileIndices(params)).toEqual([]);
+    expect(getIncludedTileIndices(parameters)).toEqual([]);
   });
 
   it('returns an empty array when count is zero', () => {
-    const params = makeParams({ tiles: { count: 0 } });
+    const parameters = makeParameters({ tiles: { count: 0 } });
 
-    expect(getIncludedTileIndices(params)).toEqual([]);
+    expect(getIncludedTileIndices(parameters)).toEqual([]);
   });
 });
 
@@ -75,42 +75,42 @@ describe('calculateTilesDataByteCount', () => {
     // 2 tiles × (ceil(8/8) × 8) = 2 × 8 = 16 bytes. Override the
     // builder's default attribute array so the `hasAttributes` branch
     // is genuinely false.
-    const params = makeParams({
+    const parameters = makeParameters({
       tiles: { attributes: undefined },
     });
 
-    expect(calculateTilesDataByteCount(params, [0, 1])).toBe(16);
+    expect(calculateTilesDataByteCount(parameters, [0, 1])).toBe(16);
   });
 
   it('adds one attribute byte per included tile when attributes are present', () => {
     // 16 bitmap bytes + 2 attribute bytes = 18. The builder default
     // already ships 2 attributes, so no override is needed for this case.
-    const params = makeParams();
+    const parameters = makeParameters();
 
-    expect(calculateTilesDataByteCount(params, [0, 1])).toBe(18);
+    expect(calculateTilesDataByteCount(parameters, [0, 1])).toBe(18);
   });
 
   it('returns zero when no tiles are included', () => {
-    const params = makeParams();
+    const parameters = makeParameters();
 
-    expect(calculateTilesDataByteCount(params, [])).toBe(0);
+    expect(calculateTilesDataByteCount(parameters, [])).toBe(0);
   });
 
   it('counts two bytes per row for a 16x8 tile', () => {
     // 1 tile × (ceil(16/8) × 8) = 1 × 16 = 16 bytes.
-    const params = makeParams({
+    const parameters = makeParameters({
       tiles: { count: 1, tileWidth: 16, attributes: undefined },
     });
 
-    expect(calculateTilesDataByteCount(params, [0])).toBe(16);
+    expect(calculateTilesDataByteCount(parameters, [0])).toBe(16);
   });
 });
 
 describe('buildMapFile', () => {
   it("returns a map file with type 'tiles' and the expected JSON payload", () => {
-    const params = makeParams();
+    const parameters = makeParameters();
 
-    const file = buildMapFile(params);
+    const file = buildMapFile(parameters);
 
     expect(file.fileType).toBe('map');
     expect(file.fileName).toBe('hud_tiles.cfg');

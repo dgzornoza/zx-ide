@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 import MapPreviewSection from './components/MapPreviewSection.vue';
 import { useExtractMapTileset } from './composables/useExtractMapTileset';
 
-const { t } = useI18n();
+const { t: translate } = useI18n();
 
 const {
   mapSource,
@@ -50,25 +50,25 @@ function onExtract(): void {
 }
 
 function formatError(error: DomainError): string {
-  const { key, args } = error;
-  if (key === 'errorTileCountExceeds255' && args[0] !== undefined) {
-    return t('extract-map-tileset.errorTileCountExceeds255', {
-      count: String(args[0]),
+  const { key, args: errorArguments } = error;
+  if (key === 'errorTileCountExceeds255' && errorArguments[0] !== undefined) {
+    return translate('extract-map-tileset.errorTileCountExceeds255', {
+      count: String(errorArguments[0]),
     });
   }
-  if (key === 'errorJsonMissingField' && args[0] !== undefined) {
-    return t('extract-map-tileset.errorJsonMissingField', {
-      field: String(args[0]),
+  if (key === 'errorJsonMissingField' && errorArguments[0] !== undefined) {
+    return translate('extract-map-tileset.errorJsonMissingField', {
+      field: String(errorArguments[0]),
     });
   }
-  if (key === 'errorAsmTileCountMismatch' && args.length === 2) {
-    return t('extract-map-tileset.errorAsmTileCountMismatch', {
-      maxIndex: String(args[0]),
-      tileCount: String(args[1]),
+  if (key === 'errorAsmTileCountMismatch' && errorArguments.length === 2) {
+    return translate('extract-map-tileset.errorAsmTileCountMismatch', {
+      maxIndex: String(errorArguments[0]),
+      tileCount: String(errorArguments[1]),
     });
   }
   const translationKey = `extract-map-tileset.${key}`;
-  return t(translationKey, translationKey);
+  return translate(translationKey, translationKey);
 }
 </script>
 
@@ -76,10 +76,10 @@ function formatError(error: DomainError): string {
   <div class="min-h-screen px-6 py-8">
     <header class="w-full">
       <div class="text-2xl font-semibold">
-        {{ t('extract-map-tileset.title') }}
+        {{ translate('extract-map-tileset.title') }}
       </div>
       <p class="mt-2 max-w-2xl text-sm text-[color:var(--ink-soft)]">
-        {{ t('extract-map-tileset.subtitle') }}
+        {{ translate('extract-map-tileset.subtitle') }}
       </p>
     </header>
 
@@ -121,42 +121,42 @@ function formatError(error: DomainError): string {
       <!-- Results section -->
       <section v-if="metadata" class="flex flex-col gap-3">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-[color:var(--ink-soft)]">
-          {{ t('extract-map-tileset.sectionResults') }}
+          {{ translate('extract-map-tileset.sectionResults') }}
         </h2>
         <dl class="grid grid-cols-2 gap-x-8 gap-y-2 text-sm sm:grid-cols-3">
           <div>
             <dt class="text-xs text-[color:var(--ink-soft)]">
-              {{ t('extract-map-tileset.tilesUsedLabel') }}
+              {{ translate('extract-map-tileset.tilesUsedLabel') }}
             </dt>
             <dd class="font-semibold">{{ usedTileCount }}</dd>
           </div>
           <div>
             <dt class="text-xs text-[color:var(--ink-soft)]">
-              {{ t('extract-map-tileset.tilesBytesLabel') }}
+              {{ translate('extract-map-tileset.tilesBytesLabel') }}
             </dt>
             <dd class="font-semibold">{{ usedTilesByteSize }}</dd>
           </div>
           <div>
             <dt class="text-xs text-[color:var(--ink-soft)]">
-              {{ t('extract-map-tileset.mapWidthLabel') }}
+              {{ translate('extract-map-tileset.mapWidthLabel') }}
             </dt>
             <dd class="font-semibold">{{ metadata.mapWidth }}</dd>
           </div>
           <div>
             <dt class="text-xs text-[color:var(--ink-soft)]">
-              {{ t('extract-map-tileset.mapHeightLabel') }}
+              {{ translate('extract-map-tileset.mapHeightLabel') }}
             </dt>
             <dd class="font-semibold">{{ metadata.mapHeight }}</dd>
           </div>
           <div>
             <dt class="text-xs text-[color:var(--ink-soft)]">
-              {{ t('extract-map-tileset.mapBytesLabel') }}
+              {{ translate('extract-map-tileset.mapBytesLabel') }}
             </dt>
             <dd class="font-semibold">{{ mapByteSize }}</dd>
           </div>
           <div>
             <dt class="text-xs text-[color:var(--ink-soft)]">
-              {{ t('extract-map-tileset.totalBytesLabel') }}
+              {{ translate('extract-map-tileset.totalBytesLabel') }}
             </dt>
             <dd class="font-semibold">{{ totalByteSize }}</dd>
           </div>
@@ -173,7 +173,7 @@ function formatError(error: DomainError): string {
           :disabled="!isReady"
           @click="onExtract"
         >
-          {{ t('extract-map-tileset.create') }}
+          {{ translate('extract-map-tileset.create') }}
         </button>
       </div>
     </footer>

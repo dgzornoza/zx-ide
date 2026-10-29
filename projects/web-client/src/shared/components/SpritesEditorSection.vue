@@ -39,7 +39,7 @@ const spriteFlags = defineModel<number>('spriteFlags', {
   required: true,
 });
 
-const tp = createTranslationPrefixFn(props.translationNamespace);
+const translate = createTranslationPrefixFn(props.translationNamespace);
 
 /**
  * Checkbox active-state for each sprite flag.
@@ -79,21 +79,21 @@ const emit = defineEmits<{
 <template>
   <section class="w-full border border-[color:var(--border)] bg-[color:var(--card)] p-4">
     <h2 class="text-sm font-semibold text-[color:var(--ink-soft)]">
-      {{ tp('sectionSprites') }}
+      {{ translate('sectionSprites') }}
     </h2>
     <p class="mt-2 text-xs text-[color:var(--ink-soft)]">
-      {{ tp('spritesHint') }}
+      {{ translate('spritesHint') }}
     </p>
 
     <!-- Sprite flags -->
     <div class="mt-4 flex flex-wrap gap-4">
-      <label class="inline-flex cursor-pointer items-center gap-2 text-xs" :title="tp('spriteSp1PaddingTooltip')">
+      <label class="inline-flex cursor-pointer items-center gap-2 text-xs" :title="translate('spriteSp1PaddingTooltip')">
         <input v-model="sp1Padding" type="checkbox" class="accent-[color:var(--button-bg)]" />
-        <span class="select-none">{{ tp('spriteSp1PaddingLabel') }}</span>
+        <span class="select-none">{{ translate('spriteSp1PaddingLabel') }}</span>
       </label>
-      <label class="inline-flex cursor-pointer items-center gap-2 text-xs" :title="tp('spriteUseMaskTooltip')">
+      <label class="inline-flex cursor-pointer items-center gap-2 text-xs" :title="translate('spriteUseMaskTooltip')">
         <input v-model="useMask" type="checkbox" class="accent-[color:var(--button-bg)]" />
-        <span class="select-none">{{ tp('spriteUseMaskLabel') }}</span>
+        <span class="select-none">{{ translate('spriteUseMaskLabel') }}</span>
       </label>
     </div>
 
@@ -119,7 +119,7 @@ const emit = defineEmits<{
       type="button"
       @click="emit('add-sprite')"
     >
-      {{ tp('addSprite') }}
+      {{ translate('addSprite') }}
     </button>
   </section>
 </template>

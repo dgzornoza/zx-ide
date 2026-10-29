@@ -23,11 +23,11 @@ export function useSpriteAnimation(frameCount: () => number) {
     }
   };
 
-  watch(frameCount, (len) => {
-    if (currentFrameIndex.value >= len) {
-      currentFrameIndex.value = Math.max(0, len - 1);
+  watch(frameCount, (newFrameCount) => {
+    if (currentFrameIndex.value >= newFrameCount) {
+      currentFrameIndex.value = Math.max(0, newFrameCount - 1);
     }
-    if (len <= 1) stop();
+    if (newFrameCount <= 1) stop();
   });
 
   onBeforeUnmount(() => stop());

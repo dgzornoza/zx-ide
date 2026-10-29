@@ -41,7 +41,7 @@ export function useProjectTypeLock(): ProjectTypeLock {
   const useZx0Compression = ref<boolean>(true);
   const isZx0CompressionReadOnly = ref(false);
 
-  const onInitMessage = (message: InitMessage) => {
+  const onInitializationMessage = (message: InitMessage) => {
     if (message.projectType === 'sjasmplus') {
       codeGenerationType.value = 'asm';
       isCodeGenerationTypeReadOnly.value = true;
@@ -70,7 +70,7 @@ export function useProjectTypeLock(): ProjectTypeLock {
   let unsubscribe: (() => void) | undefined;
 
   onMounted(() => {
-    unsubscribe = subscribeToExtensionMessage('initFromExtension', onInitMessage);
+    unsubscribe = subscribeToExtensionMessage('initFromExtension', onInitializationMessage);
   });
 
   onBeforeUnmount(() => {

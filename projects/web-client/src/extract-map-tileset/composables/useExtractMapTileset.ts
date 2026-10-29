@@ -9,12 +9,12 @@ import { renderTilesetMapPreviewFromTileData } from '../../helpers/image-utils';
 import type { MapTilesetMetadata } from '../models/mapTilesetDefinition';
 import { parseAndValidateTiledJson } from './tiledJsonValidation';
 
-function normalizeGids(rawGids: number[]): number[] {
+function normalizeGlobalTileIds(rawGlobalTileIds: number[]): number[] {
   const normalised: number[] = [];
 
-  for (const gid of rawGids) {
-    const safeGid = gid ?? 0;
-    const localIndex = safeGid;
+  for (const globalTileId of rawGlobalTileIds) {
+    const safeGlobalTileId = globalTileId ?? 0;
+    const localIndex = safeGlobalTileId;
 
     if (localIndex < 0 || localIndex > 255) {
       throw new DomainError('errorGidOutOfRange');
@@ -29,7 +29,7 @@ function normalizeGids(rawGids: number[]): number[] {
 export function useExtractMapTileset() {
   // ─── State ───────────────────────────────────────────────────────────────────
 
-  const tp = createTranslationPrefixFn('extract-map-tileset');
+  const translate = createTranslationPrefixFn('extract-map-tileset');
 
   const mapSource = ref('');
   const asmSource = ref('');
@@ -41,7 +41,7 @@ export function useExtractMapTileset() {
   const errors = ref<DomainError[]>([]);
   const warnings = ref<DomainError[]>([]);
   const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
-  const { status, writeFiles } = useGeneratedFilesWriter(tp);
+  const { status, writeFiles } = useGeneratedFilesWriter(translate);
   /**
    * Forces the map preview canvas to rerender when incremented.
    * Used as a reactive trigger when loading JSON or ASM files,
@@ -74,9 +74,9 @@ export function useExtractMapTileset() {
   const totalByteSize = computed(() => usedTilesByteSize.value + mapByteSize.value);
 
   function validateMapVsTileset(tileCount: number): void {
-    const maxMapIndex = Math.max(0, ...tileIndices.value);
-    if (maxMapIndex > tileCount) {
-      throw new DomainError('errorAsmTileCountMismatch', [maxMapIndex, tileCount]);
+    const maximumMapIndex = Math.max(0, ...tileIndices.value);
+    if (maximumMapIndex > tileCount) {
+      throw new DomainError('errorAsmTileCountMismatch', [maximumMapIndex, tileCount]);
     }
   }
 
@@ -117,7 +117,7 @@ export function useExtractMapTileset() {
       const parsedMap = parseAndValidateTiledJson(content);
       metadata.value = parsedMap.metadata;
 
-      tileIndices.value = normalizeGids(parsedMap.layer.data);
+      tileIndices.value = normalizeGlobalTileIds(parsedMap.layer.data);
 
       tryDecodeAsmData();
     } catch (error) {

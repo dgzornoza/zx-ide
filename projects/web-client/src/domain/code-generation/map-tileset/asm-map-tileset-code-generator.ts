@@ -3,7 +3,7 @@ import { CodeGeneratorStrategy, GeneratedFile } from 'src/domain/code-generation
 import {
   buildHeader,
   calculateMapDataByteCount,
-  MapCodeGeneratorParams,
+  MapCodeGeneratorParameters,
 } from 'src/domain/code-generation/map-tileset/map-tileset-code-generation';
 import { buildMapIndicesBinary } from 'src/helpers/binary-builder-utils';
 import { formatIndicesAsDefb } from 'src/domain/code-generation/code-formatting';
@@ -17,9 +17,9 @@ import { toCodeIdentifier, toMacroGuard } from 'src/helpers/string-utils';
  * an identifier label derived from the map name, and `defb` lines that
  * represent tile indices per row.
  */
-export class AsmMapCodeGenerator implements CodeGeneratorStrategy<MapCodeGeneratorParams> {
-  generate(params: MapCodeGeneratorParams): GeneratedFile[] {
-    const { name, metadata, tileIndices } = params;
+export class AsmMapCodeGenerator implements CodeGeneratorStrategy<MapCodeGeneratorParameters> {
+  generate(parameters: MapCodeGeneratorParameters): GeneratedFile[] {
+    const { name, metadata, tileIndices } = parameters;
     const { mapWidth, mapHeight, tileCount } = metadata;
     const identifier = toCodeIdentifier(name);
     const macroGuard = toMacroGuard(name);
@@ -28,7 +28,7 @@ export class AsmMapCodeGenerator implements CodeGeneratorStrategy<MapCodeGenerat
     const indexBytes = buildMapIndicesBinary(tileIndices);
     const rows = formatIndicesAsDefb(indexBytes, mapWidth);
 
-    const dataByteCount = calculateMapDataByteCount(params);
+    const dataByteCount = calculateMapDataByteCount(parameters);
     const dataSizeComment = buildDataSizeComment(dataByteCount);
 
     const content = [

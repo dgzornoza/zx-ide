@@ -17,14 +17,20 @@ export class MappedBreakpointsModel {
   }
 
   addMappedBreakpoint(sourceBreakpoint: vscode.SourceBreakpoint, lisBreakpoint: vscode.SourceBreakpoint | undefined) {
-    const exists = this._mappedBreakpoints.some(([sb, lb]) => sb === sourceBreakpoint && lb === lisBreakpoint);
+    const exists = this._mappedBreakpoints.some(
+      ([mappedSourceBreakpoint, mappedLisBreakpoint]) =>
+        mappedSourceBreakpoint === sourceBreakpoint && mappedLisBreakpoint === lisBreakpoint
+    );
     if (!exists) {
       this._mappedBreakpoints.push([sourceBreakpoint, lisBreakpoint]);
     }
   }
 
   removeMappedBreakpoint(sourceBreakpoint: vscode.SourceBreakpoint | undefined, lisBreakpoint: vscode.SourceBreakpoint | undefined) {
-    const index = this._mappedBreakpoints.findIndex(([sb, lb]) => sb === sourceBreakpoint && lb === lisBreakpoint);
+    const index = this._mappedBreakpoints.findIndex(
+      ([mappedSourceBreakpoint, mappedLisBreakpoint]) =>
+        mappedSourceBreakpoint === sourceBreakpoint && mappedLisBreakpoint === lisBreakpoint
+    );
     if (index !== -1) {
       this._mappedBreakpoints.splice(index, 1);
     }
@@ -32,7 +38,7 @@ export class MappedBreakpointsModel {
 
   removeSourceBreakpoints(sourceBreakpoints: vscode.SourceBreakpoint[]) {
     for (const breakpoint of sourceBreakpoints) {
-      const index = this._mappedBreakpoints.findIndex(([sb, _]) => sb === breakpoint);
+      const index = this._mappedBreakpoints.findIndex(([mappedSourceBreakpoint]) => mappedSourceBreakpoint === breakpoint);
       if (index !== -1) {
         this._mappedBreakpoints[index][0] = undefined;
       }

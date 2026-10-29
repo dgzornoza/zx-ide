@@ -3,7 +3,7 @@ import { CodeGeneratorStrategy, GeneratedFile } from 'src/domain/code-generation
 import {
   buildHeader,
   calculateMapDataByteCount,
-  MapCodeGeneratorParams,
+  MapCodeGeneratorParameters,
 } from 'src/domain/code-generation/map-tileset/map-tileset-code-generation';
 import { buildMapIndicesBinary } from 'src/helpers/binary-builder-utils';
 import { bytesToBase64 } from 'src/helpers/binary-utils';
@@ -25,16 +25,16 @@ import { compress as compressZx0 } from 'src/helpers/zx0-compress';
  *     with one `incbin "<name>.bin"`, and `.bin` with raw uncompressed
  *     bytes (base64-encoded for transport.
  */
-export class CMapCodeGenerator implements CodeGeneratorStrategy<MapCodeGeneratorParams> {
-  generate(params: MapCodeGeneratorParams): GeneratedFile[] {
-    if (params.compressed) {
-      return this.generateCompressed(params);
+export class CMapCodeGenerator implements CodeGeneratorStrategy<MapCodeGeneratorParameters> {
+  generate(parameters: MapCodeGeneratorParameters): GeneratedFile[] {
+    if (parameters.compressed) {
+      return this.generateCompressed(parameters);
     }
-    return this.generatePlain(params);
+    return this.generatePlain(parameters);
   }
 
-  private generatePlain(params: MapCodeGeneratorParams): GeneratedFile[] {
-    const { name, metadata, tileIndices } = params;
+  private generatePlain(parameters: MapCodeGeneratorParameters): GeneratedFile[] {
+    const { name, metadata, tileIndices } = parameters;
     const { mapWidth, mapHeight, tileCount } = metadata;
     const identifier = toCodeIdentifier(name);
     const macroGuard = toMacroGuard(name);
@@ -46,7 +46,7 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy<MapCodeGenerator
     const indexBytes = buildMapIndicesBinary(tileIndices);
     const rows = formatIndicesAsDefb(indexBytes, mapWidth);
 
-    const dataByteCount = calculateMapDataByteCount(params);
+    const dataByteCount = calculateMapDataByteCount(parameters);
     const dataSizeComment = buildDataSizeComment(dataByteCount);
 
     const headerContent = [
@@ -95,8 +95,8 @@ export class CMapCodeGenerator implements CodeGeneratorStrategy<MapCodeGenerator
     ];
   }
 
-  private generateCompressed(params: MapCodeGeneratorParams): GeneratedFile[] {
-    const { name, metadata, tileIndices } = params;
+  private generateCompressed(parameters: MapCodeGeneratorParameters): GeneratedFile[] {
+    const { name, metadata, tileIndices } = parameters;
     const { mapWidth, mapHeight, tileCount } = metadata;
     const identifier = toCodeIdentifier(name);
     const macroGuard = toMacroGuard(name);

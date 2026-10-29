@@ -10,11 +10,11 @@
  * @returns Base64 string (no whitespace, standard alphabet).
  */
 export function bytesToBase64(bytes: Uint8Array | number[]): string {
-  const arr = bytes instanceof Uint8Array ? bytes : Uint8Array.from(bytes);
+  const byteArray = bytes instanceof Uint8Array ? bytes : Uint8Array.from(bytes);
   let binary = '';
   const chunkSize = 0x8000; // 32 KiB chunks keep `apply` happy on large inputs
-  for (let offset = 0; offset < arr.length; offset += chunkSize) {
-    const chunk = arr.subarray(offset, offset + chunkSize);
+  for (let offset = 0; offset < byteArray.length; offset += chunkSize) {
+    const chunk = byteArray.subarray(offset, offset + chunkSize);
     binary += String.fromCodePoint(...chunk);
   }
   return btoa(binary);
@@ -29,11 +29,11 @@ export function bytesToBase64(bytes: Uint8Array | number[]): string {
  */
 export function base64ToBytes(base64: string): Uint8Array {
   const binary = atob(base64);
-  const out = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    out[i] = binary.charCodeAt(i);
+  const bytes = new Uint8Array(binary.length);
+  for (let index = 0; index < binary.length; index++) {
+    bytes[index] = binary.charCodeAt(index);
   }
-  return out;
+  return bytes;
 }
 
 /**
@@ -44,6 +44,6 @@ export function base64ToBytes(base64: string): Uint8Array {
  * @param file - File-like object with `.arrayBuffer()`.
  */
 export async function readBytesFromFile(file: Blob): Promise<Uint8Array> {
-  const buf = await file.arrayBuffer();
-  return new Uint8Array(buf);
+  const arrayBuffer = await file.arrayBuffer();
+  return new Uint8Array(arrayBuffer);
 }

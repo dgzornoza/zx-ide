@@ -106,7 +106,7 @@ function installBridgeMock() {
 }
 
 // jsdom's File has no text(); the composables read .cfg files only through it
-function createCfgFile(content: string): File {
+function createConfigurationFile(content: string): File {
   const file = new File([content], 'graphics.cfg');
   Object.defineProperty(file, 'text', { value: () => Promise.resolve(content) });
   return file;
@@ -156,9 +156,9 @@ describe('useExtractTiles', () => {
     await api.setSourceImage('characters/tileset.zxp', zxpBytes);
 
     expect(mockedExtractTilesFromZxpFile).toHaveBeenCalledTimes(1);
-    const fileArg = mockedExtractTilesFromZxpFile.mock.calls[0][0];
-    expect(fileArg).toBeInstanceOf(File);
-    expect(fileArg.name).toBe('tileset.zxp');
+    const fileArgument = mockedExtractTilesFromZxpFile.mock.calls[0][0];
+    expect(fileArgument).toBeInstanceOf(File);
+    expect(fileArgument.name).toBe('tileset.zxp');
 
     expect(api.state.source).toBe('characters/tileset.zxp');
     expect(mockedExtractTilesFromPng).not.toHaveBeenCalled();
@@ -307,7 +307,7 @@ describe('useExtractTiles', () => {
   it('restores the tile size and exclusions of a valid .cfg file', async () => {
     const { api } = setupHarness();
 
-    await api.setMapFile(createCfgFile(JSON.stringify({ type: 'tiles', tileWidth: 16, tileHeight: 16, excluded: [2] })));
+    await api.setMapFile(createConfigurationFile(JSON.stringify({ type: 'tiles', tileWidth: 16, tileHeight: 16, excluded: [2] })));
 
     expect(api.state.tiles.tileWidth).toBe(16);
     expect(api.state.tiles.tileHeight).toBe(16);
@@ -319,7 +319,7 @@ describe('useExtractTiles', () => {
     const { api } = setupHarness();
     const { tileWidth, tileHeight } = api.state.tiles;
 
-    await api.setMapFile(createCfgFile(JSON.stringify({ type: 'tiles', tileWidth: '16', tileHeight: 16, excluded: [2] })));
+    await api.setMapFile(createConfigurationFile(JSON.stringify({ type: 'tiles', tileWidth: '16', tileHeight: 16, excluded: [2] })));
 
     expect(api.state.tiles.tileWidth).toBe(tileWidth);
     expect(api.state.tiles.tileHeight).toBe(tileHeight);

@@ -60,16 +60,16 @@ describe('subscribeToExtensionMessage', () => {
   });
 
   it('delivers a message only to the handlers subscribed to its type', () => {
-    const initHandler = vi.fn();
+    const initializationHandler = vi.fn();
     const assetsHandler = vi.fn();
-    unsubscribers.push(subscribeToExtensionMessage('initFromExtension', initHandler));
+    unsubscribers.push(subscribeToExtensionMessage('initFromExtension', initializationHandler));
     unsubscribers.push(subscribeToExtensionMessage('assetsListFromExtension', assetsHandler));
     const message: InitMessage = { messageType: 'initFromExtension', projectType: 'z88dk' };
 
     postFromExtension(message);
 
-    expect(initHandler).toHaveBeenCalledOnce();
-    expect(initHandler).toHaveBeenCalledWith(message);
+    expect(initializationHandler).toHaveBeenCalledOnce();
+    expect(initializationHandler).toHaveBeenCalledWith(message);
     expect(assetsHandler).not.toHaveBeenCalled();
   });
 

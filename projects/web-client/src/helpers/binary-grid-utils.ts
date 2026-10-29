@@ -3,72 +3,73 @@
  * binary grid using backward-mapping with nearest-neighbor interpolation.
  *
  * The grid is treated as lying on the Z=0 plane. Each destination pixel
- * (dx, dy) is mapped back to its source pixel (px, py) by solving the 2×2
- * linear system that results from the orthographic projection of R = Rz·Ry·Rx:
+ * (destinationX, destinationY) is mapped back to its source pixel
+ * (sourceX, sourceY) by solving the 2×2 linear system that results from the
+ * orthographic projection of R = Rz·Ry·Rx:
  *
- *   dx = R[0][0]*px + R[0][1]*py
- *   dy = R[1][0]*px + R[1][1]*py
+ *   destinationX = R[0][0]*sourceX + R[0][1]*sourceY
+ *   destinationY = R[1][0]*sourceX + R[1][1]*sourceY
  *
- * Inverse: px = ( R[1][1]*dx - R[0][1]*dy ) / det
- *          py = (-R[1][0]*dx + R[0][0]*dy ) / det
+ * Inverse: sourceX = ( R[1][1]*destinationX - R[0][1]*destinationY ) / determinant
+ *          sourceY = (-R[1][0]*destinationX + R[0][0]*destinationY ) / determinant
  *
- * where det = R[0][0]*R[1][1] - R[0][1]*R[1][0] = cos(ay)*cos(ax).
- * When det ≈ 0 the grid is edge-on and the result is blank.
+ * where determinant = R[0][0]*R[1][1] - R[0][1]*R[1][0] = cos(angleY)*cos(angleX).
+ * When the determinant ≈ 0 the grid is edge-on and the result is blank.
  *
  * Pixels whose source falls outside the original bounds are set to false.
  */
-export function rotateBinaryGrid(bitmap: boolean[][], degX: number, degY: number, degZ: number): boolean[][] {
+export function rotateBinaryGrid(bitmap: boolean[][], degreesX: number, degreesY: number, degreesZ: number): boolean[][] {
   const height = bitmap.length;
   const width = bitmap[0].length;
 
-  const ax = (degX * Math.PI) / 180;
-  const ay = (degY * Math.PI) / 180;
-  const az = (degZ * Math.PI) / 180;
+  const angleX = (degreesX * Math.PI) / 180;
+  const angleY = (degreesY * Math.PI) / 180;
+  const angleZ = (degreesZ * Math.PI) / 180;
 
-  const cax = Math.cos(ax);
-  const sax = Math.sin(ax);
-  const cay = Math.cos(ay);
-  const say = Math.sin(ay);
-  const caz = Math.cos(az);
-  const saz = Math.sin(az);
+  const cosineX = Math.cos(angleX);
+  const sineX = Math.sin(angleX);
+  const cosineY = Math.cos(angleY);
+  const sineY = Math.sin(angleY);
+  const cosineZ = Math.cos(angleZ);
+  const sineZ = Math.sin(angleZ);
 
-  // First two rows of R = Rz · Ry · Rx (source Z = 0, so col 2 drops out):
-  //   R[0][0] =  caz*cay
-  //   R[0][1] =  caz*say*sax - saz*cax
-  //   R[1][0] =  saz*cay
-  //   R[1][1] =  saz*say*sax + caz*cax
-  const m00 = caz * cay;
-  const m01 = caz * say * sax - saz * cax;
-  const m10 = saz * cay;
-  const m11 = saz * say * sax + caz * cax;
+  // First two rows of R = Rz · Ry · Rx (source Z = 0, so column 2 drops out):
+  //   R[0][0] =  cosineZ*cosineY
+  //   R[0][1] =  cosineZ*sineY*sineX - sineZ*cosineX
+  //   R[1][0] =  sineZ*cosineY
+  //   R[1][1] =  sineZ*sineY*sineX + cosineZ*cosineX
+  const rotationRow0Column0 = cosineZ * cosineY;
+  const rotationRow0Column1 = cosineZ * sineY * sineX - sineZ * cosineX;
+  const rotationRow1Column0 = sineZ * cosineY;
+  const rotationRow1Column1 = sineZ * sineY * sineX + cosineZ * cosineX;
 
-  // det = cos(ay)*cos(ax); ≈ 0 means the grid is seen edge-on → return blank.
-  const det = m00 * m11 - m01 * m10;
-  if (Math.abs(det) < 1e-6) {
+  // determinant = cos(angleY)*cos(angleX); ≈ 0 means the grid is seen edge-on → return blank.
+  const determinant = rotationRow0Column0 * rotationRow1Column1 - rotationRow0Column1 * rotationRow1Column0;
+  if (Math.abs(determinant) < 1e-6) {
     return Array.from({ length: height }, () => Array<boolean>(width).fill(false));
   }
 
-  const cx = width / 2;
-  const cy = height / 2;
+  const centerX = width / 2;
+  const centerY = height / 2;
 
   const result: boolean[][] = [];
 
-  for (let dy = 0; dy < height; dy++) {
+  for (let destinationY = 0; destinationY < height; destinationY++) {
     const row: boolean[] = [];
-    for (let dx = 0; dx < width; dx++) {
+    for (let destinationX = 0; destinationX < width; destinationX++) {
       // Center the destination coordinates.
-      const px = dx - cx + 0.5;
-      const py = dy - cy + 0.5;
+      const centeredX = destinationX - centerX + 0.5;
+      const centeredY = destinationY - centerY + 0.5;
 
       // Solve the 2×2 system for the source coordinates.
-      const sx = (m11 * px - m01 * py) / det + cx - 0.5;
-      const sy = (-m10 * px + m00 * py) / det + cy - 0.5;
+      const sourceX = (rotationRow1Column1 * centeredX - rotationRow0Column1 * centeredY) / determinant + centerX - 0.5;
+      const sourceY = (-rotationRow1Column0 * centeredX + rotationRow0Column0 * centeredY) / determinant + centerY - 0.5;
 
-      const srcX = Math.round(sx);
-      const srcY = Math.round(sy);
+      const sourceColumn = Math.round(sourceX);
+      const sourceRow = Math.round(sourceY);
 
-      if (srcX >= 0 && srcX < width && srcY >= 0 && srcY < height) {
-        row.push(bitmap[srcY][srcX]);
+      if (sourceColumn >= 0 && sourceColumn < width && sourceRow >= 0 && sourceRow < height) {
+        row.push(bitmap[sourceRow][sourceColumn]);
       } else {
         row.push(false);
       }

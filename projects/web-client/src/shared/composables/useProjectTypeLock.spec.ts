@@ -13,7 +13,7 @@ import { defineComponent, h, isReadonly, nextTick } from 'vue';
 
 import { ProjectTypeLock, useProjectTypeLock } from './useProjectTypeLock';
 
-function dispatchInit(projectType: 'sjasmplus' | 'z88dk') {
+function dispatchInitialization(projectType: 'sjasmplus' | 'z88dk') {
   window.dispatchEvent(
     new MessageEvent('message', {
       data: { messageType: 'initFromExtension', projectType },
@@ -49,7 +49,7 @@ describe('useProjectTypeLock', () => {
 
   it('locks to asm + readonly + zx0 off when projectType is sjasmplus', async () => {
     const { lock, wrapper } = setupHarness();
-    dispatchInit('sjasmplus');
+    dispatchInitialization('sjasmplus');
     await nextTick();
     await wrapper.vm.$nextTick();
     expect(lock.codeGenerationType.value).toBe('asm');
@@ -60,7 +60,7 @@ describe('useProjectTypeLock', () => {
 
   it('locks to c + readonly + zx0 on when projectType is z88dk', async () => {
     const { lock, wrapper } = setupHarness();
-    dispatchInit('z88dk');
+    dispatchInitialization('z88dk');
     await nextTick();
     await wrapper.vm.$nextTick();
     expect(lock.codeGenerationType.value).toBe('c');
@@ -128,7 +128,7 @@ describe('useProjectTypeLock', () => {
 
   it('setters are ignored once the project type locks the values', async () => {
     const { lock } = setupHarness();
-    dispatchInit('sjasmplus');
+    dispatchInitialization('sjasmplus');
     await nextTick();
 
     lock.setCodeGenerationType('c');
@@ -143,7 +143,7 @@ describe('useProjectTypeLock', () => {
     wrapper.unmount();
 
     // After unmount, dispatching an init must NOT change the captured refs.
-    dispatchInit('sjasmplus');
+    dispatchInitialization('sjasmplus');
     await nextTick();
     expect(lock.codeGenerationType.value).toBe('c');
     expect(lock.isZx0CompressionReadOnly.value).toBe(false);

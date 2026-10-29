@@ -42,7 +42,7 @@ export class WebviewHelpers {
   private static generateNonce(): string {
     let text = '';
     const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 32; i += 1) {
+    for (let characterIndex = 0; characterIndex < 32; characterIndex += 1) {
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;

@@ -84,21 +84,21 @@ export class Z88dkProjectService extends ProjectService {
 
     // write debugger info only for all 'dezog' configurations (maintain outer json structure and comments)
     const useAsmDebug = this.configurationService.getZ88dkConfiguration().useAsmDebug;
-    for (const [index, config] of launchJson.configurations.entries()) {
-      let z88dkConfig: Z88dkv2ConfigurationModel[];
-      if (config.type === 'dezog') {
+    for (const [index, launchConfiguration] of launchJson.configurations.entries()) {
+      let z88dkConfiguration: Z88dkv2ConfigurationModel[];
+      if (launchConfiguration.type === 'dezog') {
         // using Asm debug configuration (custom debugger service)
         if (useAsmDebug) {
-          z88dkConfig = await this.getZ88dkAsmDebugConfiguration();
+          z88dkConfiguration = await this.getZ88dkAsmDebugConfiguration();
           this.z88dkBreakpointService.enable();
         } else {
           // using C debug configuration (vs code default)
-          z88dkConfig = await this.getZ88dkCDebugConfiguration();
+          z88dkConfiguration = await this.getZ88dkCDebugConfiguration();
           this.z88dkBreakpointService.disable();
         }
 
         const jsonPath = [nameof<LaunchConfigFileModel>('configurations'), index, nameof<DezogConfigurationModel>('z88dkv2')];
-        await WorkspaceHelpers.writeWorkspaceJsonFile(z88dkConfig, launchPath, jsonPath);
+        await WorkspaceHelpers.writeWorkspaceJsonFile(z88dkConfiguration, launchPath, jsonPath);
       }
     }
   }

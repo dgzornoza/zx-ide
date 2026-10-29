@@ -17,7 +17,7 @@ import { extractTilesFromPng, extractTilesFromZxpFile } from '../../helpers/imag
  */
 export function useExtractTiles() {
   /** Namespaced translation helper for the extract-tiles scope. */
-  const tp = createTranslationPrefixFn('extract-tiles');
+  const translate = createTranslationPrefixFn('extract-tiles');
 
   const state = reactive({
     source: '',
@@ -38,7 +38,7 @@ export function useExtractTiles() {
   /** The last PNG/ZXP File chosen by the user, kept to allow re-extraction on dimension change. */
   const currentImageFile = ref<File | undefined>(undefined);
 
-  const { status, setStatus, writeFiles } = useGeneratedFilesWriter(tp);
+  const { status, setStatus, writeFiles } = useGeneratedFilesWriter(translate);
   const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
 
   /**
@@ -62,7 +62,7 @@ export function useExtractTiles() {
    * Files without a `type` field are treated as tiles (backward-compatibility).
    * Also re-extracts tile previews if a source image is already loaded.
    */
-  const setCfgFile = async (file: File): Promise<void> => {
+  const setConfigurationFile = async (file: File): Promise<void> => {
     try {
       const configuration = parseTilesConfiguration(await file.text());
 
@@ -77,7 +77,7 @@ export function useExtractTiles() {
         await extractTiles(currentImageFile.value);
       }
     } catch {
-      setStatus('error', tp('errorMapLoadFailed'));
+      setStatus('error', translate('errorMapLoadFailed'));
     }
   };
 
@@ -123,7 +123,7 @@ export function useExtractTiles() {
       }
     } catch (error) {
       console.error('Tile extraction failed:', error);
-      setStatus('error', tp('errorTileExtractionFailed'));
+      setStatus('error', translate('errorTileExtractionFailed'));
     }
   };
 
@@ -142,7 +142,7 @@ export function useExtractTiles() {
       state.source = path;
     } catch (error) {
       console.error('Source image load failed:', error);
-      setStatus('error', tp('errorSourceFileLoad'));
+      setStatus('error', translate('errorSourceFileLoad'));
     }
   };
 
@@ -181,14 +181,14 @@ export function useExtractTiles() {
    */
   const extractResources = async () => {
     if (!currentImageFile.value) {
-      setStatus('error', tp('errorNoSourceFile'));
+      setStatus('error', translate('errorNoSourceFile'));
       return;
     }
 
     const fileNameWithoutExtension = currentImageFile.value.name.replace(/\.[^.]+$/, '');
 
-    const sourceDir = dirNameOfPath(state.source);
-    const prefix = sourceDir.length > 0 ? `${sourceDir}/` : '';
+    const sourceDirectory = dirNameOfPath(state.source);
+    const prefix = sourceDirectory.length > 0 ? `${sourceDirectory}/` : '';
     const join = (fileName: string) => `${prefix}${fileName}`;
 
     const generator = createTilesCodeGenerator(codeGenerationType.value);
@@ -225,12 +225,12 @@ export function useExtractTiles() {
     const includedIndices = Array.from({ length: state.tiles.count }, (_unused, index) => index).filter(
       (index) => !state.tiles.excludedSet.has(index)
     );
-    const params = { name: '', tiles: state.tiles };
+    const tilesParameters = { name: '', tiles: state.tiles };
 
     return {
       tileCount: includedTileCount,
-      bitmapBytes: calculateTilesBitmapByteCount(params, includedIndices),
-      attributeBytes: calculateTilesAttributeByteCount(params, includedIndices),
+      bitmapBytes: calculateTilesBitmapByteCount(tilesParameters, includedIndices),
+      attributeBytes: calculateTilesAttributeByteCount(tilesParameters, includedIndices),
     };
   });
 
@@ -243,9 +243,9 @@ export function useExtractTiles() {
     isZx0CompressionReadOnly,
     currentImageFile,
     memoryUsage,
-    tp,
+    translate,
     setSourceImage,
-    setMapFile: setCfgFile,
+    setMapFile: setConfigurationFile,
     extractResources,
     toggleTileExclusion,
   };

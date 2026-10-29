@@ -2,18 +2,18 @@ import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
 import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
 import { createSpritesCodeGenerator } from 'src/domain/code-generation/sprites/sprites-code-generator-factory';
-import type { SpritesCodeGeneratorParams } from 'src/domain/code-generation/sprites/sprites-code-generation';
+import type { SpritesCodeGeneratorParameters } from 'src/domain/code-generation/sprites/sprites-code-generation';
 import { SpriteChanges, SpriteDefinition, SpriteFlags, SpriteFrameChanges } from 'src/shared/models/spriteDefinition';
 import { reactive, ref } from 'vue';
 
 export function useCreateSprites() {
-  const tp = createTranslationPrefixFn('create-sprites');
+  const translate = createTranslationPrefixFn('create-sprites');
 
   const state = reactive({
     sprites: [] as SpriteDefinition[],
   });
 
-  const { status, setStatus, clearStatus, writeFiles } = useGeneratedFilesWriter(tp);
+  const { status, setStatus, clearStatus, writeFiles } = useGeneratedFilesWriter(translate);
   const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
   const binaryText = ref('');
   const outputName = ref('sprites');
@@ -94,7 +94,7 @@ export function useCreateSprites() {
     // On the first frame, adopt the bitmap dimensions as the sprite size.
     if (sprite.frames.length > 0) {
       if (sprite.width !== width || sprite.height !== height) {
-        setStatus('error', tp('errorDimensionMismatch'));
+        setStatus('error', translate('errorDimensionMismatch'));
         return;
       }
     } else {
@@ -109,17 +109,17 @@ export function useCreateSprites() {
   }
 
   async function generateCode() {
-    const sprites = state.sprites.filter((s) => s.frames.length > 0);
+    const sprites = state.sprites.filter((sprite) => sprite.frames.length > 0);
 
     if (sprites.length === 0) {
-      setStatus('error', tp('errorNoSprites'));
+      setStatus('error', translate('errorNoSprites'));
       return;
     }
 
-    // Build SpritesCodeGeneratorParams. Each frame is reduced to (x=0, y=0)
+    // Build SpritesCodeGeneratorParameters. Each frame is reduced to (x=0, y=0)
     // because the pixel data lives in spriteBitmasks, which we derive from
     // the per-frame bitmap attached by addFrame().
-    const params: SpritesCodeGeneratorParams = {
+    const generatorParameters: SpritesCodeGeneratorParameters = {
       name: outputName.value.trim() || 'sprites',
       sprites: sprites.map((sprite) => ({
         _id: sprite._id,
@@ -134,7 +134,7 @@ export function useCreateSprites() {
     };
 
     const generator = createSpritesCodeGenerator(codeGenerationType.value);
-    const codeFiles = generator.generate(params);
+    const codeFiles = generator.generate(generatorParameters);
 
     writeFiles(codeFiles);
   }
@@ -150,7 +150,7 @@ export function useCreateSprites() {
     isZx0CompressionReadOnly,
     spriteFlags,
     activeSpriteIndex,
-    tp,
+    translate,
     addSprite,
     removeSprite,
     updateSprite,

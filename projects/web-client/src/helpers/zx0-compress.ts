@@ -90,10 +90,10 @@ function optimize(inputData: Uint8Array, inputSize: number, skip: number, offset
             let bits = optimal[index - bestLength[bestLengthSize]]!.bits + eliasGammaBits(bestLength[bestLengthSize] - 1);
             do {
               bestLengthSize++;
-              const bits2 = optimal[index - bestLengthSize]!.bits + eliasGammaBits(bestLengthSize - 1);
-              if (bits2 <= bits) {
+              const candidateBits = optimal[index - bestLengthSize]!.bits + eliasGammaBits(bestLengthSize - 1);
+              if (candidateBits <= bits) {
                 bestLength[bestLengthSize] = bestLengthSize;
-                bits = bits2;
+                bits = candidateBits;
               } else {
                 bestLength[bestLengthSize] = bestLengthSize - 1;
               }
@@ -145,19 +145,19 @@ function compressForward(
   const outputData = new Uint8Array(outputSize);
 
   // Un-reverse the chain so we walk it forward when emitting.
-  let prev: OptimizeNode | undefined;
-  let cur: OptimizeNode | undefined = optimalBlock;
-  while (cur !== undefined) {
-    const next = cur.chain;
-    cur.chain = prev;
-    prev = cur;
-    cur = next;
+  let previous: OptimizeNode | undefined;
+  let current: OptimizeNode | undefined = optimalBlock;
+  while (current !== undefined) {
+    const next = current.chain;
+    current.chain = previous;
+    previous = current;
+    current = next;
   }
 
   // Initialize state — encapsulated in a struct to keep the main loop readable.
   const state = {
     outputData,
-    diff: outputSize - inputSize + skip,
+    difference: outputSize - inputSize + skip,
     delta: 0,
     inputIndex: skip,
     outputIndex: 0,
@@ -167,15 +167,15 @@ function compressForward(
     lastOffset: INITIAL_OFFSET,
   };
 
-  function readBytes(n: number): void {
-    state.inputIndex += n;
-    state.diff += n;
-    if (state.delta < state.diff) state.delta = state.diff;
+  function readBytes(count: number): void {
+    state.inputIndex += count;
+    state.difference += count;
+    if (state.delta < state.difference) state.delta = state.difference;
   }
 
   function writeByte(value: number): void {
     state.outputData[state.outputIndex++] = value;
-    state.diff--;
+    state.difference--;
   }
 
   function writeBit(value: boolean | number): void {
@@ -195,19 +195,19 @@ function compressForward(
 
   function writeInterlacedEliasGamma(value: number, invert: boolean): void {
     // Find the highest power of 2 ≤ value.
-    let i = 2;
-    while (i <= value) i <<= 1;
-    i >>>= 1;
+    let mask = 2;
+    while (mask <= value) mask <<= 1;
+    mask >>>= 1;
 
-    while ((i >>>= 1) !== 0) {
+    while ((mask >>>= 1) !== 0) {
       // Equivalent to the original nested-ternary expression:
       //   leadBit = backwardsMode ? 1 : 0;
       //   tailBit = invert
-      //     ? !(value & i) ? 1 : 0
-      //     : value & i ? 1 : 0;
+      //     ? !(value & mask) ? 1 : 0
+      //     : value & mask ? 1 : 0;
       // Extracted as plain arithmetic for readability (this is forward mode,
       // so `backwardsMode` is always `false` and `leadBit === 0`).
-      const valueBit = (value & i) !== 0;
+      const valueBit = (value & mask) !== 0;
       const tailBit = invert ? (valueBit ? 0 : 1) : valueBit ? 1 : 0;
       writeBit(0);
       writeBit(tailBit);
@@ -215,22 +215,22 @@ function compressForward(
     writeBit(1);
   }
 
-  let node: OptimizeNode | undefined = prev;
+  let node: OptimizeNode | undefined = previous;
   while (node !== undefined) {
-    const opt = node.chain;
-    if (opt === undefined) break;
+    const nextNode = node.chain;
+    if (nextNode === undefined) break;
 
-    const length = opt.index - node.index;
+    const length = nextNode.index - node.index;
 
-    if (opt.offset === 0) {
+    if (nextNode.offset === 0) {
       // copy literals
       writeBit(0);
       writeInterlacedEliasGamma(length, false);
-      for (let i = 0; i < length; i++) {
+      for (let literalIndex = 0; literalIndex < length; literalIndex++) {
         writeByte(inputData[state.inputIndex]);
         readBytes(1);
       }
-    } else if (opt.offset === state.lastOffset) {
+    } else if (nextNode.offset === state.lastOffset) {
       // copy from last offset
       writeBit(0);
       writeInterlacedEliasGamma(length, false);
@@ -238,20 +238,20 @@ function compressForward(
     } else {
       // copy from new offset
       writeBit(1);
-      writeInterlacedEliasGamma(Math.trunc((opt.offset - 1) / 128) + 1, invertMode);
+      writeInterlacedEliasGamma(Math.trunc((nextNode.offset - 1) / 128) + 1, invertMode);
 
       // Offset LSB — inverted (0 → 127) for forward mode.
-      const offsetLSB = (opt.offset - 1) % 128;
-      writeByte((127 - offsetLSB) << 1);
+      const offsetLowPart = (nextNode.offset - 1) % 128;
+      writeByte((127 - offsetLowPart) << 1);
 
       state.backtrack = true;
       writeInterlacedEliasGamma(length - 1, false);
       readBytes(length);
 
-      state.lastOffset = opt.offset;
+      state.lastOffset = nextNode.offset;
     }
 
-    node = opt;
+    node = nextNode;
   }
 
   // End marker.
@@ -320,7 +320,7 @@ function decompressForward(inputData: Uint8Array, classicMode: boolean): Uint8Ar
   }
 
   function writeBytes(offset: number, length: number): void {
-    for (let i = 0; i < length; i++) {
+    for (let copiedCount = 0; copiedCount < length; copiedCount++) {
       output.push(output[output.length - offset]);
     }
   }
@@ -329,9 +329,9 @@ function decompressForward(inputData: Uint8Array, classicMode: boolean): Uint8Ar
   let length: number;
 
   function copyFromNewOffset(): boolean {
-    const msb = readInterlacedEliasGamma(invertOffset);
-    if (msb === 256) return false;
-    lastOffset = msb * 128 - (readByte() >> 1);
+    const offsetHighPart = readInterlacedEliasGamma(invertOffset);
+    if (offsetHighPart === 256) return false;
+    lastOffset = offsetHighPart * 128 - (readByte() >> 1);
     backtrack = true;
     length = readInterlacedEliasGamma(0) + 1;
     writeBytes(lastOffset, length);
@@ -346,7 +346,7 @@ function decompressForward(inputData: Uint8Array, classicMode: boolean): Uint8Ar
     if (stateId === 0) {
       // COPY_LITERALS
       length = readInterlacedEliasGamma(0);
-      for (let i = 0; i < length; i++) output.push(readByte());
+      for (let copiedCount = 0; copiedCount < length; copiedCount++) output.push(readByte());
       stateId = readBit() === 1 ? 2 : 1;
     } else if (stateId === 1) {
       // COPY_FROM_LAST_OFFSET
@@ -374,11 +374,11 @@ function decompressBlock(inputData: Uint8Array, backwardsMode: boolean, classicM
   return decompressForward(inputData, classicMode);
 }
 
-function reverse(arr: Uint8Array, start: number, end: number): void {
+function reverse(bytes: Uint8Array, start: number, end: number): void {
   while (start < end) {
-    const tmp = arr[start];
-    arr[start] = arr[end];
-    arr[end] = tmp;
+    const swapped = bytes[start];
+    bytes[start] = bytes[end];
+    bytes[end] = swapped;
     start++;
     end--;
   }

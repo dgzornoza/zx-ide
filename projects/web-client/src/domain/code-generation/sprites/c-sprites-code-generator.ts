@@ -8,7 +8,7 @@ import {
   buildMapFile,
   calculateSpritesDataByteCount,
   generateSpriteAsmBody,
-  SpritesCodeGeneratorParams,
+  SpritesCodeGeneratorParameters,
 } from 'src/domain/code-generation/sprites/sprites-code-generation';
 import { SpriteFlags } from 'src/shared/models/spriteDefinition';
 
@@ -24,60 +24,60 @@ import { SpriteFlags } from 'src/shared/models/spriteDefinition';
  *     `.asm` with one `incbin "<name>.bin"`, and `.bin` with raw
  *     uncompressed bytes (base64-encoded for transport
  */
-export class CSpritesCodeGeneratorStrategy implements CodeGeneratorStrategy<SpritesCodeGeneratorParams> {
-  generate(params: SpritesCodeGeneratorParams): GeneratedFile[] {
-    if (params.compressed) {
-      return this.generateCompressed(params);
+export class CSpritesCodeGeneratorStrategy implements CodeGeneratorStrategy<SpritesCodeGeneratorParameters> {
+  generate(parameters: SpritesCodeGeneratorParameters): GeneratedFile[] {
+    if (parameters.compressed) {
+      return this.generateCompressed(parameters);
     }
-    return this.generatePlain(params);
+    return this.generatePlain(parameters);
   }
 
-  private generatePlain(params: SpritesCodeGeneratorParams): GeneratedFile[] {
-    const headerContent = this.generatePlainHeaderFile(params);
-    const asmContent = this.generatePlainAsmFile(params);
+  private generatePlain(parameters: SpritesCodeGeneratorParameters): GeneratedFile[] {
+    const headerContent = this.generatePlainHeaderFile(parameters);
+    const asmContent = this.generatePlainAsmFile(parameters);
 
     return [
-      buildMapFile(params),
+      buildMapFile(parameters),
       {
         fileType: 'c-header',
-        fileName: `${params.name}.h`,
+        fileName: `${parameters.name}.h`,
         content: headerContent,
       },
       {
         fileType: 'asm',
-        fileName: `${params.name}.asm`,
+        fileName: `${parameters.name}.asm`,
         content: asmContent,
       },
     ];
   }
 
-  private generateCompressed(params: SpritesCodeGeneratorParams): GeneratedFile[] {
-    const hasPadding = (params.spriteFlags & SpriteFlags.Sp1Padding) !== 0;
-    const useMask = (params.spriteFlags & SpriteFlags.UseMask) !== 0;
+  private generateCompressed(parameters: SpritesCodeGeneratorParameters): GeneratedFile[] {
+    const hasPadding = (parameters.spriteFlags & SpriteFlags.Sp1Padding) !== 0;
+    const useMask = (parameters.spriteFlags & SpriteFlags.UseMask) !== 0;
 
     const rawBytes = buildSpritesBinary({
-      sprites: params.sprites.map((s) => ({
-        width: s.width,
-        height: s.height,
-        frames: s.frames.map((f) => ({ x: f.x, y: f.y })),
+      sprites: parameters.sprites.map((sprite) => ({
+        width: sprite.width,
+        height: sprite.height,
+        frames: sprite.frames.map((frame) => ({ x: frame.x, y: frame.y })),
       })),
-      spriteBitmasks: params.spriteBitmasks,
+      spriteBitmasks: parameters.spriteBitmasks,
       hasPadding,
       useMask,
     });
 
     const compressedBytes = compressZx0(rawBytes).data;
 
-    const totalSize = calculateSpritesDataByteCount(params, hasPadding, useMask);
-    const spriteCount = params.sprites.length;
-    const frameCount = params.sprites.reduce((sum, sprite) => sum + sprite.frames.length, 0);
+    const totalSize = calculateSpritesDataByteCount(parameters, hasPadding, useMask);
+    const spriteCount = parameters.sprites.length;
+    const frameCount = parameters.sprites.reduce((sum, sprite) => sum + sprite.frames.length, 0);
 
     return [
-      buildMapFile(params),
+      buildMapFile(parameters),
       {
         fileType: 'c-header',
-        fileName: `${params.name}.h`,
-        content: this.generateCompressedHeaderFile(params.name, {
+        fileName: `${parameters.name}.h`,
+        content: this.generateCompressedHeaderFile(parameters.name, {
           spriteCount,
           frameCount,
           totalSize,
@@ -85,8 +85,8 @@ export class CSpritesCodeGeneratorStrategy implements CodeGeneratorStrategy<Spri
       },
       {
         fileType: 'asm',
-        fileName: `${params.name}.asm`,
-        content: this.generateCompressedAsmFile(params.name, {
+        fileName: `${parameters.name}.asm`,
+        content: this.generateCompressedAsmFile(parameters.name, {
           spriteCount,
           frameCount,
           totalSize,
@@ -95,15 +95,15 @@ export class CSpritesCodeGeneratorStrategy implements CodeGeneratorStrategy<Spri
       },
       {
         fileType: 'binary',
-        fileName: `${params.name}.bin`,
+        fileName: `${parameters.name}.bin`,
         content: bytesToBase64(compressedBytes),
       },
     ];
   }
 
-  private generatePlainHeaderFile(params: SpritesCodeGeneratorParams): string {
-    const id = toCodeIdentifier(params.name);
-    const guard = toMacroGuard(params.name);
+  private generatePlainHeaderFile(parameters: SpritesCodeGeneratorParameters): string {
+    const id = toCodeIdentifier(parameters.name);
+    const guard = toMacroGuard(parameters.name);
 
     const lines: string[] = [
       `#ifndef __DATA_${guard}_H__`,
@@ -111,15 +111,15 @@ export class CSpritesCodeGeneratorStrategy implements CodeGeneratorStrategy<Spri
       '',
       '#include <stdint.h>',
       '',
-      ...params.sprites.flatMap((sprite) => {
+      ...parameters.sprites.flatMap((sprite) => {
         const spriteName = `${id}_${toCodeIdentifier(sprite.name)}`;
         const columns = Math.ceil(sprite.width / 8);
         if (columns > 1) {
-          const decls: string[] = [];
-          for (let col = 1; col <= columns; col++) {
-            decls.push(`extern const uint8_t ${spriteName}_col_${col}[];`);
+          const declarations: string[] = [];
+          for (let column = 1; column <= columns; column++) {
+            declarations.push(`extern const uint8_t ${spriteName}_col_${column}[];`);
           }
-          return decls;
+          return declarations;
         } else {
           return [`extern const uint8_t ${spriteName}[];`];
         }
@@ -184,19 +184,19 @@ export class CSpritesCodeGeneratorStrategy implements CodeGeneratorStrategy<Spri
     ].join('\n');
   }
 
-  private generatePlainAsmFile(params: SpritesCodeGeneratorParams): string {
-    const id = toCodeIdentifier(params.name);
-    const hasPadding = (params.spriteFlags & SpriteFlags.Sp1Padding) !== 0;
-    const useMask = (params.spriteFlags & SpriteFlags.UseMask) !== 0;
-    const dataByteCount = calculateSpritesDataByteCount(params, hasPadding, useMask);
+  private generatePlainAsmFile(parameters: SpritesCodeGeneratorParameters): string {
+    const id = toCodeIdentifier(parameters.name);
+    const hasPadding = (parameters.spriteFlags & SpriteFlags.Sp1Padding) !== 0;
+    const useMask = (parameters.spriteFlags & SpriteFlags.UseMask) !== 0;
+    const dataByteCount = calculateSpritesDataByteCount(parameters, hasPadding, useMask);
     const dataSizeComment = buildDataSizeComment(dataByteCount);
 
     const lines: string[] = [dataSizeComment, '; Read-Only Data Section for User Module', 'SECTION rodata_user', ''];
 
-    params.sprites.forEach((sprite, spriteIndex) => {
+    parameters.sprites.forEach((sprite, spriteIndex) => {
       const spriteName = toCodeIdentifier(sprite.name);
       const baseLabel = `_${id}_${spriteName}`;
-      const frameBitmasks = params.spriteBitmasks[spriteIndex] ?? [];
+      const frameBitmasks = parameters.spriteBitmasks[spriteIndex] ?? [];
 
       lines.push(...generateSpriteAsmBody(sprite, frameBitmasks, baseLabel, baseLabel, hasPadding, useMask));
     });

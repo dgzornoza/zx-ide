@@ -9,9 +9,9 @@ import { describe, expect, it } from 'vitest';
 
 import { base64ToBytes, bytesToBase64, readBytesFromFile } from './binary-utils';
 
-function bytesEqual(a: Uint8Array, b: Uint8Array): boolean {
-  if (a.length !== b.length) return false;
-  for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
+function bytesEqual(actual: Uint8Array, expected: Uint8Array): boolean {
+  if (actual.length !== expected.length) return false;
+  for (let index = 0; index < actual.length; index++) if (actual[index] !== expected[index]) return false;
   return true;
 }
 
@@ -34,7 +34,7 @@ describe('base64ToBytes', () => {
 
 describe('round-trip (bytesToBase64 → base64ToBytes)', () => {
   it('returns the original bytes byte-for-byte for a small payload', () => {
-    const original = Uint8Array.from({ length: 16 }, (_, i) => i);
+    const original = Uint8Array.from({ length: 16 }, (_, index) => index);
     const encoded = bytesToBase64(original);
     expect(encoded.length).toBeGreaterThan(0);
     const decoded = base64ToBytes(encoded);
@@ -63,7 +63,7 @@ describe('readBytesFromFile', () => {
   it("forwards a Blob's ArrayBuffer as a Uint8Array", async () => {
     const payload = new Uint8Array([1, 2, 3, 4, 5]);
     const blob = new Blob([payload]);
-    const out = await readBytesFromFile(blob);
-    expect(out).toEqual(payload);
+    const output = await readBytesFromFile(blob);
+    expect(output).toEqual(payload);
   });
 });

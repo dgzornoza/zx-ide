@@ -2,19 +2,19 @@ import { describe, expect, it } from 'vitest';
 
 import { CodeGeneratorStrategy, createCodeGenerator, GeneratedFile } from 'src/domain/code-generation/code-generator-strategy';
 
-interface GreetingParams {
+interface GreetingParameters {
   name: string;
 }
 
-class CGreetingGenerator implements CodeGeneratorStrategy<GreetingParams> {
-  generate(params: GreetingParams): GeneratedFile[] {
-    return [{ fileType: 'c-header', fileName: `${params.name}.h`, content: '' }];
+class CGreetingGenerator implements CodeGeneratorStrategy<GreetingParameters> {
+  generate(parameters: GreetingParameters): GeneratedFile[] {
+    return [{ fileType: 'c-header', fileName: `${parameters.name}.h`, content: '' }];
   }
 }
 
-class AsmGreetingGenerator implements CodeGeneratorStrategy<GreetingParams> {
-  generate(params: GreetingParams): GeneratedFile[] {
-    return [{ fileType: 'asm', fileName: `${params.name}.asm`, content: '' }];
+class AsmGreetingGenerator implements CodeGeneratorStrategy<GreetingParameters> {
+  generate(parameters: GreetingParameters): GeneratedFile[] {
+    return [{ fileType: 'asm', fileName: `${parameters.name}.asm`, content: '' }];
   }
 }
 

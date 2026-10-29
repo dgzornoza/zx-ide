@@ -455,8 +455,8 @@ const normalizeLocale = (value?: string): SupportedLocale => {
   if (!value) {
     return 'en';
   }
-  const lower = value.toLowerCase();
-  if (lower.startsWith('es')) {
+  const lowercaseValue = value.toLowerCase();
+  if (lowercaseValue.startsWith('es')) {
     return 'es';
   }
   return 'en';

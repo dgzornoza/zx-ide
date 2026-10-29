@@ -55,7 +55,7 @@ function setupHarness() {
 import { mount } from '@vue/test-utils';
 
 // jsdom's File has no text(); the composables read .cfg files only through it
-function createCfgFile(content: string): File {
+function createConfigurationFile(content: string): File {
   const file = new File([content], 'graphics.cfg');
   Object.defineProperty(file, 'text', { value: () => Promise.resolve(content) });
   return file;
@@ -93,9 +93,9 @@ describe('useExtractSprites', () => {
     await api.setSourceImage('characters/tileset.zxp', zxpBytes);
 
     expect(mockedConvertZxpFileToImageFile).toHaveBeenCalledTimes(1);
-    const zxpFileArg = mockedConvertZxpFileToImageFile.mock.calls[0][0];
-    expect(zxpFileArg).toBeInstanceOf(File);
-    expect(zxpFileArg.name).toBe('tileset.zxp');
+    const zxpFileArgument = mockedConvertZxpFileToImageFile.mock.calls[0][0];
+    expect(zxpFileArgument).toBeInstanceOf(File);
+    expect(zxpFileArgument.name).toBe('tileset.zxp');
 
     expect(api.currentImageFile.value).toBe(convertedFile);
     expect(api.state.source).toBe('characters/tileset.zxp');
@@ -128,7 +128,7 @@ describe('useExtractSprites', () => {
     const { api } = setupHarness();
     const sprite = { name: 'player', width: 16, height: 16, frames: [{ x: 0, y: 0 }] };
 
-    await api.setMapFile(createCfgFile(JSON.stringify({ type: 'sprites', spriteFlags: 1, sprites: [sprite] })));
+    await api.setMapFile(createConfigurationFile(JSON.stringify({ type: 'sprites', spriteFlags: 1, sprites: [sprite] })));
 
     expect(api.state.sprites).toEqual([{ ...sprite, _id: expect.any(String) }]);
     expect(api.status.value).toBeUndefined();
@@ -139,7 +139,7 @@ describe('useExtractSprites', () => {
     const invalidSprite = { name: 'player', width: 16, height: 16 };
     const spritesBefore = JSON.parse(JSON.stringify(api.state.sprites));
 
-    await api.setMapFile(createCfgFile(JSON.stringify({ type: 'sprites', sprites: [invalidSprite] })));
+    await api.setMapFile(createConfigurationFile(JSON.stringify({ type: 'sprites', sprites: [invalidSprite] })));
 
     expect(api.state.sprites).toEqual(spritesBefore);
     expect(api.status.value?.type).toBe('error');

@@ -73,9 +73,9 @@ describe('bitmapToBytes', () => {
   it('emits sixteen bytes for a 16x8 bitmap (two bytes per row)', () => {
     // 16 pixels wide → ceil(16 / 8) = 2 bytes per row × 8 rows = 16 bytes.
     const bitmap = flatBitmap(16, 8, true);
-    const out = bitmapToBytes(bitmap, 16, 8);
-    expect(out.length).toBe(16);
-    expect(out).toEqual(new Uint8Array(16).fill(0xff));
+    const output = bitmapToBytes(bitmap, 16, 8);
+    expect(output.length).toBe(16);
+    expect(output).toEqual(new Uint8Array(16).fill(0xff));
   });
 });
 
@@ -101,43 +101,43 @@ describe('tileToBytes', () => {
   it('appends a 0xFF attribute byte when all attribute bits are set', () => {
     // flash=1 | bright=1 | paper=7<<3 | ink=7 = 0xFF.
     const bitmap = flatBitmap(8, 8, true);
-    const attr: ZxpColorAttribute = {
+    const attribute: ZxpColorAttribute = {
       flash: true,
       bright: true,
       paper: 7,
       ink: 7,
     };
-    const out = tileToBytes(bitmap, 8, 8, attr);
-    expect(out.length).toBe(9);
-    expect(out[8]).toBe(0xff);
+    const output = tileToBytes(bitmap, 8, 8, attribute);
+    expect(output.length).toBe(9);
+    expect(output[8]).toBe(0xff);
   });
 
   it('appends a 0x00 attribute byte for the minimum attribute', () => {
     const bitmap = flatBitmap(8, 8, false);
-    const attr: ZxpColorAttribute = {
+    const attribute: ZxpColorAttribute = {
       flash: false,
       bright: false,
       paper: 0,
       ink: 0,
     };
-    const out = tileToBytes(bitmap, 8, 8, attr);
-    expect(out.length).toBe(9);
-    expect(out[8]).toBe(0x00);
+    const output = tileToBytes(bitmap, 8, 8, attribute);
+    expect(output.length).toBe(9);
+    expect(output[8]).toBe(0x00);
   });
 });
 
 describe('attributeToByte', () => {
   it.each([
-    { label: 'the flash bit alone', attr: { flash: true, bright: false, paper: 0, ink: 0 }, expected: 0x80 },
-    { label: 'the bright bit alone', attr: { flash: false, bright: true, paper: 0, ink: 0 }, expected: 0x40 },
-    { label: 'the paper bits alone (paper=7)', attr: { flash: false, bright: false, paper: 7, ink: 0 }, expected: 0x38 },
-    { label: 'the ink bits alone (ink=7)', attr: { flash: false, bright: false, paper: 0, ink: 7 }, expected: 0x07 },
-    { label: 'every bit set', attr: { flash: true, bright: true, paper: 7, ink: 7 }, expected: 0xff },
-    { label: 'no bits set', attr: { flash: false, bright: false, paper: 0, ink: 0 }, expected: 0x00 },
-    { label: 'paper > 7 is masked to 0', attr: { flash: false, bright: false, paper: 8, ink: 0 }, expected: 0x00 },
-    { label: 'ink > 7 is masked to 0', attr: { flash: false, bright: false, paper: 0, ink: 8 }, expected: 0x00 },
-  ])('returns $expected when $label', ({ attr, expected }) => {
-    expect(attributeToByte(attr)).toBe(expected);
+    { label: 'the flash bit alone', attribute: { flash: true, bright: false, paper: 0, ink: 0 }, expected: 0x80 },
+    { label: 'the bright bit alone', attribute: { flash: false, bright: true, paper: 0, ink: 0 }, expected: 0x40 },
+    { label: 'the paper bits alone (paper=7)', attribute: { flash: false, bright: false, paper: 7, ink: 0 }, expected: 0x38 },
+    { label: 'the ink bits alone (ink=7)', attribute: { flash: false, bright: false, paper: 0, ink: 7 }, expected: 0x07 },
+    { label: 'every bit set', attribute: { flash: true, bright: true, paper: 7, ink: 7 }, expected: 0xff },
+    { label: 'no bits set', attribute: { flash: false, bright: false, paper: 0, ink: 0 }, expected: 0x00 },
+    { label: 'paper > 7 is masked to 0', attribute: { flash: false, bright: false, paper: 8, ink: 0 }, expected: 0x00 },
+    { label: 'ink > 7 is masked to 0', attribute: { flash: false, bright: false, paper: 0, ink: 8 }, expected: 0x00 },
+  ])('returns $expected when $label', ({ attribute, expected }) => {
+    expect(attributeToByte(attribute)).toBe(expected);
   });
 });
 
@@ -145,14 +145,14 @@ describe('buildTilesBinary', () => {
   it('emits the bitmap bytes only when no attributes are supplied', () => {
     // 2 tiles × 8 bytes each = 16 bytes.
     const inkBitmaps = [flatBitmap(8, 8, true), flatBitmap(8, 8, false)];
-    const out = buildTilesBinary({
+    const output = buildTilesBinary({
       inkBitmaps,
       tileWidth: 8,
       tileHeight: 8,
       includedIndices: [0, 1],
     });
-    expect(out.length).toBe(16);
-    expect(out).toEqual(new Uint8Array([...new Array(8).fill(0xff), ...new Array(8).fill(0x00)]));
+    expect(output.length).toBe(16);
+    expect(output).toEqual(new Uint8Array([...new Array(8).fill(0xff), ...new Array(8).fill(0x00)]));
   });
 
   it('appends one attribute byte per included tile when attributes are supplied', () => {
@@ -164,55 +164,55 @@ describe('buildTilesBinary', () => {
       { flash: false, bright: false, paper: 0, ink: 7 },
       { flash: false, bright: false, paper: 7, ink: 0 },
     ];
-    const out = buildTilesBinary({
+    const output = buildTilesBinary({
       inkBitmaps,
       tileWidth: 8,
       tileHeight: 8,
       attributes,
       includedIndices: [0, 1],
     });
-    expect(out.length).toBe(18);
+    expect(output.length).toBe(18);
     // Bytes 0..15 are the two tile bitmaps (all 0xFF); bytes 16..17 are the
     // attribute bytes.
-    expect(out[16]).toBe(0x07);
-    expect(out[17]).toBe(0x38);
+    expect(output[16]).toBe(0x07);
+    expect(output[17]).toBe(0x38);
   });
 
   it('skips tiles whose index is not in `includedIndices`', () => {
     // tile 1 is excluded → output is only tile 0 + tile 2 (8 + 8 bytes).
     const inkBitmaps = [flatBitmap(8, 8, true), flatBitmap(8, 8, false), flatBitmap(8, 8, true)];
-    const out = buildTilesBinary({
+    const output = buildTilesBinary({
       inkBitmaps,
       tileWidth: 8,
       tileHeight: 8,
       includedIndices: [0, 2],
     });
-    expect(out.length).toBe(16);
-    expect(out).toEqual(new Uint8Array([...new Array(8).fill(0xff), ...new Array(8).fill(0xff)]));
+    expect(output.length).toBe(16);
+    expect(output).toEqual(new Uint8Array([...new Array(8).fill(0xff), ...new Array(8).fill(0xff)]));
   });
 
   it('returns an empty Uint8Array when `includedIndices` is empty', () => {
     const inkBitmaps = [flatBitmap(8, 8, true)];
-    const out = buildTilesBinary({
+    const output = buildTilesBinary({
       inkBitmaps,
       tileWidth: 8,
       tileHeight: 8,
       includedIndices: [],
     });
-    expect(out).toEqual(new Uint8Array(0));
+    expect(output).toEqual(new Uint8Array(0));
   });
 
   it('emits two bytes per row for a 16-pixel-wide tile', () => {
     // ceil(16 / 8) × 8 = 16 bytes per tile; one included tile → 16 bytes.
     const inkBitmaps = [flatBitmap(16, 8, true)];
-    const out = buildTilesBinary({
+    const output = buildTilesBinary({
       inkBitmaps,
       tileWidth: 16,
       tileHeight: 8,
       includedIndices: [0],
     });
-    expect(out.length).toBe(16);
-    expect(out).toEqual(new Uint8Array(16).fill(0xff));
+    expect(output.length).toBe(16);
+    expect(output).toEqual(new Uint8Array(16).fill(0xff));
   });
 
   it('falls back to an empty bitmap when `inkBitmaps[tileIndex]` is undefined (output keeps the allocated slot, zero-padded)', () => {
@@ -221,14 +221,14 @@ describe('buildTilesBinary', () => {
     // bytes (24 here), and the slot reserved for the missing tile is left as
     // zero — it is NOT trimmed from the returned buffer.
     const inkBitmaps: boolean[][] = [flatBitmap(8, 8, true), undefined as unknown as boolean[], flatBitmap(8, 8, true)];
-    const out = buildTilesBinary({
+    const output = buildTilesBinary({
       inkBitmaps,
       tileWidth: 8,
       tileHeight: 8,
       includedIndices: [0, 1, 2],
     });
-    expect(out.length).toBe(24);
-    expect(out).toEqual(new Uint8Array([...new Array(8).fill(0xff), ...new Array(8).fill(0x00), ...new Array(8).fill(0xff)]));
+    expect(output.length).toBe(24);
+    expect(output).toEqual(new Uint8Array([...new Array(8).fill(0xff), ...new Array(8).fill(0x00), ...new Array(8).fill(0xff)]));
   });
 });
 
@@ -237,37 +237,39 @@ describe('buildSpritesBinary', () => {
 
   it('emits eight data bytes for one 8x8 frame with no mask and no padding', () => {
     const spriteBitmasks = [[flatBitmap(8, 8, true)]];
-    const out = buildSpritesBinary({
+    const output = buildSpritesBinary({
       sprites: [sprite],
       spriteBitmasks,
       hasPadding: false,
       useMask: false,
     });
-    expect(out).toEqual(new Uint8Array(8).fill(0xff));
+    expect(output).toEqual(new Uint8Array(8).fill(0xff));
   });
 
   it('emits sixteen (mask, data) bytes when `useMask` is true', () => {
     // For all-ink pixels: mask = ~0xFF & 0xFF = 0x00, data = 0xFF → 8 pairs.
     const spriteBitmasks = [[flatBitmap(8, 8, true)]];
-    const out = buildSpritesBinary({
+    const output = buildSpritesBinary({
       sprites: [sprite],
       spriteBitmasks,
       hasPadding: false,
       useMask: true,
     });
-    expect(out.length).toBe(16);
-    expect(out).toEqual(new Uint8Array([0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff]));
+    expect(output.length).toBe(16);
+    expect(output).toEqual(
+      new Uint8Array([0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff, 0x00, 0xff])
+    );
   });
 
   it('emits 23 bytes for one 8x8 frame with SP1 padding (7 top + 8 + 8 bottom)', () => {
     const spriteBitmasks = [[flatBitmap(8, 8, false)]];
-    const out = buildSpritesBinary({
+    const output = buildSpritesBinary({
       sprites: [sprite],
       spriteBitmasks,
       hasPadding: true,
       useMask: false,
     });
-    expect(out.length).toBe(7 + 8 + 8);
+    expect(output.length).toBe(7 + 8 + 8);
   });
 
   it('emits 39 bytes for one sprite with two 8x8 frames and SP1 padding', () => {
@@ -281,13 +283,13 @@ describe('buildSpritesBinary', () => {
         { x: 0, y: 0 },
       ],
     };
-    const out = buildSpritesBinary({
+    const output = buildSpritesBinary({
       sprites: [twoFrameSprite],
       spriteBitmasks,
       hasPadding: true,
       useMask: false,
     });
-    expect(out.length).toBe(7 + 8 + 8 + 8 + 8);
+    expect(output.length).toBe(7 + 8 + 8 + 8 + 8);
   });
 
   it('applies the 7-row top padding before the first frame of every sprite (not only the first sprite)', () => {
@@ -297,13 +299,13 @@ describe('buildSpritesBinary', () => {
     // ambiguously; the implementation matches the SP1 convention of padding
     // every sprite independently.)
     const spriteBitmasks = [[flatBitmap(8, 8, false)], [flatBitmap(8, 8, false)]];
-    const out = buildSpritesBinary({
+    const output = buildSpritesBinary({
       sprites: [sprite, sprite],
       spriteBitmasks,
       hasPadding: true,
       useMask: false,
     });
-    expect(out.length).toBe(7 + 8 + 8 + 7 + 8 + 8);
+    expect(output.length).toBe(7 + 8 + 8 + 7 + 8 + 8);
   });
 });
 
@@ -351,15 +353,15 @@ describe('buildAttributeBytes', () => {
       { flash: false, bright: false, paper: 0, ink: 0 },
       { flash: true, bright: false, paper: 0, ink: 0 },
     ];
-    const out = buildAttributeBytes(attributes, [0, 2]);
-    expect(out).toEqual(new Uint8Array([0x07, 0x80]));
+    const output = buildAttributeBytes(attributes, [0, 2]);
+    expect(output).toEqual(new Uint8Array([0x07, 0x80]));
   });
 
   it('falls back to ZX Spectrum defaults (paper=7, ink=0) when the attribute is missing', () => {
     // paper=7<<3 | ink=0 = 0x38.
     const attributes: ZxpColorAttribute[] = [{ flash: false, bright: false, paper: 0, ink: 0 }, undefined as unknown as ZxpColorAttribute];
-    const out = buildAttributeBytes(attributes, [0, 1]);
-    expect(out).toEqual(new Uint8Array([0x00, 0x38]));
+    const output = buildAttributeBytes(attributes, [0, 1]);
+    expect(output).toEqual(new Uint8Array([0x00, 0x38]));
   });
 
   it('returns an empty Uint8Array when `includedIndices` is empty', () => {

@@ -7,7 +7,7 @@ import {
   buildMapFile,
   calculateTilesDataByteCount,
   getIncludedTileIndices,
-  TilesCodeGeneratorParams,
+  TilesCodeGeneratorParameters,
 } from 'src/domain/code-generation/tiles/tiles-code-generation';
 
 /**
@@ -18,14 +18,14 @@ import {
  * pure-ASM sjasmplus target. Produces a `.cfg` file and a single
  * sjasmplus assembly file (`.asm`).
  */
-export class AsmTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesCodeGeneratorParams> {
-  generate(params: TilesCodeGeneratorParams): GeneratedFile[] {
-    const { name: baseName, tiles } = params;
+export class AsmTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<TilesCodeGeneratorParameters> {
+  generate(parameters: TilesCodeGeneratorParameters): GeneratedFile[] {
+    const { name: baseName, tiles } = parameters;
     const id = toCodeIdentifier(baseName);
     const hasAttributes = (tiles.attributes?.length ?? 0) > 0;
-    const includedIndices = getIncludedTileIndices(params);
+    const includedIndices = getIncludedTileIndices(parameters);
 
-    const dataByteCount = calculateTilesDataByteCount(params, includedIndices);
+    const dataByteCount = calculateTilesDataByteCount(parameters, includedIndices);
     const dataSizeComment = buildDataSizeComment(dataByteCount);
 
     const rawBytes = buildTilesBinary({
@@ -48,13 +48,13 @@ export class AsmTilesCodeGeneratorStrategy implements CodeGeneratorStrategy<Tile
     });
 
     if (hasAttributes) {
-      const attrBytes = buildAttributeBytes(tiles.attributes!, includedIndices);
-      lines.push('', `${id}_attributes:`, ...formatAttributeBytesAsDefb(attrBytes));
+      const attributeBytes = buildAttributeBytes(tiles.attributes!, includedIndices);
+      lines.push('', `${id}_attributes:`, ...formatAttributeBytesAsDefb(attributeBytes));
     }
 
     lines.push('');
     return [
-      buildMapFile(params),
+      buildMapFile(parameters),
       {
         fileType: 'asm',
         fileName: `${baseName}.asm`,

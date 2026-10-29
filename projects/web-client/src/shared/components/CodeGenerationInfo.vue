@@ -7,7 +7,7 @@ const props = defineProps<{
   codeGenerationType: CodeGenerationType;
 }>();
 
-const tp = createTranslationPrefixFn(props.translationNamespace);
+const translate = createTranslationPrefixFn(props.translationNamespace);
 
 /** ZX0 compression only applies to C (z88dk) projects. */
 const showCompression = props.codeGenerationType === 'c';
@@ -18,21 +18,21 @@ const showCompression = props.codeGenerationType === 'c';
     <dl class="space-y-1 text-sm">
       <div class="flex items-baseline gap-3">
         <dt class="w-32 shrink-0 text-xs font-semibold">
-          {{ tp('projectTypeLabel') }}
+          {{ translate('projectTypeLabel') }}
         </dt>
         <dd class="font-mono">
-          {{ codeGenerationType === 'c' ? tp('projectTypeC') : tp('projectTypeAsm') }}
+          {{ codeGenerationType === 'c' ? translate('projectTypeC') : translate('projectTypeAsm') }}
         </dd>
       </div>
       <div v-if="showCompression" class="flex items-baseline gap-3">
         <dt class="w-32 shrink-0 text-xs font-semibold">
-          {{ tp('compressionLabel') }}
+          {{ translate('compressionLabel') }}
         </dt>
         <dd class="font-mono">ZX0</dd>
       </div>
     </dl>
     <p class="mt-2 text-xs text-[color:var(--ink-soft)]">
-      {{ tp('projectTypeReadOnlyHint') }}
+      {{ translate('projectTypeReadOnlyHint') }}
     </p>
   </div>
 </template>

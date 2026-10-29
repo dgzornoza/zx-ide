@@ -4,7 +4,7 @@ import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import TileGallery from 'src/shared/components/TileGallery.vue';
 import { TilesModel } from 'src/shared/models/tilesDefinition';
 
-const tp = createTranslationPrefixFn('extract-tiles');
+const translate = createTranslationPrefixFn('extract-tiles');
 
 defineProps<{
   tiles: TilesModel;
@@ -29,16 +29,16 @@ const updateTileSize = (event: Event, setTileSize: (value: number) => void) => {
 <template>
   <section class="w-full border border-[color:var(--border)] bg-[color:var(--card)] p-4">
     <h2 class="text-sm font-semibold text-[color:var(--ink-soft)]">
-      {{ tp('sectionTiles') }}
+      {{ translate('sectionTiles') }}
     </h2>
     <p class="mt-2 text-xs text-[color:var(--ink-soft)]">
-      {{ tp('tilesHint') }}
+      {{ translate('tilesHint') }}
     </p>
 
     <!-- tile size inputs + count indicator -->
     <div class="mt-4 flex flex-wrap items-end gap-4">
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold" for="tileWidth">{{ tp('tileWidthLabel') }}</label>
+        <label class="text-xs font-semibold" for="tileWidth">{{ translate('tileWidthLabel') }}</label>
         <input
           id="tileWidth"
           :value="tileWidth"
@@ -51,7 +51,7 @@ const updateTileSize = (event: Event, setTileSize: (value: number) => void) => {
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold" for="tileHeight">{{ tp('tileHeightLabel') }}</label>
+        <label class="text-xs font-semibold" for="tileHeight">{{ translate('tileHeightLabel') }}</label>
         <input
           id="tileHeight"
           :value="tileHeight"
@@ -64,7 +64,7 @@ const updateTileSize = (event: Event, setTileSize: (value: number) => void) => {
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label class="text-xs font-semibold" for="tilesCount">{{ tp('tilesCountLabel') }}</label>
+        <label class="text-xs font-semibold" for="tilesCount">{{ translate('tilesCountLabel') }}</label>
         <span
           id="tilesCount"
           class="inline-flex items-center border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-sm text-[color:var(--input-ink)]"
@@ -79,8 +79,8 @@ const updateTileSize = (event: Event, setTileSize: (value: number) => void) => {
       v-if="tiles.count > 0"
       :previews="tiles.previews"
       :excluded-indices="tiles.excludedSet"
-      :action-tooltip="tp('tileExcludeTooltip')"
-      :undo-tooltip="tp('tileIncludeTooltip')"
+      :action-tooltip="translate('tileExcludeTooltip')"
+      :undo-tooltip="translate('tileIncludeTooltip')"
       @tile-action="emit('toggleTileExclusion', $event)"
     />
   </section>

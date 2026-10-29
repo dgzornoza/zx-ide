@@ -222,18 +222,18 @@ describe('useAssetsBridge', () => {
       contentBase64: btoa(binary),
     });
 
-    let aSettled = false;
+    let isPromiseASettled = false;
     promiseA.then(
       () => {
-        aSettled = true;
+        isPromiseASettled = true;
       },
       () => {
-        aSettled = true;
+        isPromiseASettled = true;
       }
     );
     await expect(promiseB).resolves.toEqual(bytesB);
     await Promise.resolve();
-    expect(aSettled).toBe(false);
+    expect(isPromiseASettled).toBe(false);
 
     // Now deliver A's response — A resolves.
     const bytesA = new Uint8Array([0x01, 0x02]);

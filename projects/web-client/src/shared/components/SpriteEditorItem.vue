@@ -53,7 +53,7 @@ const emitInteger = (event: Event, minimum: number, emitValue: (value: number) =
   if (value !== undefined) emitValue(value);
 };
 
-const tp = createTranslationPrefixFn(props.translationNamespace);
+const translate = createTranslationPrefixFn(props.translationNamespace);
 
 // ─── Frame preview thumbnails ─────────────────────────────────────────────
 
@@ -129,12 +129,12 @@ onBeforeUnmount(() => {
       <!-- col1: Name + optional active badge -->
       <div class="flex flex-col gap-1">
         <div class="flex items-center gap-2">
-          <label :for="`sprite-name-${spriteIndex}`" class="text-xs font-semibold">{{ tp('spriteNameLabel') }}</label>
+          <label :for="`sprite-name-${spriteIndex}`" class="text-xs font-semibold">{{ translate('spriteNameLabel') }}</label>
           <span
             v-if="isActive"
             class="bg-[color:var(--button-bg)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[color:var(--button-ink)]"
           >
-            {{ tp('activeSpriteBadge') }}
+            {{ translate('activeSpriteBadge') }}
           </span>
         </div>
         <input
@@ -149,7 +149,7 @@ onBeforeUnmount(() => {
 
       <!-- col2: Width -->
       <div class="flex flex-col gap-1">
-        <label :for="`sprite-width-${spriteIndex}`" class="text-xs font-semibold">{{ tp('spriteWidthLabel') }}</label>
+        <label :for="`sprite-width-${spriteIndex}`" class="text-xs font-semibold">{{ translate('spriteWidthLabel') }}</label>
         <input
           :id="`sprite-width-${spriteIndex}`"
           :value="sprite.width"
@@ -164,7 +164,7 @@ onBeforeUnmount(() => {
 
       <!-- col3: Height -->
       <div class="flex flex-col gap-1">
-        <label :for="`sprite-height-${spriteIndex}`" class="text-xs font-semibold">{{ tp('spriteHeightLabel') }}</label>
+        <label :for="`sprite-height-${spriteIndex}`" class="text-xs font-semibold">{{ translate('spriteHeightLabel') }}</label>
         <input
           :id="`sprite-height-${spriteIndex}`"
           :value="sprite.height"
@@ -183,7 +183,7 @@ onBeforeUnmount(() => {
         type="button"
         @click="emit('remove')"
       >
-        {{ tp('remove') }}
+        {{ translate('remove') }}
       </button>
 
       <!-- col5: Animation panel -->
@@ -192,8 +192,8 @@ onBeforeUnmount(() => {
         :frame-count="sprite.frames.length"
         :current-frame-index="currentFrameIndex"
         :is-playing="isPlaying"
-        :play-title="tp('playAnimation')"
-        :stop-title="tp('stopAnimation')"
+        :play-title="translate('playAnimation')"
+        :stop-title="translate('stopAnimation')"
         @play="play"
         @stop="stop"
       />
@@ -202,12 +202,12 @@ onBeforeUnmount(() => {
       <template v-for="(frame, frameIndex) in sprite.frames" :key="`sprite-${spriteIndex}-frame-${frameIndex}`">
         <!-- col1: Frame label -->
         <div class="self-start pr-2 text-right text-xs font-bold text-[color:var(--ink-soft)]">
-          {{ tp('frameLabel') }} {{ frameIndex + 1 }}
+          {{ translate('frameLabel') }} {{ frameIndex + 1 }}
         </div>
 
         <!-- col2: X (or empty placeholder when showFrameCoords=false) -->
         <div v-if="showFrameCoords" class="flex flex-col gap-1">
-          <label :for="`frame-x-${spriteIndex}-${frameIndex}`" class="text-xs font-semibold">{{ tp('xLabel') }}</label>
+          <label :for="`frame-x-${spriteIndex}-${frameIndex}`" class="text-xs font-semibold">{{ translate('xLabel') }}</label>
           <input
             :id="`frame-x-${spriteIndex}-${frameIndex}`"
             :value="frame.x"
@@ -215,7 +215,7 @@ onBeforeUnmount(() => {
             placeholder="x"
             type="number"
             min="0"
-            @input="emitInteger($event, COORDINATE_MINIMUM, (x) => emit('update-frame', frameIndex, { x }))"
+            @input="emitInteger($event, COORDINATE_MINIMUM, (coordinate) => emit('update-frame', frameIndex, { x: coordinate }))"
             @change="showInputValue($event, frame.x)"
           />
         </div>
@@ -223,7 +223,7 @@ onBeforeUnmount(() => {
 
         <!-- col3: Y (or empty placeholder when showFrameCoords=false) -->
         <div v-if="showFrameCoords" class="flex flex-col gap-1">
-          <label :for="`frame-y-${spriteIndex}-${frameIndex}`" class="text-xs font-semibold">{{ tp('yLabel') }}</label>
+          <label :for="`frame-y-${spriteIndex}-${frameIndex}`" class="text-xs font-semibold">{{ translate('yLabel') }}</label>
           <input
             :id="`frame-y-${spriteIndex}-${frameIndex}`"
             :value="frame.y"
@@ -231,7 +231,7 @@ onBeforeUnmount(() => {
             placeholder="y"
             type="number"
             min="0"
-            @input="emitInteger($event, COORDINATE_MINIMUM, (y) => emit('update-frame', frameIndex, { y }))"
+            @input="emitInteger($event, COORDINATE_MINIMUM, (coordinate) => emit('update-frame', frameIndex, { y: coordinate }))"
             @change="showInputValue($event, frame.y)"
           />
         </div>
@@ -243,7 +243,7 @@ onBeforeUnmount(() => {
           type="button"
           @click="emit('remove-frame', frameIndex)"
         >
-          {{ tp('remove') }}
+          {{ translate('remove') }}
         </button>
 
         <!-- col5: Frame thumbnail -->
@@ -260,7 +260,7 @@ onBeforeUnmount(() => {
         type="button"
         @click="emit('add-frame')"
       >
-        {{ tp('addFrame') }}
+        {{ translate('addFrame') }}
       </button>
     </div>
   </div>

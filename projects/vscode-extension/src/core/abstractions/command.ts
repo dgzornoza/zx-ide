@@ -8,7 +8,7 @@ import * as vscode from 'vscode';
  * base class for declare commands
  */
 @injectable()
-export abstract class Command<TParams> extends Disposable {
+export abstract class Command<TParameters> extends Disposable {
   protected _isEnabled: boolean;
 
   protected abstract getCommandName(): CommandName;
@@ -20,7 +20,7 @@ export abstract class Command<TParams> extends Disposable {
     this._subscriptions.push(vscode.commands.registerCommand(this.getCommandName(), () => this.execute()));
   }
 
-  public abstract execute(...params: TParams[]): void | Promise<void>;
+  public abstract execute(...parameters: TParameters[]): void | Promise<void>;
 
   public isEnabled(): boolean {
     return this._isEnabled;

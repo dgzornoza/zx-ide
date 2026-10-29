@@ -1,6 +1,6 @@
 import { injectable } from 'inversify';
 import 'reflect-metadata';
-import * as vsc from 'vscode';
+import * as vscode from 'vscode';
 
 export interface IDisposable {
   dispose(): void;
@@ -11,7 +11,7 @@ export interface IDisposable {
  */
 @injectable()
 export abstract class Disposable implements IDisposable {
-  protected _subscriptions: vsc.Disposable[];
+  protected _subscriptions: vscode.Disposable[];
 
   constructor() {
     this._subscriptions = [];

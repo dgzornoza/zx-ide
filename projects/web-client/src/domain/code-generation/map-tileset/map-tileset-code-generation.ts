@@ -1,7 +1,7 @@
 import type { MapTilesetMetadata } from 'src/extract-map-tileset/models/mapTilesetDefinition';
 
 /** Parameters for map tileset code-generation strategies. */
-export interface MapCodeGeneratorParams {
+export interface MapCodeGeneratorParameters {
   /** Filename without extension (e.g. `"playerMap"`). */
   name: string;
   /** Metadata extracted from the JSON source document. */
@@ -20,7 +20,7 @@ export function buildHeader(name: string, mapWidth: number, mapHeight: number): 
 }
 
 /** Returns total binary data size (in bytes) for map tile indices. */
-export function calculateMapDataByteCount(params: MapCodeGeneratorParams): number {
-  const { mapWidth, mapHeight } = params.metadata;
+export function calculateMapDataByteCount(parameters: MapCodeGeneratorParameters): number {
+  const { mapWidth, mapHeight } = parameters.metadata;
   return mapWidth * mapHeight;
 }

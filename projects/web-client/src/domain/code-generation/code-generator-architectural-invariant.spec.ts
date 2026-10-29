@@ -27,12 +27,12 @@ import { makeMapModel, makeSpriteModel, makeTilesModel } from 'src/test-utils/bu
 function parseDefbLines(text: string): Uint8Array {
   const bytes: number[] = [];
   for (const line of text.split('\n')) {
-    const m = line.match(/defb\s+(.+)$/);
-    if (!m) continue;
-    for (const token of m[1].split(',')) {
-      const t = token.trim();
-      if (t.startsWith('$')) bytes.push(parseInt(t.slice(1), 16));
-      else bytes.push(parseInt(t, 10));
+    const defbMatch = line.match(/defb\s+(.+)$/);
+    if (!defbMatch) continue;
+    for (const token of defbMatch[1].split(',')) {
+      const trimmedToken = token.trim();
+      if (trimmedToken.startsWith('$')) bytes.push(parseInt(trimmedToken.slice(1), 16));
+      else bytes.push(parseInt(trimmedToken, 10));
     }
   }
   return new Uint8Array(bytes);
@@ -41,7 +41,7 @@ function parseDefbLines(text: string): Uint8Array {
 /** Joins generated files into a { fileName → content } map. */
 function filesByName(entries: Array<{ fileName: string; content: string }>): Record<string, string> {
   const map: Record<string, string> = {};
-  for (const e of entries) map[e.fileName] = e.content;
+  for (const entry of entries) map[entry.fileName] = entry.content;
   return map;
 }
 
@@ -72,11 +72,11 @@ describe('CTilesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin', () 
     });
 
     const asmBytes = parseDefbLines(plainFiles['hud_tiles.asm']);
-    const binBytes = decompress(base64ToBytes(compressedFiles['hud_tiles.bin']));
+    const binaryBytes = decompress(base64ToBytes(compressedFiles['hud_tiles.bin']));
 
     expect(asmBytes).toEqual(rawBytes);
-    expect(binBytes).toEqual(rawBytes);
-    expect(asmBytes).toEqual(binBytes);
+    expect(binaryBytes).toEqual(rawBytes);
+    expect(asmBytes).toEqual(binaryBytes);
   });
 });
 
@@ -85,15 +85,15 @@ describe('CSpritesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin', (
     const sprite = makeSpriteModel();
     const spriteBitmasks = [[new Array(64).fill(true)]];
 
-    const params = {
+    const parameters = {
       name: 'player',
       sprites: [sprite],
       spriteFlags: 0,
       spriteBitmasks,
     };
 
-    const plainFiles = filesByName(new CSpritesCodeGeneratorStrategy().generate(params));
-    const compressedFiles = filesByName(new CSpritesCodeGeneratorStrategy().generate({ ...params, compressed: true }));
+    const plainFiles = filesByName(new CSpritesCodeGeneratorStrategy().generate(parameters));
+    const compressedFiles = filesByName(new CSpritesCodeGeneratorStrategy().generate({ ...parameters, compressed: true }));
 
     const rawBytes = buildSpritesBinary({
       sprites: [{ width: 8, height: 8, frames: [{ x: 0, y: 0 }] }],
@@ -103,32 +103,32 @@ describe('CSpritesCodeGeneratorStrategy: plain defb ≡ ZX0-decompressed bin', (
     });
 
     const asmBytes = parseDefbLines(plainFiles['player.asm']);
-    const binBytes = decompress(base64ToBytes(compressedFiles['player.bin']));
+    const binaryBytes = decompress(base64ToBytes(compressedFiles['player.bin']));
 
     expect(asmBytes).toEqual(rawBytes);
-    expect(binBytes).toEqual(rawBytes);
-    expect(asmBytes).toEqual(binBytes);
+    expect(binaryBytes).toEqual(rawBytes);
+    expect(asmBytes).toEqual(binaryBytes);
   });
 });
 
 describe('CMapCodeGenerator: plain defb ≡ ZX0-decompressed bin', () => {
   it('produces byte-identical payloads across plain .asm, compressed .bin and buildMapIndicesBinary', () => {
-    const params = {
+    const parameters = {
       name: 'hud_map',
       metadata: makeMapModel(),
       tileIndices: [1, 2, 3, 4, 5, 6, 7, 8],
     };
 
-    const plainFiles = filesByName(new CMapCodeGenerator().generate(params));
-    const compressedFiles = filesByName(new CMapCodeGenerator().generate({ ...params, compressed: true }));
+    const plainFiles = filesByName(new CMapCodeGenerator().generate(parameters));
+    const compressedFiles = filesByName(new CMapCodeGenerator().generate({ ...parameters, compressed: true }));
 
-    const rawBytes = buildMapIndicesBinary(params.tileIndices);
+    const rawBytes = buildMapIndicesBinary(parameters.tileIndices);
 
     const asmBytes = parseDefbLines(plainFiles['hud_map.asm']);
-    const binBytes = decompress(base64ToBytes(compressedFiles['hud_map.bin']));
+    const binaryBytes = decompress(base64ToBytes(compressedFiles['hud_map.bin']));
 
     expect(asmBytes).toEqual(rawBytes);
-    expect(binBytes).toEqual(rawBytes);
-    expect(asmBytes).toEqual(binBytes);
+    expect(binaryBytes).toEqual(rawBytes);
+    expect(asmBytes).toEqual(binaryBytes);
   });
 });

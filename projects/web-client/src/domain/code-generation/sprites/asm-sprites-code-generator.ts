@@ -6,7 +6,7 @@ import {
   buildMapFile,
   calculateSpritesDataByteCount,
   generateSpriteAsmBody,
-  SpritesCodeGeneratorParams,
+  SpritesCodeGeneratorParameters,
 } from 'src/domain/code-generation/sprites/sprites-code-generation';
 
 /**
@@ -14,30 +14,30 @@ import {
  * Produces a `.cfg` file and a single sjasmplus assembly file (`.asm`)
  * with plain labels and `defb @XXXXXXXX` binary sprite data.
  */
-export class AsmSpritesCodeGeneratorStrategy implements CodeGeneratorStrategy<SpritesCodeGeneratorParams> {
-  generate(params: SpritesCodeGeneratorParams): GeneratedFile[] {
-    const id = toCodeIdentifier(params.name);
-    const hasPadding = (params.spriteFlags & SpriteFlags.Sp1Padding) !== 0;
-    const useMask = (params.spriteFlags & SpriteFlags.UseMask) !== 0;
+export class AsmSpritesCodeGeneratorStrategy implements CodeGeneratorStrategy<SpritesCodeGeneratorParameters> {
+  generate(parameters: SpritesCodeGeneratorParameters): GeneratedFile[] {
+    const id = toCodeIdentifier(parameters.name);
+    const hasPadding = (parameters.spriteFlags & SpriteFlags.Sp1Padding) !== 0;
+    const useMask = (parameters.spriteFlags & SpriteFlags.UseMask) !== 0;
 
-    const dataByteCount = calculateSpritesDataByteCount(params, hasPadding, useMask);
+    const dataByteCount = calculateSpritesDataByteCount(parameters, hasPadding, useMask);
     const dataSizeComment = buildDataSizeComment(dataByteCount);
 
     const lines: string[] = [dataSizeComment];
 
-    params.sprites.forEach((sprite, spriteIndex) => {
+    parameters.sprites.forEach((sprite, spriteIndex) => {
       const spriteName = toCodeIdentifier(sprite.name);
       const baseLabel = `${id}_${spriteName}`;
-      const frameBitmasks = params.spriteBitmasks[spriteIndex] ?? [];
+      const frameBitmasks = parameters.spriteBitmasks[spriteIndex] ?? [];
 
       lines.push(...generateSpriteAsmBody(sprite, frameBitmasks, baseLabel, undefined, hasPadding, useMask));
     });
 
     return [
-      buildMapFile(params),
+      buildMapFile(parameters),
       {
         fileType: 'asm',
-        fileName: `${params.name}.asm`,
+        fileName: `${parameters.name}.asm`,
         content: lines.join('\n'),
       },
     ];

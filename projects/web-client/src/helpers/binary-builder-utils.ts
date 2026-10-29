@@ -22,11 +22,11 @@ export function bitmapRowToBytes(inkBitmap: boolean[], rowOffset: number, width:
   const bytesPerRow = Math.ceil(width / 8);
   const bytes = new Uint8Array(bytesPerRow);
 
-  for (let col = 0; col < width; col++) {
-    if (!inkBitmap[rowOffset + col]) continue; // skip paper pixels
+  for (let column = 0; column < width; column++) {
+    if (!inkBitmap[rowOffset + column]) continue; // skip paper pixels
 
-    const byteIndex = Math.trunc(col / 8);
-    const bitIndex = col % 8;
+    const byteIndex = Math.trunc(column / 8);
+    const bitIndex = column % 8;
     // MSB = leftmost pixel → shift by (7 - bitIndex)
     bytes[byteIndex] |= 1 << (7 - bitIndex);
   }
@@ -42,22 +42,22 @@ export function bitmapRowToBytes(inkBitmap: boolean[], rowOffset: number, width:
  */
 export function bitmapToBytes(inkBitmap: boolean[], width: number, height: number): Uint8Array {
   const bytesPerRow = Math.ceil(width / 8);
-  const out = new Uint8Array(bytesPerRow * height);
+  const output = new Uint8Array(bytesPerRow * height);
 
   for (let row = 0; row < height; row++) {
     const rowBytes = bitmapRowToBytes(inkBitmap, row * width, width);
-    out.set(rowBytes, row * bytesPerRow);
+    output.set(rowBytes, row * bytesPerRow);
   }
 
-  return out;
+  return output;
 }
 
 /**
  * Converts a single 8-pixel column of a row-major ink bitmap into one byte.
  */
-export function columnBitmapToByte(inkBitmap: boolean[], width: number, row: number, colIndex: number): number {
+export function columnBitmapToByte(inkBitmap: boolean[], width: number, row: number, columnIndex: number): number {
   const bytes = bitmapRowToBytes(inkBitmap, row * width, width);
-  return bytes[colIndex] ?? 0;
+  return bytes[columnIndex] ?? 0;
 }
 
 /**
@@ -68,10 +68,10 @@ export function tileToBytes(inkBitmap: boolean[], width: number, height: number,
   const bitmap = bitmapToBytes(inkBitmap, width, height);
   if (!attribute) return bitmap;
 
-  const out = new Uint8Array(bitmap.length + 1);
-  out.set(bitmap, 0);
-  out[bitmap.length] = attributeToByte(attribute);
-  return out;
+  const output = new Uint8Array(bitmap.length + 1);
+  output.set(bitmap, 0);
+  output[bitmap.length] = attributeToByte(attribute);
+  return output;
 }
 
 /**
@@ -92,19 +92,19 @@ export function attributeToByte(attribute: ZxpColorAttribute): number {
  *
  * Tiles at indices not in `includedIndices` are skipped.
  */
-export function buildTilesBinary(params: {
+export function buildTilesBinary(parameters: {
   inkBitmaps: boolean[][];
   tileWidth: number;
   tileHeight: number;
   attributes?: ZxpColorAttribute[];
   includedIndices: number[];
 }): Uint8Array {
-  const { inkBitmaps, tileWidth, tileHeight, attributes, includedIndices } = params;
+  const { inkBitmaps, tileWidth, tileHeight, attributes, includedIndices } = parameters;
 
   const bytesPerTile = Math.ceil(tileWidth / 8) * tileHeight;
   const hasAttributes = Boolean(attributes && attributes.length > 0);
   const tileSize = bytesPerTile + (hasAttributes ? 1 : 0);
-  const out = new Uint8Array(tileSize * includedIndices.length);
+  const output = new Uint8Array(tileSize * includedIndices.length);
 
   // Two-pass contiguous layout: first write every tile's bitmap bytes,
   // then (if attributes are present) write every tile's attribute byte
@@ -113,24 +113,24 @@ export function buildTilesBinary(params: {
   for (const tileIndex of includedIndices) {
     const inkBitmap = inkBitmaps[tileIndex] ?? [];
     const bitmapBytes = bitmapToBytes(inkBitmap, tileWidth, tileHeight);
-    out.set(bitmapBytes, writeOffset);
+    output.set(bitmapBytes, writeOffset);
     writeOffset += bytesPerTile;
   }
 
   if (hasAttributes) {
-    const attrOffset = bytesPerTile * includedIndices.length;
-    for (let i = 0; i < includedIndices.length; i++) {
-      const attr = attributes![includedIndices[i]] ?? {
+    const attributeOffset = bytesPerTile * includedIndices.length;
+    for (let includedPosition = 0; includedPosition < includedIndices.length; includedPosition++) {
+      const attribute = attributes![includedIndices[includedPosition]] ?? {
         flash: false,
         bright: false,
         paper: 7,
         ink: 0,
       };
-      out[attrOffset + i] = attributeToByte(attr);
+      output[attributeOffset + includedPosition] = attributeToByte(attribute);
     }
   }
 
-  return out;
+  return output;
 }
 
 /**
@@ -153,7 +153,7 @@ export function buildTilesBinary(params: {
  *     the rotation guard repeats per sprite, not just once globally)
  *   - 8 padding rows **after** every column of every frame
  */
-export function buildSpritesBinary(params: {
+export function buildSpritesBinary(parameters: {
   sprites: Array<{
     width: number;
     height: number;
@@ -165,7 +165,7 @@ export function buildSpritesBinary(params: {
 }): Uint8Array {
   const PADDING_ROWS_ABOVE = 7;
   const PADDING_ROWS_BELOW = 8;
-  const { sprites, spriteBitmasks, hasPadding, useMask } = params;
+  const { sprites, spriteBitmasks, hasPadding, useMask } = parameters;
 
   const chunks: Uint8Array[] = [];
 
@@ -180,9 +180,9 @@ export function buildSpritesBinary(params: {
 
     sprite.frames.forEach((_frame, frameIndex) => {
       const bitmask = frameBitmasks[frameIndex] ?? [];
-      for (let col = 0; col < columns; col++) {
+      for (let column = 0; column < columns; column++) {
         for (let row = 0; row < sprite.height; row++) {
-          const dataByte = columnBitmapToByte(bitmask, sprite.width, row, col);
+          const dataByte = columnBitmapToByte(bitmask, sprite.width, row, column);
           if (useMask) chunks.push(new Uint8Array([~dataByte & 0xff]));
           chunks.push(new Uint8Array([dataByte]));
         }
@@ -196,13 +196,13 @@ export function buildSpritesBinary(params: {
 
   // Concatenate all chunks into one payload.
   const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
-  const out = new Uint8Array(totalLength);
+  const output = new Uint8Array(totalLength);
   let offset = 0;
   for (const chunk of chunks) {
-    out.set(chunk, offset);
+    output.set(chunk, offset);
     offset += chunk.length;
   }
-  return out;
+  return output;
 }
 
 /**
@@ -212,16 +212,16 @@ export function buildSpritesBinary(params: {
 export function buildPaddingBytes(count: number, width: number, useMask: boolean): Uint8Array {
   const bytesPerRow = Math.ceil(width / 8);
   const rowSize = bytesPerRow * (useMask ? 2 : 1);
-  const out = new Uint8Array(count * rowSize);
+  const output = new Uint8Array(count * rowSize);
 
-  for (let i = 0; i < out.length; i += rowSize) {
-    for (let j = 0; j < bytesPerRow; j++) {
-      if (useMask) out[i + j * 2] = 0xff;
+  for (let rowStart = 0; rowStart < output.length; rowStart += rowSize) {
+    for (let byteIndex = 0; byteIndex < bytesPerRow; byteIndex++) {
+      if (useMask) output[rowStart + byteIndex * 2] = 0xff;
       // data byte stays 0
     }
   }
 
-  return out;
+  return output;
 }
 
 /**
@@ -233,17 +233,17 @@ export function buildPaddingBytes(count: number, width: number, useMask: boolean
  * so the compressed payload is byte-for-byte compatible with the
  * uncompressed `defb` output.
  */
-export function buildColumnBytes(inkBitmap: boolean[], width: number, height: number, colIndex: number, useMask: boolean): Uint8Array {
-  const out = new Uint8Array(height * (useMask ? 2 : 1));
+export function buildColumnBytes(inkBitmap: boolean[], width: number, height: number, columnIndex: number, useMask: boolean): Uint8Array {
+  const output = new Uint8Array(height * (useMask ? 2 : 1));
   let writeOffset = 0;
   for (let row = 0; row < height; row++) {
-    const dataByte = columnBitmapToByte(inkBitmap, width, row, colIndex);
+    const dataByte = columnBitmapToByte(inkBitmap, width, row, columnIndex);
     if (useMask) {
-      out[writeOffset++] = ~dataByte & 0xff;
+      output[writeOffset++] = ~dataByte & 0xff;
     }
-    out[writeOffset++] = dataByte;
+    output[writeOffset++] = dataByte;
   }
-  return out;
+  return output;
 }
 
 /**
@@ -252,17 +252,17 @@ export function buildColumnBytes(inkBitmap: boolean[], width: number, height: nu
  * attributes fall back to ZX Spectrum defaults (paper=7, ink=0).
  */
 export function buildAttributeBytes(attributes: ZxpColorAttribute[], includedIndices: number[]): Uint8Array {
-  const out = new Uint8Array(includedIndices.length);
-  for (let i = 0; i < includedIndices.length; i++) {
-    const attr = attributes[includedIndices[i]] ?? {
+  const output = new Uint8Array(includedIndices.length);
+  for (let includedPosition = 0; includedPosition < includedIndices.length; includedPosition++) {
+    const attribute = attributes[includedIndices[includedPosition]] ?? {
       flash: false,
       bright: false,
       paper: 7,
       ink: 0,
     };
-    out[i] = attributeToByte(attr);
+    output[includedPosition] = attributeToByte(attribute);
   }
-  return out;
+  return output;
 }
 
 /**
@@ -270,9 +270,9 @@ export function buildAttributeBytes(attributes: ZxpColorAttribute[], includedInd
  * No bounds check — the caller is expected to validate `index ≤ 0xFF`.
  */
 export function buildMapIndicesBinary(tileIndices: number[]): Uint8Array {
-  const out = new Uint8Array(tileIndices.length);
-  for (let i = 0; i < tileIndices.length; i++) {
-    out[i] = tileIndices[i] & 0xff;
+  const output = new Uint8Array(tileIndices.length);
+  for (let index = 0; index < tileIndices.length; index++) {
+    output[index] = tileIndices[index] & 0xff;
   }
-  return out;
+  return output;
 }

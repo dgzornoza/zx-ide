@@ -2,7 +2,7 @@
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import TileGallery from 'src/shared/components/TileGallery.vue';
 
-const tp = createTranslationPrefixFn('create-tiles');
+const translate = createTranslationPrefixFn('create-tiles');
 
 defineProps<{
   previews: string[];
@@ -16,16 +16,16 @@ const emit = defineEmits<{
 <template>
   <section class="w-full border border-[color:var(--border)] bg-[color:var(--card)] p-4">
     <h2 class="text-sm font-semibold text-[color:var(--ink-soft)]">
-      {{ tp('sectionTiles') }}
+      {{ translate('sectionTiles') }}
     </h2>
     <p class="mt-2 text-xs text-[color:var(--ink-soft)]">
-      {{ tp('tilesHint') }}
+      {{ translate('tilesHint') }}
     </p>
 
-    <TileGallery :previews="previews" :action-tooltip="tp('tileRemoveTooltip')" @tile-action="emit('removeTile', $event)" />
+    <TileGallery :previews="previews" :action-tooltip="translate('tileRemoveTooltip')" @tile-action="emit('removeTile', $event)" />
 
     <p v-if="previews.length === 0" class="mt-4 text-xs text-[color:var(--ink-soft)]">
-      {{ tp('noTilesYet') }}
+      {{ translate('noTilesYet') }}
     </p>
   </section>
 </template>

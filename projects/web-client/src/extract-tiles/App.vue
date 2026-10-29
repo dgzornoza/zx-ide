@@ -6,7 +6,7 @@ import ResultsSection from './components/ResultsSection.vue';
 import TilesSection from './components/TilesSection.vue';
 import { useExtractTiles } from './composables/useExtractTiles';
 
-const { state, status, memoryUsage, tp, setSourceImage, extractResources, toggleTileExclusion } = useExtractTiles();
+const { state, status, memoryUsage, translate, setSourceImage, extractResources, toggleTileExclusion } = useExtractTiles();
 
 const { assets, missing, requestAssetBytes } = useAssetsBridge();
 
@@ -23,10 +23,10 @@ async function onImageChanged(path: string) {
   <div class="min-h-screen px-6 py-8">
     <header class="w-full">
       <div class="text-2xl font-semibold">
-        {{ tp('title') }}
+        {{ translate('title') }}
       </div>
       <p class="mt-2 max-w-2xl text-sm text-[color:var(--ink-soft)]">
-        {{ tp('subtitle') }}
+        {{ translate('subtitle') }}
       </p>
     </header>
 
@@ -64,7 +64,7 @@ async function onImageChanged(path: string) {
           :disabled="!state.source || missing"
           @click="extractResources"
         >
-          {{ tp('create') }}
+          {{ translate('create') }}
         </button>
       </div>
     </footer>

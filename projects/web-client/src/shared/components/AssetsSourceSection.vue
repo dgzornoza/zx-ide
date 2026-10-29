@@ -20,12 +20,12 @@ const emit = defineEmits<{
   'image-changed': [path: string];
 }>();
 
-const { t } = useI18n();
+const { t: translateMessage } = useI18n();
 
 // The `assetsSourceSection.*` keys live at the top level of the locale so they
 // are shared by every page that mounts this component; do NOT prepend the page
 // namespace here.
-const tp = (key: string) => t(`assetsSourceSection.${key}`);
+const translate = (key: string) => translateMessage(`assetsSourceSection.${key}`);
 
 const selectedEntry = computed<AssetsEntry | undefined>(() => props.assets.find((entry) => entry.path === source.value));
 
@@ -50,7 +50,7 @@ function onSelectionChange(event: Event) {
 <template>
   <section class="w-full border border-[color:var(--border)] bg-[color:var(--card)] p-4">
     <h2 class="text-sm font-semibold text-[color:var(--ink-soft)]">
-      {{ tp('sectionSource') }}
+      {{ translate('sectionSource') }}
     </h2>
 
     <div class="mt-4 space-y-4">
@@ -61,17 +61,17 @@ function onSelectionChange(event: Event) {
         class="border border-[color:var(--error-ink)] bg-[color:var(--error-bg)] p-3 text-xs text-[color:var(--error-ink)]"
       >
         <p class="font-semibold">
-          {{ tp('missingAssetsTitle') }}
+          {{ translate('missingAssetsTitle') }}
         </p>
         <p class="mt-1">
-          {{ tp('missingAssetsHint') }}
+          {{ translate('missingAssetsHint') }}
         </p>
       </div>
 
       <!-- Image dropdown -->
       <div>
         <label for="assets-source-select" class="text-xs font-semibold">
-          {{ tp('selectImageLabel') }}
+          {{ translate('selectImageLabel') }}
         </label>
         <select
           id="assets-source-select"
@@ -81,21 +81,21 @@ function onSelectionChange(event: Event) {
           @change="onSelectionChange"
         >
           <option value="" :disabled="!missing">
-            {{ tp('placeholderPrompt') }}
+            {{ translate('placeholderPrompt') }}
           </option>
           <option v-for="entry in assets" :key="entry.path" :value="entry.path">
             {{ entry.path }}
           </option>
         </select>
         <p class="mt-1 text-xs text-[color:var(--ink-soft)]">
-          {{ tp('selectImageHint') }}
+          {{ translate('selectImageHint') }}
         </p>
       </div>
 
       <!-- Configuration label (read-only) -->
       <div v-if="selectedEntry" data-test="configuration-label">
         <label class="text-xs font-semibold">
-          {{ tp('configurationLabel') }}
+          {{ translate('configurationLabel') }}
         </label>
         <p class="mt-2 break-all font-mono text-xs text-[color:var(--input-ink)]">
           {{ expectedConfigurationPath }}
@@ -103,7 +103,7 @@ function onSelectionChange(event: Event) {
             class="ml-2"
             :class="selectedEntry.configurationExists ? 'text-[color:var(--success-ink)]' : 'text-[color:var(--ink-soft)]'"
           >
-            ({{ selectedEntry.configurationExists ? tp('configurationExists') : tp('configurationMissing') }})
+            ({{ selectedEntry.configurationExists ? translate('configurationExists') : translate('configurationMissing') }})
           </span>
         </p>
       </div>

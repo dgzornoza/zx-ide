@@ -16,7 +16,7 @@ import { convertZxpFileToImageFile, extractSpritesFromFile } from '../../helpers
  */
 export function useExtractSprites() {
   /** Namespaced translation helper for the extract-sprites scope. */
-  const tp = createTranslationPrefixFn('extract-sprites');
+  const translate = createTranslationPrefixFn('extract-sprites');
 
   const state = reactive({
     source: '',
@@ -27,7 +27,7 @@ export function useExtractSprites() {
   /** The last source File chosen by the user (PNG or converted-from-ZXP PNG), kept for sprite frame preview extraction. */
   const currentImageFile = ref<File | undefined>(undefined);
 
-  const { status, setStatus, writeFiles } = useGeneratedFilesWriter(tp);
+  const { status, setStatus, writeFiles } = useGeneratedFilesWriter(translate);
   const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
   const spriteFlags = ref<number>(SpriteFlags.None);
 
@@ -51,7 +51,7 @@ export function useExtractSprites() {
       );
       spriteFlags.value = mapData.spriteFlags ?? SpriteFlags.None;
     } catch {
-      setStatus('error', tp('errorMapLoadFailed'));
+      setStatus('error', translate('errorMapLoadFailed'));
     }
   };
 
@@ -78,7 +78,7 @@ export function useExtractSprites() {
       await extractFromCurrentImage();
     } catch (error) {
       console.error('Source image load failed:', error);
-      setStatus('error', tp('errorSourceFileLoad'));
+      setStatus('error', translate('errorSourceFileLoad'));
     }
   };
 
@@ -155,7 +155,7 @@ export function useExtractSprites() {
    */
   const extractResources = async () => {
     if (!currentImageFile.value) {
-      setStatus('error', tp('errorNoSourceFile'));
+      setStatus('error', translate('errorNoSourceFile'));
       return;
     }
 
@@ -199,7 +199,7 @@ export function useExtractSprites() {
     isZx0CompressionReadOnly,
     spriteFlags,
     currentImageFile,
-    tp,
+    translate,
     setSourceImage,
     setMapFile,
     addSprite,

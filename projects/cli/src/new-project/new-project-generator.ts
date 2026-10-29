@@ -31,8 +31,8 @@ export class NewProjectGenerator {
       await builder.configureProject();
 
       console.log('Project generated in: ' + newProjectModel.projectPath);
-    } catch (err) {
-      console.error('Error creating project:', err);
+    } catch (error) {
+      console.error('Error creating project:', error);
     }
   }
 }
