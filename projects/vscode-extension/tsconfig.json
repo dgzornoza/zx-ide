@@ -18,7 +18,6 @@
     "paths": {
       "@core/*": ["src/core/*"],
       "@commands/*": ["src/commands/*"],
-      "@components/*": ["src/components/*"],
       "@z88dk/*": ["src/z88dk/*"],
       "@sjasmplus/*": ["src/sjasmplus/*"]
     }

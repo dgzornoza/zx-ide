@@ -6,8 +6,6 @@ import { createNewProjectModel } from './new-project.models';
 import { WizardStrategyFactory } from './wizard-strategies/wizard-strategy-factory';
 
 export class NewProjectWizard {
-  constructor() {}
-
   public async execute(): Promise<NewProjectModel> {
     const projectType = await this.selectProjectType();
     let targetPath = await this.selectTargetPath();

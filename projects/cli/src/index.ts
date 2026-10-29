@@ -38,8 +38,7 @@ class Main {
 
   async setCurrentLanguage(): Promise<void> {
     await osLocale();
-    // TODO: 05/11/2024 - Implement language support
-    //console.log(`Current language is: ${language}`);
+    // TODO: use the locale for language support
   }
 
   showTitle(): void {

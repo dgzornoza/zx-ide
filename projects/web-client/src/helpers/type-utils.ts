@@ -24,9 +24,3 @@ export class TypeEnumHelpers {
     return active ? currentValue | flag : currentValue & ~flag;
   }
 }
-
-/**
- * Tipo que representa los valores de un enum como una unión de tipos.
- * Para usar enumeraciones de types, evitando generacion de codigo en typescript.
- */
-export type TypeEnumFlagValue<T> = T[keyof T];

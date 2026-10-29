@@ -4,10 +4,6 @@ export const nameofFactory =
     name;
 export const nameof = <T>(name: Extract<keyof T, string>): string => name;
 
-export interface IDynamic<T> {
-  [key: string]: T;
-}
-
 export class TypeHelpers {
   public static isObject(value: unknown): boolean {
     return value != null && (typeof value === 'object' || typeof value === 'function');

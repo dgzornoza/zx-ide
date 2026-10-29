@@ -1,5 +1,3 @@
-import { TypeEnumFlagValue } from 'src/helpers/type-utils';
-
 /**
  * Bit-flag options that can be combined with the bitwise OR operator.
  *
@@ -15,9 +13,6 @@ export const SpriteFlags = {
   /** Each sprite frame includes a mask plane interleaved with the pixel data. */
   UseMask: 2,
 } as const;
-
-/** Union type of all valid {@link SpriteFlags} values. */
-export type SpriteFlagValue = TypeEnumFlagValue<typeof SpriteFlags>;
 
 /**
  * Row-major ink bitmap plus pixelated preview associated with a

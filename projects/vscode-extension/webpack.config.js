@@ -30,7 +30,6 @@ const extensionConfig = {
     alias: {
       '@core': path.resolve(__dirname, 'src/core'),
       '@commands': path.resolve(__dirname, 'src/commands'),
-      '@components': path.resolve(__dirname, 'src/components'),
       '@z88dk': path.resolve(__dirname, 'src/z88dk'),
       '@sjasmplus': path.resolve(__dirname, 'src/sjasmplus'),
     },

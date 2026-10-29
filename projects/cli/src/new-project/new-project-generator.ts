@@ -4,8 +4,6 @@ import { Z88dkGeneratorBuilder } from './generator-strategies/z88dk-generator-bu
 import { NewProjectModel } from '../../../shared/zxide-project';
 
 export class NewProjectGenerator {
-  constructor() {}
-
   public async execute(newProjectModel: NewProjectModel): Promise<void> {
     console.log('Generating new project...' + newProjectModel.projectName);
 

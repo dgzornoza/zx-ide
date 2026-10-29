@@ -108,7 +108,6 @@ export class WorkspaceHelpers {
 
         if (targetLine !== -1) {
           const range = new vscode.Range(targetLine, 0, targetLine, 0);
-          // const editor = vscode.window.activeTextEditor;
           editor.selection = new vscode.Selection(range.start, range.end);
           editor?.revealRange(range, vscode.TextEditorRevealType.InCenter);
         }

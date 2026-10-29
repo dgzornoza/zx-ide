@@ -4,7 +4,6 @@ import { AttachProjectTilesCmd } from '@commands/attach-project-tiles.cmd';
 import { CreateProjectCmd } from '@commands/create-project.cmd';
 import { CreateSpritesCmd } from '@commands/create-sprites.cmd';
 import { OpenHelpCmd } from '@commands/open-help.cmd';
-import { IStatusBar, StatusBar } from '@components/status-bar.component';
 import { Command } from '@core/abstractions/command';
 import { IDisposable } from '@core/abstractions/disposable';
 import { ConfigurationService } from '@core/services/configuration.service';
@@ -52,15 +51,6 @@ export class InversifyConfig {
         return InversifyConfig._extensionContext;
       })
       .inSingletonScope();
-
-    // UI
-    InversifyConfig._container.bind<IStatusBar>(Types.IStatusBar).to(StatusBar).inSingletonScope().onActivation(InversifyConfig._subscribe);
-
-    // InversifyConfig._container
-    //   .bind<StatusBarChangeViewItem>('StatusBarChangeViewItem')
-    //   .to(StatusBarChangeViewItem)
-    //   .inSingletonScope()
-    //   .onActivation(InversifyConfig._subscribe);
 
     // Commands: every command is also bound to Types.Command so activate() can register all of them.
     for (const [type, commandClass] of InversifyConfig.commands) {

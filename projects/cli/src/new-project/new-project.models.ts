@@ -22,8 +22,3 @@ export function createNewProjectModel(
     machineType,
   };
 }
-
-export interface ProjectTemplates {
-  baseTemplate: string;
-  sampleTemplate?: string;
-}

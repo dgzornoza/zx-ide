@@ -440,79 +440,13 @@ function renderZxpToCanvas(pixels: boolean[][], attributes: ZxpColorAttribute[],
 
 // ─── Tileset map preview ─────────────────────────────────────────────────────
 
-/** Tile-grid dimensions needed by {@link renderTilesetMapPreview}. */
+/** Tile-grid dimensions needed by {@link renderTilesetMapPreviewFromTileData}. */
 export interface TileMapRenderOptions {
   mapWidth: number;
   mapHeight: number;
   tileWidth: number;
   tileHeight: number;
   columns: number;
-}
-
-/**
- * Renders a Tiled map onto `canvas` by sampling tiles from a tileset
- * {@link ImageBitmap}.
- *
- * Each cell in the flat `tileIndices` array is a 1-based tile index
- * (0 = empty/transparent). The function sizes the canvas to
- * `(mapWidth * tileWidth) × (mapHeight * tileHeight)` and draws each
- * non-empty tile by slicing it out of `bitmap` using its column / row
- * position in the tileset sheet.
- *
- * @param canvas      - Target canvas element.
- * @param tileIndices - Flat row-major tile index array (0 = transparent).
- * @param options     - Map and tile dimensions.
- * @param bitmap      - Decoded tileset image, or `null` if not yet loaded.
- */
-export function renderTilesetMapPreview(
-  canvas: HTMLCanvasElement,
-  tileIndices: number[],
-  options: TileMapRenderOptions,
-  bitmap: ImageBitmap | null
-): void {
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    return;
-  }
-
-  const { mapWidth, mapHeight, tileWidth, tileHeight, columns } = options;
-
-  canvas.width = mapWidth * tileWidth;
-  canvas.height = mapHeight * tileHeight;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  if (!bitmap) {
-    ctx.fillStyle = '#333';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = '#aaa';
-    ctx.font = '12px monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('No tileset image', canvas.width / 2, canvas.height / 2);
-    return;
-  }
-
-  for (let row = 0; row < mapHeight; row++) {
-    for (let col = 0; col < mapWidth; col++) {
-      const localIndex = tileIndices[row * mapWidth + col] ?? 0;
-      if (localIndex === 0) {
-        continue;
-      }
-
-      const tileColumn = (localIndex - 1) % columns;
-      const tileRow = Math.floor((localIndex - 1) / columns);
-      ctx.drawImage(
-        bitmap,
-        tileColumn * tileWidth,
-        tileRow * tileHeight,
-        tileWidth,
-        tileHeight,
-        col * tileWidth,
-        row * tileHeight,
-        tileWidth,
-        tileHeight
-      );
-    }
-  }
 }
 
 /**
@@ -587,78 +521,6 @@ export function renderTilesetMapPreviewFromTileData(
       drawTileBitmap(bitmap, xOffset, yOffset, paperColor, inkColor);
     }
   }
-}
-
-// ─── Tile sheet PNG export ────────────────────────────────────────────────────
-
-/**
- * Renders all tile previews onto a single tile-sheet canvas (columns × rows grid)
- * at the real tile size, overlaying a red diagonal cross on excluded tiles.
- *
- * @param previews    - Per-tile base64 PNG data-URL array, row-major order.
- * @param columns     - Number of tile columns (from the source file).
- * @param tileWidth   - Width of each tile cell in pixels.
- * @param tileHeight  - Height of each tile cell in pixels.
- * @param excludedSet - Set of tile indices that are marked as excluded.
- * @returns A Promise resolving to a PNG {@link Blob} of the tile sheet.
- */
-export function generateTileSheetPng(
-  previews: string[],
-  columns: number,
-  tileWidth: number,
-  tileHeight: number,
-  excludedSet: Set<number>
-): Promise<Blob> {
-  const count = previews.length;
-  const cols = Math.max(1, columns);
-  const rows = Math.ceil(count / cols);
-
-  const { canvas, ctx } = createCanvas(cols * tileWidth, rows * tileHeight);
-
-  const drawTile = (index: number, dataUrl: string): Promise<void> =>
-    new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        const col = index % cols;
-        const row = Math.floor(index / cols);
-        const x = col * tileWidth;
-        const y = row * tileHeight;
-        ctx.drawImage(img, x, y, tileWidth, tileHeight);
-
-        // excluded tiles, draw a red diagonal cross over them
-        if (excludedSet.has(index)) {
-          const margin = 2; // pixels of margin from the tile edges for the cross lines
-
-          ctx.save();
-          ctx.strokeStyle = 'red';
-          ctx.lineWidth = 1;
-
-          ctx.beginPath();
-          ctx.moveTo(x + margin, y + margin);
-          ctx.lineTo(x + tileWidth - margin, y + tileHeight - margin);
-          ctx.moveTo(x + tileWidth - margin, y + margin);
-          ctx.lineTo(x + margin, y + tileHeight - margin);
-          ctx.stroke();
-          ctx.restore();
-        }
-
-        resolve();
-      };
-      img.src = dataUrl;
-    });
-
-  return Promise.all(previews.map((dataUrl, index) => drawTile(index, dataUrl))).then(
-    () =>
-      new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((blob) => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            reject(new Error('Failed to generate tile sheet PNG blob'));
-          }
-        }, 'image/png');
-      })
-  );
 }
 
 // ─── Image bytes → File ──────────────────────────────────────────────────────────

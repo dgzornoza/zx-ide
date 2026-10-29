@@ -1,5 +1,3 @@
-import type { CodeGenerationType } from 'externalShared/extract-graphics/extract-graphics-dtos';
-
 /** Normalized map metadata used for code generation and preview rendering. */
 export interface MapTilesetMetadata {
   /** Map width in tiles (from the selected layer). */
@@ -38,28 +36,4 @@ export interface TiledJsonLayer {
 export interface TiledJsonMapSource {
   tileset: TiledJsonTileset;
   layers: TiledJsonLayer[];
-}
-
-/** Complete reactive state exposed by useExtractMapTileset. */
-export interface MapTilesetState {
-  /** Name of the loaded JSON map file. */
-  mapSource: string;
-  /** Name of the tileset PNG file. */
-  imageSource: string;
-  /** Normalized metadata. Undefined when no valid JSON is loaded. */
-  metadata?: MapTilesetMetadata;
-  /**
-   * Normalized indices per cell (row-major).
-   * localIndex = gid (0 means empty cell).
-   * Length: mapWidth * mapHeight.
-   */
-  tileIndices: number[];
-  /** Active validation or parsing errors (these block extraction). */
-  errors: string[];
-  /** Non-blocking warnings (for example, inconsistent PNG dimensions). */
-  warnings: string[];
-  /** Selected code-generation mode. */
-  codeGenerationType: CodeGenerationType;
-  /** True when metadata is valid, tileCount is <= 255, and tileIndices is not empty. */
-  isReady: boolean;
 }
