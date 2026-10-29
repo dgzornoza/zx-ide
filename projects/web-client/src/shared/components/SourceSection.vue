@@ -12,13 +12,14 @@ const props = defineProps<{
   acceptSourceFormats: string;
   /** When true, allows selecting multiple files at once. */
   multipleSource?: boolean;
+  /** Code generation language shown in the project type info. */
+  codeGenerationType?: CodeGenerationType;
 }>();
 
 const tp = createTranslationPrefixFn(props.translationNamespace);
 
 const source = defineModel<string>('source', { required: true });
 const mapSource = defineModel<string>('mapSource', { default: '' });
-const codeGenerationType = defineModel<CodeGenerationType>('codeGenerationType', { default: 'c' });
 
 const emit = defineEmits<{
   fileSelected: [file: File];
@@ -103,7 +104,7 @@ function onMapFileChange(event: Event) {
       </div>
 
       <!-- Project type info -->
-      <CodeGenerationInfo :code-generation-type="codeGenerationType" :translation-namespace="translationNamespace" />
+      <CodeGenerationInfo :code-generation-type="codeGenerationType ?? 'c'" :translation-namespace="translationNamespace" />
     </div>
   </section>
 </template>

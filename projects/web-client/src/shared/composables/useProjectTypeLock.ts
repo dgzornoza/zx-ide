@@ -12,22 +12,30 @@
 // - When `projectType` is missing (e.g. standalone browser mode), the refs
 //   stay at their defaults and remain user-editable.
 //
+// The state is returned read-only: callers change it only through
+// `setCodeGenerationType` / `setUseZx0Compression`, which do nothing while the
+// project type locks the value.
+//
 // Non-init messages are ignored. The `initFromExtension` subscription is
 // registered in `onMounted` and removed in `onBeforeUnmount`.
 
 import type { CodeGenerationType, InitMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, readonly, ref, type Ref } from 'vue';
 
 import { subscribeToExtensionMessage } from 'src/bridge/extension-messages';
 
 export interface ProjectTypeLock {
-  codeGenerationType: ReturnType<typeof ref<CodeGenerationType>>;
-  isCodeGenerationTypeReadOnly: ReturnType<typeof ref<boolean>>;
-  useZx0Compression: ReturnType<typeof ref<boolean>>;
-  isZx0CompressionReadOnly: ReturnType<typeof ref<boolean>>;
+  codeGenerationType: Readonly<Ref<CodeGenerationType>>;
+  isCodeGenerationTypeReadOnly: Readonly<Ref<boolean>>;
+  useZx0Compression: Readonly<Ref<boolean>>;
+  isZx0CompressionReadOnly: Readonly<Ref<boolean>>;
+  /** Changes the code generation language unless the project type locks it. */
+  setCodeGenerationType(type: CodeGenerationType): void;
+  /** Turns ZX0 compression on or off unless the project type locks it. */
+  setUseZx0Compression(enabled: boolean): void;
 }
 
-export function useProjectTypeLock() {
+export function useProjectTypeLock(): ProjectTypeLock {
   const codeGenerationType = ref<CodeGenerationType>('c');
   const isCodeGenerationTypeReadOnly = ref(false);
   const useZx0Compression = ref<boolean>(true);
@@ -49,6 +57,16 @@ export function useProjectTypeLock() {
     // defaults so standalone / dev-mode keeps working.
   };
 
+  const setCodeGenerationType = (type: CodeGenerationType) => {
+    if (isCodeGenerationTypeReadOnly.value) return;
+    codeGenerationType.value = type;
+  };
+
+  const setUseZx0Compression = (enabled: boolean) => {
+    if (isZx0CompressionReadOnly.value) return;
+    useZx0Compression.value = enabled;
+  };
+
   let unsubscribe: (() => void) | undefined;
 
   onMounted(() => {
@@ -60,9 +78,11 @@ export function useProjectTypeLock() {
   });
 
   return {
-    codeGenerationType,
-    isCodeGenerationTypeReadOnly,
-    useZx0Compression,
-    isZx0CompressionReadOnly,
+    codeGenerationType: readonly(codeGenerationType),
+    isCodeGenerationTypeReadOnly: readonly(isCodeGenerationTypeReadOnly),
+    useZx0Compression: readonly(useZx0Compression),
+    isZx0CompressionReadOnly: readonly(isZx0CompressionReadOnly),
+    setCodeGenerationType,
+    setUseZx0Compression,
   };
 }

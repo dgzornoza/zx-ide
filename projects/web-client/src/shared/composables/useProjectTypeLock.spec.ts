@@ -9,16 +9,9 @@
 
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { defineComponent, h, nextTick } from 'vue';
+import { defineComponent, h, isReadonly, nextTick } from 'vue';
 
-import { useProjectTypeLock } from './useProjectTypeLock';
-
-interface ProjectTypeLock {
-  codeGenerationType: { value: 'asm' | 'c' };
-  isCodeGenerationTypeReadOnly: { value: boolean };
-  useZx0Compression: { value: boolean };
-  isZx0CompressionReadOnly: { value: boolean };
-}
+import { ProjectTypeLock, useProjectTypeLock } from './useProjectTypeLock';
 
 function dispatchInit(projectType: 'sjasmplus' | 'z88dk') {
   window.dispatchEvent(
@@ -32,7 +25,7 @@ function setupHarness() {
   let lock!: ProjectTypeLock;
   const Host = defineComponent({
     setup() {
-      lock = useProjectTypeLock() as unknown as ProjectTypeLock;
+      lock = useProjectTypeLock();
       return () => h('div');
     },
   });
@@ -115,6 +108,34 @@ describe('useProjectTypeLock', () => {
     expect(lock.codeGenerationType.value).toBe('c');
     expect(lock.isCodeGenerationTypeReadOnly.value).toBe(false);
     expect(lock.isZx0CompressionReadOnly.value).toBe(false);
+  });
+
+  it('exposes read-only state', () => {
+    const { lock } = setupHarness();
+    expect(isReadonly(lock.codeGenerationType)).toBe(true);
+    expect(isReadonly(lock.isCodeGenerationTypeReadOnly)).toBe(true);
+    expect(isReadonly(lock.useZx0Compression)).toBe(true);
+    expect(isReadonly(lock.isZx0CompressionReadOnly)).toBe(true);
+  });
+
+  it('setters change the values while no project type locks them', () => {
+    const { lock } = setupHarness();
+    lock.setCodeGenerationType('asm');
+    lock.setUseZx0Compression(false);
+    expect(lock.codeGenerationType.value).toBe('asm');
+    expect(lock.useZx0Compression.value).toBe(false);
+  });
+
+  it('setters are ignored once the project type locks the values', async () => {
+    const { lock } = setupHarness();
+    dispatchInit('sjasmplus');
+    await nextTick();
+
+    lock.setCodeGenerationType('c');
+    lock.setUseZx0Compression(true);
+
+    expect(lock.codeGenerationType.value).toBe('asm');
+    expect(lock.useZx0Compression.value).toBe(false);
   });
 
   it('stops observing extension messages after unmount', async () => {

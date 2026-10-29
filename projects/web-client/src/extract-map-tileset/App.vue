@@ -87,7 +87,7 @@ function formatError(error: string): string {
       <SourceSection
         v-model:source="mapSource"
         v-model:map-source="asmSource"
-        v-model:code-generation-type="codeGenerationType"
+        :code-generation-type="codeGenerationType"
         translation-namespace="extract-map-tileset"
         accept-source-formats=".json"
         accept-map-formats=".asm"
