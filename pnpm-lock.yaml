@@ -276,15 +276,9 @@ importers:
       '@types/vscode':
         specifier: ^1.95.0
         version: 1.140.0
-      '@vitejs/plugin-vue':
-        specifier: ^5.1.4
-        version: 5.2.4(vite@5.4.21(@types/node@18.19.130)(terser@5.51.2))(vue@3.5.44(typescript@5.9.3))
       '@vscode/test-electron':
         specifier: ^2.4.1
         version: 2.5.2(supports-color@8.1.1)
-      autoprefixer:
-        specifier: ^10.4.20
-        version: 10.6.2(postcss@8.5.32)
       copy-webpack-plugin:
         specifier: ^12.0.2
         version: 12.0.2(webpack@5.112.2)
@@ -306,15 +300,9 @@ importers:
       mocha:
         specifier: ^10.2.0
         version: 10.8.2
-      postcss:
-        specifier: ^8.4.49
-        version: 8.5.32
       prettier:
         specifier: ^3.9.10
         version: 3.9.10
-      tailwindcss:
-        specifier: ^3.4.14
-        version: 3.4.19(yaml@2.9.1)
       ts-loader:
         specifier: ^9.5.1
         version: 9.6.2(typescript@5.9.3)(webpack@5.112.2)
@@ -333,9 +321,6 @@ importers:
       vscode-nls-dev:
         specifier: ^4.0.4
         version: 4.0.4
-      vue:
-        specifier: ^3.5.12
-        version: 3.5.44(typescript@5.9.3)
       webpack:
         specifier: ^5.96.1
         version: 5.112.2(esbuild@0.21.5)(postcss@8.5.32)(webpack-cli@5.1.4)
