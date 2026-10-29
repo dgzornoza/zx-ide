@@ -26,6 +26,10 @@ module.exports = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    alias: {
+      src: path.resolve(__dirname, 'src'),
+      externalShared: path.resolve(__dirname, '../shared'),
+    },
   },
   output: {
     filename: 'zx-ide-cli.js',

@@ -1,6 +1,6 @@
 import * as path from 'path';
-import { ProjectType } from '../../../shared/infrastructure';
-import { MachineType, NewProjectModel, ProjectConfigurationType } from '../../../shared/zxide-project';
+import { ProjectType } from 'externalShared/infrastructure';
+import { MachineType, NewProjectModel, ProjectConfigurationType } from 'externalShared/zxide-project';
 
 /** Returns the new project model; the project folder is `projectName` inside `targetPath`. */
 export function createNewProjectModel(

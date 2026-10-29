@@ -13,8 +13,8 @@ import {
   type ExtensionToWebviewMessage,
   type MessageHandlers,
   type WebviewToExtensionMessage,
-} from '../../../shared/bridge-messages';
-import type { ReadAssetRequestMessage, WriteFilesMessage } from '../../../shared/extract-graphics/extract-graphics-dtos';
+} from 'externalShared/bridge-messages';
+import type { ReadAssetRequestMessage, WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { WebviewSession } from './webview-session';
 
 /**

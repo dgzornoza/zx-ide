@@ -4,7 +4,7 @@ import type { FileEntry, WriteFilesResultMessage } from 'externalShared/extract-
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, isReadonly } from 'vue';
 
-import { createVsCodeBridge } from '../../bridge/vscode';
+import { createVsCodeBridge } from 'src/bridge/vscode';
 import { i18n } from 'src/i18n';
 import { useGeneratedFilesWriter } from './useGeneratedFilesWriter';
 

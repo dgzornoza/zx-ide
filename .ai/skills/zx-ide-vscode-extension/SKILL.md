@@ -35,7 +35,7 @@ Code style rules live in `.ai/rules/gov-typescript-code-style.md`; this skill ad
 - **Disposables:** every long-lived object extends `Disposable` and pushes its subscriptions into `_subscriptions` (`src/core/abstractions/disposable.ts`). The Inversify `onActivation` hook subscribes disposables automatically. Every event listener you register must end up in `_subscriptions`.
 - **JSONC files:** workspace file edits go through `WorkspaceHelpers.writeWorkspaceJsonFile` to preserve JSONC comments when mutating files like `.vscode/launch.json` (`src/core/helpers/workspace-helpers.ts`).
 - **Array extension:** the global `groupBy` array extension is added in `src/core/helpers/array-helpers.ts`. Do not redefine or shadow it.
-- **Path aliases:** use the aliases (`@core/*`, `@z88dk/*`, etc.) configured in `tsconfig.json` and `webpack.config.js`.
+- **Path aliases:** use the aliases (`@core/*`, `@z88dk/*`, etc., and `externalShared/*` for `projects/shared`) configured in `tsconfig.json`, `webpack.config.js` and `vitest.config.mjs`.
 - **User-visible text:** command titles and configuration descriptions come from `package.nls.json` / `package.nls.es.json`; runtime strings go through `vscode.l10n.t` with entries in `l10n/`.
 - **Output and terminal:** centralized in `OutputChannelService` and `TerminalService` (`src/core/services/output-channel.service.ts`, `src/core/services/terminal.service.ts`). Reuse them for new user-facing output or terminal flows.
 

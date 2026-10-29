@@ -10,7 +10,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h } from 'vue';
 
-import { convertZxpFileToImageFile, extractSpritesFromFile } from '../../helpers/image-utils';
+import { convertZxpFileToImageFile, extractSpritesFromFile } from 'src/helpers/image-utils';
 
 vi.mock('../../helpers/image-utils', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../helpers/image-utils')>();

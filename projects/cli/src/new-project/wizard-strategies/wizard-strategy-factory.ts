@@ -1,5 +1,5 @@
-import { ProjectType } from '../../../../shared/infrastructure';
-import { MachineType, ProjectConfigurationType } from '../../../../shared/zxide-project';
+import { ProjectType } from 'externalShared/infrastructure';
+import { MachineType, ProjectConfigurationType } from 'externalShared/zxide-project';
 import { SjasmplusWizardStrategy } from './sjasmplus-wizard-strategy';
 import { Z88dkWizardStrategy } from './z88dk-wizard-strategy';
 

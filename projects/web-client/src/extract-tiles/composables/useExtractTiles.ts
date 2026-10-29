@@ -9,7 +9,7 @@ import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
 import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
 import { TilesModel } from 'src/shared/models/tilesDefinition';
 import { reactive, ref, watch, computed } from 'vue';
-import { extractTilesFromPng, extractTilesFromZxpFile } from '../../helpers/image-utils';
+import { extractTilesFromPng, extractTilesFromZxpFile } from 'src/helpers/image-utils';
 
 /**
  * Composable that manages the full state and business logic for the

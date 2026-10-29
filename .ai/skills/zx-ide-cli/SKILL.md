@@ -38,7 +38,7 @@ Code style rules live in `.ai/rules/gov-typescript-code-style.md`; this skill ad
 
 - Keep the CLI options in `createCommandLineProgram()` and `readNewProjectArguments()` (`src/command-line.ts`) synchronized with the `NewProjectModel` fields.
 - Use `FileHelpers.getAbsolutePath()` for template paths (it is based on `__dirname`) and `FileHelpers.getRealSystemPath()` for user-supplied target paths.
-- `ZxideFile`, `NewProjectModel`, `MachineType`, `ProjectConfigurationType` and the default graphics paths live in `projects/shared/zxide-project.ts` (`ProjectType` in `projects/shared/infrastructure.ts`) because the VS Code extension consumes them too: the extension reads `.zxide.json` and the `NewProjectModel` JSON written to the `--output` file. Import them from there with relative paths; changing them is a cross-project change.
+- `ZxideFile`, `NewProjectModel`, `MachineType`, `ProjectConfigurationType` and the default graphics paths live in `projects/shared/zxide-project.ts` (`ProjectType` in `projects/shared/infrastructure.ts`) because the VS Code extension consumes them too: the extension reads `.zxide.json` and the `NewProjectModel` JSON written to the `--output` file. Import them through the `externalShared/...` alias (and the cli's own files as `src/...`); both aliases are configured in `tsconfig.json`, `webpack.config.js` and `vitest.config.mjs`. Changing them is a cross-project change.
 - `ZX_IDE_TEMPLATE_VERSION` (`src/infrastructure.ts`) is written as `template-version` in `.zxide.json`. When a zip in `templates/` changes, increase it and update the fingerprint in `src/template-version.spec.ts`; that spec fails until you do.
 
 ## Workflows

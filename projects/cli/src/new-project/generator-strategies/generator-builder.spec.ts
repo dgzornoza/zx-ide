@@ -2,8 +2,8 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { ZX_IDE_TEMPLATE_VERSION, ZX_ZXIDE_CLI_VERSION } from '../../infrastructure';
-import { createNewProjectModel } from '../new-project.models';
+import { ZX_IDE_TEMPLATE_VERSION, ZX_ZXIDE_CLI_VERSION } from 'src/infrastructure';
+import { createNewProjectModel } from 'src/new-project/new-project.models';
 import { GeneratorBuilder } from './generator-builder';
 
 class TestGeneratorBuilder extends GeneratorBuilder {

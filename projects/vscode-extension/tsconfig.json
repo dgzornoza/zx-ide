@@ -19,7 +19,8 @@
       "@core/*": ["src/core/*"],
       "@commands/*": ["src/commands/*"],
       "@z88dk/*": ["src/z88dk/*"],
-      "@sjasmplus/*": ["src/sjasmplus/*"]
+      "@sjasmplus/*": ["src/sjasmplus/*"],
+      "externalShared/*": ["../shared/*"]
     }
   },
   "include": ["src"],

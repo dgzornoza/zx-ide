@@ -32,6 +32,7 @@ const extensionConfig = {
       '@commands': path.resolve(__dirname, 'src/commands'),
       '@z88dk': path.resolve(__dirname, 'src/z88dk'),
       '@sjasmplus': path.resolve(__dirname, 'src/sjasmplus'),
+      externalShared: path.resolve(__dirname, '../shared'),
     },
   },
   module: {

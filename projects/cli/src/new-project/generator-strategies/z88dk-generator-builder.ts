@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { ISettingsJsonFile, ITasksJsonFile } from 'src/infrastructure';
-import { FileHelpers } from '../../helpers/file.helpers';
-import { NewProjectModel, ProjectConfigurationType } from '../../../../shared/zxide-project';
+import { FileHelpers } from 'src/helpers/file.helpers';
+import { NewProjectModel, ProjectConfigurationType } from 'externalShared/zxide-project';
 import { GeneratorBuilder } from './generator-builder';
 
 export class Z88dkGeneratorBuilder extends GeneratorBuilder {

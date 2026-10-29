@@ -3,8 +3,8 @@
  *
  * Depends on nothing but the standard library and the shared DTOs; `WebviewBaseCommand` writes the files.
  */
-import type { WriteFilesMessage } from '../../../../shared/extract-graphics/extract-graphics-dtos';
-import { DEFAULT_ASSETS_GRAPHICS_PATH, DEFAULT_GRAPHICS_DATA_FOLDER_PATH } from '../../../../shared/zxide-project';
+import type { WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { DEFAULT_ASSETS_GRAPHICS_PATH, DEFAULT_GRAPHICS_DATA_FOLDER_PATH } from 'externalShared/zxide-project';
 
 export type GeneratedFile = Pick<WriteFilesMessage['codeFiles'][number], 'fileType' | 'fileName'>;
 

@@ -1,6 +1,6 @@
 import * as path from 'path';
-import { FileHelpers } from '../../helpers/file.helpers';
-import { MachineType, NewProjectModel } from '../../../../shared/zxide-project';
+import { FileHelpers } from 'src/helpers/file.helpers';
+import { MachineType, NewProjectModel } from 'externalShared/zxide-project';
 import { GeneratorBuilder } from './generator-builder';
 
 export class SjasmplusGeneratorBuilder extends GeneratorBuilder {

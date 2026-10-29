@@ -1,7 +1,7 @@
 import * as prompts from '@inquirer/prompts';
-import { ProjectType } from '../../../shared/infrastructure';
-import { NewProjectModel } from '../../../shared/zxide-project';
-import { FileHelpers } from '../helpers/file.helpers';
+import { ProjectType } from 'externalShared/infrastructure';
+import { NewProjectModel } from 'externalShared/zxide-project';
+import { FileHelpers } from 'src/helpers/file.helpers';
 import { createNewProjectModel } from './new-project.models';
 import { WizardStrategyFactory } from './wizard-strategies/wizard-strategy-factory';
 

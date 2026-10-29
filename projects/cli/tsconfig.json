@@ -5,6 +5,9 @@
     "module": "ES2022",
     "lib": ["ES2022"],
     "baseUrl": "./",
+    "paths": {
+      "externalShared/*": ["../shared/*"]
+    },
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true,
     "strict": true,

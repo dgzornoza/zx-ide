@@ -6,7 +6,7 @@ import { Types } from '@core/types';
 import { inject, injectable } from 'inversify';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { NewProjectModel } from '../../../shared/zxide-project';
+import { NewProjectModel } from 'externalShared/zxide-project';
 
 @injectable()
 export class CreateProjectCmd extends Command<unknown> {

@@ -7,7 +7,12 @@
  * and normalizes the tile data array to match the expected map size.
  */
 import { DomainError } from 'src/domain/domain-error';
-import type { MapTilesetMetadata, TiledJsonLayer, TiledJsonMapSource, TiledJsonTileset } from '../models/mapTilesetDefinition';
+import type {
+  MapTilesetMetadata,
+  TiledJsonLayer,
+  TiledJsonMapSource,
+  TiledJsonTileset,
+} from 'src/extract-map-tileset/models/mapTilesetDefinition';
 
 export interface ParsedTiledJsonMap {
   metadata: MapTilesetMetadata;

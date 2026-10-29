@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
-import type { MapTilesetMetadata } from '../models/mapTilesetDefinition';
+import type { MapTilesetMetadata } from 'src/extract-map-tileset/models/mapTilesetDefinition';
 
 const props = defineProps<{
   metadata?: MapTilesetMetadata;

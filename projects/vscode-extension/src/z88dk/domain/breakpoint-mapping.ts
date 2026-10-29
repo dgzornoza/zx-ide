@@ -4,7 +4,7 @@
  * Depends on nothing but the standard library; `Z88dkAsmBreakpointService` and the language strategies
  * read the files and create the `vscode` breakpoints.
  */
-import { SOURCE_FILE_EXTENSIONS } from '../infrastructure';
+import { SOURCE_FILE_EXTENSIONS } from '@z88dk/infrastructure';
 import { findAsmLineInLisFile, isValidLisFileLineForBreakpoint } from './lis-file-lines';
 
 export type BreakpointLanguage = 'c' | 'asm';

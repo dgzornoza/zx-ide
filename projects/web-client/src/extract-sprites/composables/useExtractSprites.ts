@@ -8,7 +8,7 @@ import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
 import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
 import { SpriteChanges, SpriteDefinition, SpriteFlags, SpriteFrameChanges } from 'src/shared/models/spriteDefinition';
 import { onMounted, reactive, ref } from 'vue';
-import { convertZxpFileToImageFile, extractSpritesFromFile } from '../../helpers/image-utils';
+import { convertZxpFileToImageFile, extractSpritesFromFile } from 'src/helpers/image-utils';
 
 /**
  * Composable that manages the full state and business logic for the

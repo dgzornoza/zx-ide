@@ -1,12 +1,7 @@
 import * as path from 'path';
-import { FileHelpers } from '../../helpers/file.helpers';
-import {
-  DEFAULT_ASSETS_GRAPHICS_PATH,
-  DEFAULT_GRAPHICS_DATA_FOLDER_PATH,
-  NewProjectModel,
-  ZxideFile,
-} from '../../../../shared/zxide-project';
-import { ZX_IDE_TEMPLATE_VERSION, ZX_ZXIDE_CLI_VERSION } from '../../infrastructure';
+import { FileHelpers } from 'src/helpers/file.helpers';
+import { DEFAULT_ASSETS_GRAPHICS_PATH, DEFAULT_GRAPHICS_DATA_FOLDER_PATH, NewProjectModel, ZxideFile } from 'externalShared/zxide-project';
+import { ZX_IDE_TEMPLATE_VERSION, ZX_ZXIDE_CLI_VERSION } from 'src/infrastructure';
 
 export abstract class GeneratorBuilder {
   protected readonly newProjectModel: NewProjectModel;

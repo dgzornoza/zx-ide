@@ -16,8 +16,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h } from 'vue';
 
-import { createVsCodeBridge } from '../../bridge/vscode';
-import { extractTilesFromPng, extractTilesFromZxpFile } from '../../helpers/image-utils';
+import { createVsCodeBridge } from 'src/bridge/vscode';
+import { extractTilesFromPng, extractTilesFromZxpFile } from 'src/helpers/image-utils';
 
 vi.mock('../../helpers/image-utils', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../helpers/image-utils')>();

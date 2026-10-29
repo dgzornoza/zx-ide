@@ -5,8 +5,8 @@ import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
 import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
 import { computed, ref, watch } from 'vue';
-import { renderTilesetMapPreviewFromTileData } from '../../helpers/image-utils';
-import type { MapTilesetMetadata } from '../models/mapTilesetDefinition';
+import { renderTilesetMapPreviewFromTileData } from 'src/helpers/image-utils';
+import type { MapTilesetMetadata } from 'src/extract-map-tileset/models/mapTilesetDefinition';
 import { parseAndValidateTiledJson } from './tiledJsonValidation';
 
 function normalizeGlobalTileIds(rawGlobalTileIds: number[]): number[] {

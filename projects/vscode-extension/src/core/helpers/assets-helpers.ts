@@ -1,7 +1,7 @@
 import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { AssetsEntry } from '../../../../shared/extract-graphics/extract-graphics-dtos';
+import { AssetsEntry } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { FileHelpers } from './file-helpers';
 
 /** Result of scanning `<workspace>/assets/`. */

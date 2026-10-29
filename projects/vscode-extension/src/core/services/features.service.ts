@@ -2,8 +2,8 @@ import { FileHelpers } from '@core/helpers/file-helpers';
 import { WorkspaceHelpers } from '@core/helpers/workspace-helpers';
 import { Logger } from '@core/logger';
 import * as vscode from 'vscode';
-import { ProjectType } from '../../../../shared/infrastructure';
-import { ZxideFile } from '../../../../shared/zxide-project';
+import { ProjectType } from 'externalShared/infrastructure';
+import { ZxideFile } from 'externalShared/zxide-project';
 
 export class FeaturesService {
   static zxideFile?: ZxideFile;

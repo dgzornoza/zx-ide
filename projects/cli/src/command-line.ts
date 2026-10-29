@@ -1,5 +1,5 @@
 import { Command, OptionValues } from 'commander';
-import { NewProjectModel } from '../../shared/zxide-project';
+import { NewProjectModel } from 'externalShared/zxide-project';
 import { createNewProjectModel } from './new-project/new-project.models';
 
 /** Command line options of the cli; `--project-path` is the folder where the project folder is created. */
