@@ -1,12 +1,10 @@
 import { Command } from 'commander';
-import * as figlet from 'figlet';
 import { osLocale } from 'os-locale';
 import { FileHelpers } from './helpers/file.helpers';
 import { NewProjectGenerator } from './new-project/new-project-generator';
 import { NewProjectWizard } from './new-project/new-project-wizard';
-import { NewProjectModel } from '../../shared/zxide-project';
-import { createNewProjectModel } from './new-project/new-project.models';
-import { default as standard } from 'figlet/importable-fonts/Standard';
+import { createCommandLineProgram, readNewProjectArguments } from './command-line';
+import { renderTitle } from './title';
 import packageJson from '../package.json';
 
 class Main {
@@ -29,21 +27,7 @@ class Main {
     this.showTitle();
 
     const options = this._program.opts();
-    const ranWithArgs = options.projectType && options.targetPath && options.projectName;
-
-    let newProjectModel: NewProjectModel;
-    if (!ranWithArgs) {
-      newProjectModel = await new NewProjectWizard().execute();
-    } else {
-      newProjectModel = createNewProjectModel(
-        options.projectType,
-        options.targetPath,
-        options.projectName,
-        options.machineType,
-        options.projectConfiguration,
-        options.useSample
-      );
-    }
+    const newProjectModel = readNewProjectArguments(options) ?? (await new NewProjectWizard().execute());
 
     await new NewProjectGenerator().execute(newProjectModel);
 
@@ -59,28 +43,11 @@ class Main {
   }
 
   showTitle(): void {
-    figlet.parseFont('Standard', standard);
-    console.log(figlet.textSync('Zx-Ide'));
+    console.log(renderTitle());
   }
 
   setupCommander(): Command {
-    const program = new Command();
-
-    program
-      .version(packageJson.version)
-      .option('-o, --output <path>', 'Set script output result path')
-      .option('-t, --project-type <PROYECT>', 'Set project type (sjasmplus, z88dk)')
-      .option('-p, --project-path <PATH>', 'Set target directory')
-      .option('-n, --project-name <NAME>', 'Set project name')
-      .option('-m, --machine-type <MACHINE>', 'Set machine type (universal, zxspectrum)')
-      .option(
-        '-c, --project-configuration <CONFIG>',
-        'Set project configuration, currently only z88dk (z88dk_sdcc_classic_lib, z88dk_sdcc_new_lib, z88dk_sccz80_classic_lib, z88dk_sccz80_new_lib)'
-      )
-      .option('-s, --use-sample', 'Use sample project (only specific machines has samples)')
-      .parse(process.argv);
-
-    return program;
+    return createCommandLineProgram(packageJson.version).parse(process.argv);
   }
 }
 
