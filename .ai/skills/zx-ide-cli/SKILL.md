@@ -16,7 +16,7 @@ Code style rules live in `.ai/rules/gov-typescript-code-style.md`; this skill ad
 
 ## Big picture
 
-- Entry point is `projects/cli/src/index.ts`: the CLI parses args with `commander`, prints the title with `figlet`, then runs either `NewProjectWizard` (interactive) or `NewProjectModel` (args-based) and finally `NewProjectGenerator`.
+- Entry point is `projects/cli/src/index.ts`: the CLI parses args with `commander`, prints the title with `figlet`, then runs either `NewProjectWizard` (interactive) or `createNewProjectModel` (args-based) and finally `NewProjectGenerator`.
 - Project creation flow: `NewProjectWizard` → `WizardStrategyFactory` chooses the per-compiler prompt strategy → `NewProjectGenerator` selects a `GeneratorBuilder` (sjasmplus/z88dk) → the builder creates `.zxide.json`, copies templates and replaces placeholders. See `src/new-project/new-project-wizard.ts` and `src/new-project/new-project-generator.ts`.
 - Generators use template ZIPs under `projects/cli/templates/` and rely on placeholder tokens like `{ZX-IDE_PROJECT_NAME}`. Replacement is centralized in `FileHelpers.replaceValueInFile()` in `src/helpers/file.helpers.ts`.
 
@@ -37,13 +37,15 @@ Code style rules live in `.ai/rules/gov-typescript-code-style.md`; this skill ad
 
 - Keep the CLI options in `setupCommander()` (`src/index.ts`) synchronized with the `NewProjectModel` fields.
 - Use `FileHelpers.getAbsolutePath()` for template paths (it is based on `__dirname`) and `FileHelpers.getRealSystemPath()` for user-supplied target paths.
-- `NewProjectModel` and `ZxideFile` are consumed by the VS Code extension too. Changing them is a cross-project change: update the extension (`projects/vscode-extension/src/core/infrastructure.ts`) in the same change.
+- `ZxideFile`, `NewProjectModel`, `MachineType`, `ProjectConfigurationType` and the default graphics paths live in `projects/shared/zxide-project.ts` (`ProjectType` in `projects/shared/infrastructure.ts`) because the VS Code extension consumes them too: the extension reads `.zxide.json` and the `NewProjectModel` JSON written to the `--output` file. Import them from there with relative paths; changing them is a cross-project change.
+- `ZX_IDE_TEMPLATE_VERSION` (`src/infrastructure.ts`) is written as `template-version` in `.zxide.json`. When a zip in `templates/` changes, increase it and update the fingerprint in `src/template-version.spec.ts`; that spec fails until you do.
 
 ## Workflows
 
 Run every command from `projects/cli/`:
 
 - Build: `pnpm build` (webpack production).
+- Tests: `pnpm test` (Vitest, `src/**/*.spec.ts`; `vitest.config.mjs` maps the `src/...` imports).
 - Dev run: `pnpm start` (webpack dev, then `node --inspect=9229 dist/zx-ide-cli.js`) for debugging.
 - Watch: `pnpm watch` rebuilds the dev bundle on every save. Run it alongside `pnpm watch` in `projects/vscode-extension/` so the extension's `CopyWebpackPlugin` re-copies the CLI bundle whenever the CLI rebuilds.
 - Lint: `pnpm lint`.

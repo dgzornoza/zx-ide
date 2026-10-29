@@ -1,5 +1,3 @@
-import { ProjectType } from '../../../shared/infrastructure';
-
 export const WikiUri = 'https://github.com/dgzornoza/zx-ide/wiki';
 
 export enum CommandName {
@@ -18,31 +16,6 @@ export enum CommandName {
 export interface ExtensionConfigurationModel {
   // debug in assembler code (with the embedded C‑code comments) using 'Z88dkAsmBreakpointService'
   useAsmDebug: boolean;
-}
-
-export type ProjectConfigurationType =
-  'z88dk_sdcc_classic_lib' | 'z88dk_sdcc_new_lib' | 'z88dk_sccz80_classic_lib' | 'z88dk_sccz80_new_lib';
-export type MachineType = 'zxspectrum';
-
-export interface ZxideFile {
-  'template-version': string;
-  project: {
-    type: ProjectType;
-    /** Array of Paths to asset graphics files */
-    assetsGraphicsPaths?: string[];
-    /** Folder where graphics data source code files is stored */
-    graphicsDataFolderPath?: string;
-  };
-}
-
-export interface NewProjectModel {
-  readonly targetPath: string;
-  readonly projectType: ProjectType;
-  readonly projectPath: string;
-  readonly projectName: string;
-  readonly useSample?: boolean;
-  readonly projectConfigurationType?: ProjectConfigurationType;
-  readonly machineType?: MachineType;
 }
 
 /**

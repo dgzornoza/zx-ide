@@ -23,6 +23,7 @@
     "build": "webpack --mode production --config webpack.prod.js",
     "watch": "webpack --mode development --config webpack.config.js --watch",
     "lint": "eslint .",
+    "test": "vitest run",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
@@ -57,6 +58,7 @@
     "ts-loader": "^9.5.1",
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.72.1",
+    "vitest": "^2.1.9",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4",
     "webpack-merge": "^5.10.0"

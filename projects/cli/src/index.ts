@@ -4,7 +4,8 @@ import { osLocale } from 'os-locale';
 import { FileHelpers } from './helpers/file.helpers';
 import { NewProjectGenerator } from './new-project/new-project-generator';
 import { NewProjectWizard } from './new-project/new-project-wizard';
-import { NewProjectModel } from './new-project/new-project.models';
+import { NewProjectModel } from '../../shared/zxide-project';
+import { createNewProjectModel } from './new-project/new-project.models';
 import { default as standard } from 'figlet/importable-fonts/Standard';
 import packageJson from '../package.json';
 
@@ -34,7 +35,7 @@ class Main {
     if (!ranWithArgs) {
       newProjectModel = await new NewProjectWizard().execute();
     } else {
-      newProjectModel = new NewProjectModel(
+      newProjectModel = createNewProjectModel(
         options.projectType,
         options.targetPath,
         options.projectName,

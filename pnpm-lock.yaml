@@ -233,6 +233,9 @@ importers:
       typescript-eslint:
         specifier: ^8.72.1
         version: 8.72.1(eslint@9.39.5(jiti@1.21.7)(supports-color@8.1.1))(supports-color@8.1.1)(typescript@5.9.3)
+      vitest:
+        specifier: ^2.1.9
+        version: 2.1.9(@types/node@18.19.130)(jsdom@25.0.1(supports-color@8.1.1))(supports-color@8.1.1)(terser@5.51.2)
       webpack:
         specifier: ^5.96.1
         version: 5.112.2(esbuild@0.21.5)(postcss@8.5.32)(webpack-cli@5.1.4)

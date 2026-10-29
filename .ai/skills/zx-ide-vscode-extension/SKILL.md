@@ -57,14 +57,15 @@ The only legitimate direct `vscode.workspace.fs.*` callers are `FileHelpers` its
 
 ## `.zxide.json` structure
 
-The `ZxideFile` interface in `src/core/infrastructure.ts` defines the schema of `.zxide.json`:
+The `ZxideFile` interface in `projects/shared/zxide-project.ts` defines the schema of `.zxide.json` (the CLI writes it, the extension reads it):
 
-- `template-version`: version of the template the project was created from.
+- `zx-ide-cli-version`: version of the CLI that created the project.
+- `template-version`: version of the template the project was created from (`ZX_IDE_TEMPLATE_VERSION` in the CLI).
 - `project.type`: project type (`'sjasmplus'` or `'z88dk'`).
-- `project.assetsGraphicsPaths`: optional array of workspace-relative paths to graphics asset files.
-- `project.graphicsDataFolderPath`: optional folder where generated graphics source files are stored.
+- `project.assetsGraphicsPaths`: optional array of workspace-relative paths to graphics asset files (the CLI writes `[DEFAULT_ASSETS_GRAPHICS_PATH]`, `assets`).
+- `project.graphicsDataFolderPath`: optional folder where generated graphics source files are stored (the CLI writes `DEFAULT_GRAPHICS_DATA_FOLDER_PATH`, `src/data`).
 
-The CLI writes this file (`projects/cli/src/infrastructure.ts`); keep both definitions in sync.
+`MachineType`, `ProjectConfigurationType` and `NewProjectModel` (the JSON the CLI writes to its `--output` file, read by `CreateProjectCmd`) live in the same shared file.
 
 ## Workflows
 

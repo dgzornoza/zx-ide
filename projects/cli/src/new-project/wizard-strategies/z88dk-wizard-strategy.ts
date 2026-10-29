@@ -1,6 +1,6 @@
 import * as prompts from '@inquirer/prompts';
 import { IWizardStrategy } from 'src/new-project/wizard-strategies/wizard-strategy-factory';
-import { MachineType, ProjectConfigurationType } from '../../infrastructure';
+import { MachineType, ProjectConfigurationType } from '../../../../shared/zxide-project';
 
 export class Z88dkWizardStrategy implements IWizardStrategy {
   async selectMachine(): Promise<MachineType | undefined> {

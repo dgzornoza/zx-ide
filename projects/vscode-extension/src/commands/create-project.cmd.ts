@@ -1,11 +1,12 @@
 import { Command } from '@core/abstractions/command';
 import { FileHelpers } from '@core/helpers/file-helpers';
-import { CommandName, NewProjectModel } from '@core/infrastructure';
+import { CommandName } from '@core/infrastructure';
 import { TerminalService } from '@core/services/terminal.service';
 import { Types } from '@core/types';
 import { inject, injectable } from 'inversify';
 import * as path from 'path';
 import * as vscode from 'vscode';
+import { NewProjectModel } from '../../../shared/zxide-project';
 
 @injectable()
 export class CreateProjectCmd extends Command<unknown> {

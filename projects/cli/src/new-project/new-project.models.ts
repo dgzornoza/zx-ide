@@ -1,38 +1,26 @@
 import * as path from 'path';
-import { MachineType, ProjectConfigurationType, ProjectType } from 'src/infrastructure';
+import { ProjectType } from '../../../shared/infrastructure';
+import { MachineType, NewProjectModel, ProjectConfigurationType } from '../../../shared/zxide-project';
 
-export class NewProjectModel {
-  // target path (absolute folder path where project will be created)
-  readonly targetPath: string;
-  // target project path
-  readonly projectPath: string;
-  // target project type
-  readonly projectType: ProjectType;
-  // target project name
-  readonly projectName: string;
-  // (optional) flag to use sample project
-  readonly useSample?: boolean;
-  // (optional) project configuration type
-  readonly projectConfigurationType?: ProjectConfigurationType;
-  // (optional) machine type
-  readonly machineType?: MachineType;
-
-  constructor(
-    projectType: ProjectType,
-    targetPath: string,
-    projectName: string,
-    machineType?: MachineType,
-    projectConfigurationType?: ProjectConfigurationType,
-    useSample?: boolean
-  ) {
-    this.projectType = projectType;
-    this.targetPath = targetPath;
-    this.projectName = projectName;
-    this.projectPath = path.join(targetPath, projectName);
-    this.machineType = machineType;
-    this.projectConfigurationType = projectConfigurationType;
-    this.useSample = useSample;
-  }
+/** Returns the new project model; the project folder is `projectName` inside `targetPath`. */
+export function createNewProjectModel(
+  projectType: ProjectType,
+  targetPath: string,
+  projectName: string,
+  machineType?: MachineType,
+  projectConfigurationType?: ProjectConfigurationType,
+  useSample?: boolean
+): NewProjectModel {
+  // key order kept from the previous class (field declaration order), so the --output JSON is unchanged
+  return {
+    targetPath,
+    projectPath: path.join(targetPath, projectName),
+    projectType,
+    projectName,
+    useSample,
+    projectConfigurationType,
+    machineType,
+  };
 }
 
 export interface ProjectTemplates {

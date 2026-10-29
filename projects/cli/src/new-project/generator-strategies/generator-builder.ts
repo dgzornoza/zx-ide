@@ -1,7 +1,12 @@
 import * as path from 'path';
 import { FileHelpers } from '../../helpers/file.helpers';
-import { ZX_ZXIDE_CLI_VERSION, ZxideFile } from '../../infrastructure';
-import { NewProjectModel } from '../new-project.models';
+import {
+  DEFAULT_ASSETS_GRAPHICS_PATH,
+  DEFAULT_GRAPHICS_DATA_FOLDER_PATH,
+  NewProjectModel,
+  ZxideFile,
+} from '../../../../shared/zxide-project';
+import { ZX_IDE_TEMPLATE_VERSION, ZX_ZXIDE_CLI_VERSION } from '../../infrastructure';
 
 export abstract class GeneratorBuilder {
   protected readonly newProjectModel: NewProjectModel;
@@ -15,12 +20,15 @@ export abstract class GeneratorBuilder {
   abstract configureProject(): Promise<void>;
 
   createZxIdeProjectFile(): Promise<void> {
-    const fileConfiguration = {
+    const fileConfiguration: ZxideFile = {
       'zx-ide-cli-version': ZX_ZXIDE_CLI_VERSION,
+      'template-version': ZX_IDE_TEMPLATE_VERSION,
       project: {
         type: this.newProjectModel.projectType,
+        assetsGraphicsPaths: [DEFAULT_ASSETS_GRAPHICS_PATH],
+        graphicsDataFolderPath: DEFAULT_GRAPHICS_DATA_FOLDER_PATH,
       },
-    } as ZxideFile;
+    };
 
     FileHelpers.writeJsonFile(fileConfiguration, path.join(this.newProjectModel.projectPath, '.zxide.json'));
 

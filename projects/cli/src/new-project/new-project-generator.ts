@@ -1,7 +1,7 @@
 import { GeneratorBuilder } from './generator-strategies/generator-builder';
 import { SjasmplusGeneratorBuilder } from './generator-strategies/sjasmplus-generator-builder';
 import { Z88dkGeneratorBuilder } from './generator-strategies/z88dk-generator-builder';
-import { NewProjectModel } from './new-project.models';
+import { NewProjectModel } from '../../../shared/zxide-project';
 
 export class NewProjectGenerator {
   constructor() {}

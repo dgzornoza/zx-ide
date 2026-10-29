@@ -39,7 +39,7 @@ If a skill contradicts a rule, the rule wins: fix the contradiction in the skill
 
 | Project            | Package (`--filter`)  | Build          | Check                                                   |
 | ------------------ | ------------------- | -------------- | ------------------------------------------------------- |
-| `cli`              | `zx-ide-cli`        | `pnpm build`   | `pnpm lint`, `pnpm format:check`                        |
+| `cli`              | `zx-ide-cli`        | `pnpm build`   | `pnpm lint`, `pnpm format:check`, `pnpm test`           |
 | `vscode-extension` | `zxide`             | `pnpm compile` | `pnpm lint`, `pnpm format:check`, `pnpm test`           |
 | `web-client`       | `zx-ide-web-client` | `pnpm build`   | `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test` |
 

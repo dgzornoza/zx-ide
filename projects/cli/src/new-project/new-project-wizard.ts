@@ -1,7 +1,8 @@
 import * as prompts from '@inquirer/prompts';
-import { ProjectType } from 'src/infrastructure';
+import { ProjectType } from '../../../shared/infrastructure';
+import { NewProjectModel } from '../../../shared/zxide-project';
 import { FileHelpers } from '../helpers/file.helpers';
-import { NewProjectModel } from './new-project.models';
+import { createNewProjectModel } from './new-project.models';
 import { WizardStrategyFactory } from './wizard-strategies/wizard-strategy-factory';
 
 export class NewProjectWizard {
@@ -19,7 +20,7 @@ export class NewProjectWizard {
     const projectConfigurationType = await strategy.selectProjectConfiguration();
     const useSample = await this.selectUseSample();
 
-    return new NewProjectModel(projectType, targetPath, projectName, machineType, projectConfigurationType, useSample);
+    return createNewProjectModel(projectType, targetPath, projectName, machineType, projectConfigurationType, useSample);
   }
 
   private async selectProjectType(): Promise<ProjectType> {
