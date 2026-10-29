@@ -3,9 +3,10 @@ import { basenameFromPath } from 'src/helpers/file-utils';
 import { imageBytesToFile } from 'src/helpers/image-utils';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { createSpritesCodeGenerator } from 'src/domain/code-generation/sprites/sprites-code-generator-factory';
+import { parseSpritesConfiguration } from 'src/domain/graphics-configuration/sprites-configuration';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
 import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
-import { SpriteChanges, SpriteDefinition, SpriteFlags, SpriteFrameChanges, SpritesMapModel } from 'src/shared/models/spriteDefinition';
+import { SpriteChanges, SpriteDefinition, SpriteFlags, SpriteFrameChanges } from 'src/shared/models/spriteDefinition';
 import { onMounted, reactive, ref } from 'vue';
 import { convertZxpFileToImageFile, extractSpritesFromFile } from '../../helpers/image-utils';
 
@@ -37,13 +38,7 @@ export function useExtractSprites() {
    */
   const setMapFile = async (file: File): Promise<void> => {
     try {
-      const text = await file.text();
-      const mapData = JSON.parse(text) as SpritesMapModel;
-
-      if (mapData.type !== 'sprites') {
-        setStatus('error', tp('errorMapLoadFailed'));
-        return;
-      }
+      const mapData = parseSpritesConfiguration(await file.text());
 
       // Restore sprites — inject fresh runtime _id for each
       state.sprites.splice(

@@ -31,6 +31,8 @@ interface SpritesApi {
   state: { source: string; sprites: unknown[] };
   currentImageFile: { value: File | undefined };
   setSourceImage(path: string, bytes: Uint8Array): Promise<void>;
+  setMapFile(file: File): Promise<void>;
+  status: { value: { type: string; text: string } | undefined };
 }
 
 function setupHarness() {
@@ -51,6 +53,13 @@ function setupHarness() {
 }
 
 import { mount } from '@vue/test-utils';
+
+// jsdom's File has no text(); the composables read .cfg files only through it
+function createCfgFile(content: string): File {
+  const file = new File([content], 'graphics.cfg');
+  Object.defineProperty(file, 'text', { value: () => Promise.resolve(content) });
+  return file;
+}
 
 describe('useExtractSprites', () => {
   beforeEach(() => {
@@ -113,5 +122,26 @@ describe('useExtractSprites', () => {
     expect(api.state.sprites).toEqual(beforeSwitch);
     expect(api.state.source).toBe('second.png');
     expect(before).toEqual(afterFirst);
+  });
+
+  it('restores the sprites of a valid .cfg file', async () => {
+    const { api } = setupHarness();
+    const sprite = { name: 'player', width: 16, height: 16, frames: [{ x: 0, y: 0 }] };
+
+    await api.setMapFile(createCfgFile(JSON.stringify({ type: 'sprites', spriteFlags: 1, sprites: [sprite] })));
+
+    expect(api.state.sprites).toEqual([{ ...sprite, _id: expect.any(String) }]);
+    expect(api.status.value).toBeUndefined();
+  });
+
+  it('rejects a .cfg file with an invalid sprite and keeps the current sprites', async () => {
+    const { api } = setupHarness();
+    const invalidSprite = { name: 'player', width: 16, height: 16 };
+    const spritesBefore = JSON.parse(JSON.stringify(api.state.sprites));
+
+    await api.setMapFile(createCfgFile(JSON.stringify({ type: 'sprites', sprites: [invalidSprite] })));
+
+    expect(api.state.sprites).toEqual(spritesBefore);
+    expect(api.status.value?.type).toBe('error');
   });
 });

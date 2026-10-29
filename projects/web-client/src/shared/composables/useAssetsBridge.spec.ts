@@ -14,6 +14,7 @@ import { defineComponent, h, nextTick } from 'vue';
 
 import type { AssetsEntry, ReadAssetResponseMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
 
+import { DomainError } from 'src/domain/domain-error';
 import { useAssetsBridge } from './useAssetsBridge';
 
 interface AssetsBridge {
@@ -38,12 +39,12 @@ function dispatchResponse(payload: { path: string; requestId: string; contentBas
   window.dispatchEvent(new MessageEvent('message', { data }));
 }
 
-function setupHarness() {
+function setupHarness(options?: { timeoutMilliseconds: number }) {
   let bridge!: AssetsBridge;
   const postSpy = vi.fn();
   const Host = defineComponent({
     setup() {
-      bridge = useAssetsBridge({ postMessage: postSpy, isAvailable: true }) as unknown as AssetsBridge;
+      bridge = useAssetsBridge({ postMessage: postSpy, isAvailable: true }, options) as unknown as AssetsBridge;
       return () => h('div');
     },
   });
@@ -246,5 +247,48 @@ describe('useAssetsBridge', () => {
       contentBase64: btoa(binaryA),
     });
     await expect(promiseA).resolves.toEqual(bytesA);
+  });
+
+  describe('timeout and cleanup', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('rejects with errorAssetRequestTimeout when no response arrives in time and ignores a late response', async () => {
+      vi.useFakeTimers();
+      const { bridge, postSpy } = setupHarness({ timeoutMilliseconds: 1000 });
+
+      const promise = bridge.requestAssetBytes('characters/player.png');
+      const requestId = postSpy.mock.calls[0][0].requestId;
+      const rejection = expect(promise).rejects.toMatchObject({ key: 'errorAssetRequestTimeout', args: ['characters/player.png'] });
+      await vi.advanceTimersByTimeAsync(1000);
+      await rejection;
+      await expect(promise).rejects.toBeInstanceOf(DomainError);
+
+      expect(() => dispatchResponse({ path: 'characters/player.png', requestId, contentBase64: btoa('late') })).not.toThrow();
+    });
+
+    it('does not time out a request answered in time', async () => {
+      vi.useFakeTimers();
+      const { bridge, postSpy } = setupHarness({ timeoutMilliseconds: 1000 });
+
+      const promise = bridge.requestAssetBytes('characters/player.png');
+      dispatchResponse({ path: 'characters/player.png', requestId: postSpy.mock.calls[0][0].requestId, contentBase64: btoa('A') });
+      await vi.advanceTimersByTimeAsync(2000);
+
+      await expect(promise).resolves.toEqual(new Uint8Array([0x41]));
+    });
+
+    it('cancels the pending requests and their timers on unmount', async () => {
+      vi.useFakeTimers();
+      const { wrapper, bridge } = setupHarness({ timeoutMilliseconds: 1000 });
+
+      const promise = bridge.requestAssetBytes('characters/player.png');
+      const rejection = expect(promise).rejects.toMatchObject({ key: 'errorAssetRequestCancelled', args: ['characters/player.png'] });
+      wrapper.unmount();
+      await rejection;
+
+      expect(vi.getTimerCount()).toBe(0);
+    });
   });
 });

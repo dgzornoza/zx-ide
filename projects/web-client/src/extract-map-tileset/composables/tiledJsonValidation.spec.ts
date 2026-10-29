@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { DomainError } from 'src/domain/domain-error';
 import { parseAndValidateTiledJson } from './tiledJsonValidation';
 
 describe('parseAndValidateTiledJson', () => {
@@ -112,6 +113,30 @@ describe('parseAndValidateTiledJson', () => {
         })
       )
     ).toThrow('errorTileCountExceeds255:256');
+  });
+
+  it('throws a DomainError that carries the translation key and its arguments', () => {
+    const content = JSON.stringify({
+      exporterVersion: '1.0.0',
+      tileset: { image: 'hud-tiles.png', tileWidth: 8, tileHeight: 8, tileCount: 256, columns: 16 },
+      layers: [{ name: 'Layer 1', width: 1, height: 1, data: [1] }],
+    });
+
+    expect(() => parseAndValidateTiledJson(content)).toThrow(
+      expect.objectContaining({ constructor: DomainError, key: 'errorTileCountExceeds255', args: [256] })
+    );
+    expect(() => parseAndValidateTiledJson('{ not-json }')).toThrow(
+      expect.objectContaining({ constructor: DomainError, key: 'errorJsonInvalid', args: [] })
+    );
+    expect(() =>
+      parseAndValidateTiledJson(
+        JSON.stringify({
+          exporterVersion: '1.0.0',
+          tileset: { image: 'hud-tiles.png', tileWidth: 8, tileHeight: 8, columns: 16 },
+          layers: [{ name: 'Layer 1', width: 1, height: 1, data: [1] }],
+        })
+      )
+    ).toThrow(expect.objectContaining({ constructor: DomainError, key: 'errorJsonMissingField', args: ['tileCount'] }));
   });
 
   it('rejects non-positive tileCount with the same key as a missing value', () => {

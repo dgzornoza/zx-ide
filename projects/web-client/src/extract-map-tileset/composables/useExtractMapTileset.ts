@@ -1,3 +1,4 @@
+import { DomainError, toDomainError } from 'src/domain/domain-error';
 import { parseAsmTilesetData } from 'src/extract-map-tileset/composables/asmTilesetParser';
 import { createMapCodeGenerator } from 'src/domain/code-generation/map-tileset/map-tileset-code-generator-factory';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
@@ -16,20 +17,13 @@ function normalizeGids(rawGids: number[]): number[] {
     const localIndex = safeGid;
 
     if (localIndex < 0 || localIndex > 255) {
-      throw new Error('errorGidOutOfRange');
+      throw new DomainError('errorGidOutOfRange');
     }
 
     normalised.push(localIndex);
   }
 
   return normalised;
-}
-
-function toUserErrorKey(error: unknown): string {
-  if (error instanceof Error && error.message.trim() !== '') {
-    return error.message;
-  }
-  return 'errorJsonInvalid';
 }
 
 export function useExtractMapTileset() {
@@ -44,8 +38,8 @@ export function useExtractMapTileset() {
   const asmRawContent = ref('');
   const tileInkBitmaps = ref<boolean[][]>([]);
   const tileAttributeBytes = ref<number[]>([]);
-  const errors = ref<string[]>([]);
-  const warnings = ref<string[]>([]);
+  const errors = ref<DomainError[]>([]);
+  const warnings = ref<DomainError[]>([]);
   const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
   const { status, writeFiles } = useGeneratedFilesWriter(tp);
   /**
@@ -82,7 +76,7 @@ export function useExtractMapTileset() {
   function validateMapVsTileset(tileCount: number): void {
     const maxMapIndex = Math.max(0, ...tileIndices.value);
     if (maxMapIndex > tileCount) {
-      throw new Error(`errorAsmTileCountMismatch:${maxMapIndex}:${tileCount}`);
+      throw new DomainError('errorAsmTileCountMismatch', [maxMapIndex, tileCount]);
     }
   }
 
@@ -113,10 +107,10 @@ export function useExtractMapTileset() {
 
     try {
       if (/\.(tmx|xml)$/i.test(file.name)) {
-        throw new Error('errorJsonRequired');
+        throw new DomainError('errorJsonRequired');
       }
       if (!/\.json$/i.test(file.name)) {
-        throw new Error('errorJsonUnsupportedFormat');
+        throw new DomainError('errorJsonUnsupportedFormat');
       }
 
       const content = await file.text();
@@ -127,7 +121,7 @@ export function useExtractMapTileset() {
 
       tryDecodeAsmData();
     } catch (error) {
-      errors.value = [toUserErrorKey(error)];
+      errors.value = [toDomainError(error, 'errorJsonInvalid')];
     }
   }
 
@@ -143,13 +137,13 @@ export function useExtractMapTileset() {
 
     try {
       if (!/\.asm$/i.test(file.name)) {
-        throw new Error('errorAsmUnsupportedFormat');
+        throw new DomainError('errorAsmUnsupportedFormat');
       }
 
       asmRawContent.value = await file.text();
       tryDecodeAsmData();
     } catch (error) {
-      errors.value = [toUserErrorKey(error)];
+      errors.value = [toDomainError(error, 'errorJsonInvalid')];
     }
   }
 

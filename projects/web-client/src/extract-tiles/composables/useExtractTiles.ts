@@ -4,6 +4,7 @@ import { imageBytesToFile } from 'src/helpers/image-utils';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { calculateTilesAttributeByteCount, calculateTilesBitmapByteCount } from 'src/domain/code-generation/tiles/tiles-code-generation';
 import { createTilesCodeGenerator } from 'src/domain/code-generation/tiles/tiles-code-generator-factory';
+import { parseTilesConfiguration } from 'src/domain/graphics-configuration/tiles-configuration';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
 import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
 import { TilesModel } from 'src/shared/models/tilesDefinition';
@@ -63,21 +64,14 @@ export function useExtractTiles() {
    */
   const setCfgFile = async (file: File): Promise<void> => {
     try {
-      const text = await file.text();
-      const mapData = JSON.parse(text);
-
-      if (mapData.type === 'sprites') {
-        setStatus('error', tp('errorMapLoadFailed'));
-        return;
-      }
+      const configuration = parseTilesConfiguration(await file.text());
 
       // Tiles (explicit type: "tiles" or legacy files without type field)
-      state.tiles.tileWidth = mapData.tileWidth ?? state.tiles.tileWidth;
-      state.tiles.tileHeight = mapData.tileHeight ?? state.tiles.tileHeight;
+      state.tiles.tileWidth = configuration.tileWidth ?? state.tiles.tileWidth;
+      state.tiles.tileHeight = configuration.tileHeight ?? state.tiles.tileHeight;
 
-      const loadedExcluded: number[] = Array.isArray(mapData.excluded) ? mapData.excluded : [];
-      state.tiles.excluded = [...loadedExcluded];
-      state.tiles.excludedSet = new Set(loadedExcluded);
+      state.tiles.excluded = [...configuration.excluded];
+      state.tiles.excludedSet = new Set(configuration.excluded);
 
       if (currentImageFile.value) {
         await extractTiles(currentImageFile.value);

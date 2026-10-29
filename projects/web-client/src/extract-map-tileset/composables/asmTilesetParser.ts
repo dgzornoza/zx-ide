@@ -5,6 +5,8 @@
  * bytes from optional `_tiles_attributes` bytes, and decodes each tile into a flat
  * boolean bitmap (`true` = ink pixel, `false` = paper pixel).
  */
+import { DomainError } from 'src/domain/domain-error';
+
 export interface ParsedAsmTileset {
   /** Flattened ink/paper bitmap per tile, row-major order. */
   tileInkBitmaps: boolean[][];
@@ -44,7 +46,7 @@ function parseDefbBytes(line: string): number[] {
       continue;
     }
 
-    throw new Error('errorAsmInvalidToken');
+    throw new DomainError('errorAsmInvalidToken');
   }
 
   return bytes;
@@ -84,7 +86,7 @@ function decodeTileBitmap(tileBytes: number[], tileWidth: number, tileHeight: nu
 export function parseAsmTilesetData(content: string, tileWidth: number, tileHeight: number): ParsedAsmTileset {
   const bytesPerTile = Math.ceil(tileWidth / 8) * tileHeight;
   if (bytesPerTile <= 0) {
-    throw new Error('errorAsmInvalidTileDimensions');
+    throw new DomainError('errorAsmInvalidTileDimensions');
   }
 
   const tileBytes: number[] = [];
@@ -114,11 +116,11 @@ export function parseAsmTilesetData(content: string, tileWidth: number, tileHeig
   }
 
   if (tileBytes.length === 0) {
-    throw new Error('errorAsmMissingTileData');
+    throw new DomainError('errorAsmMissingTileData');
   }
 
   if (tileBytes.length % bytesPerTile !== 0) {
-    throw new Error('errorAsmInvalidByteCount');
+    throw new DomainError('errorAsmInvalidByteCount');
   }
 
   const tileCount = tileBytes.length / bytesPerTile;

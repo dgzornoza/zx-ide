@@ -6,6 +6,7 @@
  * UI-friendly format. It ensures all required fields are present, checks for valid dimensions,
  * and normalizes the tile data array to match the expected map size.
  */
+import { DomainError } from 'src/domain/domain-error';
 import type { MapTilesetMetadata, TiledJsonLayer, TiledJsonMapSource, TiledJsonTileset } from '../models/mapTilesetDefinition';
 
 export interface ParsedTiledJsonMap {
@@ -23,7 +24,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function readNumber(record: Record<string, unknown>, key: string, errorKey: string): number {
   const value = record[key];
   if (typeof value !== 'number' || !Number.isFinite(value)) {
-    throw new TypeError(`${errorKey}:${key}`);
+    throw new DomainError(errorKey, [key]);
   }
   return value;
 }
@@ -31,22 +32,22 @@ function readNumber(record: Record<string, unknown>, key: string, errorKey: stri
 function readString(record: Record<string, unknown>, key: string, errorKey: string): string {
   const value = record[key];
   if (typeof value !== 'string' || value.trim() === '') {
-    throw new TypeError(`${errorKey}:${key}`);
+    throw new DomainError(errorKey, [key]);
   }
   return value;
 }
 
 function parseTileset(value: unknown): TiledJsonTileset {
   if (!isRecord(value)) {
-    throw new Error('errorJsonMissingField:tileset');
+    throw new DomainError('errorJsonMissingField', ['tileset']);
   }
 
   const tileCount = readNumber(value, 'tileCount', 'errorJsonMissingField');
   if (tileCount <= 0) {
-    throw new Error('errorJsonMissingField:tileset.tileCount');
+    throw new DomainError('errorJsonMissingField', ['tileset.tileCount']);
   }
   if (tileCount > 255) {
-    throw new Error(`errorTileCountExceeds255:${tileCount}`);
+    throw new DomainError('errorTileCountExceeds255', [tileCount]);
   }
 
   return {
@@ -60,12 +61,12 @@ function parseTileset(value: unknown): TiledJsonTileset {
 
 function parseLayer(value: unknown, index: number): TiledJsonLayer {
   if (!isRecord(value)) {
-    throw new Error(`errorJsonMissingField:layers[${index}]`);
+    throw new DomainError('errorJsonMissingField', [`layers[${index}]`]);
   }
 
   const data = value.data;
   if (!Array.isArray(data) || !data.every((item) => typeof item === 'number')) {
-    throw new Error('errorLayerDataInvalid');
+    throw new DomainError('errorLayerDataInvalid');
   }
 
   return {
@@ -87,40 +88,40 @@ function parseLayer(value: unknown, index: number): TiledJsonLayer {
  *   as malformed input rather than silently truncated, so callers get a
  *   loud failure instead of a quiet data loss.
  *
- * Throws localized error keys if validation fails.
+ * Throws a `DomainError` with the translation key if validation fails.
  */
 export function parseAndValidateTiledJson(content: string): ParsedTiledJsonMap {
   let parsedValue: unknown;
   try {
     parsedValue = JSON.parse(content);
   } catch {
-    throw new Error('errorJsonInvalid');
+    throw new DomainError('errorJsonInvalid');
   }
 
   if (!isRecord(parsedValue)) {
-    throw new Error('errorJsonInvalid');
+    throw new DomainError('errorJsonInvalid');
   }
 
   // Validate exporter version
   const EXPECTED_EXPORTER_VERSION = '1.0.0';
   if (parsedValue.exporterVersion !== EXPECTED_EXPORTER_VERSION) {
-    throw new Error('errorExporterVersionMismatch');
+    throw new DomainError('errorExporterVersionMismatch');
   }
 
   const tileset = parseTileset(parsedValue.tileset);
   const layersValue = parsedValue.layers;
   if (!Array.isArray(layersValue) || layersValue.length === 0) {
-    throw new Error('errorNoLayers');
+    throw new DomainError('errorNoLayers');
   }
 
   const layer = parseLayer(layersValue[0], 0);
   if (layer.width <= 0 || layer.height <= 0) {
-    throw new Error('errorJsonInvalidDimensions');
+    throw new DomainError('errorJsonInvalidDimensions');
   }
 
   const expectedEntries = layer.width * layer.height;
   if (layer.data.length > expectedEntries) {
-    throw new Error(`errorLayerDataLengthMismatch:${expectedEntries}:${layer.data.length}`);
+    throw new DomainError('errorLayerDataLengthMismatch', [expectedEntries, layer.data.length]);
   }
   const normalisedData = [...layer.data];
   if (normalisedData.length < expectedEntries) {

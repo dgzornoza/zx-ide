@@ -59,6 +59,7 @@ interface TilesApi {
   currentImageFile: { value: File | undefined };
   setSourceImage(path: string, bytes: Uint8Array): Promise<void>;
   extractResources(): Promise<void>;
+  setMapFile(file: File): Promise<void>;
   status: { value: { type: string; text: string } | undefined };
   memoryUsage: {
     tileCount: number;
@@ -102,6 +103,13 @@ function installBridgeMock() {
   };
   mockedCreateVsCodeBridge.mockReturnValue(bridge as unknown as ReturnType<typeof createVsCodeBridge>);
   return { posted, bridge };
+}
+
+// jsdom's File has no text(); the composables read .cfg files only through it
+function createCfgFile(content: string): File {
+  const file = new File([content], 'graphics.cfg');
+  Object.defineProperty(file, 'text', { value: () => Promise.resolve(content) });
+  return file;
 }
 
 describe('useExtractTiles', () => {
@@ -294,5 +302,28 @@ describe('useExtractTiles', () => {
       bitmapBytes: 32,
       attributeBytes: 4,
     });
+  });
+
+  it('restores the tile size and exclusions of a valid .cfg file', async () => {
+    const { api } = setupHarness();
+
+    await api.setMapFile(createCfgFile(JSON.stringify({ type: 'tiles', tileWidth: 16, tileHeight: 16, excluded: [2] })));
+
+    expect(api.state.tiles.tileWidth).toBe(16);
+    expect(api.state.tiles.tileHeight).toBe(16);
+    expect([...api.state.tiles.excludedSet]).toEqual([2]);
+    expect(api.status.value).toBeUndefined();
+  });
+
+  it('rejects a .cfg file with an invalid tile size and keeps the current configuration', async () => {
+    const { api } = setupHarness();
+    const { tileWidth, tileHeight } = api.state.tiles;
+
+    await api.setMapFile(createCfgFile(JSON.stringify({ type: 'tiles', tileWidth: '16', tileHeight: 16, excluded: [2] })));
+
+    expect(api.state.tiles.tileWidth).toBe(tileWidth);
+    expect(api.state.tiles.tileHeight).toBe(tileHeight);
+    expect(api.state.tiles.excludedSet.size).toBe(0);
+    expect(api.status.value?.type).toBe('error');
   });
 });

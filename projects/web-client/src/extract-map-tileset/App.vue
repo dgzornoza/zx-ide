@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { DomainError } from 'src/domain/domain-error';
 import StatusBanner from 'src/shared/components/StatusBanner.vue';
 import SourceSection from 'src/shared/components/SourceSection.vue';
 import { computed } from 'vue';
@@ -48,22 +49,22 @@ function onExtract(): void {
   extractResources(baseName.value);
 }
 
-function formatError(error: string): string {
-  const [key, ...args] = error.split(':');
-  if (key === 'errorTileCountExceeds255' && args[0]) {
+function formatError(error: DomainError): string {
+  const { key, args } = error;
+  if (key === 'errorTileCountExceeds255' && args[0] !== undefined) {
     return t('extract-map-tileset.errorTileCountExceeds255', {
-      count: args[0],
+      count: String(args[0]),
     });
   }
-  if (key === 'errorJsonMissingField' && args[0]) {
+  if (key === 'errorJsonMissingField' && args[0] !== undefined) {
     return t('extract-map-tileset.errorJsonMissingField', {
-      field: args[0],
+      field: String(args[0]),
     });
   }
   if (key === 'errorAsmTileCountMismatch' && args.length === 2) {
     return t('extract-map-tileset.errorAsmTileCountMismatch', {
-      maxIndex: args[0],
-      tileCount: args[1],
+      maxIndex: String(args[0]),
+      tileCount: String(args[1]),
     });
   }
   const translationKey = `extract-map-tileset.${key}`;
