@@ -80,7 +80,8 @@ export class Z88dkAsmBreakpointService extends Disposable {
     const added = this.ownBreakpointChanges.takeExternal(event.added);
     const removed = this.ownBreakpointChanges.takeExternal(event.removed);
     const { changed } = event;
-    if (added.length === 0 && removed.length === 0) return;
+    // skip only events that carry nothing but the service's own changes
+    if (added.length === 0 && removed.length === 0 && changed.length === 0) return;
 
     if (added.length > 0) {
       const breakpoints = added.filter((bp) => bp instanceof vscode.SourceBreakpoint);
