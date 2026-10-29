@@ -1,4 +1,4 @@
-import { FileEntry, WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { basenameFromPath, dirNameOfPath } from 'src/helpers/file-utils';
 import { imageBytesToFile } from 'src/helpers/image-utils';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
@@ -8,11 +8,9 @@ import {
 } from 'src/shared/composables/tilesCodeGenerators/codeGeneratorStrategy';
 import { createTilesCodeGenerator } from 'src/shared/composables/tilesCodeGenerators/codeGeneratorFactory';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
-import { useWriteFilesResult } from 'src/shared/composables/useWriteFilesResult';
-import { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
+import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
 import { TilesModel } from 'src/shared/models/tilesDefinition';
 import { reactive, ref, watch, computed } from 'vue';
-import { createVsCodeBridge } from '../../bridge/vscode';
 import { extractTilesFromPng, extractTilesFromZxpFile } from '../../helpers/image-utils';
 
 /**
@@ -20,8 +18,6 @@ import { extractTilesFromPng, extractTilesFromZxpFile } from '../../helpers/imag
  * extract-tiles page.
  */
 export function useExtractTiles() {
-  const vscode = createVsCodeBridge();
-
   /** Namespaced translation helper for the extract-tiles scope. */
   const tp = createTranslationPrefixFn('extract-tiles');
 
@@ -44,7 +40,7 @@ export function useExtractTiles() {
   /** The last PNG/ZXP File chosen by the user, kept to allow re-extraction on dimension change. */
   const currentImageFile = ref<File | undefined>(undefined);
 
-  const status = ref<StatusMessage | null>(null);
+  const { status, setStatus, writeFiles } = useGeneratedFilesWriter(tp);
   const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
 
   /**
@@ -166,13 +162,6 @@ export function useExtractTiles() {
     }
   });
 
-  // ─── Status ────────────────────────────────────────────────────────────────
-
-  /** Updates the status banner with a success or error message. */
-  const setStatus = (type: StatusMessageType, text: string) => {
-    status.value = { type, text };
-  };
-
   // ─── Tile exclusion ────────────────────────────────────────────────────────
 
   /**
@@ -192,7 +181,7 @@ export function useExtractTiles() {
 
   /**
    * Generates all resource files for the current tiles and posts them to
-   * the VS Code extension via {@link WriteFilesMessage}.
+   * the VS Code extension as a `writeFilesFromWebview` request.
    *
    * Every `fileName` is prefixed with the source's directory (e.g. `hud/`)
    * so the extension can route resources to `assets/<dir>/<file>` and code
@@ -225,16 +214,7 @@ export function useExtractTiles() {
       file.fileName = join(file.fileName);
     }
 
-    if (!vscode.isAvailable) {
-      setStatus('error', tp('errorVsCodeRequired'));
-      return;
-    }
-
-    const message: WriteFilesMessage = {
-      messageType: 'writeFilesFromWebview',
-      codeFiles,
-    };
-    vscode.postMessage(message);
+    writeFiles(codeFiles);
   };
 
   // ─── Derived state ───────────────────────────────────────────────────────
@@ -261,16 +241,6 @@ export function useExtractTiles() {
       bitmapBytes: calculateTilesBitmapByteCount(params, includedIndices),
       attributeBytes: calculateTilesAttributeByteCount(params, includedIndices),
     };
-  });
-
-  // ─── Lifecycle ────────────────────────────────────────────────────────────
-
-  useWriteFilesResult((result) => {
-    if (result.success) {
-      setStatus('success', tp('statusSent'));
-    } else {
-      setStatus('error', result.error ?? '');
-    }
   });
 
   return {

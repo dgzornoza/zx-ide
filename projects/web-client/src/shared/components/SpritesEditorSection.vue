@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TypeEnumHelpers } from 'src/helpers/type-utils';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
-import { SpriteDefinition, SpriteFlags } from 'src/shared/models/spriteDefinition';
+import { SpriteChanges, SpriteDefinition, SpriteFlags, SpriteFrameChanges } from 'src/shared/models/spriteDefinition';
 import { computed } from 'vue';
 import SpriteEditorItem from './SpriteEditorItem.vue';
 
@@ -71,6 +71,8 @@ const emit = defineEmits<{
   'remove-sprite': [index: number];
   'add-frame': [spriteIndex: number];
   'remove-frame': [spriteIndex: number, frameIndex: number];
+  'update-sprite': [spriteIndex: number, changes: SpriteChanges];
+  'update-frame': [spriteIndex: number, frameIndex: number, changes: SpriteFrameChanges];
 }>();
 </script>
 
@@ -108,6 +110,8 @@ const emit = defineEmits<{
         @remove="emit('remove-sprite', index)"
         @add-frame="emit('add-frame', index)"
         @remove-frame="(frameIndex) => emit('remove-frame', index, frameIndex)"
+        @update-sprite="(changes) => emit('update-sprite', index, changes)"
+        @update-frame="(frameIndex, changes) => emit('update-frame', index, frameIndex, changes)"
       />
     </div>
     <button

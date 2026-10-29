@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import StatusBanner from 'src/shared/components/StatusBanner.vue';
 import SourceSection from 'src/shared/components/SourceSection.vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -21,7 +22,7 @@ const {
   mapByteSize,
   totalByteSize,
   previewRefreshKey,
-  statusMessage,
+  status,
   setMapFile,
   setAsmFile,
   renderPreview,
@@ -164,13 +165,7 @@ function formatError(error: string): string {
 
     <footer class="mt-6 w-full">
       <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div
-          v-if="statusMessage"
-          class="text-xs font-semibold"
-          :class="statusMessage.type === 'error' ? 'text-[color:var(--error-ink)]' : 'text-[color:var(--success-ink)]'"
-        >
-          {{ statusMessage.text }}
-        </div>
+        <StatusBanner :status="status" />
         <button
           class="ml-auto inline-flex items-center gap-2 bg-[color:var(--button-bg)] px-5 py-3 text-sm font-semibold text-[color:var(--button-ink)] hover:bg-[color:var(--button-hover)] disabled:cursor-not-allowed disabled:opacity-60"
           type="button"

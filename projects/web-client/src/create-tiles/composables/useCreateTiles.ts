@@ -1,15 +1,11 @@
-import type { WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
-import { useWriteFilesResult } from 'src/shared/composables/useWriteFilesResult';
+import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
 import { createTilesCodeGenerator } from 'src/shared/composables/tilesCodeGenerators/codeGeneratorFactory';
-import type { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
 import type { TilesModel } from 'src/shared/models/tilesDefinition';
 import { reactive, ref } from 'vue';
-import { createVsCodeBridge } from '../../bridge/vscode';
 
 export function useCreateTiles() {
-  const vscode = createVsCodeBridge();
   const tp = createTranslationPrefixFn('create-tiles');
 
   const state = reactive({
@@ -21,14 +17,10 @@ export function useCreateTiles() {
     },
   });
 
-  const status = ref<StatusMessage | null>(null);
+  const { status, setStatus, writeFiles } = useGeneratedFilesWriter(tp);
   const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
   const binaryText = ref('');
   const outputName = ref('tiles');
-
-  const setStatus = (type: StatusMessageType, text: string) => {
-    status.value = { type, text };
-  };
 
   function addTile(inkBitmap: boolean[], width: number, height: number, preview: string) {
     if (state.tiles.tileWidth === 0) {
@@ -74,25 +66,8 @@ export function useCreateTiles() {
       compressed: useZx0Compression.value,
     });
 
-    if (!vscode.isAvailable) {
-      setStatus('error', tp('errorVsCodeRequired'));
-      return;
-    }
-
-    const message: WriteFilesMessage = {
-      messageType: 'writeFilesFromWebview',
-      codeFiles,
-    };
-    vscode.postMessage(message);
+    writeFiles(codeFiles);
   }
-
-  useWriteFilesResult((result) => {
-    if (result.success) {
-      setStatus('success', tp('statusSent'));
-    } else {
-      setStatus('error', result.error ?? '');
-    }
-  });
 
   return {
     state,

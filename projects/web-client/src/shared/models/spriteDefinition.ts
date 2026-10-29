@@ -57,6 +57,12 @@ export interface SpriteFrame {
   bitmap?: SpriteFrameBitmap;
 }
 
+/** Sprite fields edited from the sprite editor. */
+export type SpriteChanges = Partial<Pick<SpriteDefinition, 'name' | 'width' | 'height'>>;
+
+/** Frame coordinates edited from the sprite editor. */
+export type SpriteFrameChanges = Partial<Pick<SpriteFrame, 'x' | 'y'>>;
+
 /**
  * Serialisable sprites map model (persisted to `.cfg` file).
  */

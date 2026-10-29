@@ -59,7 +59,7 @@ interface TilesApi {
   currentImageFile: { value: File | undefined };
   setSourceImage(path: string, bytes: Uint8Array): Promise<void>;
   extractResources(): Promise<void>;
-  status: { value: { type: string; text: string } | null };
+  status: { value: { type: string; text: string } | undefined };
   memoryUsage: {
     tileCount: number;
     bitmapBytes: number;
@@ -204,7 +204,7 @@ describe('useExtractTiles', () => {
     await api.setSourceImage('hud/hud-tiles.zxp', new Uint8Array([0x01]));
     await api.extractResources();
 
-    expect(api.status.value).toBeNull();
+    expect(api.status.value).toBeUndefined();
   });
 
   it('extractResources shows success when the extension reports the files were written', async () => {

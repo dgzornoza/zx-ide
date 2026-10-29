@@ -31,8 +31,8 @@ Code style rules live in `.ai/rules/gov-typescript-code-style.md`; this skill ad
 ## Folder layout
 
 - `src/<page>/` — page-specific code. Never import from another page's folder; move shared code to `src/shared/` instead.
-- `src/shared/components/` — components used by more than one page (`AssetsSourceSection`, `SpritesEditorSection`, `TileGallery`, ...).
-- `src/shared/composables/` — shared composables: `useProjectTypeLock` (locks the code generation language to the project type), `useAssetsBridge` (assets list and asset bytes from the extension), `useSpriteAnimation`.
+- `src/shared/components/` — components used by more than one page (`AssetsSourceSection`, `SpritesEditorSection`, `StatusBanner`, `TileGallery`, ...). `SpriteEditorItem` never writes to its `sprite` prop: it emits `update-sprite` / `update-frame` with the edited fields, `SpritesEditorSection` forwards them with the sprite index, and the page composable applies them (`updateSprite`, `updateSpriteFrame`).
+- `src/shared/composables/` — shared composables: `useProjectTypeLock` (locks the code generation language to the project type), `useAssetsBridge` (assets list and asset bytes from the extension), `useGeneratedFilesWriter` (sends generated files and owns the status banner), `useSpriteAnimation`.
 - `src/shared/composables/tilesCodeGenerators/`, `spritesCodeGenerators/` and `src/extract-map-tileset/composables/codeGenerators/` — code generation strategies (`CodeGeneratorStrategy`, `cGenerator`, `asmGenerator`, `codeGeneratorFactory`). Files generated for the user go through these strategies; never inline generation logic in components.
 - `src/shared/models/` — shared view models (`tilesDefinition`, `spriteDefinition`, `statusMessage`).
 - `src/helpers/` — framework-agnostic utilities (image decoding, binary builders, ZX0 compression, string and file utilities).
@@ -48,7 +48,7 @@ Receive extension messages only through `subscribeToExtensionMessage(messageType
 
 Every page `main.ts` mounts through `mountWebviewApp(App)` (`src/bridge/mount-webview-app.ts`), never `createApp(...).mount(...)` directly: after `mount()` (all `onMounted` hooks have run) it posts `readyFromWebview`, and the extension sends `initFromExtension` and the assets list only after that message.
 
-After posting `writeFilesFromWebview`, never report success right away: register `useWriteFilesResult(onResult)` (`src/shared/composables/useWriteFilesResult.ts`) and set the status banner only when `writeFilesResultFromExtension` arrives (`success`, or `error` with the reason).
+Send generated files only through `useGeneratedFilesWriter(tp)` (`src/shared/composables/useGeneratedFilesWriter.ts`): `writeFiles(files)` posts `writeFilesFromWebview` (or shows the page's `errorVsCodeRequired` outside VS Code), and the read-only `status` becomes success (`statusSent`) or the reported error only when `writeFilesResultFromExtension` arrives. Pages change the banner only through `setStatus` / `clearStatus` and render it with `<StatusBanner :status="status" />`.
 
 ## Vue conventions
 

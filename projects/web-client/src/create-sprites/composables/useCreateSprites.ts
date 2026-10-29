@@ -1,23 +1,19 @@
-import type { WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
-import { useWriteFilesResult } from 'src/shared/composables/useWriteFilesResult';
+import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
 import { createSpritesCodeGenerator } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorFactory';
 import type { SpritesCodeGeneratorParams } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorStrategy';
-import { SpriteDefinition, SpriteFlags } from 'src/shared/models/spriteDefinition';
-import type { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
+import { SpriteChanges, SpriteDefinition, SpriteFlags, SpriteFrameChanges } from 'src/shared/models/spriteDefinition';
 import { reactive, ref } from 'vue';
-import { createVsCodeBridge } from '../../bridge/vscode';
 
 export function useCreateSprites() {
-  const vscode = createVsCodeBridge();
   const tp = createTranslationPrefixFn('create-sprites');
 
   const state = reactive({
     sprites: [] as SpriteDefinition[],
   });
 
-  const status = ref<StatusMessage | null>(null);
+  const { status, setStatus, clearStatus, writeFiles } = useGeneratedFilesWriter(tp);
   const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
   const binaryText = ref('');
   const outputName = ref('sprites');
@@ -25,10 +21,6 @@ export function useCreateSprites() {
   const spriteFlags = ref<number>(SpriteFlags.None);
   /** Index of the sprite that receives the next "Add" from the BinaryInputPanel. */
   const activeSpriteIndex = ref(-1);
-
-  const setStatus = (type: StatusMessageType, text: string) => {
-    status.value = { type, text };
-  };
 
   // ─── Sprite actions ────────────────────────────────────────────────────────
 
@@ -53,6 +45,20 @@ export function useCreateSprites() {
     } else if (activeSpriteIndex.value >= state.sprites.length) {
       activeSpriteIndex.value = state.sprites.length - 1;
     }
+  }
+
+  /** Applies the fields edited in the sprite editor to the sprite at the given index. */
+  function updateSprite(spriteIndex: number, changes: SpriteChanges) {
+    const sprite = state.sprites[spriteIndex];
+    if (!sprite) return;
+    Object.assign(sprite, changes);
+  }
+
+  /** Applies the coordinates edited in the sprite editor to one frame. */
+  function updateSpriteFrame(spriteIndex: number, frameIndex: number, changes: SpriteFrameChanges) {
+    const frame = state.sprites[spriteIndex]?.frames[frameIndex];
+    if (!frame) return;
+    Object.assign(frame, changes);
   }
 
   function removeFrame(spriteIndex: number, frameIndex: number) {
@@ -101,7 +107,7 @@ export function useCreateSprites() {
     sprite.frames.push({ x: 0, y: 0, bitmap: { inkBitmap, preview } });
     // Clear the binary input so the next frame starts from a clean slate.
     binaryText.value = '';
-    status.value = null;
+    clearStatus();
   }
 
   // ─── Code generation ───────────────────────────────────────────────────────
@@ -134,27 +140,10 @@ export function useCreateSprites() {
     const generator = createSpritesCodeGenerator(codeGenerationType.value);
     const codeFiles = generator.generate(params);
 
-    if (!vscode.isAvailable) {
-      setStatus('error', tp('errorVsCodeRequired'));
-      return;
-    }
-
-    const message: WriteFilesMessage = {
-      messageType: 'writeFilesFromWebview',
-      codeFiles,
-    };
-    vscode.postMessage(message);
+    writeFiles(codeFiles);
   }
 
   // ─── VSCode init message is handled by useProjectTypeLock ───────────────────
-
-  useWriteFilesResult((result) => {
-    if (result.success) {
-      setStatus('success', tp('statusSent'));
-    } else {
-      setStatus('error', result.error ?? '');
-    }
-  });
 
   return {
     state,
@@ -170,6 +159,8 @@ export function useCreateSprites() {
     tp,
     addSprite,
     removeSprite,
+    updateSprite,
+    updateSpriteFrame,
     removeFrame,
     addSpriteFrame,
     addFrame,

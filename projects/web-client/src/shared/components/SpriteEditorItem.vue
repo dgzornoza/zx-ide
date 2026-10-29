@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { extractSpriteFramePreview } from 'src/helpers/image-utils';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
-import { SpriteDefinition } from 'src/shared/models/spriteDefinition';
+import { SpriteChanges, SpriteDefinition, SpriteFrameChanges } from 'src/shared/models/spriteDefinition';
 import SpriteAnimationPanel from 'src/shared/components/SpriteAnimationPanel.vue';
 import SpriteFrameThumbnail from 'src/shared/components/SpriteFrameThumbnail.vue';
 import { useSpriteAnimation } from 'src/shared/composables/useSpriteAnimation';
@@ -31,7 +31,22 @@ const emit = defineEmits<{
   remove: [];
   'add-frame': [];
   'remove-frame': [frameIndex: number];
+  'update-sprite': [changes: SpriteChanges];
+  'update-frame': [frameIndex: number, changes: SpriteFrameChanges];
 }>();
+
+// ─── Field edits ──────────────────────────────────────────────────────────
+//
+// The sprite belongs to the page state: edits are emitted, never written to
+// the prop. Numeric fields follow `v-model.number` parsing and ignore input
+// that is not a number yet (an empty field while typing).
+
+const inputText = (event: Event) => (event.target as HTMLInputElement).value;
+
+const emitNumber = (event: Event, emitValue: (value: number) => void) => {
+  const value = Number.parseFloat(inputText(event));
+  if (!Number.isNaN(value)) emitValue(value);
+};
 
 const tp = createTranslationPrefixFn(props.translationNamespace);
 
@@ -117,14 +132,13 @@ onBeforeUnmount(() => {
             {{ tp('activeSpriteBadge') }}
           </span>
         </div>
-        <!-- The sprite is edited in place on the parent's reactive state; replacing it with update events is tracked in odd/tasks/clean-architecture-refactor.md (S8). -->
-        <!-- eslint-disable vue/no-mutating-props -->
         <input
           :id="`sprite-name-${spriteIndex}`"
-          v-model="sprite.name"
+          :value="sprite.name"
           class="border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-xs text-[color:var(--input-ink)]"
           placeholder="name"
           type="text"
+          @input="emit('update-sprite', { name: inputText($event) })"
         />
       </div>
 
@@ -133,11 +147,12 @@ onBeforeUnmount(() => {
         <label :for="`sprite-width-${spriteIndex}`" class="text-xs font-semibold">{{ tp('spriteWidthLabel') }}</label>
         <input
           :id="`sprite-width-${spriteIndex}`"
-          v-model.number="sprite.width"
+          :value="sprite.width"
           class="border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-xs text-[color:var(--input-ink)]"
           placeholder="width"
           type="number"
           min="1"
+          @input="emitNumber($event, (width) => emit('update-sprite', { width }))"
         />
       </div>
 
@@ -146,13 +161,13 @@ onBeforeUnmount(() => {
         <label :for="`sprite-height-${spriteIndex}`" class="text-xs font-semibold">{{ tp('spriteHeightLabel') }}</label>
         <input
           :id="`sprite-height-${spriteIndex}`"
-          v-model.number="sprite.height"
+          :value="sprite.height"
           class="border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-xs text-[color:var(--input-ink)]"
           placeholder="height"
           type="number"
           min="1"
+          @input="emitNumber($event, (height) => emit('update-sprite', { height }))"
         />
-        <!-- eslint-enable vue/no-mutating-props -->
       </div>
 
       <!-- col4: Remove sprite -->
@@ -188,11 +203,12 @@ onBeforeUnmount(() => {
           <label :for="`frame-x-${spriteIndex}-${frameIndex}`" class="text-xs font-semibold">{{ tp('xLabel') }}</label>
           <input
             :id="`frame-x-${spriteIndex}-${frameIndex}`"
-            v-model.number="frame.x"
+            :value="frame.x"
             class="border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-xs text-[color:var(--input-ink)]"
             placeholder="x"
             type="number"
             min="0"
+            @input="emitNumber($event, (x) => emit('update-frame', frameIndex, { x }))"
           />
         </div>
         <div v-else />
@@ -202,11 +218,12 @@ onBeforeUnmount(() => {
           <label :for="`frame-y-${spriteIndex}-${frameIndex}`" class="text-xs font-semibold">{{ tp('yLabel') }}</label>
           <input
             :id="`frame-y-${spriteIndex}-${frameIndex}`"
-            v-model.number="frame.y"
+            :value="frame.y"
             class="border border-[color:var(--input-border)] bg-[color:var(--input-bg)] px-3 py-2 font-mono text-xs text-[color:var(--input-ink)]"
             placeholder="y"
             type="number"
             min="0"
+            @input="emitNumber($event, (y) => emit('update-frame', frameIndex, { y }))"
           />
         </div>
         <div v-else />

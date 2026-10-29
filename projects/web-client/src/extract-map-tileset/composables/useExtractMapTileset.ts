@@ -1,12 +1,9 @@
-import type { WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { parseAsmTilesetData } from 'src/extract-map-tileset/composables/asmTilesetParser';
 import { createMapCodeGenerator } from 'src/extract-map-tileset/composables/codeGenerators/codeGeneratorFactory';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
-import { useWriteFilesResult } from 'src/shared/composables/useWriteFilesResult';
-import { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
+import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
 import { computed, ref, watch } from 'vue';
-import { createVsCodeBridge } from '../../bridge/vscode';
 import { renderTilesetMapPreviewFromTileData } from '../../helpers/image-utils';
 import type { MapTilesetMetadata } from '../models/mapTilesetDefinition';
 import { parseAndValidateTiledJson } from './tiledJsonValidation';
@@ -50,17 +47,12 @@ export function useExtractMapTileset() {
   const errors = ref<string[]>([]);
   const warnings = ref<string[]>([]);
   const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
-  const statusMessage = ref<StatusMessage | null>(null);
+  const { status, writeFiles } = useGeneratedFilesWriter(tp);
   /**
    * Forces the map preview canvas to rerender when incremented.
    * Used as a reactive trigger when loading JSON or ASM files,
    */
   const previewRefreshKey = ref(0);
-
-  /** Updates the status banner with a success or error message. */
-  const setStatus = (type: StatusMessageType, text: string) => {
-    statusMessage.value = { type, text };
-  };
 
   const isReady = computed(
     () =>
@@ -86,10 +78,6 @@ export function useExtractMapTileset() {
   });
 
   const totalByteSize = computed(() => usedTilesByteSize.value + mapByteSize.value);
-
-  // ─── Bridge ──────────────────────────────────────────────────────────────────
-
-  const bridge = createVsCodeBridge();
 
   function validateMapVsTileset(tileCount: number): void {
     const maxMapIndex = Math.max(0, ...tileIndices.value);
@@ -178,7 +166,7 @@ export function useExtractMapTileset() {
 
   /**
    * Generates all resource files for the current map and posts them to the
-   * VS Code extension via {@link WriteFilesMessage}.
+   * VS Code extension as a `writeFilesFromWebview` request.
    */
   async function extractResources(baseName: string): Promise<void> {
     if (!isReady.value || !metadata.value) {
@@ -193,30 +181,13 @@ export function useExtractMapTileset() {
       compressed: useZx0Compression.value,
     });
 
-    if (!bridge.isAvailable) {
-      setStatus('error', tp('errorVsCodeRequired'));
-      return;
-    }
-
-    const writeMessage: WriteFilesMessage = {
-      messageType: 'writeFilesFromWebview',
-      codeFiles: files,
-    };
-    bridge.postMessage(writeMessage);
+    writeFiles(files);
   }
 
   // ─── Watchers ─────────────────────────────────────────────────────────────────
 
   watch([tileIndices, tileInkBitmaps], () => {
     // Canvas re-render is triggered by the component via renderPreview()
-  });
-
-  useWriteFilesResult((result) => {
-    if (result.success) {
-      setStatus('success', tp('statusSent'));
-    } else {
-      setStatus('error', result.error ?? '');
-    }
   });
 
   return {
@@ -236,7 +207,7 @@ export function useExtractMapTileset() {
     mapByteSize,
     totalByteSize,
     previewRefreshKey,
-    statusMessage,
+    status,
     setMapFile,
     setAsmFile,
     renderPreview,

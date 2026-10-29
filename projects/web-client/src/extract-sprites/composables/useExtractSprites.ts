@@ -1,14 +1,12 @@
-import { FileEntry, WriteFilesMessage } from 'externalShared/extract-graphics/extract-graphics-dtos';
+import { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { basenameFromPath } from 'src/helpers/file-utils';
 import { imageBytesToFile } from 'src/helpers/image-utils';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { createSpritesCodeGenerator } from 'src/shared/composables/spritesCodeGenerators/codeGeneratorFactory';
 import { useProjectTypeLock } from 'src/shared/composables/useProjectTypeLock';
-import { useWriteFilesResult } from 'src/shared/composables/useWriteFilesResult';
-import { SpriteDefinition, SpriteFlags, SpritesMapModel } from 'src/shared/models/spriteDefinition';
-import { StatusMessage, StatusMessageType } from 'src/shared/models/statusMessage';
+import { useGeneratedFilesWriter } from 'src/shared/composables/useGeneratedFilesWriter';
+import { SpriteChanges, SpriteDefinition, SpriteFlags, SpriteFrameChanges, SpritesMapModel } from 'src/shared/models/spriteDefinition';
 import { onMounted, reactive, ref } from 'vue';
-import { createVsCodeBridge } from '../../bridge/vscode';
 import { convertZxpFileToImageFile, extractSpritesFromFile } from '../../helpers/image-utils';
 
 /**
@@ -16,8 +14,6 @@ import { convertZxpFileToImageFile, extractSpritesFromFile } from '../../helpers
  * extract-sprites page.
  */
 export function useExtractSprites() {
-  const vscode = createVsCodeBridge();
-
   /** Namespaced translation helper for the extract-sprites scope. */
   const tp = createTranslationPrefixFn('extract-sprites');
 
@@ -30,7 +26,7 @@ export function useExtractSprites() {
   /** The last source File chosen by the user (PNG or converted-from-ZXP PNG), kept for sprite frame preview extraction. */
   const currentImageFile = ref<File | undefined>(undefined);
 
-  const status = ref<StatusMessage | null>(null);
+  const { status, setStatus, writeFiles } = useGeneratedFilesWriter(tp);
   const { codeGenerationType, isCodeGenerationTypeReadOnly, useZx0Compression, isZx0CompressionReadOnly } = useProjectTypeLock();
   const spriteFlags = ref<number>(SpriteFlags.None);
 
@@ -128,6 +124,20 @@ export function useExtractSprites() {
   /** Removes the sprite at the given index from the sprites list. */
   const removeSprite = (index: number) => state.sprites.splice(index, 1);
 
+  /** Applies the fields edited in the sprite editor to the sprite at the given index. */
+  const updateSprite = (spriteIndex: number, changes: SpriteChanges) => {
+    const sprite = state.sprites[spriteIndex];
+    if (!sprite) return;
+    Object.assign(sprite, changes);
+  };
+
+  /** Applies the coordinates edited in the sprite editor to one frame. */
+  const updateSpriteFrame = (spriteIndex: number, frameIndex: number, changes: SpriteFrameChanges) => {
+    const frame = state.sprites[spriteIndex]?.frames[frameIndex];
+    if (!frame) return;
+    Object.assign(frame, changes);
+  };
+
   /** Appends a new default frame to the sprite at the given index. */
   const addSpriteFrame = (spriteIndex: number) => {
     const sprite = state.sprites[spriteIndex];
@@ -142,18 +152,11 @@ export function useExtractSprites() {
     sprite.frames.splice(frameIndex, 1);
   };
 
-  // ─── Status ────────────────────────────────────────────────────────────────
-
-  /** Updates the status banner with a success or error message. */
-  const setStatus = (type: StatusMessageType, text: string) => {
-    status.value = { type, text };
-  };
-
   // ─── Create map ────────────────────────────────────────────────────────────
 
   /**
    * Generates all resource files for the current sprites and posts them to
-   * the VS Code extension via {@link WriteFilesMessage}.
+   * the VS Code extension as a `writeFilesFromWebview` request.
    */
   const extractResources = async () => {
     if (!currentImageFile.value) {
@@ -183,30 +186,13 @@ export function useExtractSprites() {
       compressed: useZx0Compression.value,
     });
 
-    if (!vscode.isAvailable) {
-      setStatus('error', tp('errorVsCodeRequired'));
-      return;
-    }
-
-    const message: WriteFilesMessage = {
-      messageType: 'writeFilesFromWebview',
-      codeFiles,
-    };
-    vscode.postMessage(message);
+    writeFiles(codeFiles);
   };
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   onMounted(() => {
     if (!state.sprites.length) addSprite();
-  });
-
-  useWriteFilesResult((result) => {
-    if (result.success) {
-      setStatus('success', tp('statusSent'));
-    } else {
-      setStatus('error', result.error ?? '');
-    }
   });
 
   return {
@@ -223,6 +209,8 @@ export function useExtractSprites() {
     setMapFile,
     addSprite,
     removeSprite,
+    updateSprite,
+    updateSpriteFrame,
     addSpriteFrame,
     removeSpriteFrame,
     extractResources,

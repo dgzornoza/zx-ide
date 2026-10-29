@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import StatusBanner from 'src/shared/components/StatusBanner.vue';
 import BinaryInputPanel from 'src/shared/components/BinaryInputPanel.vue';
 import CodeGenerationInfo from 'src/shared/components/CodeGenerationInfo.vue';
 import TilesSection from './components/TilesSection.vue';
@@ -33,13 +34,7 @@ const { state, status, binaryText, outputName, codeGenerationType, tp, addTile, 
 
     <footer class="mt-6 w-full">
       <div class="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <div
-          v-if="status"
-          class="text-xs font-semibold"
-          :class="status.type === 'success' ? 'text-[color:var(--success-ink)]' : 'text-[color:var(--error-ink)]'"
-        >
-          {{ status.text }}
-        </div>
+        <StatusBanner :status="status" />
         <div class="ml-auto flex items-center gap-3">
           <label for="output-name" class="text-xs font-semibold">
             {{ tp('outputNameLabel') }}
