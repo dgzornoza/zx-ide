@@ -72,6 +72,17 @@ describe('SpriteEditorItem', () => {
     ]);
   });
 
+  it('translates the input placeholders', () => {
+    const wrapper = mountItem(createSprite());
+    const placeholderOf = (selector: string) => wrapper.find(selector).attributes('placeholder');
+
+    expect(placeholderOf('#sprite-name-0')).toBe(i18n.global.t('extract-sprites.spriteNamePlaceholder'));
+    expect(placeholderOf('#sprite-width-0')).toBe(i18n.global.t('extract-sprites.spriteWidthPlaceholder'));
+    expect(placeholderOf('#sprite-height-0')).toBe(i18n.global.t('extract-sprites.spriteHeightPlaceholder'));
+    expect(placeholderOf('#frame-x-0-0')).toBe(i18n.global.t('extract-sprites.xPlaceholder'));
+    expect(placeholderOf('#frame-y-0-0')).toBe(i18n.global.t('extract-sprites.yPlaceholder'));
+  });
+
   it('keeps the last valid size when the field is emptied and shows it again when the field is left', async () => {
     const wrapper = mountItem(createSprite());
     const widthInput = wrapper.find('#sprite-width-0');

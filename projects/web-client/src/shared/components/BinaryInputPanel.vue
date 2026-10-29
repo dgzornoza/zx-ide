@@ -169,7 +169,13 @@ defineExpose({
         <div
           class="flex h-[256px] w-[256px] items-center justify-center border border-[color:var(--input-border)] bg-[color:var(--input-bg)]"
         >
-          <img v-if="previewUrl" :src="previewUrl" alt="Tile preview" class="max-h-full max-w-full" style="image-rendering: pixelated" />
+          <img
+            v-if="previewUrl"
+            :src="previewUrl"
+            :alt="translate('binaryPreviewAlt')"
+            class="max-h-full max-w-full"
+            style="image-rendering: pixelated"
+          />
           <span v-else class="text-xs text-[color:var(--ink-soft)]">–</span>
         </div>
       </div>

@@ -1,36 +1,36 @@
 # Web Client
 
-## Instalacion
+## Installation
 
-Ejecuta `pnpm install` una vez desde la raíz del repo (workspace de pnpm).
+Run `pnpm install` once from the repo root (pnpm workspace).
 
-## Comandos
+## Commands
 
-Inicia el servidor de desarrollo de Vite con recarga en caliente para trabajar localmente en el web-client.
+Start the Vite development server with hot reload to work on the web-client locally.
 
 ```bash
 pnpm dev
 ```
 
-Compila el cliente para producción en `dist/`.
+Build the client for production into `dist/`.
 
 ```bash
 pnpm build
 ```
 
-Compila en modo watch para actualizar `dist/` en cada cambio.
+Build in watch mode to update `dist/` on every change.
 
 ```bash
 pnpm watch
 ```
 
-Previsualiza el build de producción localmente.
+Preview the production build locally.
 
 ```bash
 pnpm preview
 ```
 
-Ejecuta verificación de tipos sin emitir archivos.
+Run type checking without emitting files.
 
 ```bash
 pnpm typecheck
