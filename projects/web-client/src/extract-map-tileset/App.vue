@@ -67,6 +67,12 @@ function formatError(error: DomainError): string {
       tileCount: String(errorArguments[1]),
     });
   }
+  if (key === 'errorLayerDataLengthMismatch' && errorArguments.length === 2) {
+    return translate('extract-map-tileset.errorLayerDataLengthMismatch', {
+      expected: String(errorArguments[0]),
+      actual: String(errorArguments[1]),
+    });
+  }
   const translationKey = `extract-map-tileset.${key}`;
   return translate(translationKey, translationKey);
 }

@@ -1,6 +1,7 @@
 import { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { basenameFromPath, dirNameOfPath } from 'src/helpers/file-utils';
 import { imageBytesToFile } from 'src/helpers/image-utils';
+import { DomainError } from 'src/domain/domain-error';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { calculateTilesAttributeByteCount, calculateTilesBitmapByteCount } from 'src/domain/code-generation/tiles/tiles-code-generation';
 import { createTilesCodeGenerator } from 'src/domain/code-generation/tiles/tiles-code-generator-factory';
@@ -234,6 +235,16 @@ export function useExtractTiles() {
     };
   });
 
+  /** Shows a failed asset request in the status banner: a timeout or cancellation names the asset path. */
+  const showAssetRequestError = (error: unknown) => {
+    if (error instanceof DomainError) {
+      setStatus('error', translate(error.key, { path: String(error.args[0] ?? '') }));
+      return;
+    }
+    console.error('Asset request failed:', error);
+    setStatus('error', translate('errorSourceFileLoad'));
+  };
+
   return {
     state,
     status,
@@ -245,6 +256,7 @@ export function useExtractTiles() {
     memoryUsage,
     translate,
     setSourceImage,
+    showAssetRequestError,
     setMapFile: setConfigurationFile,
     extractResources,
     toggleTileExclusion,

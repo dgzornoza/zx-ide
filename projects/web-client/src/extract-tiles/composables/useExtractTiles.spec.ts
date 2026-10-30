@@ -17,6 +17,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h } from 'vue';
 
 import { createVsCodeBridge } from 'src/bridge/vscode';
+import { DomainError } from 'src/domain/domain-error';
 import { extractTilesFromPng, extractTilesFromZxpFile } from 'src/helpers/image-utils';
 
 vi.mock('../../helpers/image-utils', async (importOriginal) => {
@@ -62,10 +63,13 @@ interface TilesApi {
   setMapFile(file: File): Promise<void>;
   status: { value: { type: string; text: string } | undefined };
   memoryUsage: {
-    tileCount: number;
-    bitmapBytes: number;
-    attributeBytes: number;
+    value: {
+      tileCount: number;
+      bitmapBytes: number;
+      attributeBytes: number;
+    };
   };
+  showAssetRequestError(error: unknown): void;
 }
 
 function setupHarness() {
@@ -325,5 +329,24 @@ describe('useExtractTiles', () => {
     expect(api.state.tiles.tileHeight).toBe(tileHeight);
     expect(api.state.tiles.excludedSet.size).toBe(0);
     expect(api.status.value?.type).toBe('error');
+  });
+
+  it('shows a failed asset request in the status banner with the asset path', () => {
+    const { api } = setupHarness();
+
+    api.showAssetRequestError(new DomainError('errorAssetRequestTimeout', ['assets/hud.png']));
+
+    expect(api.status.value).toEqual({
+      type: 'error',
+      text: i18n.global.t('extract-tiles.errorAssetRequestTimeout', { path: 'assets/hud.png' }),
+    });
+  });
+
+  it('shows the source load error when the asset request fails without a domain error', () => {
+    const { api } = setupHarness();
+
+    api.showAssetRequestError(new TypeError('bridge failure'));
+
+    expect(api.status.value).toEqual({ type: 'error', text: i18n.global.t('extract-tiles.errorSourceFileLoad') });
   });
 });

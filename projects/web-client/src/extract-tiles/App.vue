@@ -6,7 +6,8 @@ import ResultsSection from './components/ResultsSection.vue';
 import TilesSection from './components/TilesSection.vue';
 import { useExtractTiles } from './composables/useExtractTiles';
 
-const { state, status, memoryUsage, translate, setSourceImage, extractResources, toggleTileExclusion } = useExtractTiles();
+const { state, status, memoryUsage, translate, setSourceImage, showAssetRequestError, extractResources, toggleTileExclusion } =
+  useExtractTiles();
 
 const { assets, missing, requestAssetBytes } = useAssetsBridge();
 
@@ -14,7 +15,7 @@ async function onImageChanged(path: string) {
   try {
     await setSourceImage(path, await requestAssetBytes(path));
   } catch (error) {
-    console.error('Failed to load source image:', error);
+    showAssetRequestError(error);
   }
 }
 </script>

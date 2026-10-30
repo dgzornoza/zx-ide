@@ -12,6 +12,7 @@ const {
   currentImageFile,
   translate,
   setSourceImage,
+  showAssetRequestError,
   addSprite,
   removeSprite,
   updateSprite,
@@ -27,7 +28,7 @@ async function onImageChanged(path: string) {
   try {
     await setSourceImage(path, await requestAssetBytes(path));
   } catch (error) {
-    console.error('Failed to load source image:', error);
+    showAssetRequestError(error);
   }
 }
 </script>

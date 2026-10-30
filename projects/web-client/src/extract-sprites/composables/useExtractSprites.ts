@@ -1,6 +1,7 @@
 import { FileEntry } from 'externalShared/extract-graphics/extract-graphics-dtos';
 import { basenameFromPath } from 'src/helpers/file-utils';
 import { imageBytesToFile } from 'src/helpers/image-utils';
+import { DomainError } from 'src/domain/domain-error';
 import { createTranslationPrefixFn } from 'src/helpers/vue-utils';
 import { createSpritesCodeGenerator } from 'src/domain/code-generation/sprites/sprites-code-generator-factory';
 import { parseSpritesConfiguration } from 'src/domain/graphics-configuration/sprites-configuration';
@@ -190,6 +191,16 @@ export function useExtractSprites() {
     if (!state.sprites.length) addSprite();
   });
 
+  /** Shows a failed asset request in the status banner: a timeout or cancellation names the asset path. */
+  const showAssetRequestError = (error: unknown) => {
+    if (error instanceof DomainError) {
+      setStatus('error', translate(error.key, { path: String(error.args[0] ?? '') }));
+      return;
+    }
+    console.error('Asset request failed:', error);
+    setStatus('error', translate('errorSourceFileLoad'));
+  };
+
   return {
     state,
     status,
@@ -201,6 +212,7 @@ export function useExtractSprites() {
     currentImageFile,
     translate,
     setSourceImage,
+    showAssetRequestError,
     setMapFile,
     addSprite,
     removeSprite,

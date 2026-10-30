@@ -50,6 +50,13 @@ const messages = {
         'VS Code is required to save these files. Open this command from the VS Code command palette instead of running it in a standalone browser.',
       tileExcludeTooltip: 'Exclude tile from output',
       tileIncludeTooltip: 'Include tile in output',
+      resultsSectionTitle: 'Results',
+      totalTiles: 'Total tiles:',
+      memoryBitmap: 'Tile memory:',
+      memoryAttributes: 'Attribute memory:',
+      errorSourceFileLoad: 'Failed to load source file: invalid or corrupted data',
+      errorAssetRequestTimeout: 'Timed out while reading {path} from the workspace.',
+      errorAssetRequestCancelled: 'Reading {path} was cancelled.',
     },
     'extract-sprites': {
       title: 'Extract Sprites',
@@ -101,6 +108,8 @@ const messages = {
       errorFrameYInvalid: 'Frame Y coordinate must be a non-negative number',
       errorVsCodeRequired:
         'VS Code is required to save these files. Open this command from the VS Code command palette instead of running it in a standalone browser.',
+      errorAssetRequestTimeout: 'Timed out while reading {path} from the workspace.',
+      errorAssetRequestCancelled: 'Reading {path} was cancelled.',
     },
     'create-tiles': {
       title: 'Create Tiles',
@@ -233,6 +242,7 @@ const messages = {
       errorAsmInvalidByteCount: 'ASM tile data size is not compatible with the JSON tile dimensions.',
       errorAsmInvalidTileDimensions: 'Invalid tile dimensions in JSON metadata.',
       errorAsmTileCountMismatch: 'Map uses tile index {maxIndex}, but ASM only provides {tileCount} tiles.',
+      errorLayerDataLengthMismatch: 'The layer has {actual} tiles, more than the {expected} its width and height allow.',
     },
   },
   es: {
@@ -284,6 +294,13 @@ const messages = {
         'VS Code es necesario para guardar estos archivos. Abre este comando desde la paleta de comandos de VS Code en lugar de ejecutarlo en un navegador independiente.',
       tileExcludeTooltip: 'Excluir tile de la salida',
       tileIncludeTooltip: 'Incluir tile en la salida',
+      resultsSectionTitle: 'Resultados',
+      totalTiles: 'Total de tiles:',
+      memoryBitmap: 'Memoria de tiles:',
+      memoryAttributes: 'Memoria de atributos:',
+      errorSourceFileLoad: 'No se pudo cargar el archivo de origen: datos inválidos o corruptos',
+      errorAssetRequestTimeout: 'Se agotó el tiempo al leer {path} del workspace.',
+      errorAssetRequestCancelled: 'Se canceló la lectura de {path}.',
     },
     'extract-sprites': {
       title: 'Extracción de sprites',
@@ -336,6 +353,9 @@ const messages = {
       errorFrameYInvalid: 'La coordenada Y del frame debe ser un entero no negativo',
       errorVsCodeRequired:
         'VS Code es necesario para guardar estos archivos. Abre este comando desde la paleta de comandos de VS Code en lugar de ejecutarlo en un navegador independiente.',
+      errorSourceFileLoad: 'No se pudo cargar el archivo de origen: datos inválidos o corruptos',
+      errorAssetRequestTimeout: 'Se agotó el tiempo al leer {path} del workspace.',
+      errorAssetRequestCancelled: 'Se canceló la lectura de {path}.',
     },
     'create-tiles': {
       title: 'Crear Tiles',
@@ -469,6 +489,7 @@ const messages = {
       errorAsmInvalidByteCount: 'El tamaño de datos de tiles en ASM no es compatible con las dimensiones del JSON.',
       errorAsmInvalidTileDimensions: 'Las dimensiones de tile del JSON no son válidas.',
       errorAsmTileCountMismatch: 'El mapa usa el índice de tile {maxIndex}, pero el ASM solo tiene {tileCount} tiles.',
+      errorLayerDataLengthMismatch: 'La capa tiene {actual} tiles, más de los {expected} que permiten su ancho y alto.',
     },
   },
 } as const;

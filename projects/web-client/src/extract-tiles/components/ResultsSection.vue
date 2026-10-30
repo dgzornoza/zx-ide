@@ -20,19 +20,19 @@ const hasAttributes = computed(() => props.attributeBytes > 0);
 <template>
   <section class="w-full border border-[color:var(--border)] bg-[color:var(--card)] p-4">
     <h2 class="text-sm font-semibold">
-      {{ translate('extract-tiles.resultsSectionTitle', 'Resultados') }}
+      {{ translate('extract-tiles.resultsSectionTitle') }}
     </h2>
     <div class="mt-2 flex flex-col gap-2">
       <div>
-        <span class="font-semibold">{{ translate('extract-tiles.totalTiles', 'Total de tiles:') }}</span>
+        <span class="font-semibold">{{ translate('extract-tiles.totalTiles') }}</span>
         <span class="ml-2">{{ tileCount }}</span>
       </div>
       <div>
-        <span class="font-semibold">{{ translate('extract-tiles.memoryBitmap', 'Memoria de tiles:') }}</span>
+        <span class="font-semibold">{{ translate('extract-tiles.memoryBitmap') }}</span>
         <span class="ml-2">{{ formattedBitmapBytes }}</span>
       </div>
       <div v-if="hasAttributes" data-test="memory-attributes">
-        <span class="font-semibold">{{ translate('extract-tiles.memoryAttributes', 'Memoria de atributos:') }}</span>
+        <span class="font-semibold">{{ translate('extract-tiles.memoryAttributes') }}</span>
         <span class="ml-2">{{ formattedAttributeBytes }}</span>
       </div>
     </div>

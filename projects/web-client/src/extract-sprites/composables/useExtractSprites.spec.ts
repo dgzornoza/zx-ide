@@ -10,6 +10,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, h } from 'vue';
 
+import { DomainError } from 'src/domain/domain-error';
 import { convertZxpFileToImageFile, extractSpritesFromFile } from 'src/helpers/image-utils';
 
 vi.mock('../../helpers/image-utils', async (importOriginal) => {
@@ -33,6 +34,7 @@ interface SpritesApi {
   setSourceImage(path: string, bytes: Uint8Array): Promise<void>;
   setMapFile(file: File): Promise<void>;
   status: { value: { type: string; text: string } | undefined };
+  showAssetRequestError(error: unknown): void;
 }
 
 function setupHarness() {
@@ -143,5 +145,24 @@ describe('useExtractSprites', () => {
 
     expect(api.state.sprites).toEqual(spritesBefore);
     expect(api.status.value?.type).toBe('error');
+  });
+
+  it('shows a failed asset request in the status banner with the asset path', () => {
+    const { api } = setupHarness();
+
+    api.showAssetRequestError(new DomainError('errorAssetRequestTimeout', ['assets/hud.png']));
+
+    expect(api.status.value).toEqual({
+      type: 'error',
+      text: i18n.global.t('extract-sprites.errorAssetRequestTimeout', { path: 'assets/hud.png' }),
+    });
+  });
+
+  it('shows the source load error when the asset request fails without a domain error', () => {
+    const { api } = setupHarness();
+
+    api.showAssetRequestError(new TypeError('bridge failure'));
+
+    expect(api.status.value).toEqual({ type: 'error', text: i18n.global.t('extract-sprites.errorSourceFileLoad') });
   });
 });
