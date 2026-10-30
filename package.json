@@ -5,10 +5,11 @@
   "scripts": {
     "prepare": "git config --local core.hooksPath .husky || exit 0",
     "lint": "pnpm -r run lint",
-    "format:check": "pnpm -r run format:check"
+    "format:check": "pnpm -r run format:check && prettier --check projects/shared"
   },
   "devDependencies": {
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.2"
+    "lint-staged": "^15.5.2",
+    "prettier": "^3.9.10"
   }
 }

@@ -7,22 +7,22 @@
  */
 export type VsCodeBridgeMessageType =
   /** Extension sends the VS Code project type on webview boot. */
-  | "initFromExtension"
+  | 'initFromExtension'
   /** Extension sends the workspace assets listing once per panel open. */
-  | "assetsListFromExtension"
+  | 'assetsListFromExtension'
   /** Extension returns the bytes (or an error) requested via readAssetRequestFromWebview. */
-  | "readAssetResponseFromExtension"
+  | 'readAssetResponseFromExtension'
   /** Extension reports the outcome of a writeFilesFromWebview request. */
-  | "writeFilesResultFromExtension"
+  | 'writeFilesResultFromExtension'
 
   /** Webview is mounted and listening; the extension may send its initial messages. */
-  | "readyFromWebview"
+  | 'readyFromWebview'
   /** Webview asks the host to write generated source files into the workspace. */
-  | "writeFilesFromWebview"
+  | 'writeFilesFromWebview'
   /** Webview asks the host for the bytes of one image under `<workspace>/assets/`. */
-  | "readAssetRequestFromWebview";
+  | 'readAssetRequestFromWebview';
 
-export type ProjectType = "sjasmplus" | "z88dk";
+export type ProjectType = 'sjasmplus' | 'z88dk';
 
 export interface VsCodeBridgeMessage {
   messageType: VsCodeBridgeMessageType;

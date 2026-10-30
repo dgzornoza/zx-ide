@@ -1,4 +1,4 @@
-import { ProjectType, VsCodeBridgeMessage } from "../infrastructure";
+import { ProjectType, VsCodeBridgeMessage } from '../infrastructure';
 
 /** One image under `<workspace>/assets/`. */
 export interface AssetsEntry {
@@ -13,7 +13,7 @@ export interface AssetsEntry {
 
 /** Extension → webview. Posted exactly once on panel open for tiles/sprites. */
 export interface AssetsListMessage extends VsCodeBridgeMessage {
-  messageType: "assetsListFromExtension";
+  messageType: 'assetsListFromExtension';
   assets: AssetsEntry[];
   /** True when `<workspace>/assets/` does not exist; `assets` is then empty. */
   missing?: boolean;
@@ -21,7 +21,7 @@ export interface AssetsListMessage extends VsCodeBridgeMessage {
 
 /** Webview → extension. Asks the host for the bytes of one image. */
 export interface ReadAssetRequestMessage extends VsCodeBridgeMessage {
-  messageType: "readAssetRequestFromWebview";
+  messageType: 'readAssetRequestFromWebview';
   /** Workspace-relative path of an entry from a prior AssetsListMessage. */
   path: string;
   /**
@@ -33,7 +33,7 @@ export interface ReadAssetRequestMessage extends VsCodeBridgeMessage {
 
 /** Extension → webview. Carries the bytes (base64) or an error string. */
 export interface ReadAssetResponseMessage extends VsCodeBridgeMessage {
-  messageType: "readAssetResponseFromExtension";
+  messageType: 'readAssetResponseFromExtension';
   /** Echoed back from the matching request. */
   path: string;
   requestId: string;
@@ -53,7 +53,7 @@ export interface ReadAssetResponseMessage extends VsCodeBridgeMessage {
  */
 export interface FileEntry {
   /** File content type. */
-  fileType: "map" | "c-header" | "asm" | "png" | "binary";
+  fileType: 'map' | 'c-header' | 'asm' | 'png' | 'binary';
   /** Workspace-relative path (forward-slash separated). */
   fileName: string;
   /**
@@ -81,12 +81,12 @@ export interface WriteFilesMessage extends VsCodeBridgeMessage {
  * only after it, so no initial message is lost.
  */
 export interface ReadyMessage extends VsCodeBridgeMessage {
-  messageType: "readyFromWebview";
+  messageType: 'readyFromWebview';
 }
 
 /** Extension → webview. Outcome of a WriteFilesMessage. */
 export interface WriteFilesResultMessage extends VsCodeBridgeMessage {
-  messageType: "writeFilesResultFromExtension";
+  messageType: 'writeFilesResultFromExtension';
   /** `true` when every file was written. */
   success: boolean;
   /** Human-readable failure reason; present iff `success` is `false`. */
@@ -94,7 +94,7 @@ export interface WriteFilesResultMessage extends VsCodeBridgeMessage {
 }
 
 /** Code generation target language. */
-export type CodeGenerationType = "asm" | "c";
+export type CodeGenerationType = 'asm' | 'c';
 
 /**
  * Message sent from the extension to the webview during initialisation.

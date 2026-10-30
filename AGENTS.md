@@ -43,7 +43,7 @@ If a skill contradicts a rule, the rule wins: fix the contradiction in the skill
 | `vscode-extension` | `zxide`             | `pnpm compile` | `pnpm lint`, `pnpm format:check`, `pnpm test:unit`, `pnpm test` |
 | `web-client`       | `zx-ide-web-client` | `pnpm build`   | `pnpm lint`, `pnpm format:check`, `pnpm typecheck`, `pnpm test` |
 
-From the repo root, `pnpm lint` and `pnpm format:check` run them for every project. Fix formatting with `pnpm format` (Prettier), never by hand. ESLint (flat config, `typescript-eslint`, `eslint-plugin-prettier`; plus `eslint-plugin-vue` in the web-client) and Prettier are configured per project; the pre-commit hook is described in `.ai/rules/gov-git-commit-review.md`.
+From the repo root, `pnpm lint` and `pnpm format:check` run them for every project, and `format:check` also checks `projects/shared`. Fix formatting with `pnpm format` (Prettier), never by hand; for `projects/shared`, run `pnpm exec prettier --write projects/shared` from the root. ESLint (flat config, `typescript-eslint`, `eslint-plugin-prettier`; plus `eslint-plugin-vue` in the web-client) is configured per project; Prettier has one `.prettierrc.json` at the repo root that every project uses; the pre-commit hook is described in `.ai/rules/gov-git-commit-review.md`.
 
 ## References
 

@@ -6,8 +6,8 @@ import type {
   ReadAssetResponseMessage,
   WriteFilesMessage,
   WriteFilesResultMessage,
-} from "./extract-graphics/extract-graphics-dtos";
-import type { VsCodeBridgeMessage } from "./infrastructure";
+} from './extract-graphics/extract-graphics-dtos';
+import type { VsCodeBridgeMessage } from './infrastructure';
 
 /** Every message the extension may post to a webview. */
 export type ExtensionToWebviewMessage = InitMessage | AssetsListMessage | ReadAssetResponseMessage | WriteFilesResultMessage;
@@ -16,7 +16,7 @@ export type ExtensionToWebviewMessage = InitMessage | AssetsListMessage | ReadAs
 export type WebviewToExtensionMessage = ReadyMessage | WriteFilesMessage | ReadAssetRequestMessage;
 
 /** The message of `TMessage` whose discriminator is `TMessageType`. */
-export type MessageOfType<TMessage extends VsCodeBridgeMessage, TMessageType extends TMessage["messageType"]> = Extract<
+export type MessageOfType<TMessage extends VsCodeBridgeMessage, TMessageType extends TMessage['messageType']> = Extract<
   TMessage,
   { messageType: TMessageType }
 >;
@@ -26,12 +26,12 @@ export type MessageOfType<TMessage extends VsCodeBridgeMessage, TMessageType ext
  * adding a message to the contract fails compilation until it gets a handler.
  */
 export type MessageHandlers<TMessage extends VsCodeBridgeMessage> = {
-  [TMessageType in TMessage["messageType"]]: (message: MessageOfType<TMessage, TMessageType>) => void | Promise<void>;
+  [TMessageType in TMessage['messageType']]: (message: MessageOfType<TMessage, TMessageType>) => void | Promise<void>;
 };
 
 /** `true` when `value` has the shape of a bridge message (an object with a string `messageType`). */
 export function isBridgeMessage(value: unknown): value is VsCodeBridgeMessage {
-  return typeof value === "object" && value !== null && typeof (value as { messageType?: unknown }).messageType === "string";
+  return typeof value === 'object' && value !== null && typeof (value as { messageType?: unknown }).messageType === 'string';
 }
 
 /**
@@ -47,7 +47,7 @@ export async function dispatchMessage<TMessage extends VsCodeBridgeMessage>(
   if (!isBridgeMessage(message) || !Object.prototype.hasOwnProperty.call(handlers, message.messageType)) {
     return false;
   }
-  const handler = handlers[message.messageType as TMessage["messageType"]] as (message: TMessage) => void | Promise<void>;
+  const handler = handlers[message.messageType as TMessage['messageType']] as (message: TMessage) => void | Promise<void>;
   await handler(message as TMessage);
   return true;
 }
