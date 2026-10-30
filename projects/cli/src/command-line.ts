@@ -10,7 +10,7 @@ export function createCommandLineProgram(version: string): Command {
     .option('-t, --project-type <TYPE>', 'Set project type (sjasmplus, z88dk)')
     .option('-p, --project-path <PATH>', 'Set the directory where the project folder is created')
     .option('-n, --project-name <NAME>', 'Set project name')
-    .option('-m, --machine-type <MACHINE>', 'Set machine type (universal, zxspectrum)')
+    .option('-m, --machine-type <MACHINE>', 'Set machine type (zxspectrum)')
     .option(
       '-c, --project-configuration <CONFIG>',
       'Set project configuration, currently only z88dk (z88dk_sdcc_classic_lib, z88dk_sdcc_new_lib, z88dk_sccz80_classic_lib, z88dk_sccz80_new_lib)'

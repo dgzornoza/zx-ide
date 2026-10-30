@@ -8,6 +8,15 @@ function parse(...cliArguments: string[]) {
     .opts();
 }
 
+describe('createCommandLineProgram', () => {
+  it('offers in the help only the machine types the generators accept', () => {
+    const help = createCommandLineProgram('1.4.0').helpInformation();
+
+    expect(help).toContain('Set machine type (zxspectrum)');
+    expect(help).not.toContain('universal');
+  });
+});
+
 describe('readNewProjectArguments', () => {
   it('creates the project from the arguments when type, project path and name are given', () => {
     const options = parse('-t', 'z88dk', '-p', '/projects', '-n', 'game', '-m', 'zxspectrum', '-c', 'z88dk_sdcc_new_lib', '-s');
