@@ -2,7 +2,7 @@
 
 Objective: apply the clean-code / architecture improvements found in the 2026-10-27 review of `projects/vscode-extension` and `projects/web-client`, one task at a time.
 Branch: to be created by the user (currently `main`; AGENTS.md forbids mutating git commands without per-command consent). Delivery: `ask-on-risk`; the user stages and commits each task after review.
-Status: archived on 2026-10-30; all tasks T1-T16 and the L79 advisories are done.
+Status: archived on 2026-10-30; all tasks T1-T16 and the L79 advisories are done. The two optional Prettier suggestions in L80 are left as untracked follow-ups.
 Test runner: web-client `pnpm test` (Vitest); vscode-extension `pnpm test` (`@vscode/test-electron`, mocha) — no unit runner yet.
 
 ## Specs

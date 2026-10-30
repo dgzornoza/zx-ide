@@ -21,7 +21,7 @@ Changes to the message DTOs in `projects/shared/` load both `zx-ide-vscode-exten
 | ----------------------------------------------------------------------------------------------------- | ------------------------------------------ | ---------------------------------------- |
 | TypeScript code style (English, file and identifier naming, no abbreviations, never `null`, imports, tests, comments) | `projects/**/*.ts`, `.vue`, `.mjs`, `.cjs` | `.ai/rules/gov-typescript-code-style.md` |
 | Git commit review (per-command consent, diff first, Conventional Commits, no AI attribution)          | git workflow                               | `.ai/rules/gov-git-commit-review.md`     |
-| ODD overrides (task-document archiving, review base per branch or commit, consent-only work-unit commits) | `odd/**`, git workflow, `gentle-ai review` | `.ai/rules/gov-odd-overrides.md`         |
+| ODD overrides (task-document archiving, review base per branch or commit, consent-only work-unit commits) | `odd/tasks/**`, `odd/archive/**`, git workflow, `gentle-ai review` | `.ai/rules/gov-odd-overrides.md`         |
 
 If a skill contradicts a rule, the rule wins: fix the contradiction in the skill rather than forking the rule.
 
