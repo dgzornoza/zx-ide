@@ -1,35 +1,35 @@
-# Contribuir al Proyecto
+# Contributing to the Project
 
-¡Gracias por tu interés en contribuir a **zx-ide**!
+Thank you for your interest in contributing to **zx-ide**!
 
-## Acuerdo de Licencia de Contribuidor (CLA)
+## Contributor License Agreement (CLA)
 
-**IMPORTANTE:** Antes de enviar cualquier contribución, debes leer y aceptar nuestro [Acuerdo de Licencia de Contribuidor (CLA)](./CLA.md).
+**IMPORTANT:** Before submitting any contribution, you must read and accept our [Contributor License Agreement (CLA)](./CLA.md).
 
-Al enviar una contribución (pull request, issue con código, patch, etc.) a este proyecto, aceptas automáticamente los términos del CLA, que incluye:
+By submitting a contribution (pull request, issue with code, patch, etc.) to this project, you automatically accept the terms of the CLA, which include:
 
-- Otorgar al mantenedor del proyecto una licencia amplia sobre tu contribución
-- Reconocer el derecho del mantenedor a relicenciar el proyecto sin necesidad de permiso adicional
-- Garantizar que tienes los derechos necesarios para realizar la contribución
+- Granting the project maintainer a broad license over your contribution
+- Acknowledging the maintainer's right to relicense the project without additional permission
+- Warranting that you hold the rights necessary to make the contribution
 
-## Cómo Contribuir
+## How to Contribute
 
-1. **Fork** el repositorio
-2. Crea una **rama** para tu funcionalidad (`git checkout -b feature/nueva-funcionalidad`)
-3. **Commit** tus cambios (`git commit -am 'Añadir nueva funcionalidad'`)
-4. **Push** a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Abre un **Pull Request**
+1. **Fork** the repository
+2. Create a **branch** for your feature (`git checkout -b feature/new-feature`)
+3. **Commit** your changes (`git commit -am 'Add new feature'`)
+4. **Push** the branch (`git push origin feature/new-feature`)
+5. Open a **Pull Request**
 
-## Estándares de Código
+## Code Standards
 
-- Sigue las convenciones de código existentes en el proyecto
-- Asegúrate de que tu código pase todos los tests
-- Documenta nuevas funcionalidades cuando sea necesario
+- Follow the existing code conventions of the project
+- Make sure your code passes all the tests
+- Document new features when needed
 
-## Licencia del Proyecto
+## Project License
 
-Este proyecto está actualmente licenciado bajo **GNU AGPL-3.0-or-later**. Al aceptar el CLA, permites que el mantenedor pueda cambiar esta licencia en el futuro si lo considera necesario.
+This project is currently licensed under **GNU AGPL-3.0-or-later**. By accepting the CLA, you allow the maintainer to change this license in the future if they consider it necessary.
 
-## Preguntas
+## Questions
 
-Si tienes preguntas sobre el proceso de contribución o el CLA, contacta con [dgzornoza@dgzornoza.com](mailto:dgzornoza@dgzornoza.com).
+If you have questions about the contribution process or the CLA, contact [dgzornoza@dgzornoza.com](mailto:dgzornoza@dgzornoza.com).
