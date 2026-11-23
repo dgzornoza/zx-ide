@@ -48,6 +48,26 @@
         "title": "%extension.cmd-title.create-sprites%"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "zx-ide.extract-tiles",
+          "when": "ZxIdeProjectType"
+        },
+        {
+          "command": "zx-ide.extract-sprites",
+          "when": "ZxIdeProjectType"
+        },
+        {
+          "command": "zx-ide.extract-map-tileset",
+          "when": "ZxIdeProjectType"
+        },
+        {
+          "command": "zx-ide.create-sprites",
+          "when": "ZxIdeProjectType"
+        }
+      ]
+    },
     "configuration": {
       "title": "Z88DK",
       "properties": {
